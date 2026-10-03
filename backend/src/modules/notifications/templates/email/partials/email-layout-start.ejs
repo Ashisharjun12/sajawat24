@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title><%= pageTitle %></title>
+  </head>
+  <body style="margin:0;padding:0;background:<%= theme.bg %>;font-family:<%= theme.font %>;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:<%= theme.bg %>;padding:36px 16px;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:<%= theme.card %>;border-radius:20px;overflow:hidden;border:1px solid <%= theme.border %>;box-shadow:0 1px 3px rgba(28,25,18,0.06);">
+            <tr>
+              <td align="center" style="padding:32px 28px 8px;background:<%= theme.card %>;">
+                <img
+                  src="<%= theme.logoUrl %>"
+                  alt="<%= theme.brandName %>"
+                  width="52"
+                  height="52"
+                  style="display:block;width:52px;height:52px;border:0;border-radius:14px;"
+                />
+                <% if (typeof badge === 'string' && badge) { %>
+                <p style="margin:14px 0 0;font-size:11px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:<%= theme.textMuted %>;"><%= badge %></p>
+                <% } %>
+                <h1 style="margin:12px 0 0;font-size:26px;line-height:1.25;font-weight:700;color:<%= theme.text %>;"><%= headline %></h1>
+              </td>
+            </tr>

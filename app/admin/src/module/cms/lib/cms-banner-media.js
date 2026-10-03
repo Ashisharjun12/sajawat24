@@ -1,0 +1,3 @@
+export const CMS_BANNER_DESKTOP_SIZE_HINT = "1920 × 600 (~16:5 wide)"
+export const CMS_BANNER_MOBILE_SIZE_HINT = "1080 × 1350 (~4:5 portrait)"
+export const CMS_BANNER_APP_HERO_HINT = CMS_BANNER_MOBILE_SIZE_HINT

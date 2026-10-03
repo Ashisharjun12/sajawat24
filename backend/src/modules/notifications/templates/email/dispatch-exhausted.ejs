@@ -1,0 +1,49 @@
+<%- include('partials/email-layout-start', { theme, pageTitle, headline, badge }) %>
+            <tr>
+              <td style="padding:8px 20px 12px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #fecaca;border-radius:14px;background:#fef2f2;">
+                  <tr>
+                    <td style="padding:16px 18px;font-size:14px;line-height:1.55;color:#991b1b;">
+                      Auto-dispatch finished without a partner accepting this instant booking. Assign a vendor manually in admin.
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding:4px 28px 12px;font-size:15px;line-height:1.6;color:<%= theme.textMuted %>;">
+                <%= intro %>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding:4px 28px 12px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:<%= theme.tint %>;border-radius:12px;border:1px solid <%= theme.border %>;">
+                  <tr>
+                    <td style="padding:14px 16px;font-size:13px;line-height:1.5;color:<%= theme.text %>;">
+                      <p style="margin:0 0 8px;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:<%= theme.textMuted %>;">Booking</p>
+                      <p style="margin:0;font-size:16px;font-weight:700;"><%= orderRef %></p>
+                      <p style="margin:8px 0 0;color:<%= theme.textMuted %>;"><%= city %></p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <% if (address) { %>
+            <tr>
+              <td style="padding:4px 28px 16px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid <%= theme.border %>;border-radius:14px;background:<%= theme.card %>;">
+                  <tr>
+                    <td style="padding:14px 16px;">
+                      <p style="margin:0 0 6px;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:<%= theme.textMuted %>;">Delivery address</p>
+                      <p style="margin:0;font-size:14px;line-height:1.55;color:<%= theme.text %>;"><%= address %></p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <% } %>
+
+<%- include('partials/email-layout-end', { theme, viewUrl: adminUrl, ctaLabel: 'Open in admin' }) %>

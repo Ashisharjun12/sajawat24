@@ -1,0 +1,107 @@
+<%- include('partials/email-layout-start', { theme, pageTitle: 'Booking confirmed', headline: 'Booking confirmed', badge: '' }) %>
+            <tr>
+              <td style="padding:12px 28px 4px;font-size:16px;line-height:1.6;color:<%= theme.text %>;">
+                <%= intro %>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:8px 28px 20px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:<%= theme.tint %>;border-radius:14px;border:1px solid <%= theme.border %>;">
+                  <tr>
+                    <td style="padding:14px 16px;font-size:12px;color:<%= theme.textMuted %>;text-align:center;">
+                      <strong style="color:<%= theme.text %>;"><%= orderRef %></strong>
+                      &nbsp;·&nbsp; <%= scheduledAt %>
+                      &nbsp;·&nbsp; <%= city %>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:0 20px 8px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:<%= theme.tintAlt %>;border-radius:16px;border:1px solid <%= theme.border %>;">
+                  <% items.forEach(function (item, index) { %>
+                  <tr>
+                    <td style="padding:14px 16px;<%= index > 0 ? 'border-top:1px solid ' + theme.border + ';' : '' %>">
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                        <tr>
+                          <td width="64" valign="top">
+                            <% if (item.imageUrl) { %>
+                            <img src="<%= item.imageUrl %>" alt="" width="64" height="64" style="display:block;width:64px;height:64px;object-fit:cover;border-radius:12px;border:1px solid <%= theme.border %>;" />
+                            <% } else { %>
+                            <div style="width:64px;height:64px;border-radius:12px;background:<%= theme.primary %>;color:<%= theme.primaryFg %>;text-align:center;line-height:64px;font-size:20px;font-weight:700;"><%= item.initial %></div>
+                            <% } %>
+                          </td>
+                          <td valign="middle" style="padding-left:12px;">
+                            <p style="margin:0 0 4px;font-size:15px;font-weight:600;color:<%= theme.text %>;"><%= item.name %></p>
+                            <p style="margin:0;font-size:13px;color:<%= theme.textMuted %>;">Qty <%= item.quantity %></p>
+                          </td>
+                          <td valign="middle" align="right" style="font-size:15px;font-weight:600;color:<%= theme.green %>;white-space:nowrap;"><%= item.lineTotal %></td>
+                        </tr>
+                        <% if (item.addons && item.addons.length) { %>
+                        <% item.addons.forEach(function (addon) { %>
+                        <tr>
+                          <td colspan="3" style="padding-top:12px;">
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                              <tr>
+                                <td width="48" valign="top">
+                                  <% if (addon.imageUrl) { %>
+                                  <img src="<%= addon.imageUrl %>" alt="" width="48" height="48" style="display:block;width:48px;height:48px;object-fit:cover;border-radius:10px;border:1px solid <%= theme.border %>;" />
+                                  <% } else { %>
+                                  <div style="width:48px;height:48px;border-radius:10px;background:<%= theme.tint %>;color:<%= theme.textMuted %>;text-align:center;line-height:48px;font-size:16px;font-weight:700;border:1px solid <%= theme.border %>;"><%= addon.initial %></div>
+                                  <% } %>
+                                </td>
+                                <td valign="middle" style="padding-left:10px;">
+                                  <p style="margin:0;font-size:13px;font-weight:500;color:<%= theme.textMuted %>;"><%= addon.name %><% if (addon.quantity > 1) { %> × <%= addon.quantity %><% } %></p>
+                                </td>
+                                <td valign="middle" align="right" style="font-size:13px;font-weight:600;color:<%= theme.green %>;white-space:nowrap;"><%= addon.lineTotal %></td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+                        <% }) %>
+                        <% } %>
+                      </table>
+                    </td>
+                  </tr>
+                  <% }) %>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:8px 20px 16px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid <%= theme.border %>;border-radius:16px;overflow:hidden;">
+                  <tr>
+                    <td width="50%" valign="top" style="padding:18px 16px;background:<%= theme.card %>;border-right:1px solid <%= theme.border %>;">
+                      <p style="margin:0 0 10px;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:<%= theme.textMuted %>;">Delivery</p>
+                      <% if (customerName) { %>
+                      <p style="margin:0 0 6px;font-size:14px;font-weight:600;color:<%= theme.text %>;"><%= customerName %></p>
+                      <% } %>
+                      <% if (customerPhone) { %>
+                      <p style="margin:0 0 8px;font-size:14px;font-weight:600;color:<%= theme.text %>;"><%= customerPhone %></p>
+                      <% } %>
+                      <p style="margin:0;font-size:13px;line-height:1.55;color:<%= theme.textMuted %>;"><%= address %></p>
+                    </td>
+                    <td width="50%" valign="top" style="padding:18px 16px;background:<%= theme.tint %>;">
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;color:<%= theme.text %>;">
+                        <tr>
+                          <td style="padding-bottom:8px;color:<%= theme.textMuted %>;">Items</td>
+                          <td align="right" style="padding-bottom:8px;font-weight:600;"><%= total %></td>
+                        </tr>
+                        <tr>
+                          <td style="padding-bottom:12px;color:<%= theme.textMuted %>;">Setup &amp; delivery</td>
+                          <td align="right" style="padding-bottom:12px;font-weight:600;">Included</td>
+                        </tr>
+                        <tr>
+                          <td colspan="2" style="border-top:1px solid <%= theme.border %>;padding-top:12px;font-size:16px;font-weight:700;">Total</td>
+                        </tr>
+                        <tr>
+                          <td colspan="2" align="right" style="font-size:22px;font-weight:700;color:<%= theme.green %>;"><%= total %></td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+<%- include('partials/email-layout-end', { theme, viewUrl, ctaLabel: 'View booking' }) %>

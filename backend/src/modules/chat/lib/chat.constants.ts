@@ -1,0 +1,4 @@
+export const CHAT_MAX_BODY_LENGTH = 8000;
+export const CHAT_RATE_LIMIT_PER_MINUTE = 30;
+export const CHAT_DEFAULT_MESSAGE_LIMIT = 50;
+export const CHAT_PREVIEW_LENGTH = 100;

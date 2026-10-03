@@ -1,0 +1,1 @@
+ALTER TABLE "addons" ADD COLUMN IF NOT EXISTS "max_quantity" integer DEFAULT 1 NOT NULL;

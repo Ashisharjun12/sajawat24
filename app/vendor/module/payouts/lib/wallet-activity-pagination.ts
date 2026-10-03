@@ -1,0 +1,1 @@
+export const WALLET_ACTIVITY_PAGE_SIZE = 15;

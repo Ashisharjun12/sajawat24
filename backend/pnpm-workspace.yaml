@@ -1,0 +1,11 @@
+packages:
+  - "."
+nodeLinker: hoisted
+enableGlobalVirtualStore: false
+packageExtensions:
+  drizzle-kit:
+    peerDependencies:
+      drizzle-orm: "*"
+allowBuilds:
+  esbuild: true
+  msgpackr-extract: true

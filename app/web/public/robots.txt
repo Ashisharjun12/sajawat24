@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /account/
+Disallow: /bag
+Disallow: /login
+Disallow: /checkout
+Sitemap: https://www.deccorbuddys.com/sitemap.xml

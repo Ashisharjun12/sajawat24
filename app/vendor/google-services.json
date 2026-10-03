@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "480995928332",
+    "project_id": "decoryy-partner",
+    "storage_bucket": "decoryy-partner.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:480995928332:android:8a36c531eb4b5624f24129",
+        "android_client_info": {
+          "package_name": "com.deccoryy.partner"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCdvSib0psp1hgKS93GajGZg8WHB4tcSiE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

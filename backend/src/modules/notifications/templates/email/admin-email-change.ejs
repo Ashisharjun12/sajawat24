@@ -1,0 +1,12 @@
+<%- include('partials/email-layout-start', { theme, pageTitle, headline, badge: '' }) %>
+            <tr>
+              <td style="padding:12px 28px 8px;font-size:15px;line-height:1.6;color:<%= theme.textMuted %>;">
+                Confirm your Decory admin login for
+                <strong style="color:<%= theme.text %>;"><%= newEmail %></strong>.
+                <% if (includesPassword) { %>
+                This will also activate the new password you chose.
+                <% } %>
+                Click the button below. This link expires in 24 hours.
+              </td>
+            </tr>
+<%- include('partials/email-layout-end', { theme, viewUrl: verifyUrl, ctaLabel: 'Verify account' }) %>

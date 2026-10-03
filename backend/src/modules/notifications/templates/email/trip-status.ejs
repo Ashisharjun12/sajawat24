@@ -1,0 +1,87 @@
+<%- include('partials/email-layout-start', { theme, pageTitle: headline, headline, badge }) %>
+            <tr>
+              <td style="padding:12px 28px 8px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                  <tr>
+                    <% var steps = ['Confirmed', 'On the way', 'Arrived', 'Complete']; %>
+                    <% for (var i = 0; i < steps.length; i++) { %>
+                    <% var stepNum = i + 1; %>
+                    <% var done = stepNum < activeStep; %>
+                    <% var active = stepNum === activeStep; %>
+                    <td align="center" width="25%" style="vertical-align:top;">
+                      <div style="width:30px;height:30px;line-height:30px;border-radius:999px;margin:0 auto 8px;font-size:12px;font-weight:700;<%= done ? 'background:' + theme.text + ';color:#fff;' : (active ? 'background:' + theme.primary + ';color:' + theme.primaryFg + ';border:2px solid ' + theme.text + ';' : 'background:#fafaf9;color:' + theme.textMuted + ';border:1px solid ' + theme.border + ';') %>">
+                        <%= done ? '✓' : stepNum %>
+                      </div>
+                      <p style="margin:0;font-size:10px;line-height:1.35;color:<%= active ? theme.text : theme.textMuted %>;font-weight:<%= active ? '700' : '500' %>;"><%= steps[i] %></p>
+                    </td>
+                    <% } %>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding:8px 28px 12px;font-size:16px;line-height:1.6;color:<%= theme.text %>;">
+                <%= intro %>
+              </td>
+            </tr>
+
+            <% if (showCode) { %>
+            <tr>
+              <td style="padding:8px 20px 16px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:2px dashed <%= theme.border %>;border-radius:16px;background:<%= theme.tint %>;">
+                  <tr>
+                    <td align="center" style="padding:22px 16px;">
+                      <p style="margin:0 0 8px;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:<%= theme.textMuted %>;">Your completion code</p>
+                      <p style="margin:0;font-size:32px;letter-spacing:0.28em;color:<%= theme.text %>;font-weight:700;font-family:'Courier New',Courier,monospace;"><%= code %></p>
+                      <p style="margin:12px 0 0;font-size:13px;line-height:1.5;color:<%= theme.textMuted %>;">Share this code with <%= vendorName %> when setup is done.</p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <% } %>
+
+            <tr>
+              <td style="padding:4px 28px 12px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:<%= theme.tint %>;border-radius:12px;border:1px solid <%= theme.border %>;">
+                  <tr>
+                    <td style="padding:12px 16px;font-size:12px;color:<%= theme.textMuted %>;text-align:center;">
+                      Order <strong style="color:<%= theme.text %>;"><%= orderRef %></strong>
+                      &nbsp;·&nbsp; <%= scheduledAt %>
+                      <% if (cityName) { %>
+                      &nbsp;·&nbsp; <%= cityName %>
+                      <% } %>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <% if (showVendor) { %>
+            <tr>
+              <td style="padding:0 20px 12px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid <%= theme.border %>;border-radius:14px;background:<%= theme.card %>;">
+                  <tr>
+                    <td style="padding:16px 18px;">
+                      <p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:<%= theme.textMuted %>;">Your decorator</p>
+                      <p style="margin:0;font-size:16px;font-weight:600;color:<%= theme.text %>;"><%= vendorName %></p>
+                      <% if (vendorPhone) { %>
+                      <p style="margin:6px 0 0;font-size:14px;font-weight:600;color:<%= theme.text %>;"><%= vendorPhone %></p>
+                      <% } %>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <% } %>
+
+            <% if (address) { %>
+            <tr>
+              <td style="padding:4px 28px 16px;font-size:13px;line-height:1.55;color:<%= theme.textMuted %>;">
+                <%= address %>
+              </td>
+            </tr>
+            <% } %>
+
+<%- include('partials/email-layout-end', { theme, viewUrl, ctaLabel: 'View booking' }) %>
