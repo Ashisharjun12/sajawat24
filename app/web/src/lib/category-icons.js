@@ -25,8 +25,7 @@ const ICON_MAP = {
 };
 
 const TONE_MAP = {
-  amber:
-    "bg-amber-100 text-amber-600 dark:bg-amber-400/15 dark:text-amber-400",
+  amber: "bg-primary/10 text-primary dark:bg-primary/15",
   rose: "bg-rose-100 text-rose-500 dark:bg-rose-400/15 dark:text-rose-400",
   sky: "bg-sky-100 text-sky-600 dark:bg-sky-400/15 dark:text-sky-400",
   violet:

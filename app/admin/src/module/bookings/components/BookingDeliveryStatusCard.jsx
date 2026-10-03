@@ -83,7 +83,7 @@ function StepNode({ index, label, state, showPendingNote }) {
         {label}
       </p>
       {showPendingNote ? (
-        <p className="max-w-24 text-[10px] leading-tight text-amber-700 dark:text-amber-400 sm:max-w-none sm:text-xs">
+        <p className="max-w-24 text-[10px] leading-tight text-primary sm:max-w-none sm:text-xs">
           Waiting for vendor acceptance
         </p>
       ) : null}
@@ -109,7 +109,7 @@ function DeliveryTracker({ order }) {
               key={index}
               className={cn(
                 "h-full min-w-0 flex-1",
-                filled ? (isDisputed ? "bg-destructive" : "bg-yellow-400") : "bg-muted",
+                filled ? (isDisputed ? "bg-destructive" : "bg-primary") : "bg-muted",
               )}
             />
           )

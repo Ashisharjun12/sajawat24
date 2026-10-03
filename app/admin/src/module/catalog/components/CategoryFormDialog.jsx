@@ -68,7 +68,7 @@ export function CategoryFormDialog({
       name: category?.name ?? "",
       slug: category?.slug ?? "",
       iconKey: category?.iconKey ?? "sparkles",
-      iconTone: category?.iconTone ?? "amber",
+      iconTone: category?.iconTone ?? "emerald",
       isActive: category?.isActive ?? true,
     })
     setImage(category?.image ? toGalleryItem(category.image) : null)

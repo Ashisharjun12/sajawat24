@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 const CHIP_PALETTE = [
   "border-emerald-200/80 bg-emerald-50 text-emerald-900 hover:bg-emerald-100/90",
   "border-violet-200/80 bg-violet-50 text-violet-900 hover:bg-violet-100/90",
-  "border-amber-200/80 bg-amber-50 text-amber-950 hover:bg-amber-100/90",
+  "border-primary/20 bg-primary/5 text-primary hover:bg-primary/10",
 ];
 
 function chipStyle(index) {

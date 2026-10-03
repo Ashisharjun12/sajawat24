@@ -89,7 +89,7 @@ export function MobileNav({ triggerClassName }) {
             <div className="flex flex-col gap-2">
               <Button
                 type="button"
-                className="h-11 w-full rounded-full bg-primary text-base font-semibold text-black hover:bg-primary/85"
+                className="h-11 w-full rounded-[var(--r-btn)] text-base font-semibold"
                 onClick={openLogin}
               >
                 Sign up
@@ -97,7 +97,7 @@ export function MobileNav({ triggerClassName }) {
               <Button
                 type="button"
                 variant="outline"
-                className="h-11 w-full rounded-full text-base font-semibold"
+                className="h-11 w-full rounded-[var(--r-btn)] text-base font-semibold"
                 onClick={openLogin}
               >
                 Log in

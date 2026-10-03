@@ -110,7 +110,7 @@ export function BannerSearch() {
 
   return (
     <form
-      className="rounded-3xl bg-card p-2 shadow-[0_8px_32px_-8px_rgba(15,23,42,0.14)] md:rounded-full md:p-1.5 md:shadow-[0_12px_40px_-10px_rgba(15,23,42,0.16)]"
+      className="rounded-[var(--r-card)] border border-border bg-card p-2 shadow-[var(--shadow-card)] md:p-1.5"
       onSubmit={(event) => {
         event.preventDefault();
         findSetups();
@@ -187,7 +187,9 @@ export function BannerSearch() {
         </Field>
         <Button
           type="submit"
-          className="col-span-2 mt-1 h-9 w-full rounded-full px-4 text-xs font-bold transition-transform hover:-translate-y-0.5 active:scale-[0.98] md:col-span-1 md:mt-0 md:mr-1 md:h-12 md:w-auto md:px-6 md:text-sm"
+          variant="cta"
+          size="lg"
+          className="col-span-2 mt-1 h-11 w-full px-4 text-xs font-bold md:col-span-1 md:mt-0 md:mr-1 md:w-auto md:px-6 md:text-sm"
         >
           Find
           <ArrowRightIcon />

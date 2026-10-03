@@ -90,7 +90,7 @@ export class RazorpayProvider implements IPaymentProvider {
                 orderId: order.id,
                 amountPaise: input.amountPaise,
                 currency: "INR",
-                name: "Decoryy",
+                name: "sajawat24",
                 description: `Booking ${input.receipt}`,
                 prefill: customer
                     ? {

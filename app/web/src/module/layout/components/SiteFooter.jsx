@@ -8,7 +8,7 @@ import { SocialIconLink } from "@/module/layout/components/SocialIconLink";
 import { FooterGetTheApp } from "@/module/layout/components/FooterGetTheApp";
 
 const COMPANY = [
-  { label: "About Decoryy", href: "/support" },
+  { label: "About sajawat24", href: "/support" },
   { label: "Careers", href: "/support" },
   { label: "Become a partner", href: "/support" },
   { label: "Press", href: "/support" },
@@ -62,7 +62,7 @@ function FooterLinks({ title, items }) {
 
 export function SiteFooter() {
   const { brand, socialLinks, footerColumns } = useSiteShell();
-  const companyName = brand.companyName || "Decoryy";
+  const companyName = brand.companyName || "sajawat24";
 
   const fallbackColumns = [
     {

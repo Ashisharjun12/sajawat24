@@ -9,7 +9,7 @@
                     <% var done = stepNum < activeStep; %>
                     <% var active = stepNum === activeStep; %>
                     <td align="center" width="25%" style="vertical-align:top;">
-                      <div style="width:30px;height:30px;line-height:30px;border-radius:999px;margin:0 auto 8px;font-size:12px;font-weight:700;<%= done ? 'background:' + theme.text + ';color:#fff;' : (active ? 'background:' + theme.primary + ';color:' + theme.primaryFg + ';border:2px solid ' + theme.text + ';' : 'background:#fafaf9;color:' + theme.textMuted + ';border:1px solid ' + theme.border + ';') %>">
+                      <div style="width:30px;height:30px;line-height:30px;border-radius:999px;margin:0 auto 8px;font-size:12px;font-weight:700;<%= done ? 'background:' + theme.primary + ';color:' + theme.primaryFg + ';' : (active ? 'background:' + theme.tintAlt + ';color:' + theme.primary + ';border:2px solid ' + theme.primary + ';' : 'background:' + theme.tint + ';color:' + theme.textMuted + ';border:1px solid ' + theme.border + ';') %>">
                         <%= done ? '✓' : stepNum %>
                       </div>
                       <p style="margin:0;font-size:10px;line-height:1.35;color:<%= active ? theme.text : theme.textMuted %>;font-weight:<%= active ? '700' : '500' %>;"><%= steps[i] %></p>

@@ -71,13 +71,13 @@ export function OrderConfirmationHero({ order }) {
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-        <Button asChild size="lg" className="rounded-full px-8">
+        <Button asChild size="lg" className="px-8">
           <Link to={`/account/bookings/${order.id}`}>View booking</Link>
         </Button>
-        <Button asChild variant="outline" size="lg" className="rounded-full">
+        <Button asChild variant="outline" size="lg">
           <Link to="/">Continue shopping</Link>
         </Button>
-        <Button asChild variant="ghost" size="lg" className="rounded-full">
+        <Button asChild variant="ghost" size="lg">
           <Link to="/decorations">Browse decorations</Link>
         </Button>
       </div>

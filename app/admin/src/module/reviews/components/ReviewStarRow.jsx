@@ -19,13 +19,14 @@ export function ReviewStarRow({
 
   return (
     <div
-      className={cn("inline-flex gap-0.5", className)}
+      className={cn("review-star-row inline-flex gap-0.5", className)}
       role={interactive ? "radiogroup" : undefined}
       aria-label={interactive ? "Rating" : `${rating} out of 5 stars`}
     >
       {Array.from({ length: 5 }).map((_, index) => {
         const star = index + 1
         const active = star <= rating
+        const starVisual = cn(starClass, active ? "review-star-filled" : "review-star-empty")
 
         if (interactive) {
           return (
@@ -34,13 +35,17 @@ export function ReviewStarRow({
               type="button"
               disabled={disabled}
               className={cn(
-                "rounded-sm p-0.5 transition-colors disabled:opacity-50",
-                active ? "text-amber-500" : "text-muted-foreground/30 hover:text-amber-500",
+                "rounded-sm p-0.5 transition-opacity disabled:opacity-50",
+                !active && "hover:opacity-100 opacity-90",
               )}
               aria-label={`${star} star${star > 1 ? "s" : ""}`}
               onClick={() => onChange?.(star)}
             >
-              <StarIcon className={cn(starClass, active && "fill-current")} />
+              <StarIcon
+                className={starVisual}
+                strokeWidth={1.5}
+                data-review-star={active ? "filled" : "empty"}
+              />
             </button>
           )
         }
@@ -48,10 +53,9 @@ export function ReviewStarRow({
         return (
           <StarIcon
             key={star}
-            className={cn(
-              starClass,
-              active ? "fill-amber-500 text-amber-500" : "text-muted-foreground/30",
-            )}
+            className={starVisual}
+            strokeWidth={1.5}
+            data-review-star={active ? "filled" : "empty"}
             aria-hidden
           />
         )

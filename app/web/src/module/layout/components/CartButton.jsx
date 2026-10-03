@@ -21,7 +21,7 @@ export function CartButton({ variant = "default" }) {
       onClick={() => setOpen(true)}
       aria-label="Open bag"
     >
-      <ShoppingBagIcon className={cn(isHero && "size-5 text-amber-900")} />
+      <ShoppingBagIcon className={cn(isHero && "size-5 text-primary")} />
       <span className="sr-only">Bag</span>
       {count > 0 ? (
         <span

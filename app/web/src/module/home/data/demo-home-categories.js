@@ -7,7 +7,7 @@ export const DEMO_HOME_CATEGORIES = [
     iconKey: "cake",
     iconTone: "amber",
     imageUrl: "/banners/birthday.png",
-    tileBg: "bg-amber-50",
+    tileBg: "bg-muted",
     children: [
       {
         id: "birthday-home",
@@ -15,7 +15,7 @@ export const DEMO_HOME_CATEGORIES = [
         slug: "home-party",
         parentId: "birthday-decor",
         imageUrl: "/banners/birthday.png",
-        tileBg: "bg-amber-50",
+        tileBg: "bg-muted",
         children: [],
       },
       {
@@ -24,7 +24,7 @@ export const DEMO_HOME_CATEGORIES = [
         slug: "theme-room",
         parentId: "birthday-decor",
         imageUrl: "/banners/birthday.png",
-        tileBg: "bg-amber-50",
+        tileBg: "bg-muted",
         children: [],
       },
       {
@@ -33,7 +33,7 @@ export const DEMO_HOME_CATEGORIES = [
         slug: "milestone-decor",
         parentId: "birthday-decor",
         imageUrl: "/banners/birthday.png",
-        tileBg: "bg-amber-50",
+        tileBg: "bg-muted",
         children: [],
       },
     ],
@@ -46,7 +46,7 @@ export const DEMO_HOME_CATEGORIES = [
     iconKey: "baby",
     iconTone: "sky",
     imageUrl: "/banners/kids.png",
-    tileBg: "bg-amber-50",
+    tileBg: "bg-muted",
     children: [
       {
         id: "kids-first",
@@ -54,7 +54,7 @@ export const DEMO_HOME_CATEGORIES = [
         slug: "1st-birthday",
         parentId: "kids-birthday",
         imageUrl: "/banners/kids.png",
-        tileBg: "bg-amber-50",
+        tileBg: "bg-muted",
         children: [],
       },
       {
@@ -63,7 +63,7 @@ export const DEMO_HOME_CATEGORIES = [
         slug: "kids-activity",
         parentId: "kids-birthday",
         imageUrl: "/banners/kids.png",
-        tileBg: "bg-amber-50",
+        tileBg: "bg-muted",
         children: [],
       },
       {
@@ -72,7 +72,7 @@ export const DEMO_HOME_CATEGORIES = [
         slug: "theme-party",
         parentId: "kids-birthday",
         imageUrl: "/banners/kids.png",
-        tileBg: "bg-amber-50",
+        tileBg: "bg-muted",
         children: [],
       },
     ],
@@ -85,7 +85,7 @@ export const DEMO_HOME_CATEGORIES = [
     iconKey: "baby",
     iconTone: "sky",
     imageUrl: "/banners/kids.png",
-    tileBg: "bg-amber-50",
+    tileBg: "bg-muted",
     children: [],
   },
   {
@@ -96,7 +96,7 @@ export const DEMO_HOME_CATEGORIES = [
     iconKey: "gift",
     iconTone: "pink",
     imageUrl: "/banners/kids.png",
-    tileBg: "bg-amber-50",
+    tileBg: "bg-muted",
     children: [],
   },
   {
@@ -107,7 +107,7 @@ export const DEMO_HOME_CATEGORIES = [
     iconKey: "heart",
     iconTone: "rose",
     imageUrl: "/banners/anniversary.png",
-    tileBg: "bg-amber-50",
+    tileBg: "bg-muted",
     children: [
       {
         id: "romantic-proposal",
@@ -115,7 +115,7 @@ export const DEMO_HOME_CATEGORIES = [
         slug: "proposal-setup",
         parentId: "romantic",
         imageUrl: "/banners/anniversary.png",
-        tileBg: "bg-amber-50",
+        tileBg: "bg-muted",
         children: [],
       },
       {
@@ -124,7 +124,7 @@ export const DEMO_HOME_CATEGORIES = [
         slug: "candlelight",
         parentId: "romantic",
         imageUrl: "/banners/anniversary.png",
-        tileBg: "bg-amber-50",
+        tileBg: "bg-muted",
         children: [],
       },
     ],
@@ -137,7 +137,7 @@ export const DEMO_HOME_CATEGORIES = [
     iconKey: "gem",
     iconTone: "violet",
     imageUrl: "/banners/anniversary.png",
-    tileBg: "bg-amber-50",
+    tileBg: "bg-muted",
     children: [
       {
         id: "wedding-haldi",
@@ -145,7 +145,7 @@ export const DEMO_HOME_CATEGORIES = [
         slug: "haldi-decor",
         parentId: "wedding-decor",
         imageUrl: "/banners/anniversary.png",
-        tileBg: "bg-amber-50",
+        tileBg: "bg-muted",
         children: [],
       },
       {
@@ -154,7 +154,7 @@ export const DEMO_HOME_CATEGORIES = [
         slug: "entrance-arch",
         parentId: "wedding-decor",
         imageUrl: "/banners/anniversary.png",
-        tileBg: "bg-amber-50",
+        tileBg: "bg-muted",
         children: [],
       },
     ],

@@ -192,7 +192,7 @@ export function UserMenu({ className, variant = "header", onNavigate }) {
         <Button
           type="button"
           nativeButton={false}
-          className="h-11 w-full rounded-full bg-primary text-base font-semibold text-black hover:bg-primary/85"
+          className="h-11 w-full rounded-[var(--r-btn)] text-base font-semibold"
           render={<Link to="/account" onClick={onNavigate} />}
         >
           Manage profile
@@ -200,7 +200,7 @@ export function UserMenu({ className, variant = "header", onNavigate }) {
         <Button
           type="button"
           variant="destructive"
-          className="h-11 w-full rounded-full text-base font-semibold"
+          className="h-11 w-full rounded-[var(--r-btn)] text-base font-semibold"
           onClick={onLogout}
         >
           Sign out
@@ -217,7 +217,7 @@ export function UserMenu({ className, variant = "header", onNavigate }) {
             variant="outline"
             size="sm"
             className={cn(
-              "hidden h-10 cursor-pointer rounded-full border-border pr-3 pl-2 sm:inline-flex",
+              "hidden h-10 cursor-pointer rounded-[var(--r-btn)] border-border pr-3 pl-2 sm:inline-flex",
               className,
             )}
           />

@@ -54,71 +54,52 @@ function NavTab({ item, active, onAction }) {
   const shellClass =
     "relative flex min-w-0 flex-1 flex-col items-center justify-end gap-0.5 pb-2.5 pt-3 outline-none transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-ring/50";
 
-  if (item.id === "whatsapp") {
-    const waButton = (
-      <>
-        <span
-          className="absolute -top-5 left-1/2 z-20 flex size-10 -translate-x-1/2 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_6px_16px_-4px] shadow-[#25D366]/50 ring-[3px] ring-background"
-          aria-hidden
-        >
-          <WhatsAppNavIcon className="size-[1.15rem]" />
-        </span>
-        <span className="mt-4 max-w-full truncate px-0.5 text-[10px] font-semibold leading-none text-[#1DA851]">
-          {item.label}
-        </span>
-      </>
-    );
-
-    return (
-      <button
-        type="button"
-        className={shellClass}
-        aria-label={item.label}
-        onClick={() => onAction(item)}
-      >
-        {waButton}
-      </button>
-    );
-  }
-
   const isInstant = item.id === "instant";
+  const isWhatsApp = item.id === "whatsapp";
 
   const content = (
     <>
       <motion.span
         className="flex size-9 items-center justify-center"
-        animate={{ y: active ? -2 : 0 }}
+        animate={{ y: active && !isWhatsApp ? -2 : 0 }}
         transition={{ type: "spring", stiffness: 420, damping: 32 }}
       >
         <span
           className={cn(
             "flex size-8 items-center justify-center rounded-full transition-colors duration-300 ease-out",
-            isInstant
-              ? active
-                ? "bg-orange-500/15 text-orange-600 dark:text-orange-400"
-                : "text-muted-foreground"
-              : active
-                ? "bg-primary/10 text-primary"
-                : "text-muted-foreground",
+            isWhatsApp
+              ? "bg-[#25D366]/15 text-[#25D366]"
+              : isInstant
+                ? active
+                  ? "bg-instant/15 text-instant"
+                  : "text-muted-foreground"
+                : active
+                  ? "bg-primary/10 text-primary"
+                  : "text-muted-foreground",
           )}
         >
           <Icon
-            className={cn("size-[1.25rem]", isInstant && active && "fill-orange-500/25")}
-            strokeWidth={active ? 2.25 : 1.75}
+            className={cn(
+              "size-[1.25rem]",
+              isInstant && active && "fill-instant/25",
+            )}
+            strokeWidth={isWhatsApp ? undefined : active ? 2.25 : 1.75}
             aria-hidden
           />
         </span>
       </motion.span>
       <span
         className={cn(
-          "max-w-full truncate px-0.5 text-[10px] font-medium leading-none transition-colors duration-300",
-          isInstant
-            ? active
-              ? "font-semibold text-orange-600 dark:text-orange-400"
-              : "font-medium text-muted-foreground"
-            : active
-              ? "font-semibold text-primary"
-              : "text-muted-foreground",
+          "max-w-full truncate px-0.5 text-[10px] leading-none transition-colors duration-300",
+          isWhatsApp
+            ? "font-medium text-[#1DA851]"
+            : isInstant
+              ? active
+                ? "font-semibold text-instant"
+                : "font-medium text-muted-foreground"
+              : active
+                ? "font-semibold text-primary"
+                : "font-medium text-muted-foreground",
         )}
       >
         {item.label}
@@ -229,15 +210,15 @@ export function MobileBottomNav({ visible = true }) {
       aria-label="Primary"
     >
       <div
-        className="overflow-visible rounded-t-2xl border-t border-border bg-background/95 pt-0.5 shadow-[0_-4px_24px_-8px] shadow-foreground/10 backdrop-blur-md"
+        className="rounded-t-2xl border-t border-border bg-background/95 pt-0.5 shadow-[0_-4px_24px_-8px] shadow-foreground/10 backdrop-blur-md"
       >
-        <div className="relative flex w-full items-stretch overflow-visible">
+        <div className="relative flex w-full items-stretch">
           {hasActive ? (
             <motion.div
               className={cn(
                 "pointer-events-none absolute top-0 z-10 h-1 w-12 -translate-x-1/2 rounded-full shadow-[0_0_14px_2px]",
                 activeId === "instant"
-                  ? "bg-orange-500 shadow-orange-500/35"
+                  ? "bg-instant shadow-instant/35"
                   : "bg-primary shadow-primary/30",
               )}
               initial={false}

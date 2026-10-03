@@ -265,6 +265,10 @@ export function BannerFormDialog({
               ))}
             </SelectContent>
           </Select>
+          <p className="text-xs text-muted-foreground">
+            Only <span className="font-medium text-foreground">published</span> banners appear on the
+            storefront. New banners default to draft until you publish them.
+          </p>
         </div>
       </form>
     </CmsFormDialogShell>

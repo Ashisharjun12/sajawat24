@@ -38,7 +38,7 @@ export function SectionFormDialog({
       name: "",
       slug: "",
       sortIndex: 0,
-      badgeColor: "amber",
+      badgeColor: "teal",
       isActive: true,
     },
   })
@@ -49,7 +49,7 @@ export function SectionFormDialog({
       name: section?.name ?? "",
       slug: section?.slug ?? "",
       sortIndex: section?.sortIndex ?? 0,
-      badgeColor: section?.badgeColor ?? "amber",
+      badgeColor: section?.badgeColor ?? "teal",
       isActive: section?.isActive ?? true,
     })
   }, [open, section, form])

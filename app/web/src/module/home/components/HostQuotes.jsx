@@ -195,7 +195,7 @@ export function HostQuotes({ reviews = [] }) {
   return (
     <Reveal className="mx-auto max-w-[1240px] px-4 py-12 md:px-8 md:py-16">
       <div className="flex w-full flex-col items-center overflow-hidden rounded-3xl bg-zinc-950 py-8 md:py-10">
-        <span className="mb-1 block text-[13px] font-bold tracking-wide text-primary italic uppercase">
+        <span className="mb-1 block text-[13px] font-bold tracking-wide text-teal-300 italic uppercase">
           said by actual hosts
         </span>
         <h2 className="font-heading px-4 text-center text-[clamp(1.625rem,3vw,2.25rem)] font-extrabold tracking-tight text-white">

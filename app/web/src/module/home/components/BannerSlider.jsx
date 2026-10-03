@@ -54,7 +54,7 @@ function SlideOverlay({ item, mobileHero }) {
         {item.ctaLabel ? (
           <div className="mt-3 hidden md:mt-0 md:flex md:flex-wrap md:items-center md:gap-4">
             <Button
-              className="h-11 rounded-[22px] px-6 text-sm font-semibold"
+              className="h-11 rounded-[var(--r-btn)] px-6 text-sm font-semibold"
               nativeButton={false}
               render={<Link to={item.href ?? "/decorations"} />}
             >
@@ -63,7 +63,7 @@ function SlideOverlay({ item, mobileHero }) {
             {item.secondaryLabel ? (
               <Button
                 variant="outline"
-                className="h-11 rounded-[22px] border-white/25 bg-transparent px-5 text-sm font-medium text-white hover:bg-white/10 hover:text-white"
+                className="h-11 rounded-[var(--r-btn)] border-white/25 bg-transparent px-5 text-sm font-medium text-white hover:bg-white/10 hover:text-white"
                 nativeButton={false}
                 render={<Link to={item.secondaryHref ?? "/decorations"} />}
               >
@@ -98,12 +98,12 @@ function ImageOnlySlide({ item, mobileHero, mobileHeroContain }) {
 
 function slideShellClass(variant) {
   if (variant === "mobileHeroFull") {
-    return "relative aspect-[16/9] w-full max-w-none overflow-hidden rounded-2xl bg-muted/50";
+    return "relative aspect-[16/9] w-full max-w-none overflow-hidden rounded-[var(--r-card)] bg-muted/50";
   }
   if (variant === "mobileHero") {
-    return "relative h-[160px] w-full max-w-none overflow-hidden rounded-2xl bg-background shadow-md ring-1 ring-background/80";
+    return "relative h-[160px] w-full max-w-none overflow-hidden rounded-[var(--r-card)] bg-background shadow-md ring-1 ring-background/80";
   }
-  return "relative aspect-[16/5] max-h-[200px] overflow-hidden rounded-[22px] border border-border bg-black md:max-h-none md:aspect-[16/5]";
+  return "relative aspect-[16/5] max-h-[200px] overflow-hidden rounded-[var(--r-card)] border border-border bg-black md:max-h-none md:aspect-[16/5]";
 }
 
 function SlideFrame({ item, children, variant }) {

@@ -4,14 +4,13 @@ import { motion, useReducedMotion } from "framer-motion";
 import { productPath } from "@/lib/catalog-path";
 import { formatPaise } from "@/lib/money";
 import { DecoryImageFallback } from "@/components/decory-image-fallback";
+import { SectionMerchBadge } from "@/components/section-merch-badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { staggerItem } from "@/lib/motion-variants";
-import { discountPercent } from "@/lib/product-price";
-import { sectionBadgeAppearance } from "@/lib/section-badge-color";
 import { cn } from "@/lib/utils";
 import {
-  ProductCardInstantBadge,
-  ProductCardInstantEta,
+  ProductCardDiscountBadge,
+  ProductCardInstantLine,
 } from "@/module/catalog/components/ProductCardInstant";
 import {
   resolveCardBadges,
@@ -81,9 +80,11 @@ function ProductCardReviewsAndEta({
   size = "rail",
   reserveSpace = false,
 }) {
-  const showEta = Boolean(instant?.enabled && instant.etaMinutes != null);
+  const showInstantMeta =
+    Boolean(instant?.enabled) &&
+    (Boolean(instant.showBadge) || instant.etaMinutes != null);
   const hasReviews = ratingLabel != null || resolveReviewCount(reviewCount) != null;
-  if (!hasReviews && !showEta && !reserveSpace) return null;
+  if (!hasReviews && !showInstantMeta && !reserveSpace) return null;
 
   return (
     <div
@@ -103,15 +104,14 @@ function ProductCardReviewsAndEta({
           />
         ) : null}
       </div>
-      {showEta ? (
-        <ProductCardInstantEta instant={instant} size={size} className="shrink-0 translate-y-0" />
+      {showInstantMeta ? (
+        <ProductCardInstantLine instant={instant} size={size} className="shrink-0" />
       ) : null}
     </div>
   );
 }
 
 function ProductCardPriceBlock({ pricePaise, compareAtPaise, size = "default" }) {
-  const percentOff = discountPercent(pricePaise, compareAtPaise);
   const hasCompare = compareAtPaise != null && compareAtPaise > pricePaise;
   const priceClass =
     size === "rail"
@@ -121,8 +121,6 @@ function ProductCardPriceBlock({ pricePaise, compareAtPaise, size = "default" })
     size === "rail"
       ? "text-[10px] sm:text-[11px]"
       : "text-xs sm:text-[13px]";
-  const offClass =
-    size === "rail" ? "text-[10px] px-1 py-0.5 sm:text-[11px]" : "text-xs px-2 py-0.5";
 
   const priceWrapClass =
     size === "rail" ? "pt-1.5" : "mt-auto pt-2";
@@ -152,17 +150,6 @@ function ProductCardPriceBlock({ pricePaise, compareAtPaise, size = "default" })
             {formatPaise(compareAtPaise)}
           </span>
         ) : null}
-        {percentOff > 0 ? (
-          <span
-            className={cn(
-              "shrink-0 rounded-md bg-emerald-50 font-bold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400",
-              size === "rail" ? "ml-0.5" : "ml-auto",
-              offClass,
-            )}
-          >
-            {size === "rail" ? `${percentOff}%` : `${percentOff}% OFF`}
-          </span>
-        ) : null}
       </div>
     </div>
   );
@@ -179,11 +166,14 @@ function CompactProductCardContent({ product, onNavigate }) {
     <Link
       to={productPath(product)}
       onClick={onNavigate}
-      className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm transition-[box-shadow,border-color] duration-200 hover:border-border hover:shadow-md"
+      className="group flex h-full flex-col overflow-hidden rounded-(--radius-card) border border-border bg-card shadow-[var(--shadow-card)] transition-shadow duration-200 hover:shadow-md"
     >
-      <div className="relative aspect-square w-full shrink-0 overflow-hidden rounded-t-2xl bg-muted">
-        <SectionProductBadge label={badgeLabel} color={badgeColor} />
-        <ProductCardInstantBadge instant={product.instant} />
+      <div className="relative aspect-square w-full shrink-0 overflow-hidden rounded-t-(--radius-card) bg-muted">
+        <SectionMerchBadge label={badgeLabel} color={badgeColor} />
+        <ProductCardDiscountBadge
+          pricePaise={product.pricePaise}
+          compareAtPaise={product.compareAtPaise}
+        />
         {src && !broken ? (
           <img
             src={src}
@@ -228,11 +218,14 @@ function DefaultProductCardContent({ product }) {
   return (
     <Link
       to={productPath(product)}
-      className="group flex h-full flex-col overflow-hidden rounded-[20px] border border-border bg-card transition-shadow hover:shadow-lg"
+      className="group flex h-full flex-col overflow-hidden rounded-[var(--r-card)] border border-border bg-card transition-shadow hover:shadow-lg"
     >
       <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden bg-muted">
-        <SectionProductBadge label={badgeLabel} color={badgeColor} />
-        <ProductCardInstantBadge instant={product.instant} />
+        <SectionMerchBadge label={badgeLabel} color={badgeColor} />
+        <ProductCardDiscountBadge
+          pricePaise={product.pricePaise}
+          compareAtPaise={product.compareAtPaise}
+        />
         {src && !broken ? (
           <img
             src={src}
@@ -255,7 +248,7 @@ function DefaultProductCardContent({ product }) {
             </span>
           ) : null}
           {product.tag ? (
-            <span className="truncate rounded-full bg-secondary px-1.5 py-0.5 text-[10px] font-bold text-amber-800 md:px-2.5 md:py-1 md:text-[11px] dark:text-primary">
+            <span className="truncate rounded-md bg-secondary px-1.5 py-0.5 text-[10px] font-bold text-primary md:px-2.5 md:py-1 md:text-[11px]">
               {product.tag}
             </span>
           ) : null}
@@ -303,22 +296,6 @@ export function HomeProductCardCompact({ product, onNavigate }) {
   return <HomeProductCard product={product} variant="compact" onNavigate={onNavigate} />;
 }
 
-function SectionProductBadge({ label, color }) {
-  if (!label?.trim()) return null;
-  const { className, style } = sectionBadgeAppearance(color);
-  return (
-    <span
-      className={cn(
-        "absolute top-2 right-2 z-1 max-w-[85%] truncate rounded-md px-2 py-0.5 text-[10px] font-bold leading-tight shadow-sm sm:text-[11px]",
-        className,
-      )}
-      style={style}
-    >
-      {label}
-    </span>
-  );
-}
-
 function RailProductCardContent({ product, badgeLabel, badgeColor }) {
   const [broken, setBroken] = useState(false);
   const src = product.imageUrl ?? product.images?.[0]?.url;
@@ -333,11 +310,14 @@ function RailProductCardContent({ product, badgeLabel, badgeColor }) {
   return (
     <Link
       to={productPath(product)}
-      className="group flex h-full min-w-0 flex-col rounded-2xl border border-border/80 bg-card shadow-sm transition-[box-shadow,border-color] duration-200 hover:border-border hover:shadow-md"
+      className="group flex h-full min-w-0 flex-col rounded-[var(--r-card)] border border-border/80 bg-card shadow-sm transition-[box-shadow,border-color] duration-200 hover:border-border hover:shadow-md"
     >
-      <div className="relative aspect-square w-full shrink-0 overflow-hidden rounded-t-2xl bg-muted">
-        <SectionProductBadge label={resolved.badgeLabel} color={resolved.badgeColor} />
-        <ProductCardInstantBadge instant={product.instant} />
+      <div className="relative aspect-square w-full shrink-0 overflow-hidden rounded-t-(--radius-card) bg-muted">
+        <SectionMerchBadge label={resolved.badgeLabel} color={resolved.badgeColor} />
+        <ProductCardDiscountBadge
+          pricePaise={product.pricePaise}
+          compareAtPaise={product.compareAtPaise}
+        />
         {src && !broken ? (
           <img
             src={src}
@@ -388,7 +368,7 @@ export function HomeProductCardRail({ product, badgeLabel, badgeColor }) {
 
 export function HomeProductCardRailSkeleton() {
   return (
-    <div className="h-full min-w-0 overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm">
+    <div className="h-full min-w-0 overflow-hidden rounded-[var(--r-card)] border border-border/80 bg-card shadow-sm">
       <Skeleton className="aspect-square w-full rounded-none" />
       <div className="flex flex-col px-2 pb-2.5 pt-2 sm:px-2.5">
         <Skeleton className="min-h-[2.75em] w-[88%] rounded-md" />
@@ -411,7 +391,7 @@ export function HomeProductCardSkeleton({ compact = false }) {
       <div
         className={cn(
           "flex h-full flex-col overflow-hidden border border-border bg-card",
-          compact ? "rounded-2xl" : "rounded-[20px]",
+          compact ? "rounded-[var(--r-card)]" : "rounded-[var(--r-card)]",
         )}
       >
         <Skeleton className={cn("w-full rounded-none", compact ? "aspect-square" : "aspect-[4/3]")} />

@@ -29,7 +29,7 @@ export const NOTIFICATION_TEMPLATE_SEEDS: NotificationTemplateSeed[] = [
         locale: "en",
         editable: false,
         subject: null,
-        content: "Your Decoryy code is {{otp}}. Valid for 5 minutes.",
+        content: "Your sajawat24 code is {{otp}}. Valid for 5 minutes.",
         variables: ["otp"],
     },
     {
@@ -64,7 +64,7 @@ export const NOTIFICATION_TEMPLATE_SEEDS: NotificationTemplateSeed[] = [
         editable: true,
         subject: null,
         content:
-            "Decoryy: Hi {{customerName}}, booking {{orderRef}} confirmed for {{scheduledAt}}. Track: {{trackUrl}}",
+            "sajawat24: Hi {{customerName}}, booking {{orderRef}} confirmed for {{scheduledAt}}. Track: {{trackUrl}}",
         variables: ["customerName", "orderRef", "scheduledAt", "trackUrl", "bookingId", "orderId"],
     },
     {
@@ -119,7 +119,7 @@ export const NOTIFICATION_TEMPLATE_SEEDS: NotificationTemplateSeed[] = [
         editable: true,
         subject: null,
         content:
-            "Decoryy: Vendor {{vendorName}} assigned to {{orderRef}} on {{scheduledAt}}. Track: {{trackUrl}}",
+            "sajawat24: Vendor {{vendorName}} assigned to {{orderRef}} on {{scheduledAt}}. Track: {{trackUrl}}",
         variables: [
             "customerName",
             "orderRef",
@@ -201,7 +201,7 @@ export const NOTIFICATION_TEMPLATE_SEEDS: NotificationTemplateSeed[] = [
         editable: true,
         subject: null,
         content:
-            "Decoryy: {{vendorName}} is on the way for {{orderRef}}. Track: {{trackUrl}}",
+            "sajawat24: {{vendorName}} is on the way for {{orderRef}}. Track: {{trackUrl}}",
         variables: ["customerName", "orderRef", "vendorName", "trackUrl", "bookingId", "scheduledAt"],
     },
     {
@@ -257,7 +257,7 @@ export const NOTIFICATION_TEMPLATE_SEEDS: NotificationTemplateSeed[] = [
         editable: true,
         subject: null,
         content:
-            "Decoryy: {{vendorName}} has arrived for {{orderRef}}. Setup will begin shortly.",
+            "sajawat24: {{vendorName}} has arrived for {{orderRef}}. Setup will begin shortly.",
         variables: ["customerName", "orderRef", "vendorName", "trackUrl", "bookingId", "scheduledAt"],
     },
     {
@@ -312,7 +312,7 @@ export const NOTIFICATION_TEMPLATE_SEEDS: NotificationTemplateSeed[] = [
         editable: true,
         subject: null,
         content:
-            "Decoryy: Your completion code for {{orderRef}} is {{code}}. Share with your decorator when setup is done.",
+            "sajawat24: Your completion code for {{orderRef}} is {{code}}. Share with your decorator when setup is done.",
         variables: ["customerName", "orderRef", "code", "vendorName", "bookingId"],
     },
     {
@@ -324,7 +324,7 @@ export const NOTIFICATION_TEMPLATE_SEEDS: NotificationTemplateSeed[] = [
         editable: true,
         subject: "Booking complete — {{orderRef}}",
         content:
-            "Hi {{customerName}}, your decoration for booking {{orderRef}} is complete. We hope you love how it turned out — thank you for choosing Decoryy!",
+            "Hi {{customerName}}, your decoration for booking {{orderRef}} is complete. We hope you love how it turned out — thank you for choosing sajawat24!",
         variables: [
             "customerName",
             "orderRef",
@@ -344,7 +344,7 @@ export const NOTIFICATION_TEMPLATE_SEEDS: NotificationTemplateSeed[] = [
         locale: "en",
         editable: true,
         subject: null,
-        content: "Decoryy: Booking {{orderRef}} is complete. Thank you!",
+        content: "sajawat24: Booking {{orderRef}} is complete. Thank you!",
         variables: ["customerName", "orderRef", "vendorName", "trackUrl", "bookingId"],
     },
     {
@@ -400,7 +400,7 @@ export const NOTIFICATION_TEMPLATE_SEEDS: NotificationTemplateSeed[] = [
         editable: true,
         subject: null,
         content:
-            "Decoryy: New job {{orderRef}} on {{scheduledAt}} at {{address}}. Open vendor app.",
+            "sajawat24: New job {{orderRef}} on {{scheduledAt}} at {{address}}. Open vendor app.",
         variables: ["orderRef", "scheduledAt", "address", "orderId"],
     },
     {
@@ -434,7 +434,7 @@ export const NOTIFICATION_TEMPLATE_SEEDS: NotificationTemplateSeed[] = [
         editable: true,
         subject: null,
         content:
-            "Decoryy: You were assigned job {{orderRef}} on {{scheduledAt}} at {{address}}. Open partner app.",
+            "sajawat24: You were assigned job {{orderRef}} on {{scheduledAt}} at {{address}}. Open partner app.",
         variables: ["orderRef", "scheduledAt", "address", "orderId", "bookingId"],
     },
     {
@@ -446,7 +446,7 @@ export const NOTIFICATION_TEMPLATE_SEEDS: NotificationTemplateSeed[] = [
         editable: true,
         subject: null,
         content:
-            "Decoryy: Reminder — booking {{orderRef}} is scheduled for {{scheduledAt}}. Track: {{trackUrl}}",
+            "sajawat24: Reminder — booking {{orderRef}} is scheduled for {{scheduledAt}}. Track: {{trackUrl}}",
         variables: [
             "customerName",
             "orderRef",
@@ -556,7 +556,7 @@ export const NOTIFICATION_TEMPLATE_SEEDS: NotificationTemplateSeed[] = [
         editable: true,
         subject: null,
         content:
-            "Decoryy: Your payout of {{amountFormatted}} was sent to {{payoutDestination}}. Open the vendor app for details.",
+            "sajawat24: Your payout of {{amountFormatted}} was sent to {{payoutDestination}}. Open the vendor app for details.",
         variables: [
             "vendorName",
             "amountFormatted",
@@ -627,7 +627,7 @@ export const NOTIFICATION_TEMPLATE_SEEDS: NotificationTemplateSeed[] = [
         editable: true,
         subject: null,
         content:
-            "Decoryy: Payout of {{amountFormatted}} failed. {{failureReason}} Amount returned to your wallet.",
+            "sajawat24: Payout of {{amountFormatted}} failed. {{failureReason}} Amount returned to your wallet.",
         variables: [
             "vendorName",
             "amountFormatted",

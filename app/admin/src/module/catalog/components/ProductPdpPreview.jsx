@@ -470,6 +470,7 @@ export function ProductPdpPreview({
   faqs,
   cityName,
   mappedAddonIds,
+  instantEnabled = false,
 }) {
   const images = useMemo(() => galleryImages(gallery), [gallery])
   const title = (name ?? "").trim() || "Untitled product"
@@ -521,10 +522,15 @@ export function ProductPdpPreview({
           <Button
             type="button"
             size="lg"
-            className="min-w-0 flex-1 sm:min-w-40 [&_svg]:size-5"
+            variant={instantEnabled ? "instant" : "cta"}
+            className={cn(
+              "min-w-0 flex-1 sm:min-w-40 [&_svg]:size-5",
+              instantEnabled && "gap-2 shadow-md shadow-primary/20",
+            )}
             onClick={previewOnly}
           >
-            Book Now
+            {instantEnabled ? <ZapIcon className="size-5 fill-current" aria-hidden /> : null}
+            {instantEnabled ? "Book instant" : "Book Now"}
           </Button>
         </div>
 
@@ -547,7 +553,7 @@ export function ProductPdpPreview({
           <AccordionItem value="faqs" className="data-open:bg-transparent">
             <SectionTrigger
               icon={<CircleHelpIcon className="size-4" />}
-              iconClassName="bg-amber-500/15 text-amber-600 dark:text-amber-400"
+              iconClassName="bg-primary/15 text-primary"
               title="FAQs"
               subtitle={
                 faqItems.length

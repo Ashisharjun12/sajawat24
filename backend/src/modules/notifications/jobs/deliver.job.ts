@@ -1,3 +1,4 @@
+import { CUSTOMER_BRAND_NAME } from "@/modules/brand/customer-brand.js";
 import type { Job } from "bullmq";
 import { EmailFactory } from "@/infrastructure/email/email.factory.js";
 import { PushFactory } from "@/infrastructure/push/push.factory.js";
@@ -137,7 +138,7 @@ export async function processEmailDeliverJob(job: Job<DeliverJobData>): Promise<
     }
     await EmailFactory.getProvider().send({
         to,
-        subject: job.data.subject || "Decoryy",
+        subject: job.data.subject || CUSTOMER_BRAND_NAME,
         html: body,
         text: body.replace(/<[^>]+>/g, ""),
     });
@@ -151,7 +152,7 @@ export async function processPushDeliverJob(job: Job<DeliverJobData>): Promise<v
     }
 
     const userId = job.data.userId;
-    const title = job.data.subject || "Decoryy";
+    const title = job.data.subject || CUSTOMER_BRAND_NAME;
     const body = job.data.body ?? "";
     if (!userId || !body) {
         await finish(job.data, "SKIPPED", "expo", "userId/body required for push");
@@ -208,7 +209,7 @@ export async function processInAppDeliverJob(job: Job<DeliverJobData>): Promise<
     }
     await notificationRepository.insertInbox({
         userId,
-        title: job.data.subject || "Decoryy",
+        title: job.data.subject || CUSTOMER_BRAND_NAME,
         body,
         data: {
             event: job.data.event,

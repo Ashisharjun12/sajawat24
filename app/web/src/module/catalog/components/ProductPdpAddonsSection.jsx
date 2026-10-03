@@ -43,12 +43,12 @@ function AddonCardPrice({ pricePaise, compareAtPaise, available }) {
 
 function AddonQtyStepper({ value, max, disabled, onChange }) {
   return (
-    <div className="flex w-full items-center justify-between gap-1 rounded-full border border-border bg-muted/50 px-1 py-0.5">
+    <div className="flex w-full items-center justify-between gap-1 rounded-[var(--r-btn)] border border-border bg-muted/50 px-1 py-0.5">
       <Button
         type="button"
         size="icon-sm"
         variant="ghost"
-        className="size-7 shrink-0 rounded-full"
+        className="size-7 shrink-0"
         disabled={disabled || value <= 0}
         aria-label="Decrease quantity"
         onClick={() => onChange(Math.max(0, value - 1))}
@@ -60,7 +60,7 @@ function AddonQtyStepper({ value, max, disabled, onChange }) {
         type="button"
         size="icon-sm"
         variant="ghost"
-        className="size-7 shrink-0 rounded-full"
+        className="size-7 shrink-0"
         disabled={disabled || value >= max}
         aria-label="Increase quantity"
         onClick={() => onChange(Math.min(max, value + 1))}
@@ -115,7 +115,7 @@ function AddonCard({ addon, qty, disabled, layout, onSetQty, onToggle, onIncreme
             size="sm"
             variant={isOn && !multiQty ? "default" : "outline"}
             className={cn(
-              "mt-auto h-8 w-full rounded-full text-xs font-bold",
+              "mt-auto h-8 w-full text-xs font-bold",
               available && !isOn && "border-primary text-primary hover:bg-primary/10",
             )}
             disabled={disabled || !available}

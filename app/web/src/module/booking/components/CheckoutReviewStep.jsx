@@ -92,13 +92,15 @@ export function CheckoutReviewStep({
 
       <Button
         type="button"
-        size="lg"
+        size="cta"
+        variant="cta"
+        className="w-full"
         disabled={placing || Boolean(paymentWarning)}
         onClick={onPlace}
       >
         {placing ? (
           <span className="inline-flex items-center gap-2">
-            <span className="size-4 animate-pulse rounded-md bg-primary-foreground/40" aria-hidden />
+            <span className="size-4 animate-pulse rounded-md bg-cta-foreground/40" aria-hidden />
             Placing booking…
           </span>
         ) : (

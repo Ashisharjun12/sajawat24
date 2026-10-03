@@ -438,7 +438,9 @@ export function CheckoutPage() {
               ) : null}
               <Button
                 type="button"
-                className="flex-1 sm:flex-none sm:min-w-40"
+                size="cta"
+                variant="cta"
+                className="w-full flex-1 sm:w-auto sm:min-w-40"
                 disabled={!canNext}
                 onClick={onNext}
               >

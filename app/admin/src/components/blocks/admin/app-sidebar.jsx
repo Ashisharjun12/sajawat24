@@ -125,7 +125,7 @@ export function AppSidebar(props) {
             <SidebarMenuButton size="lg" render={<NavLink to={homeTo} />}>
               <DecoryLogo />
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">Decorbuddys</span>
+                <span className="truncate font-medium">sajawat24</span>
                 <span className="truncate text-xs">Admin</span>
               </div>
             </SidebarMenuButton>

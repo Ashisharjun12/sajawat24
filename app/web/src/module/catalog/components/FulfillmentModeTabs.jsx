@@ -1,9 +1,5 @@
+import { CalendarDaysIcon, ZapIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-export const SCHEDULE_FULFILLMENT_ICON_URL =
-  "https://ik.imagekit.io/aevhlnk0h/schedule.png";
-export const INSTANT_FULFILLMENT_ICON_URL =
-  "https://ik.imagekit.io/aevhlnk0h/fast-time.png";
 
 export function FulfillmentModeSwitch({ value, onChange, instantLabel }) {
   const isScheduled = value === "scheduled";
@@ -17,16 +13,13 @@ export function FulfillmentModeSwitch({ value, onChange, instantLabel }) {
         className={cn(
           "flex flex-1 items-center justify-center gap-2 border-b-2 px-2 pb-3 pt-1 text-sm font-semibold transition-colors",
           isScheduled
-            ? "-mb-px border-primary text-foreground"
+            ? "-mb-px border-primary text-primary"
             : "border-transparent text-muted-foreground hover:text-foreground",
         )}
       >
-        <img
-          src={SCHEDULE_FULFILLMENT_ICON_URL}
-          alt=""
-          width={20}
-          height={20}
-          className="size-5 shrink-0 object-contain"
+        <CalendarDaysIcon
+          className={cn("size-5 shrink-0", isScheduled ? "text-primary" : "text-muted-foreground")}
+          aria-hidden
         />
         Schedule
       </button>
@@ -36,16 +29,16 @@ export function FulfillmentModeSwitch({ value, onChange, instantLabel }) {
         className={cn(
           "flex flex-1 items-center justify-center gap-2 border-b-2 px-2 pb-3 pt-1 text-sm font-semibold transition-colors",
           isInstant
-            ? "-mb-px border-orange-500 text-orange-600 dark:text-orange-400"
+            ? "-mb-px border-instant text-instant"
             : "border-transparent text-muted-foreground hover:text-foreground",
         )}
       >
-        <img
-          src={INSTANT_FULFILLMENT_ICON_URL}
-          alt=""
-          width={20}
-          height={20}
-          className="size-5 shrink-0 object-contain"
+        <ZapIcon
+          className={cn(
+            "size-5 shrink-0",
+            isInstant ? "fill-current text-instant" : "text-muted-foreground",
+          )}
+          aria-hidden
         />
         {instantLabel || "Instant"}
       </button>

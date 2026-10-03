@@ -80,7 +80,7 @@ function NotificationsPanelBody({
               type="button"
               variant="secondary"
               size="sm"
-              className="mt-3 rounded-full"
+              className="mt-3"
               onClick={() => void refetch()}
             >
               Retry
@@ -104,7 +104,7 @@ function NotificationsPanelBody({
               <Button
                 type="button"
                 variant="outline"
-                className="mt-2 w-full rounded-full"
+                className="mt-2 w-full"
                 disabled={loadingMore}
                 onClick={() => void onLoadMore()}
               >
@@ -189,7 +189,7 @@ export function NotificationBell({ className }) {
         type="button"
         variant="ghost"
         size="sm"
-        className="h-8 shrink-0 rounded-full px-2.5 text-xs"
+        className="h-8 shrink-0 px-2.5 text-xs"
         onClick={() => void handleMarkAllRead()}
       >
         Mark all read
@@ -204,7 +204,7 @@ export function NotificationBell({ className }) {
           onClick={() => setOpen(false)}
           className={buttonVariants({
             variant: "secondary",
-            className: "h-9 w-full rounded-full",
+            className: "h-9 w-full",
           })}
         >
           View all notifications

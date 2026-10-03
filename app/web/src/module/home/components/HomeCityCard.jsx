@@ -2,14 +2,14 @@ import { ArrowRightIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const CITY_TONES = [
-  "from-amber-400 to-amber-200",
-  "from-orange-400 to-rose-200",
-  "from-emerald-600 to-lime-300",
-  "from-sky-500 to-teal-200",
-  "from-rose-400 to-rose-200",
-  "from-slate-600 to-slate-300",
-  "from-violet-500 to-fuchsia-200",
-  "from-yellow-600 to-amber-300",
+  "from-teal-700 to-teal-400",
+  "from-teal-800 to-emerald-400",
+  "from-cyan-700 to-teal-300",
+  "from-teal-600 to-cyan-300",
+  "from-emerald-700 to-teal-300",
+  "from-slate-700 to-teal-400",
+  "from-teal-900 to-teal-500",
+  "from-cyan-800 to-teal-400",
 ];
 
 export function HomeCityCard({ city, index = 0, onSelect, className }) {
@@ -20,7 +20,7 @@ export function HomeCityCard({ city, index = 0, onSelect, className }) {
       type="button"
       onClick={() => onSelect?.(city)}
       className={cn(
-        "relative h-[140px] w-full overflow-hidden rounded-[20px] p-5 text-left text-white transition-transform hover:scale-[1.02]",
+        "relative h-[140px] w-full overflow-hidden rounded-[var(--r-card)] p-5 text-left text-white transition-shadow hover:shadow-md",
         imageUrl ? "bg-cover bg-center" : `bg-linear-to-br ${CITY_TONES[index % CITY_TONES.length]}`,
         className,
       )}

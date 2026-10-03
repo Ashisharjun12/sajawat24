@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronDownIcon, PenLineIcon, StarIcon } from "lucide-react";
+import { ChevronRightIcon, PenLineIcon, StarIcon } from "lucide-react";
 import { listProductReviews } from "@/api/reviews.api";
 import { productReviewsPath } from "@/lib/catalog-path";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ProductReviewCard } from "@/module/catalog/components/reviews/ProductReviewCard";
 import { ProductReviewsSummary } from "@/module/catalog/components/reviews/ProductReviewsSummary";
@@ -15,7 +16,7 @@ import {
 export function ProductReviewsPreview({
   productId,
   product,
-  previewLimit = 3,
+  previewLimit = 4,
   className,
 }) {
   const [data, setData] = useState(null);
@@ -96,10 +97,9 @@ export function ProductReviewsPreview({
       </div>
 
       {loading ? (
-        <div className="space-y-3">
-          <Skeleton className="h-32 w-full rounded-2xl" />
-          <Skeleton className="h-16 w-full rounded-xl" />
-          <Skeleton className="h-20 w-full rounded-xl" />
+        <div className="flex gap-3 overflow-x-auto pb-1 max-md:flex-row md:flex-col md:overflow-visible md:gap-3">
+          <Skeleton className="h-36 w-[min(82vw,18.5rem)] shrink-0 rounded-[var(--r-card)] md:h-32 md:w-full" />
+          <Skeleton className="hidden h-36 w-[min(82vw,18.5rem)] shrink-0 rounded-[var(--r-card)] max-md:block md:block md:h-16 md:w-full" />
         </div>
       ) : (
         <>
@@ -118,27 +118,33 @@ export function ProductReviewsPreview({
             </span>
           ) : null}
 
-          <div className="flex flex-col">
+          <div
+            className="-mx-4 flex gap-3 overflow-x-auto overscroll-x-contain scroll-smooth px-4 pb-1 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] max-md:flex-row md:mx-0 md:flex-col md:gap-0 md:overflow-visible md:px-0 md:pb-0 md:snap-none [&::-webkit-scrollbar]:hidden"
+            aria-label="Recent customer reviews"
+          >
             {items.map((review) => (
-              <ProductReviewCard key={review.id} review={review} variant="pdp" />
+              <ProductReviewCard key={review.id} review={review} variant="pdpPreview" />
             ))}
           </div>
 
-          {items.length > 0 ? (
-            <div className="flex items-center justify-between gap-3 pt-1">
-              <p className="text-xs text-muted-foreground">
-                Showing {items.length} of {reviewCount.toLocaleString()}
-              </p>
-              {showMore ? (
-                <Link
-                  to={reviewsHref}
-                  className="inline-flex items-center gap-0.5 text-sm font-semibold text-emerald-700 hover:text-emerald-800 dark:text-emerald-500"
-                >
-                  Show more
-                  <ChevronDownIcon className="size-4" aria-hidden />
-                </Link>
-              ) : null}
-            </div>
+          {items.length > 0 && showMore ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              className="mt-1 w-full rounded-[var(--r-btn)] md:mt-2 md:w-auto md:self-start"
+              nativeButton={false}
+              render={<Link to={reviewsHref} />}
+            >
+              View all reviews
+              <ChevronRightIcon className="size-4" aria-hidden />
+            </Button>
+          ) : null}
+
+          {items.length > 0 && !showMore ? (
+            <p className="hidden text-xs text-muted-foreground md:block">
+              Showing {items.length} of {reviewCount.toLocaleString()}
+            </p>
           ) : null}
         </>
       )}

@@ -67,7 +67,7 @@ function GoogleMark({ className }) {
 
 export function LoginCard({ embedded = false }) {
   const { brand } = useSiteShell();
-  const companyName = brand.companyName || "Decoryy";
+  const companyName = brand.companyName || "sajawat24";
   const overlayRef = useRef(null);
   const pendingRef = useRef(false);
   const verifyRef = useRef(false);
@@ -305,7 +305,7 @@ export function LoginCard({ embedded = false }) {
                 variant="outline"
                 size="lg"
                 disabled={pending}
-                className="h-12 w-full rounded-full text-[15px]"
+                className="h-12 w-full text-[15px]"
                 onClick={onGoogleClick}
               >
                 {pending ? (
@@ -318,7 +318,7 @@ export function LoginCard({ embedded = false }) {
               <div
                 ref={overlayRef}
                 className={cn(
-                  "absolute inset-0 overflow-hidden rounded-full [&_div]:h-full [&_div]:w-full [&_iframe]:h-full [&_iframe]:w-full",
+                  "absolute inset-0 overflow-hidden rounded-[var(--r-btn)] [&_div]:h-full [&_div]:w-full [&_iframe]:h-full [&_iframe]:w-full",
                   overlayReady && !pending ? "opacity-0" : "pointer-events-none opacity-0",
                 )}
                 aria-hidden="true"
@@ -352,7 +352,7 @@ export function LoginCard({ embedded = false }) {
                 type="submit"
                 size="lg"
                 disabled={pending || !isValidIndianMobile(phone)}
-                className="h-12 w-full rounded-full text-[15px]"
+                className="h-12 w-full text-[15px]"
               >
                 {pending ? (
                   <Spinner className="size-5" />

@@ -1,24 +1,12 @@
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
-import { CheckIcon, ChevronDownIcon, SearchIcon } from "lucide-react";
+import { ChevronDownIcon, SearchIcon } from "lucide-react";
 import { MapsPinIcon } from "@/components/maps-pin-icon";
 import { getLenis } from "@/lib/lenis-instance";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import {
   formatLocationLabel,
   isBackendCityId,
@@ -28,6 +16,7 @@ import {
 import { useCartStore } from "@/store/cart.store";
 
 const MD_DOWN_MEDIA_QUERY = "(max-width: 767px)";
+const POPULAR_CITY_COUNT = 8;
 
 function useIsMdDown() {
   return useSyncExternalStore(
@@ -39,6 +28,10 @@ function useIsMdDown() {
     () => window.matchMedia(MD_DOWN_MEDIA_QUERY).matches,
     () => false,
   );
+}
+
+function sortCitiesByName(list) {
+  return [...list].sort((a, b) => a.name.localeCompare(b.name, "en", { sensitivity: "base" }));
 }
 
 function CityChip({
@@ -54,12 +47,12 @@ function CityChip({
     <button
       type="button"
       className={cn(
-        "inline-flex h-10 max-w-[13rem] cursor-pointer items-center gap-1.5 rounded-full border border-border bg-background px-3.5 text-left text-[13.5px] transition-shadow hover:border-primary hover:shadow-sm sm:max-w-none",
+        "inline-flex h-10 max-w-[13rem] cursor-pointer items-center gap-1.5 rounded-[var(--r-btn)] border border-border bg-background px-3.5 text-left text-[13.5px] transition-shadow hover:border-primary hover:shadow-sm sm:max-w-none",
         className,
       )}
       {...props}
     >
-      <MapsPinIcon size={14} className="size-3.5" />
+      <MapsPinIcon size={14} className="size-3.5 text-primary" strokeWidth={2.25} />
       <span className={cn("min-w-0 truncate font-bold", labelClassName)}>
         {formatLocationLabel(city, pincode, source)}
       </span>
@@ -70,19 +63,106 @@ function CityChip({
   );
 }
 
+function SectionLabel({ children }) {
+  return (
+    <p className="mb-2.5 px-0.5 text-[11px] font-bold tracking-wider text-muted-foreground uppercase">
+      {children}
+    </p>
+  );
+}
+
+function LocationPickerHeader() {
+  return (
+    <div className="flex items-start gap-3 px-4 pt-1 pb-2">
+      <span
+        className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary"
+        aria-hidden
+      >
+        <MapsPinIcon size={20} className="size-5" strokeWidth={2.25} />
+      </span>
+      <div className="min-w-0 pt-0.5">
+        <h2 className="font-heading text-lg font-semibold tracking-tight text-foreground">
+          Select your city
+        </h2>
+        <p className="text-sm text-muted-foreground">See pricing for your location</p>
+      </div>
+    </div>
+  );
+}
+
+function PopularCityCard({ city, selected, onSelect }) {
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(city)}
+      className={cn(
+        "flex flex-col items-center gap-2 rounded-[var(--r-card)] border border-border/80 bg-card px-1.5 py-3 text-center transition-colors hover:border-primary/35 hover:bg-muted/40",
+        selected && "border-primary/50 bg-primary/5 ring-1 ring-primary/20",
+      )}
+    >
+      <span className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary">
+        <MapsPinIcon size={16} className="size-4" strokeWidth={2.25} />
+      </span>
+      <span className="line-clamp-2 text-xs font-semibold leading-tight text-foreground">
+        {city.name}
+      </span>
+    </button>
+  );
+}
+
+function AllCityRow({ city, selected, onSelect }) {
+  return (
+    <li>
+      <button
+        type="button"
+        onClick={() => onSelect(city)}
+        className={cn(
+          "flex w-full cursor-pointer items-center gap-2.5 rounded-[var(--r-btn)] px-3 py-2.5 text-left text-sm font-medium text-foreground transition-colors hover:bg-muted/80",
+          selected && "bg-muted/90",
+        )}
+      >
+        <MapsPinIcon
+          size={16}
+          className={cn("size-4 shrink-0", selected ? "text-primary" : "text-muted-foreground")}
+          strokeWidth={2.25}
+        />
+        <span className="min-w-0 truncate">{city.name}</span>
+      </button>
+    </li>
+  );
+}
+
 function LocationCityPickerPanel({
   query,
   onQueryChange,
-  filtered,
   cities,
   selectedCityId,
   onSelectCity,
-  headerClassName,
 }) {
+  const isSearching = query.trim().length > 0;
+
+  const popularCities = useMemo(() => {
+    if (isSearching || cities.length === 0) return [];
+    return cities.slice(0, POPULAR_CITY_COUNT);
+  }, [cities, isSearching]);
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return sortCitiesByName(cities);
+    return sortCitiesByName(
+      cities.filter(
+        (item) =>
+          item.name.toLowerCase().includes(q) || item.state?.toLowerCase().includes(q),
+      ),
+    );
+  }, [cities, query]);
+
   return (
     <>
-      <div className={cn("shrink-0 px-4 pt-2 pb-3", headerClassName)}>
-        <div className="relative mt-3">
+      <LocationPickerHeader />
+
+      <div className="shrink-0 px-4 pb-3">
+        <div className="relative">
           <SearchIcon
             className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground"
             aria-hidden
@@ -90,63 +170,58 @@ function LocationCityPickerPanel({
           <Input
             value={query}
             onChange={(event) => onQueryChange(event.target.value)}
-            placeholder="Search city or state"
-            className="h-11 rounded-2xl border-border/60 bg-muted/40 pl-10 shadow-none"
+            placeholder="Search city…"
+            className="h-11 rounded-[var(--r-input)] border-border/70 bg-muted/30 pl-10 shadow-none"
             autoComplete="off"
           />
         </div>
-        <p className="mt-3 px-0.5 text-xs font-medium text-muted-foreground">
-          Cities we serve
-        </p>
       </div>
 
       <div
-        className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-2 pb-[max(1rem,env(safe-area-inset-bottom))]"
+        className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
         data-lenis-prevent
       >
         {cities.length === 0 ? (
-          <p className="px-2 py-8 text-center text-sm text-muted-foreground">
-            No cities available yet.
-          </p>
+          <p className="py-10 text-center text-sm text-muted-foreground">No cities available yet.</p>
         ) : null}
+
         {cities.length > 0 && filtered.length === 0 ? (
-          <p className="px-2 py-8 text-center text-sm text-muted-foreground">
+          <p className="py-10 text-center text-sm text-muted-foreground">
             No city matches that search.
           </p>
         ) : null}
-        <ul className="flex flex-col gap-0.5">
-          {filtered.map((item) => {
-            const selected = selectedCityId === item.id;
-            return (
-              <li key={item.id}>
-                <button
-                  type="button"
-                  onClick={() => onSelectCity(item)}
-                  className={cn(
-                    "flex w-full cursor-pointer items-center gap-3 rounded-xl px-2.5 py-2.5 text-left text-sm transition-colors hover:bg-muted/80",
-                    selected && "bg-muted ring-1 ring-border/60",
-                  )}
-                >
-                  <span
-                    className={cn(
-                      "flex size-9 shrink-0 items-center justify-center rounded-md bg-muted",
-                      selected && "bg-primary/15",
-                    )}
-                  >
-                    <MapsPinIcon size={16} className="size-4" />
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block font-medium text-foreground">{item.name}</span>
-                    <span className="block text-xs text-muted-foreground">{item.state}</span>
-                  </span>
-                  {selected ? (
-                    <CheckIcon className="size-4 shrink-0 text-primary" aria-hidden />
-                  ) : null}
-                </button>
-              </li>
-            );
-          })}
-        </ul>
+
+        {popularCities.length > 0 ? (
+          <section className="mb-5" aria-label="Popular cities">
+            <SectionLabel>Popular cities</SectionLabel>
+            <div className="grid grid-cols-4 gap-2">
+              {popularCities.map((item) => (
+                <PopularCityCard
+                  key={item.id}
+                  city={item}
+                  selected={selectedCityId === item.id}
+                  onSelect={onSelectCity}
+                />
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        {filtered.length > 0 ? (
+          <section aria-label={isSearching ? "Search results" : "All cities"}>
+            <SectionLabel>{isSearching ? "Results" : "All cities"}</SectionLabel>
+            <ul className="flex flex-col gap-0.5">
+              {filtered.map((item) => (
+                <AllCityRow
+                  key={item.id}
+                  city={item}
+                  selected={selectedCityId === item.id}
+                  onSelect={onSelectCity}
+                />
+              ))}
+            </ul>
+          </section>
+        ) : null}
       </div>
     </>
   );
@@ -172,16 +247,6 @@ export function LocationPicker({ variant = "default", className }) {
     void setCartLocation(body).catch(() => {});
   }
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return cities;
-    return cities.filter(
-      (item) =>
-        item.name.toLowerCase().includes(q) ||
-        item.state.toLowerCase().includes(q),
-    );
-  }, [cities, query]);
-
   useEffect(() => {
     if (!pickerOpen) return undefined;
 
@@ -206,17 +271,23 @@ export function LocationPicker({ variant = "default", className }) {
     useLocationStore.getState().setNeedsPrompt(false);
   }
 
+  function closePicker(open) {
+    setPickerOpen(open);
+    if (!open) setQuery("");
+  }
+
   const panel = (
     <LocationCityPickerPanel
       query={query}
       onQueryChange={setQuery}
-      filtered={filtered}
       cities={cities}
       selectedCityId={city?.id}
       onSelectCity={selectCity}
-      headerClassName={isMdDown ? "pt-1" : "pt-5 pr-12"}
     />
   );
+
+  const shellClass =
+    "flex max-h-[min(88dvh,40rem)] flex-col gap-0 overflow-hidden rounded-[var(--r-sheet)] p-0";
 
   return (
     <>
@@ -253,46 +324,21 @@ export function LocationPicker({ variant = "default", className }) {
       />
 
       {isMdDown ? (
-        <Sheet
-          open={pickerOpen}
-          onOpenChange={(open) => {
-            setPickerOpen(open);
-            if (!open) setQuery("");
-          }}
-        >
-          <SheetContent
-            side="bottom"
-            className="flex max-h-[min(88dvh,36rem)] flex-col gap-0 overflow-hidden rounded-t-3xl border-t p-0 pb-0"
-          >
-            <SheetHeader className="gap-1 border-b border-border/60 px-4 py-4 text-left">
-              <SheetTitle className="font-heading text-lg">Choose city</SheetTitle>
-              <SheetDescription>
-                Pick a city for local pricing and availability.
-              </SheetDescription>
-            </SheetHeader>
-            <div className="flex min-h-0 flex-1 flex-col overflow-hidden">{panel}</div>
+        <Sheet open={pickerOpen} onOpenChange={closePicker}>
+          <SheetContent side="bottom" showCloseButton className={cn(shellClass, "border-t")}>
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden pt-3">{panel}</div>
           </SheetContent>
         </Sheet>
       ) : (
-        <Dialog
-          open={pickerOpen}
-          onOpenChange={(open) => {
-            setPickerOpen(open);
-            if (!open) setQuery("");
-          }}
-        >
+        <Dialog open={pickerOpen} onOpenChange={closePicker}>
           <DialogContent
-            className="top-[12vh] flex max-h-[min(32rem,85vh)] translate-y-0 flex-col gap-0 overflow-hidden rounded-3xl p-0 sm:max-w-[min(100%-1.25rem,26rem)]"
+            showCloseButton
+            className={cn(
+              shellClass,
+              "top-[8vh] max-h-[min(40rem,90vh)] w-[min(calc(100%-2rem),28rem)] translate-y-0 sm:max-w-[28rem]",
+            )}
           >
-            <div className="shrink-0 px-4 pb-3">
-              <DialogHeader className="gap-1 text-left">
-                <DialogTitle className="font-heading text-lg">Choose city</DialogTitle>
-                <DialogDescription>
-                  Pick a city for local pricing and availability.
-                </DialogDescription>
-              </DialogHeader>
-            </div>
-            <div className="flex min-h-0 flex-1 flex-col overflow-hidden">{panel}</div>
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden pt-2">{panel}</div>
           </DialogContent>
         </Dialog>
       )}

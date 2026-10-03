@@ -33,7 +33,7 @@ export function ProductPdpMobileHeader() {
   const accessToken = useAuthStore((s) => s.accessToken);
   const setLoginOpen = useAuthStore((s) => s.setLoginOpen);
   const isLoggedIn = Boolean(user || accessToken);
-  const companyName = brand.companyName || "Decoryy";
+  const companyName = brand.companyName || "sajawat24";
 
   if (!isMdDown) {
     return null;

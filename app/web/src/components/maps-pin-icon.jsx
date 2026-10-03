@@ -1,14 +1,14 @@
-const MAPS_PIN_ICON_URL =
-  "https://ik.imagekit.io/aevhlnk0h/placeholder.png?updatedAt=1789971373748";
+import { MapPinIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-export function MapsPinIcon({ className, size = 20, ...props }) {
+/** Shared map pin for location / city UI (Lucide — matches app theme). */
+export function MapsPinIcon({ className, size = 20, strokeWidth = 2, ...props }) {
   return (
-    <img
-      src={MAPS_PIN_ICON_URL}
-      alt=""
-      width={size}
-      height={size}
-      className={className}
+    <MapPinIcon
+      className={cn("shrink-0", className)}
+      size={size}
+      strokeWidth={strokeWidth}
+      aria-hidden
       {...props}
     />
   );

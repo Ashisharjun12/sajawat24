@@ -12,7 +12,7 @@ const HEX_COLOR_RE = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
 
 /** Tailwind classes for preset image corner badges (bg + text). */
 export const SECTION_BADGE_COLOR_CLASS = {
-  amber: "bg-amber-500 text-white",
+  amber: "bg-primary text-primary-foreground",
   emerald: "bg-emerald-600 text-white",
   rose: "bg-rose-500 text-white",
   sky: "bg-sky-600 text-white",

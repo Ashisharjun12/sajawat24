@@ -1,3 +1,4 @@
+import { CUSTOMER_BRAND_NAME } from "@/modules/brand/customer-brand.js";
 import { _config } from "@/config/config.js";
 import { ApiError } from "@/shared/errors/apiError.js";
 
@@ -28,7 +29,7 @@ export function formatInrPaise(paise: number): string {
 export function formatLoginOtpSms(otp: string, androidAppHash?: string): string {
     const hash = androidAppHash?.trim();
     if (hash && ANDROID_HASH_PATTERN.test(hash)) {
-        return `<#> Your Decoryy code is ${otp}\n${hash}`;
+        return `<#> Your ${CUSTOMER_BRAND_NAME} code is ${otp}\n${hash}`;
     }
-    return `Your Decoryy code is ${otp}. Valid for 5 minutes.`;
+    return `Your ${CUSTOMER_BRAND_NAME} code is ${otp}. Valid for 5 minutes.`;
 }

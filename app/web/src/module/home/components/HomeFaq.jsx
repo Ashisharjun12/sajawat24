@@ -17,7 +17,7 @@ export function HomeFaq() {
     <Reveal className="mx-auto max-w-[1240px] px-4 py-16 md:px-8">
       <div className="mx-auto w-full max-w-xl">
         <div className="mb-8 text-center">
-          <span className="mb-0.5 block text-[15px] font-bold tracking-wide text-amber-800 italic uppercase dark:text-primary">
+          <span className="mb-0.5 block text-[15px] font-bold tracking-wide text-primary italic uppercase">
             before you book
           </span>
           <h2 className="font-heading text-[clamp(1.625rem,3vw,2.25rem)] font-extrabold tracking-tight">

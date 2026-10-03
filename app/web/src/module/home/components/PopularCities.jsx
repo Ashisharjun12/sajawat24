@@ -21,7 +21,7 @@ export function PopularCities() {
       <div className="mb-8">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-2 gap-y-1">
           <div>
-            <span className="mb-0.5 block text-[15px] font-bold tracking-wide text-amber-800 italic uppercase dark:text-primary">
+            <span className="mb-0.5 block text-[15px] font-bold tracking-wide text-primary italic uppercase">
               wherever you&apos;re celebrating
             </span>
             <h2 className="font-heading text-[clamp(1.625rem,3vw,2.25rem)] font-extrabold tracking-tight">

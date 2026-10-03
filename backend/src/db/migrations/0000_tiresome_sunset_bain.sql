@@ -273,6 +273,7 @@ CREATE TABLE "addons" (
 	"is_active" boolean DEFAULT true NOT NULL,
 	"price_paise" integer,
 	"compare_at_paise" integer,
+	"max_quantity" integer DEFAULT 1 NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
 	CONSTRAINT "addons_slug_unique" UNIQUE("slug")

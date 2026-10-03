@@ -547,6 +547,7 @@ export function ProductFormPage() {
           faqs={faqs}
           cityName={cities[0]?.name}
           mappedAddonIds={mappedAddonIds}
+          instantEnabled={instantEnabled}
         />
       </div>
     )
@@ -1048,7 +1049,7 @@ export function ProductFormPage() {
               Cancel
             </Button>
             <Button
-              type="button"
+              variant="cta"
               disabled={submitting || !createReady}
               onClick={form.handleSubmit(persist)}
             >

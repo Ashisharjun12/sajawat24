@@ -61,7 +61,7 @@ const badgeVariants = cva(
       /** `default`: active style radius. `full`: pill radius. */
       radius: {
         default:
-          "rounded-4xl",
+          "rounded-(--radius-chip)",
         full: "rounded-full",
       },
     },

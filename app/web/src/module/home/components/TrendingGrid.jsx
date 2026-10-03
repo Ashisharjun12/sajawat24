@@ -13,7 +13,7 @@ export function TrendingGrid() {
     <Reveal id="trending" className="mx-auto max-w-[1240px] scroll-mt-24 px-4 py-12 md:px-8 md:py-16">
       <div className="mb-6 flex flex-wrap items-end justify-between gap-5 md:mb-8">
         <div>
-          <span className="mb-0.5 block text-[15px] font-bold tracking-wide text-amber-800 italic uppercase dark:text-primary">
+          <span className="mb-0.5 block text-[15px] font-bold tracking-wide text-primary italic uppercase">
             going fast this week
           </span>
           <h2 className="font-heading text-[clamp(1.625rem,3vw,2.25rem)] font-extrabold tracking-tight">

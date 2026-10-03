@@ -15,7 +15,7 @@ import { useSiteShell } from "@/module/site/hooks/use-site-shell.jsx";
 
 export function HomeMobileHero({ slides = [] }) {
   const { brand } = useSiteShell();
-  const companyName = brand.companyName || "Decoryy";
+  const companyName = brand.companyName || "sajawat24";
   const user = useAuthStore((s) => s.user);
   const accessToken = useAuthStore((s) => s.accessToken);
   const setLoginOpen = useAuthStore((s) => s.setLoginOpen);

@@ -129,9 +129,15 @@ export function BookingCard({ booking }) {
             <span className="text-muted-foreground">{formatDeliveryLine(booking) || "Delivery address on file"}</span>
           </p>
         </div>
-        <Button asChild className="shrink-0 rounded-lg">
-          <Link to={`/account/bookings/${booking.id}`}>Order details</Link>
-        </Button>
+        <Button
+          type="button"
+          size="sm"
+          className="h-10 w-full shrink-0 px-4 sm:w-auto"
+          nativeButton={false}
+          render={
+            <Link to={`/account/bookings/${booking.id}`}>Order details</Link>
+          }
+        />
       </div>
 
       <BookingOrderProgress status={booking.status} />

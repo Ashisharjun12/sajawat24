@@ -23,7 +23,7 @@ export type SiteBrand = {
 };
 
 export const DEFAULT_SITE_BRAND: SiteBrand = {
-    companyName: "Decoryy",
+    companyName: "sajawat24",
     footerDescription:
         "City-priced decoration setups — balloons, backdrops, and lights, dressed for the room you have.",
     logoLightUploadId: null,

@@ -1,45 +1,65 @@
-import { ClockIcon } from "lucide-react";
+import { ZapIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { discountPercent } from "@/lib/product-price";
 import { formatInstantCardEta } from "@/module/catalog/lib/instant-card-copy";
 
-export function ProductCardInstantBadge({ instant, className }) {
-  if (!instant?.enabled || !instant.showBadge) return null;
-  const label = (instant.badgeLabel || "Instant").trim() || "Instant";
+/** Commercial anchor — top-left on card image (Baymard-style deal visibility). */
+export function ProductCardDiscountBadge({ pricePaise, compareAtPaise, className }) {
+  const percentOff = discountPercent(pricePaise, compareAtPaise);
+  if (percentOff <= 0) return null;
   return (
     <span
       className={cn(
-        "absolute top-2 left-2 z-1 max-w-[85%] truncate rounded-md bg-orange-500 px-2 py-0.5 text-[10px] font-bold text-white shadow-sm sm:text-[11px]",
+        "absolute top-2 left-2 z-[2] max-w-[85%] truncate rounded-[var(--r-chip)] bg-background/95 px-2 py-0.5 text-[10px] font-bold text-primary shadow-sm ring-1 ring-border/50 backdrop-blur-[2px] sm:text-[11px]",
         className,
       )}
     >
-      {label}
+      {percentOff}% off
     </span>
   );
 }
 
-export function ProductCardInstantEta({ instant, className, size = "rail" }) {
+/**
+ * Instant fulfillment — shown in card body (not on photo).
+ * Photo overlays are reserved for price/merch; speed reads better next to ratings/price.
+ */
+export function ProductCardInstantLine({ instant, size = "rail", className }) {
   if (!instant?.enabled) return null;
+
   const eta = formatInstantCardEta(instant.etaMinutes);
-  if (!eta) return null;
+  const showLabel = Boolean(instant.showBadge);
+  const label = (instant.badgeLabel || "Instant").trim() || "Instant";
+
+  if (!showLabel && !eta) return null;
+
   const textClass =
-    size === "rail" ? "text-[11px] font-medium sm:text-xs" : "text-xs font-medium";
+    size === "rail" ? "text-[11px] font-semibold sm:text-xs" : "text-xs font-semibold";
+
+  const parts = [];
+  if (showLabel) parts.push(label);
+  if (eta) parts.push(eta);
 
   return (
     <div
-      className={cn(
-        "flex items-center gap-1.5 text-foreground",
-        textClass,
-        className,
-      )}
-      title={`${eta} setup after confirmation`}
+      className={cn("flex min-w-0 max-w-[55%] items-center gap-1 text-instant sm:max-w-[62%]", textClass, className)}
+      title={
+        eta
+          ? `${showLabel ? `${label} · ` : ""}${eta} typical arrival after confirmation`
+          : label
+      }
     >
-      <span
-        className="flex size-[1.125rem] shrink-0 items-center justify-center rounded-full bg-blue-600/15 text-blue-600 dark:text-blue-400"
-        aria-hidden
-      >
-        <ClockIcon className="size-2.5" strokeWidth={2.25} />
-      </span>
-      <span className="tabular-nums leading-none">{eta}</span>
+      <ZapIcon className="size-3 shrink-0 fill-current" aria-hidden />
+      <span className="truncate leading-none tabular-nums">{parts.join(" · ")}</span>
     </div>
   );
+}
+
+/** @deprecated Use ProductCardInstantLine on card body instead of image overlays. */
+export function ProductCardInstantBadge() {
+  return null;
+}
+
+/** @deprecated Use ProductCardInstantLine. */
+export function ProductCardInstantEta(props) {
+  return <ProductCardInstantLine {...props} />;
 }

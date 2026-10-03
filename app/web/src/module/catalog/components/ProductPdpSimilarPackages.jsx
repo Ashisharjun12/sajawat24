@@ -43,7 +43,7 @@ function SimilarPackagesBody({ product, enabled, onNavigate }) {
         <p className="text-sm text-muted-foreground">
           Choose your city to see similar packages and local prices.
         </p>
-        <Button type="button" className="rounded-full" onClick={() => setPickerOpen(true)}>
+        <Button type="button" className="w-full sm:w-auto" onClick={() => setPickerOpen(true)}>
           Choose city
         </Button>
       </div>
@@ -90,7 +90,9 @@ function SimilarPackagesBody({ product, enabled, onNavigate }) {
           <Button
             type="button"
             nativeButton={false}
-            className="h-11 w-full rounded-full bg-primary text-sm font-semibold text-black hover:bg-primary/85"
+            variant="cta"
+            size="cta"
+            className="w-full text-sm font-semibold"
             render={
               <Link
                 to={meta.viewAllHref}
@@ -127,7 +129,7 @@ function SimilarPackagesHeader({ onClose, className }) {
         type="button"
         variant="ghost"
         size="icon-sm"
-        className="shrink-0 rounded-full"
+        className="shrink-0 rounded-[var(--r-btn)]"
         onClick={onClose}
         aria-label="Close"
       >
@@ -144,7 +146,7 @@ export function ProductPdpSimilarGalleryButton({ className, onClick, disabled })
       disabled={disabled}
       onClick={onClick}
       className={cn(
-        "pointer-events-auto inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-xs font-semibold text-foreground shadow-md ring-1 ring-black/5 backdrop-blur-sm transition-colors hover:bg-white dark:bg-background/95",
+        "pointer-events-auto inline-flex items-center gap-1.5 rounded-[var(--r-btn)] bg-white/95 px-3 py-1.5 text-xs font-semibold text-foreground shadow-md ring-1 ring-black/5 backdrop-blur-sm transition-colors hover:bg-white dark:bg-background/95",
         disabled && "pointer-events-none opacity-50",
         className,
       )}
@@ -182,7 +184,7 @@ export function ProductPdpSimilarPackages({ product, open, onOpenChange }) {
         <SheetContent
           side="bottom"
           showCloseButton={false}
-          className="flex h-[min(88dvh,40rem)] max-h-[min(88dvh,40rem)] flex-col gap-0 overflow-hidden rounded-t-3xl border-t p-0"
+          className="flex h-[min(88dvh,40rem)] max-h-[min(88dvh,40rem)] flex-col gap-0 overflow-hidden rounded-t-[var(--r-sheet)] border-t p-0"
         >
           <SheetHeader className="sr-only">
             <SheetTitle>Similar packages</SheetTitle>
@@ -201,7 +203,7 @@ export function ProductPdpSimilarPackages({ product, open, onOpenChange }) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showCloseButton={false}
-        className="top-[10vh] flex h-[min(85vh,40rem)] max-h-[min(85vh,40rem)] w-[min(100%-2rem,32rem)] max-w-lg translate-y-0 flex-col gap-0 overflow-hidden rounded-3xl p-0 sm:max-w-lg"
+        className="top-[10vh] flex h-[min(85vh,40rem)] max-h-[min(85vh,40rem)] w-[min(100%-2rem,32rem)] max-w-lg translate-y-0 flex-col gap-0 overflow-hidden rounded-[var(--r-card)] p-0 sm:max-w-lg"
       >
         <DialogHeader className="sr-only">
           <DialogTitle>Similar packages</DialogTitle>

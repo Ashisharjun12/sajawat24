@@ -49,7 +49,7 @@ export function normalizeCategory(raw) {
     iconKey: raw.iconKey ?? null,
     iconTone: raw.iconTone ?? null,
     imageUrl,
-    tileBg: raw.tileBg ?? "bg-amber-50",
+    tileBg: raw.tileBg ?? "bg-muted",
     children,
   };
 }

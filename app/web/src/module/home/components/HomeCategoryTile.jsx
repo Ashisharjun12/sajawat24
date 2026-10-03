@@ -33,10 +33,8 @@ export function HomeCategoryTile({
   );
 
   const imageRadius = squareImage
-    ? "rounded-md"
-    : compact
-      ? "rounded-xl"
-      : "rounded-2xl";
+    ? "rounded-[var(--r-btn)]"
+    : "rounded-[var(--r-card)]";
 
   const imageBox = (
     <span

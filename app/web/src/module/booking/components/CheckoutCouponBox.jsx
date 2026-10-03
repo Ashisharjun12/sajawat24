@@ -16,7 +16,7 @@ import {
 function CouponIconBadge() {
   return (
     <span
-      className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary text-black"
+      className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground"
       aria-hidden
     >
       <TicketPercentIcon className="size-4" strokeWidth={2.25} />
@@ -164,7 +164,7 @@ export function CheckoutCouponBox({ cart, paymentMethod, className }) {
           />
           <Button
             type="button"
-            className="h-10 shrink-0 rounded-lg bg-primary px-4 font-semibold text-black hover:bg-primary/85"
+            className="h-10 shrink-0 rounded-lg px-4 font-semibold"
             onClick={onApply}
             disabled={applying || needsCity || !code.trim()}
           >

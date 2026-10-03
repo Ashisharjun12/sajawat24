@@ -74,7 +74,9 @@ export function LoginForm({
         <div className="flex flex-col items-center gap-3 text-center">
           <DecoryLogo className="size-16" />
           <div className="flex flex-col gap-1">
-            <h1 className="font-heading text-3xl font-medium tracking-tight">Decorbuddys</h1>
+            <h1 className="font-heading text-3xl font-medium tracking-tight text-foreground">
+              sajawat24
+            </h1>
             <p className="text-sm text-muted-foreground">
               Use your admin email and password.
             </p>
@@ -140,10 +142,13 @@ export function LoginForm({
           <motion.div whileTap={reduceMotion ? undefined : { scale: 0.98 }}>
             <Button
               type="submit"
+              size="cta"
               className="w-full"
               disabled={form.formState.isSubmitting}
             >
-              {form.formState.isSubmitting ? <Spinner /> : null}
+              {form.formState.isSubmitting ? (
+                <Spinner className="text-[var(--brand-button-fg)]" />
+              ) : null}
               Sign in
             </Button>
           </motion.div>

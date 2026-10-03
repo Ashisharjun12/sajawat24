@@ -315,7 +315,7 @@ export function SearchCommand({ variant = "bar", className, fullScreen = false }
             <Button
               type="button"
               variant="outline"
-              className="h-11 w-full rounded-full border-primary/20 bg-primary/5 text-sm font-medium text-foreground hover:bg-primary/10"
+              className="h-11 w-full rounded-[var(--r-btn)] border-primary/20 bg-primary/5 text-sm font-medium text-foreground hover:bg-primary/10"
               onClick={() => {
                 setOpen(false);
                 navigate("/decorations");
@@ -351,11 +351,11 @@ export function SearchCommand({ variant = "bar", className, fullScreen = false }
           type="button"
           onClick={() => setOpen(true)}
           className={cn(
-            "flex h-11 w-full items-center gap-2.5 rounded-full bg-background px-4 text-left text-[13px] text-muted-foreground shadow-sm",
+            "flex h-11 w-full items-center gap-2.5 rounded-[var(--r-btn)] bg-background px-4 text-left text-[13px] text-muted-foreground shadow-sm",
             className,
           )}
         >
-          <SearchIcon className="size-4 shrink-0 text-amber-700" />
+          <SearchIcon className="size-4 shrink-0 text-primary" />
           <span className="min-w-0 flex-1 truncate">
             Search decorations, occasions…
           </span>
@@ -393,7 +393,7 @@ export function SearchCommand({ variant = "bar", className, fullScreen = false }
         type="button"
         onClick={() => setOpen(true)}
         className={cn(
-          "flex h-10 w-full items-center gap-2.5 rounded-full border border-border bg-card px-4 text-left text-[13.5px] text-muted-foreground transition-shadow hover:shadow-sm",
+          "flex h-10 w-full items-center gap-2.5 rounded-[var(--r-btn)] border border-border bg-card px-4 text-left text-[13.5px] text-muted-foreground transition-shadow hover:shadow-sm",
           className,
         )}
       >

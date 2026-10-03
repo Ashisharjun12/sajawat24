@@ -64,8 +64,15 @@ export function ProductReviewsAdminPage() {
           <div className="min-w-0">
             <p className="truncate font-medium">{product?.name}</p>
             <p className="text-sm text-muted-foreground">
-              {product?.ratingAvg != null ? `${product.ratingAvg} ★` : "No rating"} ·{" "}
-              {product?.reviewCount ?? 0} review{(product?.reviewCount ?? 0) === 1 ? "" : "s"}
+              {product?.ratingAvg != null ? (
+                <>
+                  {product.ratingAvg}{" "}
+                  <span className="text-[var(--review-star-filled)]">★</span>
+                </>
+              ) : (
+                "No rating"
+              )}{" "}
+              · {product?.reviewCount ?? 0} review{(product?.reviewCount ?? 0) === 1 ? "" : "s"}
             </p>
           </div>
         </div>

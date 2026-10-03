@@ -10,7 +10,7 @@ export function HomeScrollControls({
   className,
 }) {
   const buttonClass =
-    "size-7 rounded-full border-0 bg-amber-400 text-amber-950 shadow-sm hover:bg-amber-500 disabled:opacity-40 sm:size-8";
+    "size-7 rounded-full border-0 shadow-sm disabled:opacity-40 sm:size-8";
 
   return (
     <div className={cn("flex items-center gap-1.5", className)}>

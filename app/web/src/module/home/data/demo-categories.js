@@ -16,7 +16,7 @@ export const DEMO_CATEGORIES = [
     slug: "birthday",
     icon: CakeIcon,
     extra: false,
-    iconBg: "bg-amber-100 text-amber-600 dark:bg-amber-400/15 dark:text-amber-400",
+    iconBg: "bg-primary/10 text-primary dark:bg-primary/15",
   },
   {
     id: "anniversary",

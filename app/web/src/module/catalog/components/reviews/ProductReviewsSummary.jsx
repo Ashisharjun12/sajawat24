@@ -6,12 +6,34 @@ function distributionPercent(count, total) {
   return Math.round((count / total) * 100);
 }
 
-export function ProductReviewsSummary({ summary, className, availableCount }) {
+export function ProductReviewsSummary({ summary, className, availableCount, variant = "default" }) {
   const ratingAvg = summary?.ratingAvg;
   const reviewCount = summary?.reviewCount ?? 0;
   const distribution = summary?.distribution ?? {};
 
   if (!reviewCount) return null;
+
+  if (variant === "plain") {
+    const ratingLabel =
+      ratingAvg != null && Number.isFinite(Number(ratingAvg))
+        ? Number(ratingAvg).toFixed(1)
+        : "—";
+    return (
+      <p className={cn("text-sm text-muted-foreground", className)}>
+        <span className="font-heading text-xl font-bold tabular-nums text-foreground">
+          {ratingLabel}
+        </span>
+        <span className="text-amber-500" aria-hidden>
+          {" "}
+          ★
+        </span>
+        <span>
+          {" "}
+          · {reviewCount.toLocaleString()} review{reviewCount === 1 ? "" : "s"}
+        </span>
+      </p>
+    );
+  }
 
   const rows = [5, 4, 3, 2, 1];
   const basedOn = availableCount ?? reviewCount;

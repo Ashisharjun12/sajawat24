@@ -41,9 +41,17 @@ export function ProductReviewCard({ review, className, variant = "card" }) {
   const dateLabel = formatReviewDate(review?.reviewedAt);
   const locationLine = [review.reviewerCity, dateLabel].filter(Boolean).join(" · ");
 
-  if (variant === "pdp") {
+  if (variant === "pdp" || variant === "pdpPreview") {
+    const isRail = variant === "pdpPreview";
     return (
-      <article className={cn("border-b border-border/60 py-4 last:border-b-0", className)}>
+      <article
+        className={cn(
+          isRail
+            ? "flex h-full min-h-[10.5rem] w-[min(82vw,18.5rem)] shrink-0 snap-start flex-col rounded-[var(--r-card)] border border-border/70 bg-background p-4 shadow-sm md:h-auto md:w-full md:min-h-0 md:shrink md:snap-align-none md:rounded-none md:border-0 md:border-b md:bg-transparent md:p-0 md:py-4 md:shadow-none md:last:border-b-0"
+            : "border-b border-border/60 py-4 last:border-b-0",
+          className,
+        )}
+      >
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 items-start gap-2.5">
             <span
@@ -76,7 +84,14 @@ export function ProductReviewCard({ review, className, variant = "card" }) {
           </span>
         </div>
         {review.body ? (
-          <p className="mt-2.5 text-sm leading-relaxed text-foreground/90">{review.body}</p>
+          <p
+            className={cn(
+              "mt-2.5 text-sm leading-relaxed text-foreground/90",
+              isRail && "line-clamp-5 md:line-clamp-none",
+            )}
+          >
+            {review.body}
+          </p>
         ) : null}
       </article>
     );

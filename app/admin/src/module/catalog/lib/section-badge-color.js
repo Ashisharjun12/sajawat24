@@ -33,12 +33,12 @@ export function isValidSectionBadgeColor(value) {
 }
 
 export function presetHex(value) {
-  return SECTION_BADGE_COLOR_OPTIONS.find((option) => option.value === value)?.hex ?? "#f59e0b"
+  return SECTION_BADGE_COLOR_OPTIONS.find((option) => option.value === value)?.hex ?? "#0f766e"
 }
 
 export function pickerValueFromBadgeColor(value) {
   if (isSectionBadgeHex(value)) {
-    return normalizeSectionBadgeHex(value) ?? "#f59e0b"
+    return normalizeSectionBadgeHex(value) ?? "#0f766e"
   }
   return presetHex(value)
 }

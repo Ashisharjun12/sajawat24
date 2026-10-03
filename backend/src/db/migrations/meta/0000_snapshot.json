@@ -1,5 +1,5 @@
 {
-  "id": "9bcc1f36-1443-45db-903f-2e8d0e4d1686",
+  "id": "650258f2-54d1-4b1d-bc34-68002bf3f911",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -1866,6 +1866,13 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": false
+        },
+        "max_quantity": {
+          "name": "max_quantity",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
         },
         "created_at": {
           "name": "created_at",

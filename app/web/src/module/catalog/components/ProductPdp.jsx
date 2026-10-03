@@ -2,8 +2,8 @@ import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from 
 import { Link, useNavigate } from "react-router-dom";
 import { addDays, format, isSameDay, startOfToday } from "date-fns";
 import {
-  CalendarCheck2Icon,
   CalendarDaysIcon,
+  BadgeCheckIcon,
   CheckIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -13,6 +13,7 @@ import {
   FlameIcon,
   ZapIcon,
   SparklesIcon,
+  Maximize2Icon,
 } from "lucide-react";
 import { categoryPath } from "@/lib/catalog-path";
 import { formatPaise } from "@/lib/money";
@@ -30,6 +31,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DecoryImageFallback } from "@/components/decory-image-fallback";
 import { MapsPinIcon } from "@/components/maps-pin-icon";
+import { SectionMerchBadge } from "@/components/section-merch-badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ProductPdpAboutPackage } from "@/module/catalog/components/ProductPdpAboutPackage";
 import { ProductPdpAddonsSection } from "@/module/catalog/components/ProductPdpAddonsSection";
@@ -44,6 +46,7 @@ import { ProductPdpDetailsTabs } from "@/module/catalog/components/ProductPdpDet
 import { FulfillmentModeSwitch } from "@/module/catalog/components/FulfillmentModeTabs";
 import { ProductReviewsPreview } from "@/module/catalog/components/reviews/ProductReviewsPreview";
 import { proceedToCheckout } from "@/module/booking/lib/proceed-to-checkout";
+import { useProductMerchBadge } from "@/module/home/hooks/use-product-merch-badge";
 import { useAuthStore } from "@/store/auth.store";
 import { ProductOtherCategoriesRail } from "@/module/catalog/components/ProductOtherCategoriesRail";
 import { ProductPdpSubcategoryRails } from "@/module/catalog/components/ProductPdpSubcategoryRails";
@@ -165,7 +168,7 @@ function ProductPdpBookingActions({
       <Button
         type="button"
         size="lg"
-        className="h-12 min-w-0 flex-1 gap-2 rounded-xl bg-[#00A859] text-base font-semibold text-white shadow-sm hover:bg-[#009650] hover:text-white sm:min-w-40 [&_svg]:size-5"
+        className="h-12 min-w-0 flex-1 gap-2 bg-[#00A859] text-base font-semibold text-white shadow-sm hover:bg-[#009650] hover:text-white sm:min-w-40 [&_svg]:size-5"
         onClick={onWhatsApp}
       >
         <WhatsAppIcon />
@@ -173,13 +176,11 @@ function ProductPdpBookingActions({
       </Button>
       <Button
         type="button"
-        size="lg"
-        variant={isInstantBooking ? "ghost" : "default"}
+        size="cta"
+        variant={isInstantBooking ? "instant" : "cta"}
         className={cn(
-          "h-12 min-w-0 flex-1 rounded-xl text-base font-bold sm:min-w-40",
-          isInstantBooking
-            ? "gap-2 border-0 bg-orange-500 text-white shadow-md shadow-orange-500/30 hover:bg-orange-600 hover:text-white"
-            : "bg-primary text-black shadow-sm hover:bg-primary/90",
+          "min-w-0 flex-1 sm:min-w-40",
+          isInstantBooking && "gap-2",
         )}
         disabled={booking}
         onClick={onBookNow}
@@ -219,7 +220,7 @@ function ProductPdpMobileBookingBar({
           type="button"
           variant="ghost"
           size="icon"
-          className="size-[3.25rem] shrink-0 rounded-xl bg-emerald-50 text-[#00A859] hover:bg-emerald-100 hover:text-[#009650] [&_svg]:size-6 dark:bg-emerald-950/40 dark:text-emerald-400"
+          className="size-[3.25rem] shrink-0 bg-emerald-50 text-[#00A859] hover:bg-emerald-100 hover:text-[#009650] [&_svg]:size-6 dark:bg-emerald-950/40 dark:text-emerald-400"
           onClick={onWhatsApp}
           aria-label="Chat on WhatsApp"
         >
@@ -228,13 +229,9 @@ function ProductPdpMobileBookingBar({
 
         <Button
           type="button"
-          size="lg"
-          className={cn(
-            "h-[3.25rem] min-w-[9.5rem] max-w-[11.5rem] gap-1 rounded-xl px-3.5 text-sm font-bold shadow-sm",
-            isInstantBooking
-              ? "bg-orange-500 text-white hover:bg-orange-600 hover:text-white"
-              : "bg-primary text-black hover:bg-primary/90",
-          )}
+          size="cta"
+          variant={isInstantBooking ? "instant" : "cta"}
+          className="min-w-[9.5rem] max-w-[11.5rem] gap-1 px-3.5 text-sm font-bold"
           disabled={booking}
           onClick={onBookNow}
         >
@@ -339,10 +336,13 @@ function ProductPrice({ pricePaise, compareAtPaise, ratingAvg, reviewCount }) {
             <span className="text-muted-foreground">{reviews} reviews</span>
           ) : null}
           {ratingLabel != null ? (
-            <>
-              <span className="text-muted-foreground/50" aria-hidden>·</span>
-              <span className="text-muted-foreground">Verified</span>
-            </>
+            <span className="inline-flex items-center gap-1 rounded-[var(--r-btn)] border border-sky-200/90 bg-sky-50 px-2 py-0.5 text-xs font-semibold text-sky-900 dark:border-sky-700/40 dark:bg-sky-950/50 dark:text-sky-200">
+              <BadgeCheckIcon
+                className="size-3.5 shrink-0 text-sky-600 dark:text-sky-400"
+                aria-hidden
+              />
+              Verified
+            </span>
           ) : null}
         </div>
       ) : null}
@@ -378,9 +378,9 @@ function ProductPrice({ pricePaise, compareAtPaise, ratingAvg, reviewCount }) {
 function ProductOnSiteSetupBadge({ label = "On-site setup in 1-1.5 hrs" }) {
   return (
     <span
-      className="inline-flex w-fit max-w-full items-center gap-2 rounded-full bg-primary px-3.5 py-2 text-sm font-semibold text-black"
+      className="inline-flex w-fit max-w-full items-center gap-2 rounded-full bg-primary/10 px-3.5 py-2 text-sm font-semibold text-primary"
     >
-      <TimerIcon className="size-4 shrink-0 text-black" aria-hidden />
+      <TimerIcon className="size-4 shrink-0" aria-hidden />
       {label}
     </span>
   );
@@ -395,7 +395,7 @@ function ProductLocationCard({ cityLabel, onChangeLocation }) {
         className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-emerald-600/10 bg-white shadow-sm dark:bg-background"
         aria-hidden
       >
-        <MapsPinIcon size={24} className="size-6" />
+        <MapsPinIcon size={24} className="size-6 text-emerald-600 dark:text-emerald-400" strokeWidth={2.25} />
       </span>
       <div className="min-w-0 flex-1">
         <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
@@ -527,6 +527,19 @@ function ProductGallery({ images, title, onShare, onSimilar, showSimilar }) {
         ) : (
           <DecoryImageFallback className="min-h-[200px] w-full" />
         )}
+        {src ? (
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              setLightboxOpen(true);
+            }}
+            className="absolute top-3 right-3 z-20 hidden size-10 items-center justify-center rounded-full bg-white/95 text-foreground shadow-md ring-1 ring-black/5 hover:bg-white md:flex md:top-4 md:right-4 dark:bg-background/95"
+            aria-label="Expand image"
+          >
+            <Maximize2Icon className="size-[1.15rem]" aria-hidden />
+          </button>
+        ) : null}
         <div
           className="pointer-events-none absolute inset-x-0 top-0 z-20 flex items-start justify-between p-3 pt-[max(0.75rem,env(safe-area-inset-top))] md:hidden"
         >
@@ -539,6 +552,17 @@ function ProductGallery({ images, title, onShare, onSimilar, showSimilar }) {
             <ChevronLeftIcon className="size-5" aria-hidden />
           </button>
           <div className="pointer-events-auto flex items-center gap-2">
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                setLightboxOpen(true);
+              }}
+              className="flex size-10 items-center justify-center rounded-full bg-white/95 text-foreground shadow-md ring-1 ring-black/5 dark:bg-background/95"
+              aria-label="Expand image"
+            >
+              <Maximize2Icon className="size-[1.15rem]" aria-hidden />
+            </button>
             {onShare ? <ProductShareGalleryTrigger onClick={onShare} /> : null}
             <Link
               to="/"
@@ -624,7 +648,7 @@ function ProductSchedule({ onChange }) {
       <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0">
         <div className="flex min-w-0 items-start gap-3">
           <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-emerald-600/15 text-emerald-600 dark:text-emerald-400">
-            <CalendarCheck2Icon className="size-4" aria-hidden />
+            <CalendarDaysIcon className="size-4" aria-hidden />
           </span>
           <div className="min-w-0">
             <CardTitle>Choose Date &amp; Time</CardTitle>
@@ -829,6 +853,7 @@ export function ProductPdp({ product, onChangeLocation }) {
 
   const productAddons = product?.addons ?? [];
   const hasAddons = productAddons.length > 0;
+  const merchBadge = useProductMerchBadge(product?.id);
   const isLgUp = useIsLgUp();
   const { brand } = useSiteShell();
 
@@ -838,7 +863,7 @@ export function ProductPdp({ product, onChangeLocation }) {
     <ProductReviewsPreview
       productId={product?.id}
       product={product}
-      previewLimit={3}
+      previewLimit={4}
       className={PDP_REVIEWS_PREVIEW_CLASS}
     />
   );
@@ -932,6 +957,11 @@ export function ProductPdp({ product, onChangeLocation }) {
               onClick={() => setShareOpen(true)}
             />
           </div>
+          <SectionMerchBadge
+            variant="inline"
+            label={merchBadge.badgeLabel}
+            color={merchBadge.badgeColor}
+          />
         </div>
 
         <ProductPrice
@@ -954,6 +984,11 @@ export function ProductPdp({ product, onChangeLocation }) {
             onChange={setFulfillment}
             instantLabel={product.instant?.badgeLabel}
           />
+        ) : canInstant && !canScheduled ? (
+          <div className="flex items-center gap-2 border-b border-border pb-3 text-sm font-semibold text-instant">
+            <ZapIcon className="size-5 shrink-0 fill-current" aria-hidden />
+            {product.instant?.badgeLabel || "Instant booking"}
+          </div>
         ) : null}
 
         {isInstantBooking ? (

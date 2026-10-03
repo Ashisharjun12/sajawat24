@@ -16,7 +16,11 @@ export function ModeToggle() {
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          <Button variant="outline" size="icon" className="relative cursor-pointer" />
+          <Button
+            variant="outline"
+            size="icon"
+            className="relative cursor-pointer border-[#0f766e]/30 text-[#0f766e] hover:border-[#0f766e]/50 hover:bg-[#0f766e]/10 dark:border-[#2dd4bf]/40 dark:text-[#2dd4bf] dark:hover:bg-[#2dd4bf]/15"
+          />
         }
       >
         <SunIcon className="size-4 scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />

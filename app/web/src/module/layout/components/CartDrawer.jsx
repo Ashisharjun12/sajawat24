@@ -86,7 +86,7 @@ export function CartDrawer() {
                 type="button"
                 variant="outline"
                 size="sm"
-                className="h-8 gap-1.5 rounded-full px-3 text-xs font-medium text-muted-foreground"
+                className="h-8 gap-1.5 px-3 text-xs font-medium text-muted-foreground"
               >
                 Esc
                 <XIcon className="size-3.5" />
@@ -98,7 +98,7 @@ export function CartDrawer() {
         <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-5">
           {!user ? (
             <div
-              className="mt-4 rounded-2xl bg-linear-to-r from-primary/90 via-primary/70 to-amber-200/80 px-4 py-3.5 text-primary-foreground"
+              className="mt-4 rounded-2xl bg-linear-to-r from-primary to-[var(--brand-primary-dark)] px-4 py-3.5 text-primary-foreground"
             >
               <p className="text-sm font-semibold">Save your bag across devices</p>
               <p className="mt-1 text-xs text-primary-foreground/90">
@@ -226,16 +226,17 @@ export function CartDrawer() {
                 <Button
                   type="button"
                   variant="outline"
-                  size="lg"
-                  className="w-full rounded-xl font-semibold"
+                  size="cta"
+                  className="w-full font-semibold"
                   onClick={onViewBag}
                 >
                   View cart ({itemCount})
                 </Button>
                 <Button
                   type="button"
-                  size="lg"
-                  className="w-full rounded-xl font-semibold"
+                  variant="cta"
+                  size="cta"
+                  className="w-full font-semibold"
                   onClick={onCheckout}
                 >
                   Checkout
@@ -245,8 +246,9 @@ export function CartDrawer() {
           ) : (
             <Button
               type="button"
-              size="lg"
-              className="w-full rounded-xl font-semibold"
+              variant="cta"
+              size="cta"
+              className="w-full font-semibold"
               onClick={() => {
                 setOpen(false);
                 navigate("/decorations");

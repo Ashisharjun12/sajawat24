@@ -5,13 +5,15 @@ const TRUST_ITEMS = [
     icon: SparklesIcon,
     title: "10L+ celebrations",
     subtitle: "Loved by customers India-wide",
-    tileClass: "bg-amber-100 text-amber-600 dark:bg-amber-950/45 dark:text-amber-400",
+    tileClass:
+      "bg-amber-100 text-amber-600 dark:bg-amber-950/45 dark:text-amber-400",
   },
   {
     icon: BadgeCheckIcon,
     title: "Verified decorators",
     subtitle: "Trained & background-checked",
-    tileClass: "bg-violet-100 text-violet-600 dark:bg-violet-950/50 dark:text-violet-400",
+    tileClass:
+      "bg-violet-100 text-violet-600 dark:bg-violet-950/50 dark:text-violet-400",
   },
   {
     icon: ClockIcon,
@@ -23,7 +25,8 @@ const TRUST_ITEMS = [
     icon: ShieldCheckIcon,
     title: "100% secure payments",
     subtitle: "Easy refunds, no hidden charges",
-    tileClass: "bg-emerald-100 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400",
+    tileClass:
+      "bg-emerald-100 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400",
   },
 ];
 
@@ -36,7 +39,7 @@ export function FooterTrustBar() {
           return (
             <div key={item.title} className="flex items-start gap-3.5">
               <span
-                className={`flex size-11 shrink-0 items-center justify-center rounded-xl ${item.tileClass}`}
+                className={`flex size-11 shrink-0 items-center justify-center rounded-full ${item.tileClass}`}
               >
                 <Icon className="size-5" strokeWidth={2.25} aria-hidden="true" />
               </span>

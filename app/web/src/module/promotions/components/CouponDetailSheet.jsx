@@ -58,7 +58,7 @@ export function CouponDetailSheet({ coupon, open, onOpenChange }) {
                 <Button
                   type="button"
                   size="sm"
-                  className="shrink-0 rounded-full bg-primary text-black hover:bg-primary/85"
+                  className="shrink-0 rounded-full"
                   onClick={() => void copyCode()}
                 >
                   <CopyIcon className="size-3.5" />

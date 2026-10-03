@@ -1,5 +1,7 @@
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
+import "@fontsource-variable/plus-jakarta-sans"
+import "@fontsource-variable/plus-jakarta-sans/wght-italic.css"
 import "./index.css"
 import App from "./App.jsx"
 import { ThemeProvider } from "./components/ui/theme-provider"

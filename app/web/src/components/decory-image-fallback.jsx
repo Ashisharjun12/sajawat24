@@ -25,7 +25,7 @@ export function DecoryImageFallback({ className }) {
           fontWeight="600"
           letterSpacing="-0.06em"
         >
-          Decoryy
+          sajawat24
         </text>
       </svg>
     </span>

@@ -28,7 +28,7 @@ export async function openRazorpayCheckout(checkout, customer) {
       key: checkout.keyId,
       amount: checkout.amountPaise,
       currency: checkout.currency || "INR",
-      name: checkout.name || "Decoryy",
+      name: checkout.name || "sajawat24",
       description: checkout.description,
       order_id: checkout.orderId,
       prefill: checkout.prefill || {

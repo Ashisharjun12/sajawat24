@@ -92,7 +92,7 @@ export function SiteHeader() {
           ) : (
             <Button
               size="sm"
-              className="hidden h-10 rounded-full bg-primary px-4 text-black hover:bg-primary/85 dark:text-black sm:inline-flex"
+              className="hidden h-10 px-4 sm:inline-flex"
               onClick={() => setLoginOpen(true)}
             >
               Sign in
