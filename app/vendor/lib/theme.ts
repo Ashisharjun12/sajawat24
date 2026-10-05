@@ -1,59 +1,53 @@
 import { DarkTheme, DefaultTheme, type Theme } from '@react-navigation/native';
+import { useColorScheme } from 'nativewind';
+import { colors, disabled } from '@/lib/design-tokens';
+
+/** Brand primary (teal) for native props that cannot take a className. */
+export const BRAND_PRIMARY_HEX = colors.light.primary;
+
+/** Instant tab + instant badge. Crimson is reserved for Instant surfaces only. */
+export const INSTANT_TAB_HEX = colors.light.instant;
+
+/** Conversion orange — Book Now / Pay only, one per screen. */
+export const BRAND_CTA_HEX = colors.light.cta;
+
+/** Default horizontal inset for stack screens. */
+export const SCREEN_HORIZONTAL_GUTTER = 20;
+
+function scheme(mode: 'light' | 'dark') {
+  const c = colors[mode];
+  return {
+    background: c.bg,
+    foreground: c.text,
+    card: c.surface,
+    cardForeground: c.text,
+    popover: c.surface,
+    popoverForeground: c.text,
+    primary: c.primary,
+    primaryForeground: c.onPrimary,
+    primaryDark: c.primaryDark,
+    primaryTint: c.primaryTint,
+    cta: c.cta,
+    ctaForeground: c.onCta,
+    instant: c.instant,
+    instantForeground: '#FFFFFF',
+    success: c.success,
+    muted: c.muted,
+    mutedForeground: c.muted,
+    border: c.border,
+    input: c.border,
+    ring: c.primary,
+    scrim: c.scrim,
+    disabled: mode === 'light' ? disabled.bg : c.border,
+    disabledForeground: disabled.text,
+    destructive: mode === 'light' ? '#DC2626' : '#F87171',
+  };
+}
 
 export const THEME = {
-  light: {
-    background: 'hsl(0 0% 100%)',
-    foreground: 'hsl(24 10% 10%)',
-    card: 'hsl(0 0% 100%)',
-    cardForeground: 'hsl(24 10% 10%)',
-    popover: 'hsl(0 0% 100%)',
-    popoverForeground: 'hsl(24 10% 10%)',
-    primary: 'hsl(48 96% 53%)',
-    primaryForeground: 'hsl(48 100% 10%)',
-    secondary: 'hsl(48 30% 96%)',
-    secondaryForeground: 'hsl(24 10% 10%)',
-    muted: 'hsl(48 20% 97%)',
-    mutedForeground: 'hsl(24 5% 45%)',
-    accent: 'hsl(48 40% 95%)',
-    accentForeground: 'hsl(24 10% 10%)',
-    destructive: 'hsl(0 84% 60%)',
-    border: 'hsl(48 15% 90%)',
-    input: 'hsl(48 15% 90%)',
-    ring: 'hsl(48 96% 53%)',
-    radius: '1.5rem',
-    chart1: 'hsl(48 96% 53%)',
-    chart2: 'hsl(173 58% 39%)',
-    chart3: 'hsl(197 37% 24%)',
-    chart4: 'hsl(43 74% 66%)',
-    chart5: 'hsl(27 87% 67%)',
-  },
-  dark: {
-    background: 'hsl(24 10% 8%)',
-    foreground: 'hsl(48 20% 98%)',
-    card: 'hsl(24 10% 10%)',
-    cardForeground: 'hsl(48 20% 98%)',
-    popover: 'hsl(24 10% 10%)',
-    popoverForeground: 'hsl(48 20% 98%)',
-    primary: 'hsl(48 96% 53%)',
-    primaryForeground: 'hsl(48 100% 10%)',
-    secondary: 'hsl(48 20% 18%)',
-    secondaryForeground: 'hsl(48 20% 98%)',
-    muted: 'hsl(24 8% 18%)',
-    mutedForeground: 'hsl(48 10% 65%)',
-    accent: 'hsl(24 8% 20%)',
-    accentForeground: 'hsl(48 20% 98%)',
-    destructive: 'hsl(0 70% 59%)',
-    border: 'hsl(24 8% 20%)',
-    input: 'hsl(24 8% 20%)',
-    ring: 'hsl(48 96% 53%)',
-    radius: '1.5rem',
-    chart1: 'hsl(48 96% 53%)',
-    chart2: 'hsl(160 60% 45%)',
-    chart3: 'hsl(30 80% 55%)',
-    chart4: 'hsl(280 65% 60%)',
-    chart5: 'hsl(340 75% 55%)',
-  },
-};
+  light: scheme('light'),
+  dark: scheme('dark'),
+} as const;
 
 export const NAV_THEME: Record<'light' | 'dark', Theme> = {
   light: {
@@ -79,3 +73,12 @@ export const NAV_THEME: Record<'light' | 'dark', Theme> = {
     },
   },
 };
+
+/**
+ * Resolved brand colors for the active scheme. Use for native-only props
+ * (icon `color`, map pins, SDK themes); prefer classNames everywhere else.
+ */
+export function useThemeColors() {
+  const { colorScheme } = useColorScheme();
+  return THEME[colorScheme === 'dark' ? 'dark' : 'light'];
+}

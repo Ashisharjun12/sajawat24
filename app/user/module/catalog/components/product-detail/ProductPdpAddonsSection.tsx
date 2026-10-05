@@ -66,9 +66,9 @@ export function ProductPdpAddonsSection({
       <View className="flex-row items-start justify-between gap-3">
         <View className="min-w-0 flex-1 flex-row items-start gap-2.5">
           <View
-            className="size-9 shrink-0 items-center justify-center rounded-full bg-sky-50 dark:bg-sky-950/40"
+            className="size-9 shrink-0 items-center justify-center rounded-full border border-rose-200/60 bg-rose-100"
             accessibilityElementsHidden>
-            <Icon as={Gift} className="size-4 text-rose-500" />
+            <Icon as={Gift} className="size-4 text-rose-500" strokeWidth={2} />
           </View>
           <View className="min-w-0 flex-1 gap-0.5">
             <Text className="text-foreground text-lg font-semibold tracking-tight">Make it yours</Text>

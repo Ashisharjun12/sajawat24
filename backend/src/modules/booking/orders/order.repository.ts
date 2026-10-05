@@ -7,7 +7,9 @@ import {
     exists,
     ilike,
     inArray,
+    isNull,
     lt,
+    not,
     notInArray,
     or,
     sql,
@@ -162,6 +164,15 @@ export class OrderRepository implements IOrderRepository {
         } else if (bucket === "upcoming") {
             conditions.push(notInArray(orders.status, ["COMPLETED", "CANCELLED"]));
         }
+        conditions.push(
+            not(
+                and(
+                    eq(orders.status, "CANCELLED"),
+                    eq(orders.paymentMethod, "ONLINE"),
+                    isNull(orders.idempotencyKey),
+                ),
+            ),
+        );
         const where = conditions.length === 1 ? conditions[0] : and(...conditions);
         return this.listRows(where, pagination, "scheduled_at");
     }

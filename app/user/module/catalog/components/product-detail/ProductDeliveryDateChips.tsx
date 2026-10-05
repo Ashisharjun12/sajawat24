@@ -27,12 +27,9 @@ export function ProductDeliveryDateChips({
 
   return (
     <View className="gap-2">
-      <View className="flex-row items-center gap-2">
-        <View className="size-7 items-center justify-center rounded-lg bg-sky-50 dark:bg-sky-950/40">
-          <Icon as={CalendarDays} className="size-3.5 text-sky-600 dark:text-sky-400" />
-        </View>
-        <Text className="text-foreground text-xs font-semibold">Delivery date</Text>
-      </View>
+      <Text className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
+        Select date
+      </Text>
       <View className="flex-row gap-1.5">
         <DateChip
           label="Today"
@@ -87,7 +84,7 @@ function DateChip({
           as={CalendarDays}
           className={cn(
             'mb-0.5 size-3.5',
-            selected ? 'text-primary' : 'text-sky-600 dark:text-sky-400',
+            selected ? 'text-primary' : 'text-primary',
           )}
         />
       ) : null}

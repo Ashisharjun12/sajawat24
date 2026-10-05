@@ -19,10 +19,19 @@ import { ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useColorScheme } from 'nativewind';
+import {
+  Poppins_400Regular,
+  Poppins_500Medium,
+  Poppins_600SemiBold,
+  useFonts,
+} from '@expo-google-fonts/poppins';
+import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { LoadingPlaceholder } from '@/components/shell';
 import { View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
+void SplashScreen.preventAutoHideAsync();
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -39,6 +48,19 @@ export default function RootLayout() {
   const hydrate = useAuthStore((s) => s.hydrate);
   const hydrated = useAuthStore((s) => s.hydrated);
   const hydratePartnerMode = usePartnerModeStore((s) => s.hydrate);
+  // Only 400/500/600 are bundled; weight classes map onto these three faces.
+  const [fontsLoaded, fontError] = useFonts({
+    Poppins_400Regular,
+    Poppins_500Medium,
+    Poppins_600SemiBold,
+  });
+  const ready = hydrated && (fontsLoaded || !!fontError);
+
+  useEffect(() => {
+    if (ready) {
+      void SplashScreen.hideAsync();
+    }
+  }, [ready]);
 
   useEffect(() => {
     registerAccessTokenGetter(() => useAuthStore.getState().accessToken);
@@ -51,7 +73,7 @@ export default function RootLayout() {
       <QueryProvider>
         <SocketProvider>
           <PlatformAccessPausedHost />
-          {!hydrated ? (
+          {!ready ? (
             <View className="flex-1 items-center justify-center bg-background">
               <LoadingPlaceholder className="py-0" />
             </View>

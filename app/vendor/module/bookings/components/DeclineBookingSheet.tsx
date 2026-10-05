@@ -53,7 +53,7 @@ export function DeclineBookingSheet({
                 />
               ) : null}
               {error ? <Text className="text-center text-sm text-destructive">{error}</Text> : null}
-              <Button className="h-11 rounded-full" variant="ghost" disabled={loading} onPress={onClose}>
+              <Button className="h-11 rounded-btn" variant="ghost" disabled={loading} onPress={onClose}>
                 <Text className="font-medium">Keep booking</Text>
               </Button>
             </View>

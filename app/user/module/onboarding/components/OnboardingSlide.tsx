@@ -20,11 +20,7 @@ export function OnboardingSlide({ slide }: OnboardingSlideProps) {
       </View>
 
       <View className="max-w-full gap-3 pb-2 pt-6">
-        <Text
-          className="text-left text-foreground"
-          style={{ fontSize: 30, lineHeight: 36, fontWeight: '700' }}>
-          {slide.title}
-        </Text>
+        <Text className="text-left text-foreground text-display font-semibold">{slide.title}</Text>
         <Text className="text-muted-foreground text-left text-sm leading-5">{slide.description}</Text>
       </View>
     </View>

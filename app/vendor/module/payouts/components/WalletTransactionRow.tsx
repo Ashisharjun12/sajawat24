@@ -20,7 +20,7 @@ export function WalletTransactionRow({ transaction }: WalletTransactionRowProps)
         icon={isCredit ? ArrowDownLeft : ArrowUpRight}
         size="sm"
         className={isCredit ? 'bg-emerald-500/12' : 'bg-red-500/12'}
-        iconClassName={isCredit ? 'text-emerald-600' : 'text-red-600'}
+        iconClassName={isCredit ? 'text-success' : 'text-red-600'}
       />
       <View className="min-w-0 flex-1 gap-0.5">
         <Text className="text-foreground text-base font-medium">{transaction.title}</Text>
@@ -29,7 +29,7 @@ export function WalletTransactionRow({ transaction }: WalletTransactionRowProps)
       <Text
         className={cn(
           'text-base font-semibold',
-          isCredit ? 'text-emerald-600' : 'text-red-600',
+          isCredit ? 'text-success' : 'text-red-600',
         )}>
         {signedAmount}
       </Text>

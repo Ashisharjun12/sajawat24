@@ -82,13 +82,11 @@ export function SwitchPartnerModeSheet({
           </View>
 
           <View className="mt-6 gap-3">
-            <Button className="h-12 rounded-full" disabled={loading} onPress={onConfirm}>
-              <Text className="font-semibold text-primary-foreground">
-                {loading ? 'Switching…' : copy.confirmLabel}
-              </Text>
+            <Button className="h-12 rounded-btn" disabled={loading} onPress={onConfirm}>
+              <Text>{loading ? 'Switching…' : copy.confirmLabel}</Text>
             </Button>
             <Button
-              className="h-11 rounded-full"
+              className="h-11 rounded-btn"
               variant="ghost"
               disabled={loading}
               onPress={onClose}>

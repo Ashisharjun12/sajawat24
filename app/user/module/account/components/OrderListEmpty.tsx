@@ -19,7 +19,7 @@ export function OrderListEmpty({ bucket }: OrderListEmptyProps) {
       <Text className="text-foreground text-center text-base font-semibold">{copy.title}</Text>
       <Text className="text-muted-foreground mt-2 text-center text-sm leading-6">{copy.body}</Text>
       <Button
-        className="mt-6 self-center rounded-full px-6"
+        className="mt-6 self-center"
         onPress={() => router.push('/(app)/category' as Href)}>
         <Text>Browse decorations</Text>
       </Button>

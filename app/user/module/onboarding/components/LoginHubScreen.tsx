@@ -5,8 +5,8 @@ import { AuthMethodButton } from '@/module/onboarding/components/AuthMethodButto
 import { AuthOrDivider } from '@/module/onboarding/components/AuthOrDivider';
 import { GoogleMark } from '@/module/onboarding/components/GoogleMark';
 import {
-  BRAND_LOGO_LIGHT_URL,
   BRAND_NAME,
+  LOGIN_HEADER_ICON_URL,
   LOGIN_ILLUSTRATION_URL,
 } from '@/module/onboarding/lib/onboarding-copy';
 import {
@@ -63,12 +63,12 @@ export function LoginHubScreen() {
       <View className="flex-1 px-6 pb-10 pt-6">
         <View className="flex-row items-center justify-center gap-3">
           <Image
-            source={{ uri: BRAND_LOGO_LIGHT_URL }}
-            style={{ width: 44, height: 44, borderRadius: 12 }}
+            source={{ uri: LOGIN_HEADER_ICON_URL }}
+            style={{ width: 40, height: 40, borderRadius: 10 }}
             contentFit="contain"
             accessibilityLabel={BRAND_NAME}
           />
-          <Text className="text-foreground text-xl font-extrabold tracking-tight">{BRAND_NAME}</Text>
+          <Text className="text-foreground text-h1 font-semibold">{BRAND_NAME}</Text>
         </View>
 
         <View className="min-h-0 flex-1 items-center justify-center pt-4">
@@ -81,9 +81,7 @@ export function LoginHubScreen() {
         </View>
 
         <View className="items-center pb-2 pt-2">
-          <Text
-            className="text-center text-foreground"
-            style={{ fontSize: 28, lineHeight: 34, fontWeight: '700' }}>
+          <Text className="text-center text-foreground text-display font-semibold">
             Log in to your account
           </Text>
 

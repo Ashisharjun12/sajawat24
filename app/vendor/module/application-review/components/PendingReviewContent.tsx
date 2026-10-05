@@ -20,7 +20,7 @@ export function PendingReviewContent({ refreshing, onRefresh }: PendingReviewCon
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
         <View className="mb-6 items-center">
           <Text className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">
-            Decoryy Vendor
+            Sajawat24 Vendor
           </Text>
         </View>
 
@@ -38,7 +38,7 @@ export function PendingReviewContent({ refreshing, onRefresh }: PendingReviewCon
             Application under review
           </Text>
           <Text className="text-muted-foreground text-base leading-6">
-            Thanks for joining Decoryy. We&apos;re reviewing your shop details and will notify you
+            Thanks for joining Sajawat24. We&apos;re reviewing your shop details and will notify you
             once your vendor profile is approved.
           </Text>
         </View>
@@ -50,7 +50,7 @@ export function PendingReviewContent({ refreshing, onRefresh }: PendingReviewCon
           <ApplicationReviewSteps />
         </View>
 
-        <View className="bg-muted/60 border-border rounded-2xl border px-4 py-4">
+        <View className="bg-muted/60 border-border rounded-card border px-4 py-4">
           <Text className="text-muted-foreground text-center text-sm leading-5">
             Reviews usually take 1–2 business days. Pull down to refresh once your account is approved.
           </Text>
@@ -58,7 +58,7 @@ export function PendingReviewContent({ refreshing, onRefresh }: PendingReviewCon
       </ScrollView>
 
       <View className="border-border border-t px-8 pb-10 pt-4">
-        <Button variant="outline" className="h-12 rounded-2xl" onPress={onRefresh}>
+        <Button variant="outline" className="h-12 rounded-btn" onPress={onRefresh}>
           <Text>{refreshing ? 'Checking…' : 'Check approval status'}</Text>
         </Button>
       </View>

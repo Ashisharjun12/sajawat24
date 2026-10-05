@@ -35,7 +35,7 @@ export function ProductPriceBlock({
       {ratingLabel || reviews ? (
         <View className="flex-row flex-wrap items-center gap-2">
           {ratingLabel ? (
-            <View className="rounded-md bg-emerald-600 px-2 py-0.5">
+            <View className="rounded-md bg-success px-2 py-0.5">
               <Text className="text-xs font-bold text-white">★ {ratingLabel}</Text>
             </View>
           ) : null}
@@ -44,19 +44,19 @@ export function ProductPriceBlock({
         </View>
       ) : null}
       <View className="flex-row flex-wrap items-baseline gap-x-2.5 gap-y-1">
-        <Text className="text-foreground text-3xl font-extrabold">{formatPaise(pricePaise)}</Text>
+        <Text className="text-foreground text-display font-semibold">{formatPaise(pricePaise)}</Text>
         {compareAtPaise != null && compareAtPaise > pricePaise ? (
           <Text className="text-muted-foreground text-base line-through">
             {formatPaise(compareAtPaise)}
           </Text>
         ) : null}
         {percentOff > 0 ? (
-          <Text className="text-sm font-bold text-emerald-600">{percentOff}% OFF</Text>
+          <Text className="text-sm font-bold text-success">{percentOff}% OFF</Text>
         ) : null}
       </View>
       {savedPaise > 0 ? (
         <Text className="text-sm leading-relaxed">
-          <Text className="font-semibold text-emerald-700">You save {formatPaise(savedPaise)}</Text>
+          <Text className="font-semibold text-success">You save {formatPaise(savedPaise)}</Text>
           <Text className="text-muted-foreground"> · Inclusive of all charges & setup</Text>
         </Text>
       ) : (

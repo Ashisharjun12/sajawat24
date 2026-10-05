@@ -32,10 +32,10 @@ export function AuthMethodButton({
     <Pressable
       disabled={disabled || loading}
       className={cn(
-        'h-12 w-full flex-row items-center justify-center gap-2.5 rounded-full',
+        'h-12 w-full flex-row items-center justify-center gap-2.5 overflow-hidden rounded-btn px-5',
         isPrimary
-          ? 'border-0 bg-primary active:bg-primary/90'
-          : 'border border-border bg-background active:bg-muted/50',
+          ? 'border-0 bg-primary active:bg-primary-dark'
+          : 'border border-border bg-surface active:bg-muted/50',
         disabled && !loading && 'opacity-60',
         className,
       )}

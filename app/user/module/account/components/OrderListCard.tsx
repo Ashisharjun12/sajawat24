@@ -1,12 +1,13 @@
 import { type PublicOrderSummary } from '@/api/orders.api';
+import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { formatPaise } from '@/lib/format-money';
+import { formatBookingSlot, orderCardTitle } from '@/module/account/lib/booking-ui';
 import {
-  bookingStatusLabel,
-  formatBookingSlot,
-  orderCardTitle,
-} from '@/module/account/lib/booking-ui';
+  isCheckoutAbandonedOrder,
+  orderStatusDisplayLabel,
+} from '@/module/account/lib/order-status-ui';
 import { useCheckoutStore } from '@/store/checkout.store';
 import { Image } from 'expo-image';
 import { type Href, router } from 'expo-router';
@@ -32,8 +33,8 @@ export function OrderListCard({ order }: OrderListCardProps) {
   const setPaymentUserCancelled = useCheckoutStore((s) => s.setPaymentUserCancelled);
 
   const title = orderCardTitle(order.primaryName, order.itemCount);
-  const inProgress = order.status !== 'COMPLETED' && order.status !== 'CANCELLED';
-  const statusHeadline = inProgress ? 'Order in progress' : bookingStatusLabel(order.status);
+  const checkoutAbandoned = isCheckoutAbandonedOrder(order);
+  const statusHeadline = orderStatusDisplayLabel(order.status, checkoutAbandoned);
   const totalPaise = order.subtotalPaise;
 
   function openCompletePayment() {
@@ -50,8 +51,8 @@ export function OrderListCard({ order }: OrderListCardProps) {
   return (
     <View className="overflow-hidden rounded-2xl border border-border bg-card">
       <Pressable onPress={openOrderDetail} className="active:opacity-95">
-        <View className="flex-row gap-3 p-3">
-          <View className="size-24 shrink-0 overflow-hidden rounded-xl bg-muted">
+        <View className="flex-row gap-2.5 p-2.5">
+          <View className="size-[4.5rem] shrink-0 overflow-hidden rounded-lg bg-muted">
             {order.primaryImageUrl ? (
               <Image
                 source={{ uri: order.primaryImageUrl }}
@@ -67,32 +68,27 @@ export function OrderListCard({ order }: OrderListCardProps) {
           </View>
           <View className="min-w-0 flex-1">
             <View className="flex-row items-start justify-between gap-2">
-              <Text className="text-foreground min-w-0 flex-1 text-base font-semibold" numberOfLines={2}>
+              <Text className="text-foreground min-w-0 flex-1 text-sm font-semibold" numberOfLines={2}>
                 {title}
               </Text>
-              <Text className="text-foreground shrink-0 text-base font-bold tabular-nums">
+              <Text className="text-foreground shrink-0 text-sm font-bold tabular-nums">
                 {formatPaise(totalPaise)}
               </Text>
             </View>
-            <Text className="text-muted-foreground mt-1 text-sm" numberOfLines={1}>
+            <Text className="text-muted-foreground mt-0.5 text-xs" numberOfLines={1}>
               {statusHeadline}
               {order.reference ? ` · ${order.reference}` : ''}
             </Text>
-            <View className="mt-2 flex-row items-start gap-2">
-              <View className="mt-0.5 size-7 shrink-0 items-center justify-center rounded-lg bg-amber-50">
-                <Icon as={Clock} className="size-3.5 text-amber-700" />
-              </View>
-              <Text className="text-muted-foreground min-w-0 flex-1 text-xs leading-5">
-                <Text className="text-foreground font-medium">Setup </Text>
+            <View className="mt-1.5 flex-row items-center gap-1.5">
+              <Icon as={Clock} className="size-3.5 shrink-0 text-primary" />
+              <Text className="text-muted-foreground min-w-0 flex-1 text-xs leading-4" numberOfLines={1}>
                 {formatBookingSlot(order.scheduledAt)}
               </Text>
             </View>
             {deliveryLine(order) ? (
-              <View className="mt-2 flex-row items-start gap-2">
-                <View className="mt-0.5 size-7 shrink-0 items-center justify-center rounded-lg bg-rose-50">
-                  <Icon as={MapPin} className="size-3.5 text-rose-600" />
-                </View>
-                <Text className="text-muted-foreground min-w-0 flex-1 text-xs leading-5" numberOfLines={3}>
+              <View className="mt-1 flex-row items-center gap-1.5">
+                <Icon as={MapPin} className="size-3.5 shrink-0 text-primary" />
+                <Text className="text-muted-foreground min-w-0 flex-1 text-xs leading-4" numberOfLines={1}>
                   {deliveryLine(order)}
                 </Text>
               </View>
@@ -101,28 +97,19 @@ export function OrderListCard({ order }: OrderListCardProps) {
         </View>
       </Pressable>
 
-      <View className="gap-2 border-t border-border/60 px-3 py-3">
+      <View className="gap-1.5 border-t border-border/60 px-2.5 py-2">
         {order.status === 'PENDING_PAYMENT' ? (
-          <Pressable
-            onPress={openCompletePayment}
-            className="w-full items-center rounded-full bg-primary py-3 active:opacity-90"
-            accessibilityRole="button">
-            <Text className="text-primary-foreground text-sm font-semibold">Complete payment</Text>
-          </Pressable>
+          <Button variant="primary" size="sm" className="w-full" onPress={openCompletePayment}>
+            <Text>Complete payment</Text>
+          </Button>
         ) : null}
-        <Pressable
-          onPress={openOrderDetail}
-          className="w-full items-center rounded-full bg-primary py-3 active:opacity-90"
-          accessibilityRole="button">
-          <Text className="text-primary-foreground text-sm font-semibold">View order</Text>
-        </Pressable>
+        <Button variant="secondary" size="sm" className="w-full" onPress={openOrderDetail}>
+          <Text>View order</Text>
+        </Button>
         {order.canReview && !order.reviewSubmitted ? (
-          <Pressable
-            onPress={() => setReviewOpen(true)}
-            className="w-full items-center rounded-full border border-border bg-muted/30 py-3 active:opacity-90"
-            accessibilityRole="button">
-            <Text className="text-foreground text-sm font-semibold">Leave review</Text>
-          </Pressable>
+          <Button variant="text" size="sm" className="w-full" onPress={() => setReviewOpen(true)}>
+            <Text>Leave review</Text>
+          </Button>
         ) : null}
       </View>
 

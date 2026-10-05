@@ -2,7 +2,7 @@ import { getSiteShell, type SiteBrandPublic } from '@/api/site-shell.api';
 import { useQuery } from '@tanstack/react-query';
 
 const DEFAULT_BRAND: SiteBrandPublic = {
-  companyName: 'Decoryy',
+  companyName: 'Sajawat24',
   footerDescription:
     'City-priced decoration setups — balloons, backdrops, and lights, dressed for the room you have.',
   logoLightUrl: null,

@@ -23,6 +23,7 @@ export type MapMarker = {
   longitude: number;
   color: string;
   variant?: 'dot' | 'pin' | 'worker' | 'customer';
+  heading?: number;
 };
 
 type Props = {
@@ -47,7 +48,7 @@ const FALLBACK_CASING_LAYER_ID = 'decory-route-fallback-casing';
 const FALLBACK_LAYER_ID = 'decory-route-fallback-line';
 function TripMarkerContent({ marker }: { marker: MapMarker }) {
   if (marker.variant === 'worker') {
-    return <LiveLocationDotView />;
+    return <LiveLocationDotView heading={marker.heading} />;
   }
   if (marker.variant === 'customer') {
     return <FixedLocationPinMarker />;

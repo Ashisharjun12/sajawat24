@@ -16,7 +16,7 @@ function payoutStatusDotClass(status: PayoutStatus) {
       return 'bg-emerald-500';
     case 'PROCESSING':
     case 'PENDING':
-      return 'bg-amber-500';
+      return 'bg-warning';
     case 'FAILED':
       return 'bg-destructive';
     default:
@@ -37,14 +37,14 @@ export function PayoutHistoryRow({ payout, variant = 'card' }: PayoutHistoryRowP
           icon={ArrowDownLeft}
           size="sm"
           className="bg-emerald-500/12"
-          iconClassName="text-emerald-600"
+          iconClassName="text-success"
         />
         <View className="min-w-0 flex-1 gap-0.5">
           <Text className="text-foreground text-base font-medium">{payout.title}</Text>
           <Text className="text-muted-foreground text-sm">{payout.dateLabel}</Text>
         </View>
         <View className="items-end gap-1">
-          <Text className="text-base font-semibold text-emerald-600">
+          <Text className="text-base font-semibold text-success">
             +{formatInr(payout.amount)}
           </Text>
           <View className="flex-row items-center gap-1.5">
@@ -59,19 +59,19 @@ export function PayoutHistoryRow({ payout, variant = 'card' }: PayoutHistoryRowP
   }
 
   return (
-    <View className="flex-row items-center gap-3 rounded-2xl bg-muted/60 px-4 py-3">
+    <View className="flex-row items-center gap-3 rounded-card bg-muted/60 px-4 py-3">
       <IconWell
         icon={ArrowDownLeft}
         size="sm"
         className="bg-emerald-500/12"
-        iconClassName="text-emerald-600"
+        iconClassName="text-success"
       />
       <View className="flex-1 gap-0.5">
         <Text className="text-foreground text-sm font-medium">{payout.title}</Text>
         <Text className="text-muted-foreground text-xs">{payout.dateLabel}</Text>
       </View>
       <View className="items-end gap-1">
-        <Text className="text-sm font-semibold text-emerald-600">+{formatInr(payout.amount)}</Text>
+        <Text className="text-sm font-semibold text-success">+{formatInr(payout.amount)}</Text>
         <View className="flex-row items-center gap-1.5">
           <View className={cn('size-1.5 rounded-full', payoutStatusDotClass(payout.status))} />
           <Text className="text-muted-foreground text-xs">{PAYOUT_STATUS_LABELS[payout.status]}</Text>

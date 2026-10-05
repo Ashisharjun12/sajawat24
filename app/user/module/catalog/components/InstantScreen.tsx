@@ -160,8 +160,8 @@ export function InstantScreen() {
             {catalogLocationErrorMessage(error)}
           </Text>
           <Button
-            variant="outline"
-            className="mt-3 self-center rounded-full px-5"
+            variant="secondary"
+            className="mt-3 self-center"
             onPress={() => router.push(SELECT_LOCATION_HREF)}>
             <Text>Update delivery location</Text>
           </Button>
@@ -193,7 +193,8 @@ export function InstantScreen() {
             Set your delivery city to see same-day instant setups near you.
           </Text>
           <Button
-            className="mt-4 self-center rounded-full px-6"
+            variant="primary"
+            className="mt-4 self-center"
             onPress={() => router.push(SELECT_LOCATION_HREF)}>
             <Text>Set delivery location</Text>
           </Button>

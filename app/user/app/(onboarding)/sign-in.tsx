@@ -57,9 +57,7 @@ export default function SignInScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}>
           <View className="mb-8 gap-2">
-            <Text
-              className="text-left text-foreground"
-              style={{ fontSize: 30, lineHeight: 36, fontWeight: '700' }}>
+            <Text className="text-left text-foreground text-display font-semibold">
               Log in with phone
             </Text>
             <Text className="text-muted-foreground text-left text-base leading-6">

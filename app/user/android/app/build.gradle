@@ -87,9 +87,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.expo1212.user'
+    namespace 'com.sajawat24.user'
     defaultConfig {
-        applicationId 'com.expo1212.user'
+        applicationId 'com.sajawat24.user'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

@@ -23,7 +23,7 @@ export function AddonPriceText({
 
   if (free) {
     return (
-      <Text className={cn('font-semibold text-emerald-600', freeClassName ?? 'text-sm')}>
+      <Text className={cn('font-semibold text-success', freeClassName ?? 'text-sm')}>
         Free
       </Text>
     );

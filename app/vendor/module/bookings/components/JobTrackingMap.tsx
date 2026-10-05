@@ -22,7 +22,7 @@ export type RouteSummary = {
 type Props = {
   orderId?: string;
   destination?: { latitude: number; longitude: number } | null;
-  vendor?: { latitude: number; longitude: number } | null;
+  vendor?: { latitude: number; longitude: number; heading?: number } | null;
   showRoute?: boolean;
   layout?: 'compact' | 'trip';
   followVendor?: boolean;
@@ -77,6 +77,7 @@ export function JobTrackingMap({
         longitude: vendor.longitude,
         color: '#F5C518',
         variant: 'worker' as const,
+        heading: vendor.heading,
       });
     }
     return list;
@@ -244,8 +245,8 @@ export function JobTrackingMap({
       <View
         className={
           isTrip
-            ? 'flex-1 items-center justify-center gap-3 rounded-2xl bg-muted px-4 py-6'
-            : 'rounded-2xl bg-muted px-4 py-3'
+            ? 'flex-1 items-center justify-center gap-3 rounded-card bg-muted px-4 py-6'
+            : 'rounded-card bg-muted px-4 py-3'
         }>
         <Text className="text-center text-sm text-muted-foreground">{message}</Text>
         <Text className="text-center text-xs text-muted-foreground">
@@ -268,7 +269,7 @@ export function JobTrackingMap({
   if (!mapsEnabled) {
     return (
       <View className={isTrip ? 'flex-1' : undefined}>
-        <View className="rounded-2xl bg-muted px-4 py-3">
+        <View className="rounded-card bg-muted px-4 py-3">
           <Text className="text-sm text-muted-foreground">Map view is off for this account.</Text>
         </View>
       </View>
@@ -280,8 +281,8 @@ export function JobTrackingMap({
       <View
         className={
           isTrip
-            ? 'flex-1 items-center justify-center rounded-2xl bg-muted'
-            : 'h-48 items-center justify-center rounded-2xl bg-muted'
+            ? 'flex-1 items-center justify-center rounded-card bg-muted'
+            : 'h-48 items-center justify-center rounded-card bg-muted'
         }>
         <AppSpinner size="sm" />
       </View>
@@ -293,8 +294,8 @@ export function JobTrackingMap({
       <View
         className={
           isTrip
-            ? 'flex-1 items-center justify-center rounded-2xl bg-muted'
-            : 'h-48 items-center justify-center rounded-2xl bg-muted'
+            ? 'flex-1 items-center justify-center rounded-card bg-muted'
+            : 'h-48 items-center justify-center rounded-card bg-muted'
         }>
         <AppSpinner size="sm" />
       </View>
@@ -325,7 +326,7 @@ export function JobTrackingMap({
       : null;
 
   return (
-    <View className={isTrip ? 'min-h-0 flex-1 overflow-hidden' : 'h-48 overflow-hidden rounded-2xl'}>
+    <View className={isTrip ? 'min-h-0 flex-1 overflow-hidden' : 'h-48 overflow-hidden rounded-card'}>
       <View className="relative flex-1">
         <OlaMapView
           sdkConfig={sdkConfig}

@@ -20,15 +20,15 @@ export function ConfirmOfferRow({ cart, onPress }: ConfirmOfferRowProps) {
       pressScale={1}
       onPress={onPress}
       className="flex-row items-center gap-3 rounded-2xl border border-border bg-card p-4">
-      <View className="size-10 items-center justify-center rounded-xl bg-sky-50 dark:bg-sky-950/40">
-        <Icon as={TicketPercent} className="size-5 text-sky-600 dark:text-sky-400" />
+      <View className="size-10 items-center justify-center rounded-xl bg-primary-tint">
+        <Icon as={TicketPercent} className="size-5 text-primary" />
       </View>
       <View className="min-w-0 flex-1">
         {code ? (
           <>
             <Text className="text-foreground text-base font-semibold">{code} applied</Text>
             {discount > 0 ? (
-              <Text className="text-emerald-600 mt-0.5 text-sm font-medium">
+              <Text className="text-success mt-0.5 text-sm font-medium">
                 You save {formatPaise(discount)} on item total
               </Text>
             ) : null}

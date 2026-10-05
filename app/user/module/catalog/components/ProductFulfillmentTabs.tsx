@@ -1,6 +1,8 @@
+import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
 import { INSTANT_TAB_HEX } from '@/lib/theme';
+import { CalendarDays, Zap } from 'lucide-react-native';
 import { Pressable, View } from 'react-native';
 
 export type FulfillmentMode = 'instant' | 'scheduled';
@@ -11,6 +13,7 @@ type ProductFulfillmentTabsProps = {
   instantLabel?: string | null;
 };
 
+/** Matches web `FulfillmentModeSwitch` — calendar + filled zap on tabs. */
 export function ProductFulfillmentTabs({
   value,
   onChange,
@@ -24,14 +27,19 @@ export function ProductFulfillmentTabs({
       <Pressable
         onPress={() => onChange('scheduled')}
         className={cn(
-          'flex-1 items-center border-b-2 px-2 pb-2 pt-0.5',
-          isScheduled ? 'border-primary' : 'border-transparent',
+          'flex-1 flex-row items-center justify-center gap-2 border-b-2 px-2 pb-3 pt-1',
+          isScheduled ? '-mb-px border-primary' : 'border-transparent',
         )}
-        accessibilityRole="button">
+        accessibilityRole="button"
+        accessibilityState={{ selected: isScheduled }}>
+        <Icon
+          as={CalendarDays}
+          className={cn('size-5 shrink-0', isScheduled ? 'text-primary' : 'text-muted-foreground')}
+        />
         <Text
           className={cn(
             'text-sm font-semibold',
-            isScheduled ? 'text-foreground' : 'text-muted-foreground',
+            isScheduled ? 'text-primary' : 'text-muted-foreground',
           )}>
           Schedule
         </Text>
@@ -39,14 +47,20 @@ export function ProductFulfillmentTabs({
       <Pressable
         onPress={() => onChange('instant')}
         className={cn(
-          'flex-1 items-center border-b-2 px-2 pb-2 pt-0.5',
-          isInstant ? 'border-orange-500' : 'border-transparent',
+          'flex-1 flex-row items-center justify-center gap-2 border-b-2 px-2 pb-3 pt-1',
+          isInstant ? '-mb-px border-instant' : 'border-transparent',
         )}
-        accessibilityRole="button">
+        accessibilityRole="button"
+        accessibilityState={{ selected: isInstant }}>
+        <Icon
+          as={Zap}
+          className={cn('size-5 shrink-0', isInstant ? 'text-instant' : 'text-muted-foreground')}
+          fill={isInstant ? INSTANT_TAB_HEX : 'transparent'}
+        />
         <Text
           className={cn(
             'text-sm font-semibold',
-            isInstant ? 'text-orange-600' : 'text-muted-foreground',
+            isInstant ? 'text-instant' : 'text-muted-foreground',
           )}
           style={isInstant ? { color: INSTANT_TAB_HEX } : undefined}>
           {(instantLabel ?? 'Instant').trim()}

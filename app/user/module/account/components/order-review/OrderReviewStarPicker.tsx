@@ -29,7 +29,7 @@ export function OrderReviewStarPicker({ value, onChange, disabled }: Props) {
               className="p-1 active:opacity-80">
               <Text
                 className={cn(
-                  'text-4xl leading-none',
+                  'text-display leading-none',
                   filled ? 'text-amber-500' : 'text-muted-foreground/25',
                 )}>
                 ★

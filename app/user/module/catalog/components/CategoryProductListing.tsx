@@ -133,7 +133,8 @@ export function CategoryProductListing({
           We need a serviceable city to show local prices.
         </Text>
         <Button
-          className="mt-4 self-center rounded-full px-6"
+          variant="primary"
+          className="mt-4 self-center"
           onPress={() => router.push(SELECT_LOCATION_HREF)}>
           <Text>Set delivery location</Text>
         </Button>
@@ -186,11 +187,10 @@ export function CategoryProductListing({
           <CatalogProductGrid products={accumulated} />
           {canLoadMore ? (
             <Button
-              variant="outline"
-              className="rounded-xl"
-              disabled={isFetching}
+              variant="secondary"
+              loading={isFetching}
               onPress={() => setPage((p) => p + 1)}>
-              <Text>{isFetching ? 'Loading…' : 'Load more'}</Text>
+              <Text>Load more</Text>
             </Button>
           ) : null}
           {accumulated.length >= total && total > CATALOG_LISTING_LIMIT ? (

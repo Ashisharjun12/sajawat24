@@ -97,7 +97,7 @@ export function WalletActivitySection() {
         {isLoading ? (
           <WalletActivitySkeleton />
         ) : isError ? (
-          <View className="gap-3 rounded-2xl bg-muted/50 px-4 py-6">
+          <View className="gap-3 rounded-card bg-muted/50 px-4 py-6">
             <Text className="text-muted-foreground text-center text-sm">
               Could not load activity. Check your connection and try again.
             </Text>

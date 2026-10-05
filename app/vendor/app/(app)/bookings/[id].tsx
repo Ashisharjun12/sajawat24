@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { getApiError } from '@/api/client';
+import { PRIMARY_CTA_BUTTON_CLASS } from '@/lib/primary-cta-button';
 import { BookingItemsList } from '@/module/bookings/components/BookingItemsList';
 import { BookingStatusBadge } from '@/module/bookings/components/BookingStatusBadge';
 import { CollectCashSheet } from '@/module/bookings/components/CollectCashSheet';
@@ -121,14 +122,14 @@ function BookingAcceptActions({
         />
       ) : (
         <Button
-          className="h-14 rounded-full"
+          className="h-14 rounded-btn"
           disabled={actionsDisabled}
           onPress={onPrimary}>
           <Text>{primaryLoading ? 'Going online…' : acceptLoading ? 'Accepting…' : primaryLabel}</Text>
         </Button>
       )}
       <Button
-        className="h-11 rounded-full"
+        className="h-11 rounded-btn"
         variant="ghost"
         disabled={actionsDisabled || declineDisabled}
         onPress={onDecline}>
@@ -361,6 +362,7 @@ export default function BookingDetailScreen() {
       return {
         latitude: fieldTracking.vendor.latitude,
         longitude: fieldTracking.vendor.longitude,
+        heading: fieldTracking.vendor.heading,
       };
     }
     return pingFix;
@@ -630,7 +632,7 @@ export default function BookingDetailScreen() {
             onConfirm={() => void onSwipePayOnline()}
           />
           <Button
-            className="h-12 rounded-full"
+            className={PRIMARY_CTA_BUTTON_CLASS}
             variant="outline"
             disabled={tripBusy || collectOnlineMutation.isPending}
             onPress={onCashCollectPress}>
@@ -640,20 +642,20 @@ export default function BookingDetailScreen() {
       ) : null}
       {!booking.deliveryCodeSent && collectionSettled ? (
         <Button
-          className="h-12 rounded-full"
+          className={PRIMARY_CTA_BUTTON_CLASS}
           disabled={tripBusy}
           onPress={() => void runTripAction('send code', () => sendCodeMutation.mutateAsync())}>
           <Text>{sendCodeMutation.isPending ? 'Sending…' : 'Send delivery code'}</Text>
         </Button>
       ) : null}
       {booking.deliveryCodeSent ? (
-        <Button className="h-12 rounded-full" onPress={() => setCompleteOpen(true)}>
+        <Button className={PRIMARY_CTA_BUTTON_CLASS} onPress={() => setCompleteOpen(true)}>
           <Text>Complete with code</Text>
         </Button>
       ) : null}
       {booking.deliveryCodeSent ? (
         <Button
-          className="h-12 rounded-full"
+          className={PRIMARY_CTA_BUTTON_CLASS}
           variant="outline"
           disabled={tripBusy}
           onPress={() => void runTripAction('resend code', () => sendCodeMutation.mutateAsync())}>
@@ -765,11 +767,11 @@ export default function BookingDetailScreen() {
           </PressableScale>
           {booking.canChat ? (
             <PressableScale
-              className="flex-row items-center gap-1.5 rounded-full border border-amber-400 bg-primary px-3.5 py-2.5"
+              className="flex-row items-center gap-1.5 rounded-btn bg-primary px-3.5 py-2.5"
               accessibilityLabel="Chat with customer"
               onPress={() => router.push(`/(app)/bookings/${orderId}/chat` as Href)}>
-              <Icon as={MessageCircle} className="size-4 text-[#1A1A1A]" />
-              <Text className="text-sm font-bold text-[#1A1A1A]">Chat</Text>
+              <Icon as={MessageCircle} className="size-4 text-primary-foreground" />
+              <Text className="text-sm font-semibold text-primary-foreground">Chat</Text>
             </PressableScale>
           ) : null}
         </View>
@@ -817,8 +819,8 @@ export default function BookingDetailScreen() {
                 </View>
                 <PressableScale
                   onPress={() => Linking.openURL(`tel:${booking.customer.phone}`)}
-                  className="rounded-full border border-amber-400 bg-primary px-4 py-2">
-                  <Text className="text-sm font-bold text-[#1A1A1A]">Call</Text>
+                  className="rounded-btn bg-primary px-4 py-2">
+                  <Text className="text-sm font-semibold text-primary-foreground">Call</Text>
                 </PressableScale>
               </View>
             ) : null}
@@ -937,16 +939,16 @@ export default function BookingDetailScreen() {
                     Open the link so the customer can pay {formatInr(booking.subtotalPaise)} online
                   </Text>
                   <Button
-                    className="h-12 rounded-full"
+                    className={PRIMARY_CTA_BUTTON_CLASS}
                     onPress={() => void Linking.openURL(activeCollectSession.shareUrl!)}>
                     <Text className="font-semibold">Open payment link</Text>
                   </Button>
                   <Button
-                    className="h-11 rounded-full"
+                    className={PRIMARY_CTA_BUTTON_CLASS}
                     variant="outline"
                     onPress={() =>
                       void Share.share({
-                        message: `Pay ${formatInr(booking.subtotalPaise)} for your Decoryy booking: ${activeCollectSession.shareUrl}`,
+                        message: `Pay ${formatInr(booking.subtotalPaise)} for your Sajawat24 booking: ${activeCollectSession.shareUrl}`,
                         url: activeCollectSession.shareUrl!,
                       })
                     }>
@@ -991,7 +993,7 @@ export default function BookingDetailScreen() {
                     void runTripAction('mark en route', () => enRouteMutation.mutateAsync())
                   }
                 />
-                <Button className="h-11 rounded-full" variant="outline" onPress={openMaps}>
+                <Button className={PRIMARY_CTA_BUTTON_CLASS} variant="outline" onPress={openMaps}>
                   <Text>Open in Maps</Text>
                 </Button>
               </View>

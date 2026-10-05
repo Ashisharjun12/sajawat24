@@ -1,7 +1,4 @@
-import { Icon } from '@/components/ui/icon';
-import { ScalePressable } from '@/components/shell';
 import { useKeyboardInset } from '@/lib/use-keyboard-inset';
-import { X } from 'lucide-react-native';
 import type { ReactNode } from 'react';
 import { Keyboard, Modal, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -13,7 +10,18 @@ type HomeBottomSheetModalProps = {
   closeAccessibilityLabel?: string;
   /** Minimum height of the sheet panel (e.g. tall addon picker). */
   sheetMinHeight?: number;
+  /** Maximum height of the sheet panel (content-sized up to this cap). */
+  sheetMaxHeight?: number;
 };
+
+/** Brand sheet chrome: 24 top corners, 40x4 handle, token scrim that closes on tap. */
+export function BottomSheetHandle() {
+  return (
+    <View className="items-center pb-2 pt-3">
+      <View className="h-1 w-10 rounded-pill bg-border" />
+    </View>
+  );
+}
 
 export function HomeBottomSheetModal({
   visible,
@@ -21,10 +29,12 @@ export function HomeBottomSheetModal({
   children,
   closeAccessibilityLabel = 'Close',
   sheetMinHeight,
+  sheetMaxHeight,
 }: HomeBottomSheetModalProps) {
   const keyboardInset = useKeyboardInset(visible);
   const safeInsets = useSafeAreaInsets();
   const sheetBottom = keyboardInset > 0 ? keyboardInset : safeInsets.bottom;
+  const sizedSheet = sheetMinHeight != null && sheetMaxHeight != null;
 
   function close() {
     Keyboard.dismiss();
@@ -42,27 +52,36 @@ export function HomeBottomSheetModal({
         <Pressable
           style={[StyleSheet.absoluteFill, { zIndex: 1 }]}
           onPress={close}
-          accessibilityRole="button">
-          <View className="flex-1 bg-black/40" />
+          accessibilityRole="button"
+          accessibilityLabel={closeAccessibilityLabel}>
+          <View className="flex-1 bg-scrim/55 dark:bg-scrim/65" />
         </Pressable>
         <View
-          className="absolute left-0 right-0 items-center"
-          style={{ bottom: sheetBottom, zIndex: 2, elevation: 8 }}
+          className="absolute left-0 right-0"
+          style={{ bottom: 0, zIndex: 2, elevation: 8 }}
           pointerEvents="box-none">
-          <ScalePressable
-            onPress={close}
-            haptic
-            hitSlop={12}
-            className="mb-3 rounded-full bg-background p-2.5 shadow-md"
-            accessibilityRole="button"
-            accessibilityLabel={closeAccessibilityLabel}>
-            <Icon as={X} className="text-foreground size-5" />
-          </ScalePressable>
           <View
-            className="w-full rounded-t-3xl bg-background pb-4"
+            className="w-full rounded-t-sheet bg-surface"
             pointerEvents="auto"
-            style={sheetMinHeight != null ? { minHeight: sheetMinHeight } : undefined}>
-            {children}
+            style={[
+              { paddingBottom: sheetBottom + 16 },
+              sizedSheet
+                ? {
+                    height: sheetMinHeight,
+                    minHeight: sheetMinHeight,
+                    maxHeight: sheetMaxHeight,
+                    flexDirection: 'column' as const,
+                  }
+                : undefined,
+              !sizedSheet && sheetMinHeight != null ? { minHeight: sheetMinHeight } : undefined,
+              !sizedSheet && sheetMaxHeight != null ? { maxHeight: sheetMaxHeight } : undefined,
+            ]}>
+            <BottomSheetHandle />
+            {sizedSheet ? (
+              <View className="min-h-0 flex-1">{children}</View>
+            ) : (
+              children
+            )}
           </View>
         </View>
       </View>

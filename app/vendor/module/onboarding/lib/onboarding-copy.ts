@@ -4,7 +4,7 @@ export const LOGIN_CHOICE_IMAGE_URL =
 export const ONBOARDING_SLIDES = [
   {
     id: '1',
-    title: 'Welcome to Decoryy',
+    title: 'Welcome to Sajawat24',
     description: 'Get decoration bookings in your city and grow as a vendor.',
     imageUrl: 'https://ik.imagekit.io/aevhlnk0h/undraw_partying_3qad.png',
   },

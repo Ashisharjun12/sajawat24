@@ -78,25 +78,25 @@ export function ProductShareSheet({
         </Text>
         <View className="mt-4 gap-2">
           <Button
-            variant="outline"
-            className="h-12 flex-row justify-start gap-3 rounded-2xl px-4"
+            variant="secondary"
+            className="justify-start px-4"
             onPress={() => void onWhatsApp()}>
             <WhatsAppIcon size={20} color="#1DA851" />
-            <Text className="text-foreground text-sm font-medium">WhatsApp</Text>
+            <Text>WhatsApp</Text>
           </Button>
           <Button
-            variant="outline"
-            className="h-12 flex-row justify-start gap-3 rounded-2xl px-4"
+            variant="secondary"
+            className="justify-start px-4"
             onPress={() => void onCopy()}>
-            <Icon as={Copy} className="size-5 text-foreground" />
-            <Text className="text-foreground text-sm font-medium">Copy link</Text>
+            <Icon as={Copy} className="size-5 text-primary" />
+            <Text>Copy link</Text>
           </Button>
           <Button
-            variant="outline"
-            className="h-12 flex-row justify-start gap-3 rounded-2xl px-4"
+            variant="secondary"
+            className="justify-start px-4"
             onPress={() => void onMore()}>
-            <Icon as={Smartphone} className="size-5 text-foreground" />
-            <Text className="text-foreground text-sm font-medium">More options</Text>
+            <Icon as={Smartphone} className="size-5 text-primary" />
+            <Text>More options</Text>
           </Button>
         </View>
       </View>

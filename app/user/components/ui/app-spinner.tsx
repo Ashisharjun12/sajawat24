@@ -23,9 +23,16 @@ type AppSpinnerProps = {
   size?: keyof typeof sizeMap;
   variant?: 'default' | 'inverse';
   className?: string;
+  /** Overrides the spinner colour, e.g. `text-cta-foreground` on an orange CTA. */
+  iconClassName?: string;
 };
 
-export function AppSpinner({ size = 'md', variant = 'default', className }: AppSpinnerProps) {
+export function AppSpinner({
+  size = 'md',
+  variant = 'default',
+  className,
+  iconClassName,
+}: AppSpinnerProps) {
   const rotation = useSharedValue(0);
   const dims = sizeMap[size];
 
@@ -53,6 +60,7 @@ export function AppSpinner({ size = 'md', variant = 'default', className }: AppS
           className={cn(
             dims.icon,
             variant === 'inverse' ? 'text-primary-foreground' : 'text-primary',
+            iconClassName,
           )}
         />
       </Animated.View>

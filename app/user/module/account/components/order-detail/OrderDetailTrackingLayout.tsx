@@ -5,7 +5,11 @@ import { OrderContactCard } from '@/module/account/components/order-detail/Order
 import { OrderDetailsSheet } from '@/module/account/components/order-detail/OrderDetailsSheet';
 import { OrderTimeline } from '@/module/account/components/order-detail/OrderTimeline';
 import { OrderTrackingMap } from '@/module/account/components/order-detail/OrderTrackingMap';
-import { bookingStatusLabel } from '@/module/account/lib/booking-ui';
+import {
+  isCheckoutAbandonedOrder,
+  orderStatusDisplayLabel,
+  shouldShowBookingTimeline,
+} from '@/module/account/lib/order-status-ui';
 import { useGoBack } from '@/lib/use-go-back';
 import { type Href } from 'expo-router';
 import { ChevronLeft } from 'lucide-react-native';
@@ -25,6 +29,8 @@ export function OrderDetailTrackingLayout({ order, onCompletePayment }: Props) {
   const mapHeight = Math.round(height * 0.58);
   const onBack = useGoBack({ fallbackHref: '/(app)/profile/orders' as Href });
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const checkoutAbandoned = isCheckoutAbandonedOrder(order);
+  const showTimeline = shouldShowBookingTimeline(order.status, checkoutAbandoned);
 
   return (
     <View className="flex-1 bg-background">
@@ -42,7 +48,7 @@ export function OrderDetailTrackingLayout({ order, onCompletePayment }: Props) {
           <View className="rounded-full bg-background/90 px-4 py-2">
             <Text className="text-foreground text-sm font-semibold">Order tracking</Text>
             <Text className="text-muted-foreground text-center text-xs">
-              {bookingStatusLabel(order.status)}
+              {orderStatusDisplayLabel(order.status, checkoutAbandoned)}
             </Text>
           </View>
           <ScalePressable
@@ -59,22 +65,24 @@ export function OrderDetailTrackingLayout({ order, onCompletePayment }: Props) {
         contentContainerClassName="gap-4 px-4 pb-8 pt-4"
         showsVerticalScrollIndicator={false}>
         {order.status === 'EN_ROUTE' ? (
-          <Text className="text-foreground rounded-2xl bg-sky-500/10 px-4 py-3 text-sm">
+          <Text className="text-foreground rounded-2xl bg-primary-tint px-4 py-3 text-sm">
             Your decorator is on the way to your location.
           </Text>
         ) : null}
         {order.status === 'ON_SITE' ? (
-          <Text className="text-foreground rounded-2xl bg-emerald-500/10 px-4 py-3 text-sm">
+          <Text className="text-foreground rounded-2xl bg-success/15 px-4 py-3 text-sm">
             {order.deliveryCodePending
               ? 'Setup is in progress. Share your completion code when your decorator asks.'
               : 'Your decorator has arrived and setup is in progress.'}
           </Text>
         ) : null}
         <OrderContactCard order={order} />
-        <View className="rounded-2xl border border-border bg-card p-4">
-          <Text className="text-foreground mb-4 text-base font-semibold">Booking progress</Text>
-          <OrderTimeline status={order.status} />
-        </View>
+        {showTimeline ? (
+          <View className="rounded-2xl border border-border bg-card p-4">
+            <Text className="text-foreground mb-4 text-base font-semibold">Booking progress</Text>
+            <OrderTimeline status={order.status} checkoutAbandoned={checkoutAbandoned} />
+          </View>
+        ) : null}
       </ScrollView>
 
       <OrderDetailsSheet

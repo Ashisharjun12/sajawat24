@@ -29,7 +29,7 @@ export function RejectedApplicationContent({
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
         <View className="mb-6 items-center">
           <Text className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">
-            Decoryy Vendor
+            Sajawat24 Vendor
           </Text>
         </View>
 
@@ -59,7 +59,7 @@ export function RejectedApplicationContent({
           <RejectedApplicationSteps />
         </View>
 
-        <View className="bg-muted/60 border-border rounded-2xl border px-4 py-4">
+        <View className="bg-muted/60 border-border rounded-card border px-4 py-4">
           <Text className="text-muted-foreground text-center text-sm leading-5">
             Update any incorrect details before reapplying. Pull down to refresh if your status
             changes.
@@ -68,12 +68,12 @@ export function RejectedApplicationContent({
       </ScrollView>
 
       <View className="border-border gap-3 border-t px-8 pb-10 pt-4">
-        <Button className="h-12 rounded-2xl" onPress={onReapply}>
+        <Button className="h-12 rounded-btn" onPress={onReapply}>
           <Text>Reapply now</Text>
         </Button>
         <Button
           variant="destructive"
-          className="h-12 rounded-2xl"
+          className="h-12 rounded-btn"
           disabled={signingOut}
           onPress={onSignOut}>
           <Text>{signingOut ? 'Signing out…' : 'Sign out'}</Text>

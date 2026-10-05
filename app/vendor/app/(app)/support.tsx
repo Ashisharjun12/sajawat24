@@ -109,7 +109,7 @@ export default function SupportChatScreen() {
           <Text className="text-foreground text-sm font-medium">Back</Text>
         </PressableScale>
         <Text className="text-foreground text-xl font-semibold">Support chat</Text>
-        <Text className="text-muted-foreground mt-0.5 text-sm">Message the Decoryy team</Text>
+        <Text className="text-muted-foreground mt-0.5 text-sm">Message the Sajawat24 team</Text>
         {supportOnline ? (
           <Text className="text-muted-foreground mt-1 text-xs">Support is online</Text>
         ) : null}
@@ -194,7 +194,7 @@ export default function SupportChatScreen() {
             className="border-t border-border bg-background px-4 pt-3"
             style={{ paddingBottom: keyboardHeight > 0 ? 8 : Math.max(insets.bottom, 12) }}>
             <View className="flex-row items-end gap-2">
-              <View className="min-h-11 flex-1 flex-row items-end rounded-2xl border border-border bg-background px-3 py-2">
+              <View className="min-h-11 flex-1 flex-row items-end rounded-card border border-border bg-background px-3 py-2">
                 <TextInput
                   className="max-h-24 flex-1 py-1.5 text-base text-foreground"
                   placeholder="Type a message..."

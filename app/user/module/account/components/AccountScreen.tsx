@@ -50,7 +50,7 @@ export function AccountScreen() {
               </AvatarFallback>
             </Avatar>
             <View className="min-w-0 flex-1">
-              <Text className="text-foreground text-xl font-bold tracking-tight" numberOfLines={2}>
+              <Text className="text-foreground text-h1 font-semibold" numberOfLines={2}>
                 {name}
               </Text>
             </View>

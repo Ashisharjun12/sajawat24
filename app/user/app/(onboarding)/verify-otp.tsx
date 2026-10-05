@@ -12,7 +12,7 @@ import {
 } from '@/module/onboarding/services/otp.service';
 import { formatIndiaPhoneDisplay } from '@/lib/phone';
 import { useAuthStore } from '@/store/auth.store';
-import * as Haptics from 'expo-haptics';
+import { lightImpact } from '@/lib/light-haptic';
 import { Href, router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from 'react-native';
@@ -71,7 +71,7 @@ export default function VerifyOtpScreen() {
       setError('');
       try {
         await verifySignInOtp(phone, code);
-        await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        lightImpact();
         router.replace('/(app)/' as Href);
         return;
       } catch (err) {
@@ -130,11 +130,7 @@ export default function VerifyOtpScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}>
           <View className="mb-8 gap-2">
-            <Text
-              className="text-foreground"
-              style={{ fontSize: 32, lineHeight: 38, fontWeight: '700' }}>
-              Verify OTP
-            </Text>
+            <Text className="text-foreground text-display font-semibold">Verify OTP</Text>
             <Text className="text-muted-foreground text-base leading-6">
               Enter the code sent to {phoneLabel}.
             </Text>

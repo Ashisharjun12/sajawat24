@@ -25,7 +25,7 @@ const LOCKED_COPY: Record<string, { title: string; body: string }> = {
   },
   BLOCKED: {
     title: 'Account paused',
-    body: 'Contact Decoryy support if you think this is a mistake.',
+    body: 'Contact Sajawat24 support if you think this is a mistake.',
   },
 };
 
@@ -64,7 +64,7 @@ export function DutyStatusCard({
 
   if (variant === 'compact') {
     return (
-      <View className={cn('flex-row items-center justify-between gap-3 rounded-2xl bg-muted/60 px-4 py-3', className)}>
+      <View className={cn('flex-row items-center justify-between gap-3 rounded-card bg-muted/60 px-4 py-3', className)}>
         <View className="flex-1 flex-row items-center gap-2">
           <View className={cn('size-2.5 rounded-full', dotClass)} />
           <Text className="text-foreground text-sm font-medium">{title}</Text>
@@ -89,7 +89,7 @@ export function DutyStatusCard({
         <Surface
           className={cn(
             'flex-row items-center justify-between gap-4 p-4',
-            online ? 'border-emerald-500/20 bg-emerald-500/5' : 'bg-muted/50',
+            online ? 'border-success/20 bg-success/5' : 'bg-muted/50',
             className,
           )}>
           <View className="flex-1 gap-1">

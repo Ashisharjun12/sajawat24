@@ -1,4 +1,5 @@
 import { Screen } from '@/components/shell';
+import { PRIMARY_CTA_BUTTON_CLASS } from '@/lib/primary-cta-button';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { BankAccountRow } from '@/module/payouts/components/BankAccountRow';
@@ -28,7 +29,7 @@ export default function BankAccountsScreen() {
         {isLoading ? (
           <LoadingPlaceholder />
         ) : bankAccounts.length === 0 ? (
-          <View className="gap-3 rounded-3xl bg-muted/50 px-5 py-8">
+          <View className="gap-3 rounded-card bg-muted/50 px-5 py-8">
             <Text className="text-foreground text-center text-base font-medium">
               No bank accounts yet
             </Text>
@@ -48,7 +49,7 @@ export default function BankAccountsScreen() {
         )}
 
         <Button
-          className="h-12 rounded-full"
+          className={PRIMARY_CTA_BUTTON_CLASS}
           onPress={() => router.push('/(app)/add-bank-account')}>
           <Text>Add bank account</Text>
         </Button>

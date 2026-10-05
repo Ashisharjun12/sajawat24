@@ -69,7 +69,7 @@ export function AddUpiIdForm() {
       </View>
 
       <Button
-        className="mt-2 h-12 rounded-full"
+        className="mt-2 h-12 w-full rounded-btn"
         disabled={!canSave || addUpi.isPending}
         onPress={handleSave}>
         <Text>{addUpi.isPending ? 'Saving…' : 'Save UPI ID'}</Text>

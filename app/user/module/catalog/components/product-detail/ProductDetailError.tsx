@@ -13,18 +13,18 @@ type ProductDetailErrorProps = {
 export function ProductDetailError({ message, onBack, onRetry }: ProductDetailErrorProps) {
   return (
     <View className="mx-5 mt-24 gap-4 rounded-2xl border border-border bg-card p-6">
-      <Text className="text-foreground text-2xl font-semibold">Couldn&apos;t load this setup</Text>
+      <Text className="text-foreground text-h1 font-semibold">Couldn&apos;t load this setup</Text>
       <Text className="text-muted-foreground text-sm leading-relaxed">{message}</Text>
       <View className="flex-row flex-wrap gap-2">
         {onRetry ? (
-          <Button variant="default" onPress={onRetry}>
+          <Button variant="primary" onPress={onRetry}>
             <Text>Try again</Text>
           </Button>
         ) : null}
-        <Button variant="outline" onPress={() => router.push(SELECT_LOCATION_HREF as Href)}>
+        <Button variant="secondary" onPress={() => router.push(SELECT_LOCATION_HREF as Href)}>
           <Text>Change location</Text>
         </Button>
-        <Button variant="outline" onPress={onBack}>
+        <Button variant="text" onPress={onBack}>
           <Text>Go back</Text>
         </Button>
       </View>

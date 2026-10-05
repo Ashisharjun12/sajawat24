@@ -129,8 +129,8 @@ export function OffersScreen() {
           ))}
           {canLoadMore ? (
             <Button
-              variant="outline"
-              className="mt-1 rounded-xl"
+              variant="secondary"
+              className="mt-1"
               onPress={() => setVisibleLimit((v) => v + PAGE_SIZE)}>
               <Text>Load more</Text>
             </Button>

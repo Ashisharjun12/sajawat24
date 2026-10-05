@@ -2,12 +2,13 @@ import { getApiError } from '@/api/client';
 import { getOrder } from '@/api/orders.api';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
+import { Textarea } from '@/components/ui/textarea';
 import { useSubmitOrderReview } from '@/module/account/hooks/use-submit-order-review';
 import { OrderReviewStarPicker } from '@/module/account/components/order-review/OrderReviewStarPicker';
 import { HomeBottomSheetModal } from '@/module/home/components/HomeBottomSheetModal';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
-import { Alert, TextInput, View } from 'react-native';
+import { Alert, View } from 'react-native';
 
 const MIN_BODY = 10;
 const MAX_BODY = 2000;
@@ -89,7 +90,7 @@ export function OrderReviewSheet({
       closeAccessibilityLabel="Close review"
       sheetMinHeight={420}>
       <View className="w-full max-w-lg px-5 pb-2">
-        <Text className="text-foreground text-xl font-bold">Leave a review</Text>
+        <Text className="text-foreground text-h2 font-semibold">Leave a review</Text>
         {productName ? (
           <Text className="text-muted-foreground mt-1 text-sm" numberOfLines={2}>
             {productName}
@@ -101,12 +102,9 @@ export function OrderReviewSheet({
         </View>
 
         <Text className="text-foreground mt-6 text-sm font-semibold">Tell us about your experience</Text>
-        <TextInput
-          className="mt-2 min-h-[120px] rounded-2xl border border-border bg-muted/30 px-4 py-3 text-base text-foreground"
+        <Textarea
+          className="mt-2 min-h-[120px]"
           placeholder="What went well? Would you book again?"
-          placeholderTextColor="#9CA3AF"
-          multiline
-          textAlignVertical="top"
           maxLength={MAX_BODY}
           value={body}
           onChangeText={setBody}
@@ -119,12 +117,11 @@ export function OrderReviewSheet({
         </Text>
 
         <Button
-          className="mt-5 h-12 w-full rounded-full"
+          className="mt-5 w-full"
           disabled={!canSubmit}
+          loading={submit.isPending}
           onPress={() => void handleSubmit()}>
-          <Text className="text-primary-foreground font-semibold">
-            {submit.isPending ? 'Submitting…' : 'Submit review'}
-          </Text>
+          <Text>Submit review</Text>
         </Button>
       </View>
     </HomeBottomSheetModal>

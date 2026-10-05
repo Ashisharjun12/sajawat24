@@ -1,3 +1,4 @@
+import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import type { ChatMessage } from '@/api/chat.api';
 import { Image } from 'expo-image';
@@ -28,9 +29,13 @@ export function ChatAttachmentBubble({ message, isMine }: ChatAttachmentBubblePr
   return (
     <Pressable
       onPress={() => void Linking.openURL(url)}
-      className={`flex-row items-center gap-2 rounded-xl px-3 py-2 ${isMine ? 'bg-primary/90' : 'bg-muted'}`}>
-      <View className="rounded-full bg-background/20 p-2">
-        <FileText size={18} color={isMine ? '#FFFFFF' : '#111827'} />
+      className={`flex-row items-center gap-2 rounded-btn px-3 py-2 ${isMine ? 'bg-primary' : 'bg-muted'}`}>
+      <View className="rounded-pill bg-background/20 p-2">
+        <Icon
+          as={FileText}
+          size={18}
+          className={isMine ? 'text-primary-foreground' : 'text-foreground'}
+        />
       </View>
       <Text
         className={`flex-1 text-sm font-medium ${isMine ? 'text-primary-foreground' : 'text-foreground'}`}

@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { PRIMARY_CTA_BUTTON_CLASS, PRIMARY_CTA_BUTTON_TEXT_CLASS } from '@/lib/primary-cta-button';
+import { PRIMARY_CTA_BUTTON_CLASS } from '@/lib/primary-cta-button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Text } from '@/components/ui/text';
@@ -48,10 +48,10 @@ export function AddressFormFields({
   return (
     <View className="gap-4">
       {contextCityPinHint && contextCityName ? (
-        <View className="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 dark:border-sky-900 dark:bg-sky-950/40">
-          <Text className="text-sky-900 text-sm leading-5 dark:text-sky-100">
+        <View className="rounded-2xl border border-primary/20 bg-primary-tint px-4 py-3">
+          <Text className="text-foreground text-sm leading-5">
             Delivering in{' '}
-            <Text className="font-semibold text-sky-900 dark:text-sky-50">{contextCityName}</Text>
+            <Text className="font-semibold text-foreground">{contextCityName}</Text>
             . PIN must be in this city.
           </Text>
         </View>
@@ -120,7 +120,7 @@ export function AddressFormFields({
             <Skeleton className="mt-1 h-4 w-44 rounded-md" accessibilityLabel="Checking delivery" />
           ) : null}
           {pinStatus === 'ok' && !fieldErrors.pincode ? (
-            <Text className="text-xs font-medium text-emerald-600">{pinMessage}</Text>
+            <Text className="text-xs font-medium text-success">{pinMessage}</Text>
           ) : null}
           {fieldErrors.pincode ? (
             <Text className="text-destructive text-xs">{fieldErrors.pincode}</Text>
@@ -152,10 +152,11 @@ export function AddressFormFields({
       </FormSection>
 
       <Button
+        variant="primary"
         className={PRIMARY_CTA_BUTTON_CLASS}
         disabled={submitDisabled || pinStatus === 'loading'}
         onPress={onSubmit}>
-        <Text className={PRIMARY_CTA_BUTTON_TEXT_CLASS}>{submitLabel}</Text>
+        <Text>{submitLabel}</Text>
       </Button>
     </View>
   );

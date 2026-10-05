@@ -63,7 +63,7 @@ export function ProductReviewCard({ review }: ProductReviewCardProps) {
                 {review.reviewerName?.trim() || 'Customer'}
               </Text>
               {review.isVerified ? (
-                <Icon as={BadgeCheck} className="size-4 text-sky-600" accessibilityLabel="Verified purchase" />
+                <Icon as={BadgeCheck} className="size-4 text-primary" accessibilityLabel="Verified purchase" />
               ) : null}
             </View>
             {review.reviewerCity ? (

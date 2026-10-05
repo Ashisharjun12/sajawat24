@@ -42,7 +42,7 @@ export function NextJobHero({ booking, onViewBooking }: NextJobHeroProps) {
         </View>
 
         <Button
-          className="h-12 rounded-full"
+          className="h-12 rounded-btn"
           onPress={() => {
             triggerHaptic();
             onViewBooking();

@@ -3,6 +3,7 @@ import {
   isCashfreePgNativeLinked,
 } from '@/module/booking/lib/cashfree-native-availability';
 import { Platform } from 'react-native';
+import { colors } from '@/lib/design-tokens';
 
 export type CashfreeUpiCheckoutInput = {
   paymentSessionId: string;
@@ -89,14 +90,15 @@ export async function openCashfreeUpiAndroid(
         env,
       );
 
+      const brand = colors.light;
       const theme = new CFThemeBuilder()
-        .setNavigationBarBackgroundColor('#171717')
-        .setNavigationBarTextColor('#FFFFFF')
-        .setButtonBackgroundColor('#F59E0B')
-        .setButtonTextColor('#171717')
-        .setPrimaryTextColor('#171717')
-        .setSecondaryTextColor('#737373')
-        .setBackgroundColor('#FFFFFF')
+        .setNavigationBarBackgroundColor(brand.primary)
+        .setNavigationBarTextColor(brand.onPrimary)
+        .setButtonBackgroundColor(brand.cta)
+        .setButtonTextColor(brand.onCta)
+        .setPrimaryTextColor(brand.text)
+        .setSecondaryTextColor(brand.muted)
+        .setBackgroundColor(brand.surface)
         .build();
 
       const upiPayment = new CFUPIIntentCheckoutPayment(session, theme);

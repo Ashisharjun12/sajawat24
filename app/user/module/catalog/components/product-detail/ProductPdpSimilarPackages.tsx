@@ -151,11 +151,13 @@ function SimilarPackagesBody({ product, enabled, onNavigate }: SimilarPackagesBo
 
       {meta.viewAllHref ? (
         <View
-          className="border-t border-border/80 px-5 pt-3"
+          className="items-center border-t border-border/80 px-5 pt-3"
           style={{ paddingBottom: Math.max(insets.bottom, 12) }}>
-          <Button className="h-11 w-full flex-row gap-2 rounded-full bg-primary" onPress={openViewAll}>
-            <Text className="text-primary-foreground text-sm font-semibold">{meta.viewAllLabel}</Text>
-            <Icon as={ArrowRight} className="text-primary-foreground size-4 shrink-0" />
+          <Button variant="cta" className="w-full" onPress={openViewAll}>
+            <View className="flex-row items-center justify-center gap-2">
+              <Text className="text-center">{meta.viewAllLabel}</Text>
+              <Icon as={ArrowRight} className="size-4 shrink-0 text-cta-foreground" />
+            </View>
           </Button>
         </View>
       ) : null}

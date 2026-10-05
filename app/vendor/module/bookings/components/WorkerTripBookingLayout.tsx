@@ -45,7 +45,7 @@ type Props = {
   onPackageClose?: () => void;
   canChat: boolean;
   destination: { latitude: number; longitude: number } | null;
-  vendorFix: { latitude: number; longitude: number } | null;
+  vendorFix: { latitude: number; longitude: number; heading?: number } | null;
   followVendor: boolean;
   showMap?: boolean;
   onOpenMaps: () => void;
@@ -131,8 +131,8 @@ export function WorkerTripBookingLayout({
   const packageButton = onViewPackage ? (
     <PressableScale
       onPress={onViewPackage}
-      className="items-center rounded-full border border-amber-400 bg-primary py-3.5">
-      <Text className="text-sm font-bold text-[#1A1A1A]">Open package with photos</Text>
+      className="items-center rounded-btn bg-primary py-3.5">
+      <Text className="text-sm font-semibold text-primary-foreground">Open package with photos</Text>
     </PressableScale>
   ) : null;
 
@@ -153,10 +153,10 @@ export function WorkerTripBookingLayout({
           )}
           {canChat ? (
             <PressableScale
-              className="flex-row items-center gap-1.5 rounded-full border border-amber-400 bg-primary px-3.5 py-2"
+              className="flex-row items-center gap-1.5 rounded-btn bg-primary px-3.5 py-2"
               onPress={() => router.push(`/(app)/bookings/${orderId}/chat` as Href)}>
-              <Icon as={MessageCircle} className="size-4 text-[#1A1A1A]" />
-              <Text className="text-sm font-bold text-[#1A1A1A]">Chat</Text>
+              <Icon as={MessageCircle} className="size-4 text-primary-foreground" />
+              <Text className="text-sm font-semibold text-primary-foreground">Chat</Text>
             </PressableScale>
           ) : (
             <View className="w-16" />
@@ -195,10 +195,10 @@ export function WorkerTripBookingLayout({
                 {customerPhone ? (
                   <PressableScale
                     onPress={() => Linking.openURL(`tel:${customerPhone}`)}
-                    className="rounded-full border border-amber-400 bg-primary px-4 py-2">
+                    className="rounded-btn bg-primary px-4 py-2">
                     <View className="flex-row items-center gap-1.5">
-                      <Icon as={Phone} className="size-3.5 text-[#1A1A1A]" />
-                      <Text className="text-sm font-bold text-[#1A1A1A]">Call</Text>
+                      <Icon as={Phone} className="size-3.5 text-primary-foreground" />
+                      <Text className="text-sm font-semibold text-primary-foreground">Call</Text>
                     </View>
                   </PressableScale>
                 ) : null}
@@ -216,8 +216,8 @@ export function WorkerTripBookingLayout({
 
               <PressableScale
                 onPress={() => setTab('orderDetails')}
-                className="items-center rounded-full border border-amber-400 bg-primary py-3.5">
-                <Text className="text-sm font-bold text-[#1A1A1A]">Full order details</Text>
+                className="items-center rounded-btn bg-primary py-3.5">
+                <Text className="text-sm font-semibold text-primary-foreground">Full order details</Text>
               </PressableScale>
 
               <View className="gap-2 pt-1">{actions}</View>
@@ -247,15 +247,15 @@ export function WorkerTripBookingLayout({
             </Surface>
           ) : null}
 
-          <View className="gap-3 rounded-2xl border border-border/70 p-4">
+          <View className="gap-3 rounded-card border border-border/70 p-4">
             <View className="flex-row items-center gap-3">
               <Icon as={User} className="text-muted-foreground size-4" />
               <Text className="text-foreground flex-1 text-base font-medium">{customerName}</Text>
               {customerPhone ? (
                 <PressableScale
                   onPress={() => Linking.openURL(`tel:${customerPhone}`)}
-                  className="rounded-full border border-amber-400 bg-primary px-4 py-2">
-                  <Text className="text-sm font-bold text-[#1A1A1A]">Call</Text>
+                  className="rounded-btn bg-primary px-4 py-2">
+                  <Text className="text-sm font-semibold text-primary-foreground">Call</Text>
                 </PressableScale>
               ) : null}
             </View>

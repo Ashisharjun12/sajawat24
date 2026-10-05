@@ -15,8 +15,8 @@ function statusLabel(status: PermissionVisualStatus) {
 }
 
 function statusClass(status: PermissionVisualStatus) {
-  if (status === 'granted') return 'bg-emerald-500/15 text-emerald-800';
-  if (status === 'denied') return 'bg-amber-500/15 text-amber-900';
+  if (status === 'granted') return 'bg-success/15 text-success';
+  if (status === 'denied') return 'bg-warning/15 text-amber-900';
   return 'bg-muted text-muted-foreground';
 }
 

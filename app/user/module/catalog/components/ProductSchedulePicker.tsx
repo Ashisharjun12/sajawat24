@@ -39,25 +39,25 @@ export function ProductSchedulePicker({ onConfirm }: ProductSchedulePickerProps)
   return (
     <View className="gap-4 rounded-2xl border border-border bg-card p-4">
       <View className="flex-row items-start gap-3">
-        <View className="size-10 items-center justify-center rounded-full bg-emerald-600/15">
-          <Icon as={CalendarCheck2} className="size-4 text-emerald-600" />
+        <View className="size-10 items-center justify-center rounded-full bg-success/15">
+          <Icon as={CalendarCheck2} className="size-4 text-success" />
         </View>
         <View className="min-w-0 flex-1">
           <Text className="text-foreground text-base font-semibold">Choose date & time</Text>
           <Text className="text-muted-foreground text-sm">When should we arrive to set up?</Text>
         </View>
         {confirmed ? (
-          <Text className="text-sm font-semibold text-emerald-600">Set</Text>
+          <Text className="text-sm font-semibold text-success">Set</Text>
         ) : null}
       </View>
 
       {confirmed ? (
-        <View className="flex-row items-center gap-3 rounded-2xl bg-emerald-600/10 px-3 py-3">
-          <View className="size-8 items-center justify-center rounded-full bg-emerald-600">
+        <View className="flex-row items-center gap-3 rounded-2xl bg-success/15 px-3 py-3">
+          <View className="size-8 items-center justify-center rounded-full bg-success">
             <Icon as={Check} className="size-4 text-white" />
           </View>
           <View className="min-w-0 flex-1">
-            <Text className="text-sm font-semibold text-emerald-800">
+            <Text className="text-sm font-semibold text-success">
               {slotLabel} · {dateSummary}
             </Text>
           </View>
@@ -139,7 +139,7 @@ export function ProductSchedulePicker({ onConfirm }: ProductSchedulePickerProps)
                       <View
                         className={cn(
                           'mt-1 flex-row items-center gap-0.5 rounded-full px-1.5 py-0.5',
-                          selected ? 'bg-white/20' : 'bg-rose-600'
+                          selected ? 'bg-white/20' : 'bg-destructive'
                         )}>
                         <Icon as={Flame} className={cn('size-2.5', selected ? 'text-primary-foreground' : 'text-white')} />
                         <Text
@@ -157,7 +157,7 @@ export function ProductSchedulePicker({ onConfirm }: ProductSchedulePickerProps)
             </View>
           </View>
 
-          <Button onPress={commit}>
+          <Button variant="primary" onPress={commit}>
             <Text>Done</Text>
           </Button>
         </>

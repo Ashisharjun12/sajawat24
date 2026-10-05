@@ -10,10 +10,10 @@ type WalletBalanceCardProps = {
 
 export function WalletBalanceCard({ summary }: WalletBalanceCardProps) {
   return (
-    <Surface className="border border-emerald-500/15 bg-emerald-500/8 gap-4 p-5 shadow-none">
+    <Surface className="border border-emerald-500/15 bg-success/10 gap-4 p-5 shadow-none">
       <View className="gap-1">
         <Text className="text-muted-foreground text-sm">Available balance</Text>
-        <Text className="text-3xl font-bold text-emerald-600">{formatInr(summary.available)}</Text>
+        <Text className="text-3xl font-bold text-success">{formatInr(summary.available)}</Text>
         <Text className="text-muted-foreground text-xs">
           Earned {formatInr(summary.earnedThisMonth)} this month
         </Text>

@@ -53,7 +53,7 @@ export function ChatAttachmentSheet({
                 onClose();
                 onPick(option.id);
               }}
-              className="flex-row items-center gap-3 rounded-2xl border border-border bg-background px-4 py-4">
+              className="flex-row items-center gap-3 rounded-card border border-border bg-background px-4 py-4">
               <View className="size-11 items-center justify-center rounded-full border border-border bg-muted/30">
                 <option.icon size={20} color="#111827" />
               </View>

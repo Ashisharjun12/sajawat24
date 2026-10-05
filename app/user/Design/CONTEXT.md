@@ -11,22 +11,24 @@ Living brief for the customer mobile app (`app/user`). Update this file when eac
 ## Non-negotiables
 
 - Thin routes under `app/`; feature code under `module/*`; HTTP in `api/` (vendor-aligned).
-- Tokens: [`lib/theme.ts`](../lib/theme.ts), Tailwind semantic colors — no random purple gradients or generic AI landing layouts.
+- Tokens: [`lib/design-tokens.ts`](../lib/design-tokens.ts) (source of truth) → `global.css` RGB vars → Tailwind semantic colors; [`lib/theme.ts`](../lib/theme.ts) `useThemeColors()` for native-only color props. No raw hex or Tailwind palette classes for brand UI.
+- Brand rules: one orange `cta` button per screen; crimson `instant` only for Instant; disabled = `bg-disabled` / `text-disabled-foreground` (never opacity); Poppins 400/500/600 only via `font-normal|medium|semibold`; named type sizes (`text-display|h1|h2|h3|body|caption|micro|button`).
 - Home feed uses **real** CMS + catalog APIs when location is set; PDP uses **real** `GET /catalog/products/:id` when location is set.
 
 ## Current slice
 
 | Field | Value |
 |-------|--------|
-| Name | Profile preferences — appearance (light default) |
-| Status | shipped — Profile → Appearance (light/dark, SecureStore); `ThemeBootstrap` ignores system dark until user picks dark |
+| Name | Brand retheme — web tokens (teal / orange CTA / crimson Instant) + Poppins |
+| Status | shipped — tokens + component layer, palette cleanup, CTA triage, splash/notification colors; layouts unchanged. Icon/splash artwork (`sajawat24-icon-light.svg`) deferred |
+| Theme | Light default + Dark via Profile → Appearance; dark uses `#0B1514` bg (no pure black) |
 | Home UI | Browse feed without city + compact “Please select city” banner; auto city sheet; CMS/discovery rails match web View all + badge colors |
 | Bag / checkout | No My bag screen — bag icon / add-to-bag → `/(app)/checkout` (Confirm booking → Payment); offers + address sub-routes |
 | APIs | Cart, coupons, orders (create/cancel/resume, `GET /orders?bucket&page`, `GET /orders/:id`), `POST /payments/verify`; Cashfree UPI Intent Android |
 | Payment QA | Online cancel/fail → cancel pending order, reset idempotency, alert “Order not placed” (bag unchanged); backend Cashfree 409 → reuse session; COD → confirmed only if `CONFIRMED`; success gates status |
 | Location | Tab bootstrap + `useCatalogLocationGate` on PDP/home catalog |
 | Parity | Normalization from web `home-catalog` / home CMS hero slides |
-| Bottom nav | Home → Category → **Explore** → Instant → Profile; Instant tab orange (`INSTANT_TAB_HEX`); other tabs yellow primary |
+| Bottom nav | Home → Category → **Explore** → Instant → Profile; 72 tall + safe area; active teal primary (Instant tab crimson `INSTANT_TAB_HEX`), inactive muted |
 
 ## Module map
 
@@ -64,8 +66,11 @@ Living brief for the customer mobile app (`app/user`). Update this file when eac
 | `store/cart.store.ts` | Cart item count from `GET /cart` when authenticated |
 | `store/checkout.store.ts` | Customer + delivery snapshot for confirm/pay |
 | `lib/site-brand-contact.ts`, `lib/support-actions.ts` | `GET /catalog/cms/site-shell?platform=app` for WhatsApp/tel; alert if brand contact unset |
-| `components/shell/` | `Screen`, `ScreenBackButton`, `TabScreenTitle`, `AppTabBar`, `LoadingPlaceholder` |
-| `components/ui/` | Shared primitives — change rarely |
+| `components/shell/` | `Screen`, `ScreenBackButton`, `TabScreenTitle`, `AppTabBar`, `LoadingPlaceholder`, `ScalePressable` (0.98 / 100ms) |
+| `components/ui/` | Shared primitives — change rarely. `Button` variants `cta` (default) / `primary` / `secondary` / `instant` / `text`, sizes 48/40/32, `loading`; `Text` brand type variants + `maxFontSizeMultiplier` 1.3 |
+| `lib/design-tokens.ts` | Brand colors light/dark, radius, space, type scale, button, `cardShadow`, `motion`, `MAX_FONT_SCALE` |
+| `lib/theme.ts`, `lib/utils.ts` | `THEME` / `NAV_THEME` / `useThemeColors()`; `cn` with tailwind-merge aware of brand sizes/radii/shadows |
+| `module/home/components/HomeBottomSheetModal.tsx` | Shared sheet (24 top radius, `BottomSheetHandle`, scrim tap closes) |
 
 ## Screen inventory
 
@@ -99,6 +104,7 @@ Living brief for the customer mobile app (`app/user`). Update this file when eac
 - [x] Product PDP — web mobile parity: `ProductPdpScreen`, reviews + coupons APIs, dual sticky CTA, add-to-bag → cart
 - [x] `app/(app)/offers` — stacked ticket cards, product filter sheet, client load more; ticket rail on PDP above What's included
 - [x] `app/(app)/checkout` — Confirm booking + Payment (mock parity); `checkout/offers`; address handled by `/(app)/location`; no separate My bag route
+- [x] Brand retheme across all screens — teal/orange/crimson tokens, Poppins, buttons/cards/inputs/sheets/tab bar, splash + notification color `#0F766E`
 
 ### Planned (later)
 - [ ] Search pagination / full PLP from search
@@ -121,6 +127,12 @@ Living brief for the customer mobile app (`app/user`). Update this file when eac
 ## History (newest first)
 
 ```text
+2026-10-05 — My orders status UX — hide payment-abandoned `CANCELLED` online orders from list (backend + client); status colors (teal active, orange pending, green complete, red cancelled); timeline only for confirmed+ journeys; `checkoutAbandoned` on order API
+2026-10-05 — PDP web mobile parity — Schedule/Instant tab icons (calendar + zap), schedule card header, instant detail row colors, package-details chips + included list, add-ons rose gift icon
+2026-10-05 — City picker sheet — web layout (search, popular grid, all cities); Lucide MapPin; removed map image URLs
+2026-10-05 — Home header — city pill top-left (MapPin + name + chevron); full-width search; removed Deliver to + search-bar map icon
+2026-10-05 — Catalog product card web parity — discount on image, Instant line (Zap + ETA in body), title min-height, no root overflow clip; grid row stretch
+2026-10-05 — Brand retheme — `lib/design-tokens.ts` + RGB CSS vars, Poppins 400/500/600 (font plugin + type scale), Button cta/primary/secondary/instant/text, cards/inputs/OTP/sheets/tab bar, palette → tokens, CTA triage, light haptics (Book Now, OTP), app.json + android colors `#0F766E`
 2026-10-03 — Checkout address picker — Confirm booking Change opens bottom sheet to select saved address (`CheckoutAddressPickerSheet`)
 2026-10-03 — Personal info UI — name + avatar header, contact card (email/phone); removed intro copy, upload stub, sign-in row
 2026-10-03 — Profile appearance — Preferences → Appearance screen; `ThemeBootstrap` + SecureStore; default light (not system)

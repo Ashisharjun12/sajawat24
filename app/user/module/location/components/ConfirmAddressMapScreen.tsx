@@ -5,7 +5,7 @@ import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { LoadingPlaceholder, ScalePressable } from '@/components/shell';
 import { requestForegroundLocationPermission } from '@/lib/location';
-import { PRIMARY_CTA_BUTTON_CLASS, PRIMARY_CTA_BUTTON_TEXT_CLASS } from '@/lib/primary-cta-button';
+import { PRIMARY_CTA_BUTTON_CLASS } from '@/lib/primary-cta-button';
 import { buildCreateAddressBody } from '@/module/account/lib/address-form';
 import { useAddressMutations } from '@/module/account/hooks/use-addresses-query';
 import { MapCenterPin } from '@/module/geo/components/MapCenterPin';
@@ -18,9 +18,7 @@ import { PlacesAddressAutocomplete } from '@/module/geo/components/PlacesAddress
 import { useAddressFormDraftStore } from '@/store/address-form-draft.store';
 import { MapPin, Search } from 'lucide-react-native';
 import { cancelLocationFlowStep, finishLocationFlow } from '@/lib/location-flow-navigation';
-import { navigateBackOrHome } from '@/lib/navigate-back';
 import { applySelectedDeliveryAddress } from '@/module/location/lib/apply-selected-delivery-address';
-import { useLocationFlowStore } from '@/store/location-flow.store';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, Keyboard, View } from 'react-native';
@@ -34,8 +32,6 @@ export function ConfirmAddressMapScreen() {
   const editAddressId = useAddressFormDraftStore((s) => s.editAddressId);
   const clearDraft = useAddressFormDraftStore((s) => s.clear);
   const queryClient = useQueryClient();
-  const returnTarget = useLocationFlowStore((s) => s.returnTarget);
-
   const { create, update } = useAddressMutations();
   const { config: sdkConfig, loading: sdkLoading, error: sdkError, retry } = useMapsSdkConfig();
 
@@ -64,6 +60,8 @@ export function ConfirmAddressMapScreen() {
   const reverseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const reverseFromPinRef = useRef(!hasSearchCoords);
   const holdSearchCenterRef = useRef(hasSearchCoords);
+  const missingFormAlertShown = useRef(false);
+  const exitingAfterSaveRef = useRef(false);
 
   const scheduleReverse = useCallback((latitude: number, longitude: number) => {
     if (reverseTimer.current) clearTimeout(reverseTimer.current);
@@ -108,21 +106,19 @@ export function ConfirmAddressMapScreen() {
   }, [mapCenter.latitude, mapCenter.longitude, scheduleReverse]);
 
   useEffect(() => {
-    if (!form.address && !form.cityId) {
-      Alert.alert('Address', 'Fill in your address first.', [
-        {
-          text: 'OK',
-          onPress: () => {
-            if (returnTarget === 'checkout') {
-              cancelLocationFlowStep();
-            } else {
-              navigateBackOrHome();
-            }
-          },
+    if (exitingAfterSaveRef.current) return;
+    if (form.address?.trim() || form.cityId) return;
+    if (missingFormAlertShown.current) return;
+    missingFormAlertShown.current = true;
+    Alert.alert('Address', 'Fill in your address first.', [
+      {
+        text: 'OK',
+        onPress: () => {
+          cancelLocationFlowStep();
         },
-      ]);
-    }
-  }, [form.address, form.cityId, returnTarget]);
+      },
+    ]);
+  }, [form.address, form.cityId]);
 
   async function useCurrentLocation() {
     Keyboard.dismiss();
@@ -192,8 +188,9 @@ export function ConfirmAddressMapScreen() {
         saved = await create.mutateAsync(body);
       }
       await applySelectedDeliveryAddress(saved, queryClient);
-      clearDraft();
+      exitingAfterSaveRef.current = true;
       finishLocationFlow();
+      clearDraft();
     } catch (err) {
       Alert.alert('Could not save address', getApiError(err));
     } finally {
@@ -205,7 +202,7 @@ export function ConfirmAddressMapScreen() {
 
   return (
     <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
-      <LocationStackHeader title="Select delivery location" onBack={navigateBackOrHome} />
+      <LocationStackHeader title="Select delivery location" onBack={cancelLocationFlowStep} />
 
       <View className="relative flex-1">
         {sdkLoading ? (
@@ -217,8 +214,8 @@ export function ConfirmAddressMapScreen() {
             <Text className="text-muted-foreground text-center text-sm">
               Map is unavailable. Check maps configuration and try again.
             </Text>
-            <Button className={`mt-4 ${PRIMARY_CTA_BUTTON_CLASS}`} onPress={retry}>
-              <Text className={PRIMARY_CTA_BUTTON_TEXT_CLASS}>Retry</Text>
+            <Button variant="secondary" className={`mt-4 ${PRIMARY_CTA_BUTTON_CLASS}`} onPress={retry}>
+              <Text>Retry</Text>
             </Button>
           </View>
         ) : (
@@ -315,12 +312,12 @@ export function ConfirmAddressMapScreen() {
             </View>
           </View>
           <Button
+            variant="primary"
             className={`mt-5 ${PRIMARY_CTA_BUTTON_CLASS}`}
             onPress={() => void saveAddress()}
-            disabled={saving || sdkLoading}>
-            <Text className={PRIMARY_CTA_BUTTON_TEXT_CLASS}>
-              {saving ? 'Saving…' : 'Save address'}
-            </Text>
+            loading={saving}
+            disabled={sdkLoading}>
+            <Text>Save address</Text>
           </Button>
         </View>
       </View>

@@ -40,7 +40,7 @@ export default function LoginChoiceScreen() {
               Welcome back
             </Text>
             <Text className="text-muted-foreground text-center text-base leading-6">
-              Choose how you use Decoryy Partner. We&apos;ll send a one-time code to your phone.
+              Choose how you use Sajawat24 Partner. We&apos;ll send a one-time code to your phone.
             </Text>
           </View>
 

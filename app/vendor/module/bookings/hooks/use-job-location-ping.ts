@@ -6,7 +6,11 @@ const INTERVAL_MS = 8000;
 
 export function useJobLocationPing(orderId: string | undefined, enabled: boolean) {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const [lastFix, setLastFix] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [lastFix, setLastFix] = useState<{
+    latitude: number;
+    longitude: number;
+    heading?: number;
+  } | null>(null);
   const [suggestOnSite, setSuggestOnSite] = useState(false);
 
   useEffect(() => {
@@ -27,8 +31,12 @@ export function useJobLocationPing(orderId: string | undefined, enabled: boolean
         if (cancelled) return;
         const latitude = fix.coords.latitude;
         const longitude = fix.coords.longitude;
-        setLastFix({ latitude, longitude });
         const heading = fix.coords.heading;
+        setLastFix({
+          latitude,
+          longitude,
+          heading: heading != null && heading >= 0 ? heading : undefined,
+        });
         const speed = fix.coords.speed;
         const result = await postVendorJobLocation(orderId!, {
           latitude,

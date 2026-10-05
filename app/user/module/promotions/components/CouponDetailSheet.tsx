@@ -55,7 +55,7 @@ export function CouponDetailSheet({ coupon, open, onOpenChange }: CouponDetailSh
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled">
           <View className="border-b border-border/60 pb-4">
-            <Text className="text-foreground text-xl font-semibold">{preview.discount}</Text>
+            <Text className="text-foreground text-h2 font-semibold">{preview.discount}</Text>
             <Text className="text-muted-foreground mt-1 text-sm">
               {coupon?.name || coupon?.title || preview.label}
             </Text>
@@ -67,8 +67,8 @@ export function CouponDetailSheet({ coupon, open, onOpenChange }: CouponDetailSh
                 {preview.code}
               </Text>
               <Button
+                variant="primary"
                 size="sm"
-                className="flex-row gap-1.5 rounded-full"
                 onPress={() => void copyCode()}>
                 <Icon as={Copy} className="text-primary-foreground size-3.5" />
                 <Text>Copy</Text>

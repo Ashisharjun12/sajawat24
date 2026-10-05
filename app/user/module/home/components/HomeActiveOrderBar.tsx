@@ -33,21 +33,21 @@ export function HomeActiveOrderBar({ enabled = true }: Props) {
 
   return (
     <ScalePressable haptic onPress={openOrder} className="active:opacity-95">
-        <View
-          className="flex-row items-center gap-3 border-t border-border bg-card px-4 py-3 shadow-sm"
-          style={{ borderTopLeftRadius: 16, borderTopRightRadius: 16 }}>
-          <View className="size-10 items-center justify-center rounded-full bg-primary/15">
+        <View className="flex-row items-center gap-3 rounded-t-card border-t border-border bg-surface px-4 py-3 shadow-raised">
+          <View className="size-10 items-center justify-center rounded-pill bg-primary-tint">
             <Icon as={Truck} className="text-primary size-5" />
           </View>
           <View className="min-w-0 flex-1">
-            <Text className="text-[#1A1A1A] text-sm font-semibold" numberOfLines={1}>
+            <Text className="text-body font-medium" numberOfLines={1}>
               {title}
             </Text>
-            <Text className="text-[#1A1A1A] text-xs" numberOfLines={1}>{subtitle}</Text>
+            <Text className="text-muted-foreground text-caption" numberOfLines={1}>
+              {subtitle}
+            </Text>
           </View>
           <View className="flex-row items-center gap-0.5">
-            <Text className="text-[#1A1A1A] text-xs font-semibold">View details</Text>
-            <Icon as={ChevronRight} className="text-[#1A1A1A] size-4" />
+            <Text className="text-primary text-caption font-semibold">View details</Text>
+            <Icon as={ChevronRight} className="text-primary size-4" />
           </View>
         </View>
     </ScalePressable>

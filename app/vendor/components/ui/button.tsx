@@ -1,94 +1,69 @@
+import { AppSpinner } from '@/components/ui/app-spinner';
 import { TextClassContext } from '@/components/ui/text';
+import { motion } from '@/lib/design-tokens';
 import { cn } from '@/lib/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { Platform, Pressable } from 'react-native';
+import * as React from 'react';
+import { Platform, Pressable, View } from 'react-native';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+const PRESS_TIMING = { duration: motion.press, easing: Easing.out(Easing.quad) };
 
 const buttonVariants = cva(
   cn(
-    'group shrink-0 flex-row items-center justify-center gap-2 shadow-none',
+    'group shrink-0 flex-row items-center justify-center gap-2 rounded-btn shadow-none',
     Platform.select({
-      web: "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive whitespace-nowrap outline-none transition-all focus-visible:ring-[3px] disabled:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+      web: "focus-visible:border-ring focus-visible:ring-ring/50 whitespace-nowrap outline-none transition-all focus-visible:ring-[3px] disabled:pointer-events-none [&_svg:not([class*='size-'])]:size-[18px] [&_svg]:pointer-events-none [&_svg]:shrink-0",
     })
   ),
   {
     variants: {
       variant: {
-        default: cn(
-          'bg-primary active:bg-primary/90 shadow-sm shadow-black/5',
-          Platform.select({ web: 'hover:bg-primary/90' })
+        /** Book Now / primary action — one per screen. */
+        cta: cn('bg-cta active:bg-cta/90', Platform.select({ web: 'hover:bg-cta/90' })),
+        /** `default` is the screen's main action, so it is the orange CTA. */
+        default: cn('bg-cta active:bg-cta/90', Platform.select({ web: 'hover:bg-cta/90' })),
+        /** Teal fill — nav-level and supporting actions. */
+        primary: cn(
+          'bg-primary active:bg-primary-dark',
+          Platform.select({ web: 'hover:bg-primary-dark' })
+        ),
+        /** Surface + 1.5px primary border. */
+        secondary: cn(
+          'bg-surface border-primary border-[1.5px] active:bg-primary-tint',
+          Platform.select({ web: 'hover:bg-primary-tint' })
+        ),
+        outline: cn(
+          'bg-surface border-primary border-[1.5px] active:bg-primary-tint',
+          Platform.select({ web: 'hover:bg-primary-tint' })
+        ),
+        /** Positive confirmation (payouts, success states). */
+        success: cn(
+          'bg-success active:bg-success/90',
+          Platform.select({ web: 'hover:bg-success/90' })
         ),
         destructive: cn(
-          'bg-destructive active:bg-destructive/90 dark:bg-destructive/60 shadow-sm shadow-black/5',
-          Platform.select({
-            web: 'hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40',
-          })
+          'bg-destructive active:bg-destructive/90',
+          Platform.select({ web: 'hover:bg-destructive/90' })
         ),
-        success: cn(
-          'bg-emerald-600 active:bg-emerald-700 shadow-sm shadow-black/5',
-          Platform.select({ web: 'hover:bg-emerald-700 focus-visible:ring-emerald-500/30' })
-        ),
-        outline: cn(
-          'border-border bg-background active:bg-accent dark:bg-input/30 dark:border-input dark:active:bg-input/50 border shadow-sm shadow-black/5',
-          Platform.select({
-            web: 'hover:bg-accent dark:hover:bg-input/50',
-          })
-        ),
-        secondary: cn(
-          'bg-secondary active:bg-secondary/80 shadow-sm shadow-black/5',
-          Platform.select({ web: 'hover:bg-secondary/80' })
-        ),
-        ghost: cn(
-          'active:bg-accent dark:active:bg-accent/50',
-          Platform.select({ web: 'hover:bg-accent dark:hover:bg-accent/50' })
-        ),
-        link: '',
+        /** See all / Skip — no fill. */
+        text: 'bg-transparent',
+        ghost: 'bg-transparent',
+        link: 'bg-transparent',
       },
       size: {
-        default: cn('h-10 px-4 py-2 sm:h-9', Platform.select({ web: 'has-[>svg]:px-3' })),
-        sm: cn('h-9 gap-1.5 px-3 sm:h-8', Platform.select({ web: 'has-[>svg]:px-2.5' })),
-        lg: cn('h-11 px-6 sm:h-10', Platform.select({ web: 'has-[>svg]:px-4' })),
-        icon: 'h-10 w-10 sm:h-9 sm:w-9',
-      },
-      radius: {
-        pill: 'rounded-full',
-        soft: 'rounded-2xl',
-      },
-    },
-    defaultVariants: {
-      variant: 'default',
-      size: 'default',
-      radius: 'pill',
-    },
-  }
-);
-
-const buttonTextVariants = cva(
-  cn(
-    'text-foreground text-sm font-medium',
-    Platform.select({ web: 'pointer-events-none transition-colors' })
-  ),
-  {
-    variants: {
-      variant: {
-        default: 'text-primary-foreground',
-        destructive: 'text-white',
-        success: 'text-white',
-        outline: cn(
-          'group-active:text-accent-foreground',
-          Platform.select({ web: 'group-hover:text-accent-foreground' })
-        ),
-        secondary: 'text-secondary-foreground',
-        ghost: 'group-active:text-accent-foreground',
-        link: cn(
-          'text-primary group-active:underline',
-          Platform.select({ web: 'underline-offset-4 hover:underline group-hover:underline' })
-        ),
-      },
-      size: {
-        default: '',
-        sm: '',
-        lg: '',
-        icon: '',
+        /** Large is the default. */
+        default: 'h-12 px-5',
+        lg: 'h-12 px-5',
+        md: 'h-10 px-5',
+        sm: 'h-8 px-4',
+        icon: 'h-11 w-11 px-0',
       },
     },
     defaultVariants: {
@@ -98,20 +73,106 @@ const buttonTextVariants = cva(
   }
 );
 
-type ButtonProps = React.ComponentProps<typeof Pressable> & React.RefAttributes<typeof Pressable> & VariantProps<typeof buttonVariants>;
+const buttonTextVariants = cva('text-center text-button font-semibold', {
+  variants: {
+    variant: {
+      cta: 'text-cta-foreground',
+      default: 'text-cta-foreground',
+      primary: 'text-primary-foreground',
+      secondary: 'text-primary',
+      outline: 'text-primary',
+      success: 'text-success-foreground',
+      destructive: 'text-destructive-foreground',
+      text: 'text-primary',
+      ghost: 'text-primary',
+      link: cn(
+        'text-primary group-active:underline',
+        Platform.select({ web: 'underline-offset-4 hover:underline group-hover:underline' })
+      ),
+    },
+    size: {
+      default: '',
+      lg: '',
+      md: '',
+      sm: 'text-body',
+      icon: '',
+    },
+  },
+  defaultVariants: {
+    variant: 'default',
+    size: 'default',
+  },
+});
 
-function Button({ className, variant, size, radius, ...props }: ButtonProps) {
+const FILLED_VARIANTS = ['cta', 'default', 'primary', 'success', 'destructive'] as const;
+
+type ButtonVariantProps = VariantProps<typeof buttonVariants>;
+
+type ButtonProps = React.ComponentProps<typeof Pressable> &
+  React.RefAttributes<typeof Pressable> &
+  ButtonVariantProps & {
+    /** Swaps the label for a spinner while keeping the button's width. */
+    loading?: boolean;
+  };
+
+function Button({
+  className,
+  variant = 'default',
+  size = 'default',
+  loading = false,
+  disabled,
+  children,
+  onPressIn,
+  onPressOut,
+  ...props
+}: ButtonProps) {
+  const scale = useSharedValue(1);
+  const animatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+
+  const isFilled = FILLED_VARIANTS.includes(variant as (typeof FILLED_VARIANTS)[number]);
+  const isDisabled = !!disabled || loading;
+  // Flat disabled fill, never opacity.
+  const disabledClass = isDisabled
+    ? isFilled
+      ? 'bg-disabled border-disabled'
+      : 'border-disabled'
+    : undefined;
+  const disabledTextClass = isDisabled ? 'text-disabled-foreground' : undefined;
+
   return (
-    <TextClassContext.Provider value={buttonTextVariants({ variant, size })}>
-      <Pressable
-        className={cn(
-          props.disabled && 'opacity-50',
-          buttonVariants({ variant, size, radius }),
-          className,
-        )}
+    <TextClassContext.Provider
+      value={cn(buttonTextVariants({ variant, size }), disabledTextClass)}>
+      <AnimatedPressable
+        className={cn(buttonVariants({ variant, size }), disabledClass, className)}
+        style={animatedStyle}
         role="button"
-        {...props}
-      />
+        disabled={isDisabled}
+        // Touch target never drops below 44.
+        hitSlop={size === 'sm' || size === 'md' ? 8 : undefined}
+        android_ripple={
+          isDisabled || !isFilled ? undefined : { color: 'rgba(0,0,0,0.12)', borderless: false }
+        }
+        onPressIn={(event) => {
+          scale.value = withTiming(motion.pressScale, PRESS_TIMING);
+          onPressIn?.(event);
+        }}
+        onPressOut={(event) => {
+          scale.value = withTiming(1, PRESS_TIMING);
+          onPressOut?.(event);
+        }}
+        {...props}>
+        {loading ? (
+          <>
+            {/* Kept mounted so the button does not resize while loading. */}
+            <View className="opacity-0">{children as React.ReactNode}</View>
+            <View className="absolute inset-0 items-center justify-center">
+              <AppSpinner size="sm" variant={isFilled ? 'inverse' : 'default'} />
+            </View>
+          </>
+        ) : (
+          (children as React.ReactNode)
+        )}
+      </AnimatedPressable>
     </TextClassContext.Provider>
   );
 }

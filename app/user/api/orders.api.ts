@@ -77,6 +77,8 @@ export type PublicOrder = {
   assignee?: PublicAssignee | null;
   serviceContact?: PublicServiceContact | null;
   deliveryCodePending?: boolean;
+  /** Cancelled online checkout before payment (hidden from order list). */
+  checkoutAbandoned?: boolean;
 };
 
 export type PublicOrderTracking = {
@@ -112,6 +114,7 @@ export type PublicOrderSummary = {
   itemCount: number;
   canReview: boolean;
   reviewSubmitted: boolean;
+  checkoutAbandoned?: boolean;
 };
 
 export type CreateOrderResponse = {

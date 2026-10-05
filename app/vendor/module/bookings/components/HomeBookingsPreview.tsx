@@ -63,7 +63,7 @@ export function HomeBookingsPreview({ bookings, homeState }: HomeBookingsPreview
           ))}
         </View>
       ) : (
-        <View className="rounded-3xl bg-muted/60 px-4 py-6">
+        <View className="rounded-card bg-muted/60 px-4 py-6">
           <Text className="text-foreground text-center text-sm font-medium">{emptyCopy.title}</Text>
           <Text className="text-muted-foreground mt-1 text-center text-xs leading-5">
             {emptyCopy.body}
@@ -71,7 +71,7 @@ export function HomeBookingsPreview({ bookings, homeState }: HomeBookingsPreview
         </View>
       )}
 
-      <Button variant="outline" className="h-11 rounded-full" onPress={openBookings}>
+      <Button variant="outline" className="h-11 rounded-btn" onPress={openBookings}>
         <Text>View all bookings</Text>
       </Button>
     </View>

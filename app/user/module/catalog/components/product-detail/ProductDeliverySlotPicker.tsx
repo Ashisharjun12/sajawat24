@@ -15,8 +15,8 @@ export function ProductDeliverySlotPicker({ slotId, onSlotChange }: ProductDeliv
   return (
     <View className="gap-2">
       <View className="flex-row items-center gap-2">
-        <View className="size-7 items-center justify-center rounded-lg bg-amber-50 dark:bg-amber-950/30">
-          <Icon as={Clock} className="size-3.5 text-amber-700 dark:text-amber-400" />
+        <View className="size-7 items-center justify-center rounded-lg bg-primary-tint">
+          <Icon as={Clock} className="size-3.5 text-primary" />
         </View>
         <Text className="text-foreground text-xs font-semibold">Time slot</Text>
       </View>

@@ -208,7 +208,7 @@ export default function RegisterLocationScreen() {
             {loading ? (
               <RegisterLocationGeoSkeleton />
             ) : geoError ? (
-              <View className="border-destructive/30 bg-destructive/5 gap-3 rounded-2xl border p-4">
+              <View className="border-destructive/30 bg-destructive/5 gap-3 rounded-card border p-4">
                 <Text className="text-foreground text-sm leading-5">
                   Could not load states and cities. Check your connection and try again.
                 </Text>
@@ -218,7 +218,7 @@ export default function RegisterLocationScreen() {
                 </Pressable>
               </View>
             ) : states.length === 0 ? (
-              <View className="border-input gap-2 rounded-2xl border p-4">
+              <View className="border-input gap-2 rounded-card border p-4">
                 <Text className="text-foreground text-sm leading-5">
                   No cities are available yet. Ask support to add your city in admin.
                 </Text>

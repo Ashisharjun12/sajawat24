@@ -22,7 +22,7 @@ export function NotificationRow({ item, onPress }: NotificationRowProps) {
       <View className="flex-row items-start gap-3 pb-5 pt-2">
         <View
           className={cn(
-            'mt-1 size-11 shrink-0 items-center justify-center rounded-2xl',
+            'mt-1 size-11 shrink-0 items-center justify-center rounded-card',
             visual.iconBg,
           )}>
           <Icon as={visual.icon} className={cn('size-5', visual.iconColor)} />

@@ -1,6 +1,7 @@
 import { IconWell } from '@/components/shell';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
+import { PRIMARY_CTA_BUTTON_CLASS } from '@/lib/primary-cta-button';
 import { formatInr } from '@/module/bookings/lib/booking-format';
 import { CheckCircle2, Wallet } from 'lucide-react-native';
 import { Modal, Pressable, View } from 'react-native';
@@ -72,17 +73,17 @@ export function JobCompletedSuccessSheet({
               <IconWell
                 icon={CheckCircle2}
                 size="lg"
-                className="bg-emerald-500/15"
-                iconClassName="text-emerald-600"
+                className="bg-success/15"
+                iconClassName="text-success"
               />
               <Text className="text-foreground text-center text-xl font-semibold">{copy.title}</Text>
               {copy.highlight ? (
-                <Text className="text-center text-3xl font-bold text-emerald-600">{copy.highlight}</Text>
+                <Text className="text-center text-3xl font-bold text-success">{copy.highlight}</Text>
               ) : null}
               <Text className="text-muted-foreground text-center text-sm leading-5">{copy.body}</Text>
             </View>
 
-            <View className="mt-5 flex-row items-start gap-2.5 rounded-2xl border border-border/60 bg-muted/30 px-3.5 py-3.5">
+            <View className="mt-5 flex-row items-start gap-2.5 rounded-card border border-border/60 bg-muted/30 px-3.5 py-3.5">
               <IconWell icon={Wallet} size="sm" className="mt-0.5 bg-background" />
               <Text className="text-muted-foreground flex-1 text-sm leading-5">
                 Earnings from online payments show in{' '}
@@ -91,7 +92,7 @@ export function JobCompletedSuccessSheet({
               </Text>
             </View>
 
-            <Button className="mt-5 h-12 rounded-full" onPress={onClose}>
+            <Button className={`mt-5 ${PRIMARY_CTA_BUTTON_CLASS}`} onPress={onClose}>
               <Text className="font-semibold">Done</Text>
             </Button>
           </View>

@@ -99,7 +99,7 @@ export function DeliveryCompleteSheet({
               Ask the customer for the completion code sent to their phone, then enter it below.
             </Text>
             <TextInput
-              className="mt-4 rounded-2xl border border-border bg-background px-4 py-3 text-center text-2xl tracking-[0.3em] text-foreground"
+              className="mt-4 rounded-card border border-border bg-background px-4 py-3 text-center text-2xl tracking-[0.3em] text-foreground"
               value={code}
               onChangeText={(value) => {
                 setCode(value.replace(/\D/g, '').slice(0, 6));
@@ -114,12 +114,12 @@ export function DeliveryCompleteSheet({
             {error ? <Text className="mt-2 text-sm text-destructive">{error}</Text> : null}
             <View className="mt-5 gap-2">
               <Button
-                className="h-12 rounded-full"
+                className="h-12 w-full rounded-btn"
                 disabled={completeMutation.isPending}
                 onPress={() => void handleSubmit()}>
                 <Text>{completeMutation.isPending ? 'Completing…' : 'Complete delivery'}</Text>
               </Button>
-              <Button className="h-12 rounded-full" variant="ghost" onPress={handleClose}>
+              <Button className="h-12 w-full rounded-btn" variant="ghost" onPress={handleClose}>
                 <Text>Cancel</Text>
               </Button>
             </View>

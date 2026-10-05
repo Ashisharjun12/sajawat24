@@ -30,8 +30,9 @@ export function HelpScreen() {
                   {topic.description}
                 </Text>
                 <Button
+                  variant="primary"
                   size="sm"
-                  className="self-start rounded-lg"
+                  className="self-start"
                   onPress={() =>
                     router.push(`/(app)/profile/help/${topic.topicKey}` as Href)
                   }>

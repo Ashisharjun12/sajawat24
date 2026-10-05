@@ -83,7 +83,7 @@ export function WalletActivityCustomDateSheet({
 
           <View className="mt-5 gap-3">
             <PressableScale onPress={() => setPickerField('from')} scaleTo={0.98}>
-              <View className="rounded-2xl border border-border/60 bg-muted/30 px-4 py-3.5">
+              <View className="rounded-card border border-border/60 bg-muted/30 px-4 py-3.5">
                 <Text className="text-muted-foreground text-xs uppercase tracking-wide">From</Text>
                 <Text className="text-foreground mt-1 text-base font-medium">
                   {formatWalletActivityDateLabel(fromDate)}
@@ -92,7 +92,7 @@ export function WalletActivityCustomDateSheet({
             </PressableScale>
 
             <PressableScale onPress={() => setPickerField('to')} scaleTo={0.98}>
-              <View className="rounded-2xl border border-border/60 bg-muted/30 px-4 py-3.5">
+              <View className="rounded-card border border-border/60 bg-muted/30 px-4 py-3.5">
                 <Text className="text-muted-foreground text-xs uppercase tracking-wide">To</Text>
                 <Text className="text-foreground mt-1 text-base font-medium">
                   {formatWalletActivityDateLabel(toDate)}
@@ -102,7 +102,7 @@ export function WalletActivityCustomDateSheet({
           </View>
 
           {pickerField ? (
-            <View className="mt-4 overflow-hidden rounded-2xl border border-border/60">
+            <View className="mt-4 overflow-hidden rounded-card border border-border/60">
               <DateTimePicker
                 value={pickerField === 'from' ? fromDate : toDate}
                 mode="date"

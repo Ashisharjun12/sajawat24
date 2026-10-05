@@ -3,7 +3,7 @@ import { View } from 'react-native';
 
 function JobCardSkeleton() {
   return (
-    <View className="gap-3 rounded-3xl bg-card p-4 shadow-soft">
+    <View className="gap-3 rounded-card bg-card p-4 shadow-soft">
       <View className="flex-row items-start justify-between gap-2">
         <View className="flex-1 gap-2">
           <Skeleton className="h-5 w-4/5" />

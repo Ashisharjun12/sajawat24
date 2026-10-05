@@ -121,8 +121,10 @@ dist
 # Firebase cache directory
 .firebase/
 
-# Vendor app Firebase service account keys
-app/vendor/*firebase-adminsdk*.json
+# Firebase — do not commit (use *.example + Firebase Console download)
+**/*firebase-adminsdk*.json
+**/google-services.json
+!**/google-services.json.example
 
 # TernJS port file
 .tern-port

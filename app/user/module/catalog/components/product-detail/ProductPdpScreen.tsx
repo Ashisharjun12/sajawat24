@@ -1,6 +1,7 @@
 import { getApiError } from '@/api/client';
 import { catalogLocationErrorMessage } from '@/lib/catalog-location';
 import { Text } from '@/components/ui/text';
+import { cardShadow } from '@/lib/design-tokens';
 import { useGoBack } from '@/lib/use-go-back';
 import { cartLocationBody } from '@/lib/catalog-location';
 import { isBackendCityId } from '@/lib/location-label';
@@ -184,7 +185,7 @@ export function ProductPdpScreen({ productId }: ProductPdpScreenProps) {
   if (!productId) {
     return (
       <View className="flex-1 bg-background px-5" style={{ paddingTop: insets.top + 8 }}>
-        <Text className="text-foreground text-2xl font-semibold">Product not found</Text>
+        <Text className="text-foreground text-h1 font-semibold">Product not found</Text>
       </View>
     );
   }
@@ -303,13 +304,13 @@ export function ProductPdpScreen({ productId }: ProductPdpScreenProps) {
       </ScrollView>
 
       <View
-        className="absolute inset-x-0 bottom-0 border-t border-border/60 bg-background/95 px-3 pt-2.5"
+        className="absolute inset-x-0 bottom-0 border-t border-border bg-surface px-4 pt-3"
         style={{
-          paddingBottom: Math.max(insets.bottom, 10),
-          shadowColor: '#000',
+          paddingBottom: Math.max(insets.bottom, 12),
+          shadowColor: cardShadow.shadowColor,
           shadowOffset: { width: 0, height: -4 },
-          shadowOpacity: 0.08,
-          shadowRadius: 12,
+          shadowOpacity: cardShadow.shadowOpacity,
+          shadowRadius: cardShadow.shadowRadius,
           elevation: 8,
         }}>
         <ProductPdpMobileBookingBar

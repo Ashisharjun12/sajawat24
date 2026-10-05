@@ -34,8 +34,9 @@ yarn-error.*
 .env
 .env*.local
 
-# Firebase (never commit service account keys)
+# Firebase (never commit keys or client config — see docs/firebase-mobile.md)
 *firebase-adminsdk*.json
+google-services.json
 
 # typescript
 *.tsbuildinfo

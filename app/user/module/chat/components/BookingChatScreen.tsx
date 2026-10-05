@@ -6,6 +6,7 @@ import { AppSpinner } from '@/components/ui/app-spinner';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { lightImpact } from '@/lib/light-haptic';
+import { useThemeColors } from '@/lib/theme';
 import { ChatAttachmentBubble } from '@/module/chat/components/ChatAttachmentBubble';
 import { ChatAttachmentSheet } from '@/module/chat/components/ChatAttachmentSheet';
 import { MessageReceiptIcon } from '@/module/chat/components/MessageReceiptIcon';
@@ -51,6 +52,7 @@ export function BookingChatScreen({ orderId, order }: BookingChatScreenProps) {
     error,
   } = useBookingChatThread(orderId);
   const insets = useSafeAreaInsets();
+  const theme = useThemeColors();
   const listRef = useRef<FlatList<ChatMessage>>(null);
   const [draft, setDraft] = useState('');
   const [attachOpen, setAttachOpen] = useState(false);
@@ -242,11 +244,11 @@ export function BookingChatScreen({ orderId, order }: BookingChatScreenProps) {
           className="border-t border-border bg-background px-4 pt-3"
           style={{ paddingBottom: keyboardHeight > 0 ? 8 : Math.max(insets.bottom, 12) }}>
           <View className="flex-row items-end gap-2">
-            <View className="min-h-11 flex-1 flex-row items-end rounded-2xl border border-border bg-background px-3 py-2">
+            <View className="min-h-11 flex-1 flex-row items-end rounded-input border border-border bg-surface px-3 py-2">
               <TextInput
-                className="max-h-24 flex-1 py-1.5 text-base text-foreground"
+                className="max-h-24 flex-1 py-1.5 text-body font-normal text-foreground"
                 placeholder="Message your decorator…"
-                placeholderTextColor="#9CA3AF"
+                placeholderTextColor={theme.mutedForeground}
                 value={draft}
                 onChangeText={setDraft}
                 onFocus={() => {
@@ -265,9 +267,9 @@ export function BookingChatScreen({ orderId, order }: BookingChatScreenProps) {
                 className="mb-0.5 p-1.5"
                 accessibilityLabel="Attach file">
                 {isUploading ? (
-                  <AppSpinner size="sm" variant="inverse" />
+                  <AppSpinner size="sm" />
                 ) : (
-                  <Plus size={22} color="#111827" />
+                  <Icon as={Plus} size={22} className="text-foreground" />
                 )}
               </Pressable>
             </View>
@@ -276,9 +278,9 @@ export function BookingChatScreen({ orderId, order }: BookingChatScreenProps) {
               <ScalePressable
                 haptic
                 onPress={() => void handleSend()}
-                className="mb-0.5 size-11 items-center justify-center rounded-full bg-primary"
+                className="mb-0.5 size-11 items-center justify-center rounded-pill bg-primary"
                 accessibilityLabel="Send message">
-                <Send size={18} color="#FFFFFF" />
+                <Icon as={Send} size={18} className="text-primary-foreground" />
               </ScalePressable>
             ) : null}
           </View>

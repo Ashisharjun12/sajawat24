@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Text } from '@/components/ui/text';
-import { PRIMARY_CTA_BUTTON_CLASS, PRIMARY_CTA_BUTTON_TEXT_CLASS } from '@/lib/primary-cta-button';
+import { PRIMARY_CTA_BUTTON_CLASS } from '@/lib/primary-cta-button';
 import { HomeBottomSheetModal } from '@/module/home/components/HomeBottomSheetModal';
 import type { CheckoutCustomerForm } from '@/module/booking/lib/checkout-form-types';
 import { customerFormValid } from '@/module/booking/lib/checkout-validation';
@@ -28,7 +28,7 @@ export function CheckoutContactEditSheet({
     <HomeBottomSheetModal visible={visible} onClose={onClose} closeAccessibilityLabel="Close">
       <View className="gap-4 px-5 pb-8 pt-4">
         <View className="items-center gap-1.5 px-2">
-          <Text className="text-foreground text-center text-xl font-semibold">Your details</Text>
+          <Text className="text-foreground text-center text-h2 font-semibold">Your details</Text>
           <Text className="text-muted-foreground text-center text-sm leading-5">
             We need this to confirm your booking and send updates.
           </Text>
@@ -68,10 +68,11 @@ export function CheckoutContactEditSheet({
         </View>
 
         <Button
+          variant="primary"
           className={`mt-1 ${PRIMARY_CTA_BUTTON_CLASS}`}
           disabled={!customerFormValid(value)}
           onPress={onClose}>
-          <Text className={PRIMARY_CTA_BUTTON_TEXT_CLASS}>Save</Text>
+          <Text>Save</Text>
         </Button>
       </View>
     </HomeBottomSheetModal>

@@ -29,7 +29,7 @@ export default function EnableLocationScreen() {
       icon={MapPin}
       title="Turn on location"
       description="See decorations and delivery options near you. We only use location while you're using the app."
-      accentClassName="bg-sky-500/15"
+      accentClassName="bg-primary-tint"
       loading={loading}
       onAllow={() => void handleAllow()}
       onSkip={() => void goToNextStep()}

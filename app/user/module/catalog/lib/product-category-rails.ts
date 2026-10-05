@@ -69,13 +69,10 @@ export function resolveSimilarPackagesMeta(
   const cat = byId.get(categoryId);
   if (!cat) return null;
 
-  const parent = cat.parentId ? byId.get(cat.parentId) : null;
-  const listingName = (parent?.name ?? cat.name ?? '').trim() || 'Decorations';
-
   return {
     categoryIds: [categoryId],
     categoryLabel: (cat.name ?? '').trim() || 'Packages',
     viewAllHref: getCategoryListingHref(categoryId, rawCategories),
-    viewAllLabel: `View all in ${listingName}`,
+    viewAllLabel: 'View all',
   };
 }

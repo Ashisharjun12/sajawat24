@@ -10,7 +10,7 @@ type StatChipProps = {
 
 export function StatChip({ label, value, className }: StatChipProps) {
   return (
-    <View className={cn('flex-1 rounded-2xl bg-muted px-4 py-3', className)}>
+    <View className={cn('flex-1 rounded-card bg-muted px-4 py-3', className)}>
       <Text className="text-foreground text-base font-semibold">{value}</Text>
       <Text className="text-muted-foreground mt-0.5 text-xs">{label}</Text>
     </View>

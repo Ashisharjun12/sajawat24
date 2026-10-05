@@ -11,10 +11,7 @@ import { TicketPercent } from 'lucide-react-native';
 import { View } from 'react-native';
 
 const TICKET_TONES = [
-  { bg: 'bg-sky-500', notch: 'bg-sky-500' },
-  { bg: 'bg-amber-500', notch: 'bg-amber-500' },
-  { bg: 'bg-violet-500', notch: 'bg-violet-500' },
-  { bg: 'bg-emerald-500', notch: 'bg-emerald-500' },
+  { bg: 'bg-primary', notch: 'bg-primary' },
 ] as const;
 
 type CouponTicketCardProps = {
@@ -57,8 +54,8 @@ export function CouponTicketCard({
             isStack ? 'px-4 py-3.5' : 'px-3.5 py-3',
           )}>
           <View className="flex-row items-start gap-2.5">
-            <View className="size-9 shrink-0 items-center justify-center rounded-xl bg-sky-50 dark:bg-sky-950/40">
-              <Icon as={TicketPercent} className="size-4 text-sky-600 dark:text-sky-400" />
+            <View className="size-9 shrink-0 items-center justify-center rounded-xl bg-primary-tint">
+              <Icon as={TicketPercent} className="size-4 text-primary" />
             </View>
             <View className="min-w-0 flex-1">
               <Text className="text-foreground text-sm font-semibold leading-snug" numberOfLines={2}>
@@ -97,7 +94,7 @@ export function CouponTicketCard({
           <View className="min-w-0 flex-1">
             <Text
               className={cn(
-                'text-white/90 font-semibold uppercase tracking-wide',
+                'text-primary-foreground/90 font-semibold uppercase tracking-wide',
                 isStack ? 'text-[10px]' : 'text-[9px]',
               )}
               numberOfLines={1}>
@@ -105,20 +102,20 @@ export function CouponTicketCard({
             </Text>
             <Text
               className={cn(
-                'text-white mt-1 font-bold leading-snug',
-                isStack ? 'text-2xl' : 'text-lg',
+                'text-primary-foreground mt-1 font-bold leading-snug',
+                isStack ? 'text-h1' : 'text-h2',
               )}
               numberOfLines={1}>
               {preview.discount}
             </Text>
             <Text
-              className={cn('text-white/85 mt-0.5', isStack ? 'text-xs' : 'text-[10px]')}
+              className={cn('text-primary-foreground/85 mt-0.5', isStack ? 'text-xs' : 'text-[10px]')}
               numberOfLines={1}>
               {subtitle}
             </Text>
           </View>
           <View className={cn('rounded-full bg-white/20', isStack ? 'p-2' : 'p-1.5')}>
-            <Icon as={TicketPercent} className={cn('text-white', isStack ? 'size-5' : 'size-4')} />
+            <Icon as={TicketPercent} className={cn('text-primary-foreground', isStack ? 'size-5' : 'size-4')} />
           </View>
         </View>
 

@@ -1,4 +1,5 @@
 import { Screen } from '@/components/shell';
+import { PRIMARY_CTA_BUTTON_CLASS } from '@/lib/primary-cta-button';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { PayoutSubscreenHeader } from '@/module/payouts/components/PayoutSubscreenHeader';
@@ -28,7 +29,7 @@ export default function UpiIdsScreen() {
         {isLoading ? (
           <LoadingPlaceholder />
         ) : upiIds.length === 0 ? (
-          <View className="gap-3 rounded-3xl bg-muted/50 px-5 py-8">
+          <View className="gap-3 rounded-card bg-muted/50 px-5 py-8">
             <Text className="text-foreground text-center text-base font-medium">No UPI IDs yet</Text>
             <Text className="text-muted-foreground text-center text-sm leading-5">
               Link your UPI ID to withdraw earnings to your preferred app.
@@ -45,7 +46,7 @@ export default function UpiIdsScreen() {
           </View>
         )}
 
-        <Button className="h-12 rounded-full" onPress={() => router.push('/(app)/add-upi-id')}>
+        <Button className={PRIMARY_CTA_BUTTON_CLASS} onPress={() => router.push('/(app)/add-upi-id')}>
           <Text>Add UPI ID</Text>
         </Button>
       </View>

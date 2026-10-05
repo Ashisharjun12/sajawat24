@@ -46,7 +46,7 @@ export function PermissionExplainerScreen() {
             Stay on top of new jobs
           </Text>
           <Text className="text-muted-foreground text-center text-base leading-6">
-            Get notified the moment Decoryy assigns you a booking so you never miss a job.
+            Get notified the moment Sajawat24 assigns you a booking so you never miss a job.
           </Text>
         </View>
       </View>

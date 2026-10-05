@@ -17,7 +17,7 @@ import { useAuthStore } from '@/store/auth.store';
 import { useAddressFormDraftStore } from '@/store/address-form-draft.store';
 import { useDeliveryLocationStore } from '@/store/delivery-location.store';
 import { useLocationStore } from '@/store/location.store';
-import { navigateBackOrHome } from '@/lib/navigate-back';
+import { cancelLocationFlowStep } from '@/lib/location-flow-navigation';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, View } from 'react-native';
@@ -121,7 +121,7 @@ export function AddAddressScreen() {
 
   return (
     <Screen scroll={false} edges={['top', 'bottom']} contentClassName="flex-1">
-      <LocationStackHeader title={title} onBack={navigateBackOrHome} />
+      <LocationStackHeader title={title} onBack={cancelLocationFlowStep} />
       <ScrollView
         className="flex-1"
         contentContainerClassName="gap-4 px-4 pb-10 pt-3"

@@ -17,7 +17,7 @@
     "db:seed:templates": "tsx src/db/run-seed-notification-templates.ts",
     "db:seed:templates:sql": "tsx src/db/run-seed-notification-templates.ts --sql",
     "db:studio": "node ./node_modules/drizzle-kit/bin.cjs studio",
-    "test": "tsx --test src/infrastructure/queue/bull-job-id.test.ts src/infrastructure/payment/provider/cashfree-cod.helpers.test.ts src/modules/payments/collections/collection-payment.guards.test.ts"
+    "test": "tsx --test src/infrastructure/queue/bull-job-id.test.ts src/infrastructure/payment/provider/cashfree-cod.helpers.test.ts src/modules/payments/collections/collection-payment.guards.test.ts src/modules/booking/domain/checkout-abandoned-order.test.ts"
   },
   "keywords": [],
   "author": "",

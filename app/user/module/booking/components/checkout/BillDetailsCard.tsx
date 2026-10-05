@@ -26,14 +26,14 @@ export function BillDetailsCard({ cart, totalLabel = 'To pay' }: BillDetailsCard
         </View>
         <View className="flex-row items-center justify-between gap-3">
           <Text className="text-muted-foreground min-w-0 flex-1 text-sm">Delivery</Text>
-          <Text className="shrink-0 text-sm font-medium text-emerald-600">Free</Text>
+          <Text className="shrink-0 text-sm font-medium text-success">Free</Text>
         </View>
         {discount > 0 ? (
           <View className="flex-row items-center justify-between gap-3">
-            <Text className="min-w-0 flex-1 text-sm text-emerald-600" numberOfLines={1}>
+            <Text className="min-w-0 flex-1 text-sm text-success" numberOfLines={1}>
               Coupon{promoCode ? ` (${promoCode})` : ''}
             </Text>
-            <Text className="shrink-0 text-sm font-semibold tabular-nums text-emerald-600">
+            <Text className="shrink-0 text-sm font-semibold tabular-nums text-success">
               −{formatPaise(discount)}
             </Text>
           </View>
@@ -42,7 +42,7 @@ export function BillDetailsCard({ cart, totalLabel = 'To pay' }: BillDetailsCard
           <Text className="text-foreground shrink-0 text-base font-semibold" numberOfLines={1}>
             {totalLabel}
           </Text>
-          <Text className="shrink-0 text-lg font-bold tabular-nums text-emerald-600">
+          <Text className="shrink-0 text-lg font-bold tabular-nums text-success">
             {formatPaise(total)}
           </Text>
         </View>

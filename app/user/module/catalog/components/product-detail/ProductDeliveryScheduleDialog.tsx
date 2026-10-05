@@ -87,7 +87,7 @@ export function ProductDeliveryScheduleDialog({
               </Text>
             </View>
             {!androidDatePickerVisible ? (
-              <Button variant="outline" onPress={() => setAndroidDatePickerVisible(true)}>
+              <Button variant="secondary" onPress={() => setAndroidDatePickerVisible(true)}>
                 <Text>Pick a different date</Text>
               </Button>
             ) : null}
@@ -106,10 +106,10 @@ export function ProductDeliveryScheduleDialog({
 
         {Platform.OS === 'ios' ? (
           <DialogFooter className="flex-row gap-2 pt-1">
-            <Button variant="outline" className="flex-1" onPress={() => onOpenChange(false)}>
+            <Button variant="secondary" className="flex-1" onPress={() => onOpenChange(false)}>
               <Text>Cancel</Text>
             </Button>
-            <Button className="flex-1" onPress={() => commitDate(draftDate)}>
+            <Button variant="primary" className="flex-1" onPress={() => commitDate(draftDate)}>
               <Text>Done</Text>
             </Button>
           </DialogFooter>

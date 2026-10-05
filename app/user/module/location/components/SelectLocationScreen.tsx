@@ -262,9 +262,9 @@ export function SelectLocationScreen() {
                         <View className="flex-row flex-wrap items-center gap-2">
                           <Text className="text-foreground font-semibold">{addr.label}</Text>
                           {selected ? (
-                            <View className="flex-row items-center gap-1 rounded-full bg-emerald-600/10 px-2 py-0.5">
-                              <Icon as={Check} className="size-3 text-emerald-700" />
-                              <Text className="text-[10px] font-bold uppercase text-emerald-700">
+                            <View className="flex-row items-center gap-1 rounded-full bg-success/15 px-2 py-0.5">
+                              <Icon as={Check} className="size-3 text-success" />
+                              <Text className="text-[10px] font-bold uppercase text-success">
                                 Selected
                               </Text>
                             </View>

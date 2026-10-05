@@ -75,7 +75,7 @@ export function mapPartnerLoginFailure(
   if (code === 'SHOP_NOT_ACTIVE') {
     return {
       code,
-      message: 'This shop is not active. Contact your shop owner or Decoryy support.',
+      message: 'This shop is not active. Contact your shop owner or Sajawat24 support.',
     };
   }
 
@@ -113,7 +113,7 @@ export function mapPartnerLoginFailure(
   if (message.includes('shop is not active')) {
     return {
       code: 'SHOP_NOT_ACTIVE',
-      message: 'This shop is not active. Contact your shop owner or Decoryy support.',
+      message: 'This shop is not active. Contact your shop owner or Sajawat24 support.',
     };
   }
 

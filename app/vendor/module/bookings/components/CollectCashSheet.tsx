@@ -54,7 +54,7 @@ export function CollectCashSheet({
               ) : null}
               {error ? <Text className="text-center text-sm text-destructive">{error}</Text> : null}
               <Button
-                className="h-11 rounded-full"
+                className="h-12 w-full rounded-btn"
                 variant="ghost"
                 disabled={loading}
                 onPress={onClose}>

@@ -116,7 +116,7 @@ export function NotificationsScreen() {
           <Text className="text-muted-foreground text-center text-sm">
             Could not load notifications. Check your connection and try again.
           </Text>
-          <Button className="rounded-full" variant="secondary" onPress={() => void refetch()}>
+          <Button variant="secondary" onPress={() => void refetch()}>
             <Text>Retry</Text>
           </Button>
         </View>

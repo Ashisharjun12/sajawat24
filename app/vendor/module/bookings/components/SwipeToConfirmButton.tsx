@@ -1,6 +1,7 @@
 import { triggerHaptic } from '@/components/motion/haptics';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
+import { radius } from '@/lib/design-tokens';
 import { cn } from '@/lib/utils';
 import * as Haptics from 'expo-haptics';
 import { ChevronRight } from 'lucide-react-native';
@@ -34,9 +35,9 @@ const variantStyles: Record<
   }
 > = {
   accept: {
-    track: 'bg-emerald-600/35',
-    fill: 'bg-emerald-600',
-    icon: 'text-emerald-600',
+    track: 'bg-success/35',
+    fill: 'bg-success',
+    icon: 'text-success',
     spinner: '#059669',
   },
   decline: {
@@ -141,13 +142,13 @@ export function SwipeToConfirmButton({
       <GestureDetector gesture={pan}>
         <Animated.View
           className={cn(
-            'relative overflow-hidden rounded-full',
+            'relative overflow-hidden rounded-btn',
             styles.track,
             !isInteractive && 'opacity-60',
           )}
           style={{ height: TRACK_HEIGHT }}>
           <Animated.View
-            className={cn('absolute bottom-0 left-0 top-0 rounded-full', styles.fill)}
+            className={cn('absolute bottom-0 left-0 top-0', styles.fill)}
             style={fillStyle}
           />
 
@@ -158,13 +159,14 @@ export function SwipeToConfirmButton({
           </View>
 
           <Animated.View
-            className="absolute items-center justify-center rounded-full bg-white shadow-md shadow-black/15"
+            className="absolute items-center justify-center rounded-btn bg-white shadow-md shadow-black/15"
             style={[
               {
                 width: THUMB_SIZE,
                 height: THUMB_SIZE,
                 top: THUMB_INSET,
                 left: THUMB_INSET,
+                borderRadius: radius.btn,
               },
               thumbStyle,
             ]}>

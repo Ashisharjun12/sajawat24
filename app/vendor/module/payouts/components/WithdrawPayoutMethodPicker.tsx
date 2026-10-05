@@ -41,7 +41,7 @@ export function WithdrawPayoutMethodPicker({
                 accessibilityState={{ selected }}>
                 <View
                   className={cn(
-                    'flex-row items-center gap-3 rounded-2xl border px-3.5 py-3',
+                    'flex-row items-center gap-3 rounded-card border px-3.5 py-3',
                     selected ? 'border-primary bg-primary/8' : 'border-border/60 bg-background',
                   )}>
                   <PayoutMethodIcon type={method.type} size={28} />

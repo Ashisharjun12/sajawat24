@@ -173,11 +173,11 @@ export function CheckoutOffersScreen() {
               void clearCoupon.mutateAsync().then(() => setCode(''));
             }}
             disabled={applying}
-            className="flex-row items-center justify-between rounded-2xl border border-emerald-500/40 bg-emerald-50 px-4 py-3 dark:bg-emerald-950/35">
-            <Text className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">
+            className="flex-row items-center justify-between rounded-2xl border border-success/40 bg-success/10 px-4 py-3">
+            <Text className="text-sm font-semibold text-success">
               {appliedCode} applied
             </Text>
-            <Text className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">Remove</Text>
+            <Text className="text-sm font-semibold text-success">Remove</Text>
           </Pressable>
         ) : null}
 
@@ -187,8 +187,8 @@ export function CheckoutOffersScreen() {
           <ActivityIndicator className="py-8" />
         ) : coupons.length === 0 ? (
           <View className="items-center rounded-2xl bg-muted/40 px-6 py-10">
-            <View className="size-16 items-center justify-center rounded-2xl bg-sky-50 dark:bg-sky-950/40">
-              <Icon as={TicketPercent} className="size-8 text-sky-600 dark:text-sky-400" />
+            <View className="size-16 items-center justify-center rounded-2xl bg-primary-tint">
+              <Icon as={TicketPercent} className="size-8 text-primary" />
             </View>
             <Text className="text-foreground mt-4 text-center text-base font-semibold">
               No best coupons available
@@ -211,11 +211,11 @@ export function CheckoutOffersScreen() {
                   className={cn(
                     'flex-row items-center gap-3 rounded-2xl border px-4 py-3.5 active:opacity-80',
                     isApplied
-                      ? 'border-emerald-500/50 bg-emerald-50 dark:bg-emerald-950/35'
+                      ? 'border-success/40 bg-success/10'
                       : 'border-border bg-card',
                   )}>
-                  <View className="size-10 shrink-0 items-center justify-center rounded-xl bg-sky-50 dark:bg-sky-950/40">
-                    <Icon as={TicketPercent} className="size-5 text-sky-600 dark:text-sky-400" />
+                  <View className="size-10 shrink-0 items-center justify-center rounded-xl bg-primary-tint">
+                    <Icon as={TicketPercent} className="size-5 text-primary" />
                   </View>
                   <View className="min-w-0 flex-1">
                     <Text className="text-foreground text-sm font-semibold">{couponTitle(c)}</Text>
@@ -228,7 +228,7 @@ export function CheckoutOffersScreen() {
                     className={cn(
                       'text-xs font-bold',
                       isApplied
-                        ? 'text-emerald-600 dark:text-emerald-400'
+                        ? 'text-success'
                         : 'text-muted-foreground font-semibold',
                     )}>
                     {isApplied ? 'Applied' : 'Apply'}

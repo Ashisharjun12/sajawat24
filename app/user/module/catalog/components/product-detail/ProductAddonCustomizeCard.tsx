@@ -2,6 +2,7 @@ import { ScalePressable } from '@/components/shell';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
+import { cardShadow } from '@/lib/design-tokens';
 import { formatPaise } from '@/lib/format-money';
 import {
   addonDiscountPercent,
@@ -58,10 +59,10 @@ function AddonColorSwatch({ hex, name }: { hex: string; name?: string | null }) 
       className="flex-row items-center justify-center gap-1.5 border-t border-border/50 pt-2"
       accessibilityLabel={`Color: ${label}`}>
       <View
-        className="size-3.5 rounded-full border-2 border-background"
+        className="size-3.5 rounded-pill border-2 border-background"
         style={{
           backgroundColor: hex,
-          shadowColor: '#000',
+          shadowColor: cardShadow.shadowColor,
           shadowOffset: { width: 0, height: 1 },
           shadowOpacity: 0.12,
           shadowRadius: 2,
@@ -129,12 +130,12 @@ export function ProductAddonCustomizeCard({
           {!available ? (
             <Text className="text-muted-foreground text-[11px]">Unavailable</Text>
           ) : isAddonFree(addon.pricePaise) ? (
-            <Text className="text-xs font-bold text-emerald-600">Free</Text>
+            <Text className="text-xs font-semibold text-success">Free</Text>
           ) : (
-            <Text className="text-xs font-extrabold">{formatPaise(addon.pricePaise ?? 0)}</Text>
+            <Text className="text-xs font-semibold">{formatPaise(addon.pricePaise ?? 0)}</Text>
           )}
           {percentOff > 0 ? (
-            <Text className="text-[10px] font-bold text-emerald-600">{percentOff}% OFF</Text>
+            <Text className="text-micro font-semibold text-success">{percentOff}% OFF</Text>
           ) : null}
         </View>
         <View style={{ height: CARD_SECTION_GAP }} />
@@ -157,12 +158,11 @@ export function ProductAddonCustomizeCard({
             </View>
           ) : (
             <Button
-              variant={qty > 0 ? 'default' : 'outline'}
+              variant={qty > 0 ? 'primary' : 'secondary'}
               size="sm"
-              className="h-8"
               disabled={submitting || !available}
               onPress={() => (multi ? onIncrement(addon) : onToggle(addon))}>
-              <Text className="text-[11px] font-bold">
+              <Text className="text-micro">
                 {!available ? 'Unavailable' : qty > 0 ? 'Added' : '+ Add'}
               </Text>
             </Button>

@@ -120,12 +120,13 @@ export function ProductCustomizeSheet({
           </Text>
         </View>
         <View className="flex-row gap-2">
-          <Button variant="secondary" className="flex-1 rounded-full" disabled={submitting} onPress={onSkip}>
+          <Button variant="secondary" className="flex-1" disabled={submitting} onPress={onSkip}>
             <Text>Skip</Text>
           </Button>
           <Button
-            className="flex-1 rounded-full bg-primary"
-            disabled={submitting}
+            variant="cta"
+            className="flex-1"
+            loading={submitting}
             onPress={() => {
               const selections = buildSelections();
               if (selections.length === 0) {
@@ -134,9 +135,7 @@ export function ProductCustomizeSheet({
               }
               onProceed(selections);
             }}>
-            <Text className="text-primary-foreground font-bold">
-              {submitting ? 'Adding…' : 'Add to bag'}
-            </Text>
+            <Text>Add to bag</Text>
           </Button>
         </View>
       </View>

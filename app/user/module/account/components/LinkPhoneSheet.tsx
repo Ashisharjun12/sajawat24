@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { getApiError } from '@/api/client';
+import { lightImpact } from '@/lib/light-haptic';
 import { HomeBottomSheetModal } from '@/module/home/components/HomeBottomSheetModal';
 import { IndiaPhoneField } from '@/module/onboarding/components/IndiaPhoneField';
 import { OtpInput } from '@/module/onboarding/components/OtpInput';
@@ -84,6 +85,7 @@ export function LinkPhoneSheet({ open, onOpenChange, hasPhone }: LinkPhoneSheetP
       setError('');
       try {
         await confirmLinkPhone(phone, code);
+        lightImpact();
         onOpenChange(false);
       } catch (err) {
         setError(mapLinkError(err));
@@ -170,8 +172,12 @@ export function LinkPhoneSheet({ open, onOpenChange, hasPhone }: LinkPhoneSheetP
               name="phone"
               error={formState.errors.phone?.message}
             />
-            <Button disabled={!formState.isValid || pending} onPress={handleSubmit(onSendOtp)}>
-              <Text>{pending ? 'Sending…' : 'Send OTP'}</Text>
+            <Button
+              variant="primary"
+              disabled={!formState.isValid}
+              loading={pending}
+              onPress={handleSubmit(onSendOtp)}>
+              <Text>Send OTP</Text>
             </Button>
           </>
         ) : (
@@ -186,11 +192,15 @@ export function LinkPhoneSheet({ open, onOpenChange, hasPhone }: LinkPhoneSheetP
                 setError('');
               }}
             />
-            <Button disabled={pending || otp.length < 6} onPress={() => void submitOtp(otp)}>
-              <Text>{pending ? 'Linking…' : 'Confirm'}</Text>
+            <Button
+              variant="primary"
+              disabled={otp.length < 6}
+              loading={pending}
+              onPress={() => void submitOtp(otp)}>
+              <Text>Confirm</Text>
             </Button>
             <Button
-              variant="ghost"
+              variant="text"
               disabled={pending || resendCooldown > 0}
               onPress={() => void onResendOtp()}>
               <Text>
@@ -198,7 +208,7 @@ export function LinkPhoneSheet({ open, onOpenChange, hasPhone }: LinkPhoneSheetP
               </Text>
             </Button>
             <Button
-              variant="ghost"
+              variant="text"
               disabled={pending}
               onPress={() => {
                 setStep('phone');

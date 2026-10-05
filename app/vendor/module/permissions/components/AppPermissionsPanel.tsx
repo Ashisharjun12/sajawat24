@@ -21,7 +21,7 @@ function statusText(status: PermissionVisualStatus) {
 
 function statusBadgeClass(status: PermissionVisualStatus) {
   if (status === 'granted') return 'bg-emerald-500/12 text-emerald-700';
-  if (status === 'denied') return 'bg-amber-500/12 text-amber-800';
+  if (status === 'denied') return 'bg-warning/12 text-warning-foreground';
   return 'bg-muted text-muted-foreground';
 }
 

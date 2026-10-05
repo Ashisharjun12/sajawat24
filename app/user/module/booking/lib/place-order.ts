@@ -64,7 +64,15 @@ function orderStatus(order: PublicOrder): PublicOrder['status'] {
 }
 
 export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResult> {
-  const { customer, delivery, payment, cart, idempotencyKey } = input;
+  const {
+    customer,
+    delivery,
+    payment,
+    cart,
+    idempotencyKey,
+    onOnlineCheckoutOpening,
+    onOnlineCheckoutClosed,
+  } = input;
 
   if (!delivery.cityId) {
     throw new Error('Enter a serviceable delivery PIN');
@@ -89,7 +97,13 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
       decoryOrderId: orderId,
     } as OnlineCheckoutPayload & { decoryOrderId: string };
     try {
-      const verifyPayload = await openOnlineCheckout(checkout, customer);
+      onOnlineCheckoutOpening?.();
+      let verifyPayload;
+      try {
+        verifyPayload = await openOnlineCheckout(checkout, customer);
+      } finally {
+        onOnlineCheckoutClosed?.();
+      }
       const confirmed = await verifyPayment(verifyPayload) as PublicOrder;
       const status = orderStatus(confirmed);
       if (status !== 'CONFIRMED') {

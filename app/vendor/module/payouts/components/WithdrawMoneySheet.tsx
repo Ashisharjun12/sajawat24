@@ -2,11 +2,11 @@ import type { PayoutMethod } from '@/api/payout-methods.api';
 import { IconWell } from '@/components/shell';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
+import { PRIMARY_CTA_BUTTON_CLASS } from '@/lib/primary-cta-button';
 import { formatInr } from '@/module/bookings/lib/booking-format';
 import { WithdrawPayoutMethodPicker } from '@/module/payouts/components/WithdrawPayoutMethodPicker';
 import { CheckCircle2, Clock3 } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
-import { AppSpinner } from '@/components/ui/app-spinner';
 import { Modal, Pressable, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -77,7 +77,7 @@ export function WithdrawMoneySheet({
                   </Text>
                 </View>
 
-                <View className="mt-5 gap-3 rounded-2xl border border-border/60 bg-muted/30 p-4">
+                <View className="mt-5 gap-3 rounded-card border border-border/60 bg-muted/30 p-4">
                   <View className="flex-row items-center justify-between gap-3">
                     <Text className="text-muted-foreground text-sm">Amount</Text>
                     <Text className="text-foreground text-lg font-bold">{formatInr(amountPaise)}</Text>
@@ -92,7 +92,7 @@ export function WithdrawMoneySheet({
                   />
                 </View>
 
-                <View className="mt-4 flex-row items-start gap-2.5 rounded-2xl bg-muted/40 px-3.5 py-3">
+                <View className="mt-4 flex-row items-start gap-2.5 rounded-card bg-muted/40 px-3.5 py-3">
                   <IconWell icon={Clock3} size="sm" className="mt-0.5 bg-background" />
                   <Text className="text-muted-foreground flex-1 text-sm leading-5">
                     Payouts are usually credited within{' '}
@@ -105,18 +105,19 @@ export function WithdrawMoneySheet({
 
                 <View className="mt-5 gap-3">
                   <Button
-                    className="h-12 rounded-full"
+                    className={PRIMARY_CTA_BUTTON_CLASS}
                     variant="success"
                     disabled={loading || !selectedMethodId}
+                    loading={loading}
                     onPress={() => void handleConfirm()}>
-                    {loading ? (
-                      <AppSpinner size="sm" variant="inverse" />
-                    ) : (
-                      <Text className="text-base font-semibold text-white">Confirm withdrawal</Text>
-                    )}
+                    <Text>Confirm withdrawal</Text>
                   </Button>
-                  <Button className="h-11 rounded-full" variant="ghost" disabled={loading} onPress={onClose}>
-                    <Text className="font-medium">Not now</Text>
+                  <Button
+                    className="h-12 w-full rounded-btn"
+                    variant="outline"
+                    disabled={loading}
+                    onPress={onClose}>
+                    <Text>Not now</Text>
                   </Button>
                 </View>
               </>
@@ -126,8 +127,8 @@ export function WithdrawMoneySheet({
                   <IconWell
                     icon={CheckCircle2}
                     size="lg"
-                    className="bg-emerald-500/15"
-                    iconClassName="text-emerald-600"
+                    className="bg-success/15"
+                    iconClassName="text-success"
                   />
                   <Text className="text-foreground text-center text-xl font-semibold">
                     Payout requested
@@ -138,7 +139,7 @@ export function WithdrawMoneySheet({
                   </Text>
                 </View>
 
-                <View className="mt-5 rounded-2xl border border-emerald-500/20 bg-emerald-500/8 p-4">
+                <View className="mt-5 rounded-card border border-success/20 bg-success/10 p-4">
                   <Text className="text-foreground text-sm font-medium">What happens next</Text>
                   <Text className="text-muted-foreground mt-1.5 text-sm leading-5">
                     Our finance team processes withdrawals manually. Expect funds in your account
@@ -146,8 +147,8 @@ export function WithdrawMoneySheet({
                   </Text>
                 </View>
 
-                <Button className="mt-5 h-12 rounded-full" onPress={onClose}>
-                  <Text className="font-semibold">Done</Text>
+                <Button className={`mt-5 ${PRIMARY_CTA_BUTTON_CLASS}`} onPress={onClose}>
+                  <Text>Done</Text>
                 </Button>
               </>
             )}

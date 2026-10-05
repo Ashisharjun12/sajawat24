@@ -74,10 +74,11 @@ export function OrderTrackingMap({ order, className, layout = 'embedded' }: Prop
         latitude: vendorLat!,
         longitude: vendorLng!,
         variant: 'worker',
+        heading: vendor?.heading,
       });
     }
     return list;
-  }, [destination, order.status, hasVendorCoords, vendorLat, vendorLng]);
+  }, [destination, order.status, hasVendorCoords, vendorLat, vendorLng, vendor?.heading]);
 
   const centerFallback = destination ?? DEFAULT_CENTER;
 

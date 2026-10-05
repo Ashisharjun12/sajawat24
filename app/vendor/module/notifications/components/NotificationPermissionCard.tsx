@@ -16,7 +16,7 @@ export function NotificationPermissionCard({ className }: NotificationPermission
         <View className="flex-1 gap-2">
           <Text className="text-foreground text-sm font-medium">Turn on notifications</Text>
           <Text className="text-muted-foreground text-sm">
-            Get instant alerts when Decoryy assigns you a new booking.
+            Get instant alerts when Sajawat24 assigns you a new booking.
           </Text>
           <PressableScale onPress={() => Linking.openSettings()}>
             <Text className="text-sm font-medium text-primary">Open Settings</Text>

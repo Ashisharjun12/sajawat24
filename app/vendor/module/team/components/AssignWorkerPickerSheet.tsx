@@ -29,7 +29,7 @@ function WorkerPickerRow({
   return (
     <Pressable
       onPress={onPress}
-      className="flex-row items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3.5">
+      className="flex-row items-center gap-3 rounded-card border border-border bg-card px-4 py-3.5">
       <View className="min-w-0 flex-1">
         <Text className="text-foreground text-base font-semibold" numberOfLines={1}>
           {member.displayName}

@@ -113,12 +113,12 @@ export function InviteWorkerModal({ open, onClose }: Props) {
 
             <View className="mt-6 gap-3">
               <Button
-                className="h-12 rounded-2xl"
+                className="h-12 rounded-btn"
                 disabled={!isValid || busy}
                 onPress={handleSubmit(onInvite)}>
                 <Text>{busy ? 'Sending…' : 'Send invite'}</Text>
               </Button>
-              <Button variant="outline" className="h-12 rounded-2xl" disabled={busy} onPress={onClose}>
+              <Button variant="outline" className="h-12 rounded-btn" disabled={busy} onPress={onClose}>
                 <Text>Cancel</Text>
               </Button>
             </View>

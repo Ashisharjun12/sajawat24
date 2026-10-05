@@ -1,3 +1,6 @@
-/** Primary full-width CTAs (checkout, address, payment). */
-export const PRIMARY_CTA_BUTTON_CLASS = 'h-12 w-full rounded-full';
-export const PRIMARY_CTA_BUTTON_TEXT_CLASS = 'text-primary-foreground text-base font-semibold';
+/**
+ * Full-width primary CTA shape (checkout, address, payment). Radius 12, never a pill.
+ * Colour and typography come from the `Button` variant, so labels stay plain `<Text>`
+ * and the disabled state can override them.
+ */
+export const PRIMARY_CTA_BUTTON_CLASS = 'h-12 w-full rounded-btn';

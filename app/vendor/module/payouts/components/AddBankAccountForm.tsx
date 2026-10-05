@@ -121,7 +121,7 @@ export function AddBankAccountForm() {
       </View>
 
       <Button
-        className="mt-2 h-12 rounded-full"
+        className="mt-2 h-12 w-full rounded-btn"
         disabled={!canSave || addBank.isPending}
         onPress={handleSave}>
         <Text>{addBank.isPending ? 'Saving…' : 'Save bank account'}</Text>

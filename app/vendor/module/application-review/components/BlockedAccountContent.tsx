@@ -49,7 +49,7 @@ export function BlockedAccountContent({
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
         <View className="mb-6 items-center">
           <Text className="text-primary text-xs font-semibold uppercase tracking-[0.2em]">
-            Decoryy Vendor
+            Sajawat24 Vendor
           </Text>
         </View>
 
@@ -67,7 +67,7 @@ export function BlockedAccountContent({
             Account paused
           </Text>
           <Text className="text-muted-foreground text-base leading-6">
-            Your access to the Decoryy partner platform has been paused. You cannot receive bookings
+            Your access to the Sajawat24 partner platform has been paused. You cannot receive bookings
             or use partner features until our team restores your account.
           </Text>
           <Text className="text-muted-foreground text-base leading-6">
@@ -75,7 +75,7 @@ export function BlockedAccountContent({
           </Text>
         </View>
 
-        <View className="bg-card border-border mb-8 overflow-hidden rounded-2xl border px-4">
+        <View className="bg-card border-border mb-8 overflow-hidden rounded-card border px-4">
           <Text className="text-foreground border-border border-b py-3 text-sm font-semibold">
             Contact support
           </Text>
@@ -104,7 +104,7 @@ export function BlockedAccountContent({
           />
         </View>
 
-        <View className="bg-muted/60 border-border rounded-2xl border px-4 py-4">
+        <View className="bg-muted/60 border-border rounded-card border px-4 py-4">
           <Text className="text-muted-foreground text-center text-sm leading-5">
             Pull down to refresh if your status was updated. Sign out to use a different account.
           </Text>
@@ -114,7 +114,7 @@ export function BlockedAccountContent({
       <View className="border-border border-t px-8 pb-10 pt-4">
         <Button
           variant="destructive"
-          className="h-12 rounded-2xl"
+          className="h-12 rounded-btn"
           disabled={signingOut}
           onPress={onSignOut}>
           <Text>{signingOut ? 'Signing out…' : 'Sign out'}</Text>

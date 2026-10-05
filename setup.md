@@ -136,10 +136,19 @@ pnpm run dev
 
 ## 7. Vendor / partner app (`app/vendor`)
 
+Uses **npm** (not pnpm) in this folder — same as `app/user`; avoids Windows Android CMake path limits with `react-native-worklets` under pnpm’s `.pnpm` layout.
+
 ```bash
 cd app/vendor
-pnpm install
-pnpm start
+npm install
+npm start
+```
+
+If install fails with `TAR_ENTRY_ERROR`, `ENOTEMPTY`, or `EPERM` on Windows (often after switching from pnpm, or with OneDrive/antivirus locking files), stop Metro/Gradle, then:
+
+```bash
+cd app/vendor
+npm run reinstall
 ```
 
 Set API URL for device/emulator (e.g. `.env` or `app/vendor/lib/env.ts`):
@@ -185,7 +194,7 @@ Open **separate terminals**:
 3. **`backend/`:** `pnpm run worker:dev` (worker)
 4. **`app/web/`:** `pnpm run dev` → http://localhost:5174
 5. **`app/admin/`:** `pnpm run dev` → http://localhost:5173
-6. **`app/vendor/`:** `pnpm start` (when working on mobile)
+6. **`app/vendor/`:** `npm start` (when working on mobile)
 
 ---
 

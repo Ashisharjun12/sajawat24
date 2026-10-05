@@ -4,7 +4,10 @@ import {
 } from '@/module/catalog/components/ProductFulfillmentTabs';
 import { buildScheduledIso } from '@/module/catalog/lib/time-slots';
 import { ScalePressable } from '@/components/shell';
+import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
+import { INSTANT_TAB_HEX } from '@/lib/theme';
+import { CalendarDays, Zap } from 'lucide-react-native';
 import { addDays, format, startOfToday } from 'date-fns';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { View } from 'react-native';
@@ -87,12 +90,28 @@ export function ProductDetailDeliverySection({
           onChange={onFulfillmentChange}
           instantLabel={instantLabel}
         />
+      ) : canInstant && !canScheduled ? (
+        <View className="flex-row items-center gap-2 border-b border-border pb-3">
+          <Icon as={Zap} className="size-5 shrink-0 text-instant" fill={INSTANT_TAB_HEX} />
+          <Text className="text-instant text-sm font-semibold" style={{ color: INSTANT_TAB_HEX }}>
+            {(instantLabel ?? 'Instant booking').trim()}
+          </Text>
+        </View>
       ) : null}
 
       {isInstantBooking ? (
         <ProductInstantDetails note={instantNote} etaMinutes={instantEtaMinutes} />
       ) : canScheduled ? (
-        <View className="gap-3 rounded-xl border border-primary/15 bg-primary/5 px-3 py-3">
+        <View className="gap-4 overflow-hidden rounded-2xl border border-border/80 bg-card px-4 py-4 shadow-sm">
+          <View className="flex-row items-start gap-3">
+            <View className="size-10 shrink-0 items-center justify-center rounded-full bg-emerald-600/15">
+              <Icon as={CalendarDays} className="size-4 text-emerald-600" />
+            </View>
+            <View className="min-w-0 flex-1 gap-0.5">
+              <Text className="text-foreground text-base font-semibold">Choose Date & Time</Text>
+              <Text className="text-muted-foreground text-sm">When should we arrive to set up?</Text>
+            </View>
+          </View>
           <ProductDeliveryDateChips
             mode={dateMode}
             selectedDate={selectedDate}
@@ -101,12 +120,12 @@ export function ProductDetailDeliverySection({
           />
 
           {isLater ? (
-            <View className="flex-row items-center justify-between gap-2 rounded-lg border border-sky-200/80 bg-sky-50 px-2.5 py-2 dark:border-sky-900 dark:bg-sky-950/40">
-              <Text className="text-sky-900 min-w-0 flex-1 text-xs font-medium dark:text-sky-100">
+            <View className="flex-row items-center justify-between gap-2 rounded-lg border border-primary/20 bg-primary-tint px-2.5 py-2">
+              <Text className="text-foreground min-w-0 flex-1 text-xs font-medium">
                 {format(selectedDate, 'EEE, d MMM yyyy')}
               </Text>
               <ScalePressable haptic onPress={openLaterDialog} accessibilityRole="button">
-                <Text className="text-sky-800 text-xs font-semibold dark:text-sky-300">Change</Text>
+                <Text className="text-primary text-xs font-semibold">Change</Text>
               </ScalePressable>
             </View>
           ) : null}

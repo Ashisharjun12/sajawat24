@@ -15,23 +15,23 @@ type NotificationVisual = {
   iconColor: string;
 };
 
+/** Brand palette only: teal for activity, green for completed states. */
 export function getNotificationVisual(event?: string): NotificationVisual {
   switch (event) {
-    case 'CHAT_MESSAGE':
-      return { icon: MessageCircle, iconBg: 'bg-sky-500/15', iconColor: 'text-sky-700' };
     case 'BOOKING_CONFIRMED':
     case 'BOOKING_REMINDER':
-      return { icon: CalendarCheck, iconBg: 'bg-emerald-500/15', iconColor: 'text-emerald-700' };
-    case 'BOOKING_ASSIGNED':
-      return { icon: Package, iconBg: 'bg-primary/15', iconColor: 'text-primary' };
-    case 'VENDOR_EN_ROUTE':
-      return { icon: Truck, iconBg: 'bg-amber-500/15', iconColor: 'text-amber-700' };
-    case 'VENDOR_ON_SITE':
-      return { icon: Truck, iconBg: 'bg-sky-500/15', iconColor: 'text-sky-700' };
-    case 'DELIVERY_CODE':
-      return { icon: KeyRound, iconBg: 'bg-violet-500/15', iconColor: 'text-violet-700' };
+      return { icon: CalendarCheck, iconBg: 'bg-success/15', iconColor: 'text-success' };
     case 'BOOKING_COMPLETED':
-      return { icon: CheckCircle2, iconBg: 'bg-emerald-500/15', iconColor: 'text-emerald-700' };
+      return { icon: CheckCircle2, iconBg: 'bg-success/15', iconColor: 'text-success' };
+    case 'CHAT_MESSAGE':
+      return { icon: MessageCircle, iconBg: 'bg-primary-tint', iconColor: 'text-primary' };
+    case 'BOOKING_ASSIGNED':
+      return { icon: Package, iconBg: 'bg-primary-tint', iconColor: 'text-primary' };
+    case 'VENDOR_EN_ROUTE':
+    case 'VENDOR_ON_SITE':
+      return { icon: Truck, iconBg: 'bg-primary-tint', iconColor: 'text-primary' };
+    case 'DELIVERY_CODE':
+      return { icon: KeyRound, iconBg: 'bg-primary-tint', iconColor: 'text-primary' };
     default:
       return { icon: Bell, iconBg: 'bg-muted', iconColor: 'text-muted-foreground' };
   }

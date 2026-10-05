@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import type { WalletSummary } from '@/api/wallet.api';
+import { PRIMARY_CTA_BUTTON_CLASS } from '@/lib/primary-cta-button';
 import { formatInr } from '@/module/bookings/lib/booking-format';
 import { formatUnreadBadgeCount } from '@/module/notifications/lib/notification-format';
 import { useUnreadNotificationCount } from '@/module/notifications/hooks/use-unread-count';
@@ -160,7 +161,7 @@ export default function WalletScreen() {
 
           {summary.codCapWarning ? (
             <FadeInView delay={60}>
-              <Surface className="bg-amber-500/10 p-4 shadow-none">
+              <Surface className="bg-warning/10 p-4 shadow-none">
                 <Text className="text-foreground text-sm font-medium">COD dues outstanding</Text>
                 <Text className="text-muted-foreground mt-1 text-sm">
                   You owe {formatInr(summary.codDues)} from cash bookings. Clear dues to keep
@@ -172,13 +173,11 @@ export default function WalletScreen() {
 
           <FadeInView delay={80}>
             <Button
-              variant="success"
-              className="h-12 rounded-full"
+              className={PRIMARY_CTA_BUTTON_CLASS}
               disabled={!summary.canWithdraw || withdrawMutation.isPending}
+              loading={withdrawMutation.isPending}
               onPress={onWithdrawPress}>
-              <Text className="text-base font-semibold text-white">
-                {withdrawMutation.isPending ? 'Processing…' : 'Withdraw money'}
-              </Text>
+              <Text>{withdrawMutation.isPending ? 'Processing…' : 'Withdraw money'}</Text>
             </Button>
             {summary.withdrawDisabledReason ? (
               <Text className="text-muted-foreground mt-2 text-center text-xs">

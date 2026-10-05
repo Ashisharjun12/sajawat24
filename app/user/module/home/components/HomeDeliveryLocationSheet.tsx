@@ -296,7 +296,7 @@ export function HomeDeliveryLocationSheet({ onClose }: HomeDeliveryLocationSheet
           </Text>
         )}
 
-        <Button onPress={() => void handleConfirm()} className="mb-2">
+        <Button variant="primary" onPress={() => void handleConfirm()} className="mb-2 w-full">
           <Text>Confirm</Text>
         </Button>
       </ScrollView>

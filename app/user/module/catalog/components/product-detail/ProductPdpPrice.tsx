@@ -37,21 +37,21 @@ export function ProductPdpPrice({
       {ratingLabel != null || reviews ? (
         <View className="flex-row flex-wrap items-center gap-2">
           {ratingLabel != null ? (
-            <View className="rounded-md bg-emerald-600 px-2 py-0.5">
+            <View className="rounded-md bg-success px-2 py-0.5">
               <Text className="text-xs font-bold text-white">★ {ratingLabel}</Text>
             </View>
           ) : null}
           {reviews ? <Text className="text-muted-foreground text-sm">{reviews} reviews</Text> : null}
           {ratingLabel != null ? (
-            <View className="flex-row items-center gap-1 rounded-md bg-sky-50 px-1.5 py-0.5 dark:bg-sky-950/40">
-              <Icon as={BadgeCheck} className="size-3.5 text-sky-600 dark:text-sky-400" />
-              <Text className="text-xs font-semibold text-sky-700 dark:text-sky-300">Verified</Text>
+            <View className="flex-row items-center gap-1 rounded-md bg-primary-tint px-1.5 py-0.5">
+              <Icon as={BadgeCheck} className="size-3.5 text-primary" />
+              <Text className="text-xs font-semibold text-primary">Verified</Text>
             </View>
           ) : null}
         </View>
       ) : null}
       <View className="flex-row flex-wrap items-baseline gap-x-2.5 gap-y-1">
-        <Text className="text-foreground text-3xl font-extrabold tabular-nums tracking-tight">
+        <Text className="text-foreground text-display font-semibold tabular-nums">
           {formatPaise(pricePaise)}
         </Text>
         {hasCompare ? (
@@ -60,12 +60,12 @@ export function ProductPdpPrice({
           </Text>
         ) : null}
         {percentOff > 0 ? (
-          <Text className="text-sm font-bold text-emerald-600">{percentOff}% OFF</Text>
+          <Text className="text-sm font-bold text-success">{percentOff}% OFF</Text>
         ) : null}
       </View>
       {savedPaise > 0 ? (
         <Text className="text-sm leading-relaxed">
-          <Text className="font-semibold text-emerald-700">
+          <Text className="font-semibold text-success">
             You save {formatPaise(savedPaise)}
           </Text>
           <Text className="text-muted-foreground"> · Inclusive of all charges & setup</Text>

@@ -101,7 +101,7 @@ export function JobAssignSection({ orderId, accepted }: Props) {
   const isSelfReassign = Boolean(assignedMemberId && !isAssignedToSelf);
 
   return (
-    <View className="gap-3 rounded-2xl border border-border bg-card p-4">
+    <View className="gap-3 rounded-card border border-border bg-card p-4">
       <View className="gap-1">
         <Text className="text-foreground text-base font-semibold">Field worker</Text>
         <Text className="text-muted-foreground text-sm">
@@ -114,7 +114,7 @@ export function JobAssignSection({ orderId, accepted }: Props) {
 
       {!isAssignedToSelf ? (
         <Button
-          className="h-12 rounded-2xl"
+          className="h-12 rounded-btn"
           variant="secondary"
           disabled={assignBusy || !ownerMemberId}
           onPress={openSelfAssignSheet}>

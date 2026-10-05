@@ -26,9 +26,18 @@ import { useColorScheme } from 'nativewind';
 import { configureForegroundNotifications } from '@/lib/notifications';
 import { LenisProvider } from '@/lib/lenis-web';
 import { ThemeBootstrap } from '@/module/settings/components/ThemeBootstrap';
+import {
+  Poppins_400Regular,
+  Poppins_500Medium,
+  Poppins_600SemiBold,
+  useFonts,
+} from '@expo-google-fonts/poppins';
+import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { Platform, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
+void SplashScreen.preventAutoHideAsync();
 
 export {
   ErrorBoundary,
@@ -38,6 +47,19 @@ export default function RootLayout() {
   const { colorScheme } = useColorScheme();
   const hydrate = useAuthStore((s) => s.hydrate);
   const hydrated = useAuthStore((s) => s.hydrated);
+  // Only 400/500/600 are bundled; weight classes map onto these three faces.
+  const [fontsLoaded, fontError] = useFonts({
+    Poppins_400Regular,
+    Poppins_500Medium,
+    Poppins_600SemiBold,
+  });
+  const ready = hydrated && (fontsLoaded || !!fontError);
+
+  useEffect(() => {
+    if (ready) {
+      void SplashScreen.hideAsync();
+    }
+  }, [ready]);
 
   useEffect(() => {
     registerAccessTokenGetter(() => useAuthStore.getState().accessToken);
@@ -68,7 +90,7 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      {!hydrated ? (
+      {!ready ? (
         <View className="flex-1 items-center justify-center bg-background">
           <LoadingPlaceholder className="py-0" />
         </View>

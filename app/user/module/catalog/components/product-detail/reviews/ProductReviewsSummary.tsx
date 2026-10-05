@@ -30,7 +30,7 @@ export function ProductReviewsSummary({ summary }: ProductReviewsSummaryProps) {
     <View className="rounded-2xl border border-border/60 bg-muted/30 p-4">
       <View className="gap-5">
         <View>
-          <Text className="text-foreground text-4xl font-semibold tabular-nums tracking-tight">
+          <Text className="text-foreground text-display font-semibold tabular-nums">
             {ratingAvg != null ? Number(ratingAvg).toFixed(1) : '—'}
           </Text>
           <ProductStarRow rating={ratingAvg ?? 0} size="lg" className="mt-1" />

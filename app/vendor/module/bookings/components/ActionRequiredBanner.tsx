@@ -35,12 +35,12 @@ export function ActionRequiredBanner({ bookings }: ActionRequiredBannerProps) {
   return (
     <FadeInView duration={280}>
       <PressableScale
-        className="rounded-3xl"
+        className="rounded-card"
         onPress={() => openBooking(primary.id)}
         scaleTo={0.98}>
-        <Surface className="border border-amber-500/25 bg-amber-500/10 p-4">
+        <Surface className="border border-amber-500/25 bg-warning/10 p-4">
           <View className="flex-row items-center gap-2">
-            <View className="size-2 rounded-full bg-amber-500" />
+            <View className="size-2 rounded-full bg-warning" />
             <Text className="text-xs font-semibold uppercase tracking-wide text-amber-700">
               Action required
             </Text>
@@ -53,7 +53,7 @@ export function ActionRequiredBanner({ bookings }: ActionRequiredBannerProps) {
             {primary.slotLabel} · {statusHint}
           </Text>
 
-          <Button className="mt-3 h-11 rounded-full" onPress={() => openBooking(primary.id)}>
+          <Button className="mt-3 h-11 rounded-btn" onPress={() => openBooking(primary.id)}>
             <Text>{rest.length > 0 ? 'Respond now' : 'Accept or decline'}</Text>
           </Button>
         </Surface>

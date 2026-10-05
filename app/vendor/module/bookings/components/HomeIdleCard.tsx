@@ -33,7 +33,7 @@ export function HomeIdleCard({ variant }: HomeIdleCardProps) {
 
   return (
     <FadeInView delay={80}>
-      <View className="items-center gap-3 rounded-3xl bg-muted/70 px-5 py-8">
+      <View className="items-center gap-3 rounded-card bg-muted/70 px-5 py-8">
         <IconWell icon={icon} size="lg" className="bg-muted" iconClassName="text-muted-foreground" />
         <Text className="text-foreground text-center font-medium">{copy.title}</Text>
         <Text className="text-muted-foreground text-center text-sm leading-5">{copy.body}</Text>

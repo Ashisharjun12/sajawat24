@@ -35,7 +35,7 @@ export default function EnableNotificationsScreen() {
     <PermissionStepScreen
       icon={Bell}
       title="Turn on notifications"
-      description="Get instant alerts when Decoryy assigns you a new booking. You won't miss time-sensitive jobs."
+      description="Get instant alerts when Sajawat24 assigns you a new booking. You won't miss time-sensitive jobs."
       accentClassName="bg-primary/20"
       loading={loading}
       onAllow={() => void handleAllow()}

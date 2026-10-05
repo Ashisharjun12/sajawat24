@@ -112,7 +112,7 @@ export default function NotificationsScreen() {
       {isLoading ? (
         <NotificationListSkeleton />
       ) : isError ? (
-        <View className="gap-3 rounded-3xl bg-muted/70 px-5 py-10">
+        <View className="gap-3 rounded-card bg-muted/70 px-5 py-10">
           <Text className="text-muted-foreground text-center text-sm">
             Could not load notifications. Check your connection and try again.
           </Text>

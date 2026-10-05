@@ -32,21 +32,21 @@ export function OrderDetailsSheet({ visible, onClose, order, onCompletePayment }
 
       <View className="mb-4 rounded-2xl border border-border bg-muted/20 p-4">
         <Text className="text-muted-foreground text-xs">Amount</Text>
-        <Text className="text-foreground text-2xl font-bold tabular-nums">
+        <Text className="text-foreground text-h1 font-semibold tabular-nums">
           {formatPaise(order.totalPaise)}
         </Text>
       </View>
 
       <View className="gap-4">
         <View className="flex-row gap-3">
-          <Icon as={Clock} className="text-amber-700 size-5" />
+          <Icon as={Clock} className="text-primary size-5" />
           <View className="flex-1">
             <Text className="text-muted-foreground text-xs uppercase">Setup slot</Text>
             <Text className="text-foreground text-sm">{formatBookingSlot(order.scheduledAt)}</Text>
           </View>
         </View>
         <View className="flex-row gap-3">
-          <Icon as={MapPin} className="text-rose-600 size-5" />
+          <Icon as={MapPin} className="text-primary size-5" />
           <View className="flex-1">
             <Text className="text-muted-foreground text-xs uppercase">Delivery</Text>
             <Text className="text-foreground text-sm">{order.delivery.address}</Text>
@@ -87,7 +87,7 @@ export function OrderDetailsSheet({ visible, onClose, order, onCompletePayment }
       ) : null}
 
       {order.status === 'PENDING_PAYMENT' && onCompletePayment ? (
-        <Button className="mt-6 rounded-full" onPress={onCompletePayment}>
+        <Button className="mt-6 w-full" onPress={onCompletePayment}>
           <Text>Complete payment</Text>
         </Button>
       ) : null}

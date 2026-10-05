@@ -1,11 +1,14 @@
 import { Text } from '@/components/ui/text';
+import { space } from '@/lib/design-tokens';
+import { useThemeColors } from '@/lib/theme';
 import { cn } from '@/lib/utils';
 import { useRef } from 'react';
-import { Platform, StyleSheet, TextInput, View } from 'react-native';
+import { Platform, StyleSheet, TextInput, useWindowDimensions, View } from 'react-native';
 
-const BOX_SIZE = 46;
-const BOX_HEIGHT = BOX_SIZE + 4;
-const GAP = 8;
+const BOX_WIDTH = 48;
+const BOX_HEIGHT = 56;
+const GAP = space[2];
+const SCREEN_PADDING = space[4];
 
 type OtpInputProps = {
   value: string;
@@ -16,30 +19,39 @@ type OtpInputProps = {
 
 export function OtpInput({ value, onChange, length = 6, className }: OtpInputProps) {
   const inputRef = useRef<TextInput>(null);
+  const theme = useThemeColors();
+  const { width: windowWidth } = useWindowDimensions();
   const digits = Array.from({ length }, (_, index) => value[index] ?? '');
+
+  // Shrink only when six boxes cannot fit inside the screen padding.
+  const available = windowWidth - SCREEN_PADDING * 2 - (length - 1) * GAP;
+  const boxWidth = Math.min(BOX_WIDTH, Math.floor(available / length));
 
   function handleChange(text: string) {
     const cleaned = text.replace(/\D/g, '').slice(0, length);
     onChange(cleaned);
   }
 
-  const containerWidth = length * BOX_SIZE + (length - 1) * GAP;
+  const containerWidth = length * boxWidth + (length - 1) * GAP;
 
   return (
     <View className={cn(className)} style={[styles.container, { width: containerWidth }]}>
       <View pointerEvents="none" style={styles.row}>
         {digits.map((digit, index) => {
           const isActive = value.length === index;
-          const isFilled = digit.length > 0;
           return (
             <View
               key={index}
               style={[
                 styles.box,
-                isActive && styles.boxActive,
-                isFilled && !isActive && styles.boxFilled,
+                {
+                  width: boxWidth,
+                  backgroundColor: theme.card,
+                  borderColor: isActive ? theme.primary : theme.border,
+                  borderWidth: isActive ? 2 : 1,
+                },
               ]}>
-              <Text style={styles.digit}>{digit}</Text>
+              <Text className="text-h2 font-semibold text-foreground">{digit}</Text>
             </View>
           );
         })}
@@ -73,26 +85,10 @@ const styles = StyleSheet.create({
     gap: GAP,
   },
   box: {
-    width: BOX_SIZE,
     height: BOX_HEIGHT,
     borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#E4E4E7',
-    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  boxActive: {
-    borderWidth: 2,
-    borderColor: '#18181B',
-  },
-  boxFilled: {
-    borderColor: '#A1A1AA',
-  },
-  digit: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#18181B',
   },
   overlayInput: {
     ...StyleSheet.absoluteFillObject,

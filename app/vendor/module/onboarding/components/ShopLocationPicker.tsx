@@ -211,7 +211,7 @@ export function ShopLocationPicker({
     <View className="gap-2">
       <Label nativeID="shopLocation">Shop location on map</Label>
       {summary ? (
-        <View className="border-input gap-2 rounded-2xl border bg-card p-4">
+        <View className="border-input gap-2 rounded-card border bg-card p-4">
           <View className="flex-row items-start gap-2">
             <Icon as={MapPin} className="text-primary mt-0.5 size-4 shrink-0" />
             <Text className="text-foreground flex-1 text-sm leading-5">{summary}</Text>
@@ -231,7 +231,7 @@ export function ShopLocationPicker({
       ) : (
         <Pressable
           onPress={openMainSheet}
-          className="border-input flex-row items-center gap-3 rounded-2xl border bg-card px-4 py-4 active:opacity-90">
+          className="border-input flex-row items-center gap-3 rounded-card border bg-card px-4 py-4 active:opacity-90">
           <View className="size-10 items-center justify-center rounded-full bg-muted">
             <Icon as={MapPin} className="text-foreground size-5" />
           </View>
@@ -324,7 +324,7 @@ export function ShopLocationPicker({
                   className="absolute inset-0 bg-black/40"
                   onPress={() => setCurrentConfirm(null)}
                 />
-                <View className="w-full max-w-sm overflow-hidden rounded-3xl bg-background shadow-lg">
+                <View className="w-full max-w-sm overflow-hidden rounded-card bg-background shadow-lg">
                   <View className="items-center bg-muted/40 px-6 pb-4 pt-8">
                     <View className="mb-3 size-14 items-center justify-center rounded-full bg-primary/15">
                       <Icon as={MapPin} className="text-primary size-8" />
@@ -346,7 +346,7 @@ export function ShopLocationPicker({
                         setMainSheetOpen(false);
                         setSearchManualOpen(true);
                       }}
-                      className="h-12 items-center justify-center rounded-2xl border border-border">
+                      className="h-12 items-center justify-center rounded-card border border-border">
                       <Text className="text-foreground text-base font-semibold">
                         No, pick another address
                       </Text>
@@ -434,7 +434,7 @@ export function ShopLocationPicker({
             </View>
           ) : (
             <View className="flex-1 px-4">
-              <View className="relative h-[52%] overflow-hidden rounded-2xl">
+              <View className="relative h-[52%] overflow-hidden rounded-card">
                 <OlaMapView
                   sdkConfig={sdkConfig}
                   center={draftPin}

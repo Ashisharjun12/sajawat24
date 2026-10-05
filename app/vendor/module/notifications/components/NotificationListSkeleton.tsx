@@ -4,7 +4,7 @@ import { View } from 'react-native';
 function NotificationRowSkeleton() {
   return (
     <View className="flex-row items-start gap-3 pb-5 pt-2">
-      <Skeleton className="mt-1 size-11 rounded-2xl" />
+      <Skeleton className="mt-1 size-11 rounded-card" />
       <View className="min-w-0 flex-1 gap-2 pt-2">
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-3 w-full" />

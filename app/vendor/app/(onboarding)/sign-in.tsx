@@ -101,7 +101,7 @@ export default function SignInScreen() {
 
               {!isStaff ? (
                 <Text className="text-muted-foreground text-center text-sm leading-5">
-                  New to Decoryy?{' '}
+                  New to Sajawat24?{' '}
                   <Text
                     className="text-foreground font-semibold"
                     onPress={goRegister}

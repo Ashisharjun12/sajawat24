@@ -54,8 +54,8 @@ export function ProductPdpOffers({ productId, categoryId }: ProductPdpOffersProp
     <View className="gap-3">
       <View className="flex-row items-center justify-between gap-3">
         <View className="min-w-0 flex-1 flex-row items-center gap-2">
-          <View className="size-8 items-center justify-center rounded-lg bg-sky-50 dark:bg-sky-950/40">
-            <Icon as={TicketPercent} className="size-4 text-sky-600 dark:text-sky-400" />
+          <View className="size-8 items-center justify-center rounded-lg bg-primary-tint">
+            <Icon as={TicketPercent} className="size-4 text-primary" />
           </View>
           <Text className="text-foreground text-base font-semibold">Available offers</Text>
         </View>

@@ -1,20 +1,20 @@
 {
   "expo": {
-    "name": "user",
-    "slug": "user",
+    "name": "Sajawat24",
+    "slug": "sajawat24",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "user",
+    "scheme": "sajawat24",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "DeccorBuddys uses your location to show decorations available near you and improve delivery estimates.",
-        "NSUserNotificationsUsageDescription": "DeccorBuddys sends order updates, booking reminders, and offers.",
-        "NSCameraUsageDescription": "DeccorBuddys uses the camera when you add a profile or support photo.",
-        "NSPhotoLibraryUsageDescription": "DeccorBuddys uses your photo library when you upload images."
+        "NSLocationWhenInUseUsageDescription": "Sajawat24 uses your location to show decorations available near you and improve delivery estimates.",
+        "NSUserNotificationsUsageDescription": "Sajawat24 sends order updates, booking reminders, and offers.",
+        "NSCameraUsageDescription": "Sajawat24 uses the camera when you add a profile or support photo.",
+        "NSPhotoLibraryUsageDescription": "Sajawat24 uses your photo library when you upload images."
       }
     },
     "android": {
@@ -29,17 +29,22 @@
         "android.permission.ACCESS_FINE_LOCATION"
       ],
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#0F766E",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.expo1212.user",
+      "package": "com.sajawat24.user",
       "intentQueries": [
-        { "scheme": "whatsapp" },
-        { "scheme": "https", "host": "wa.me" }
+        {
+          "scheme": "whatsapp"
+        },
+        {
+          "scheme": "https",
+          "host": "wa.me"
+        }
       ]
     },
     "web": {
@@ -55,9 +60,9 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
+          "backgroundColor": "#0F766E",
           "dark": {
-            "backgroundColor": "#000000"
+            "backgroundColor": "#0F766E"
           }
         }
       ],
@@ -68,16 +73,17 @@
         "expo-notifications",
         {
           "icon": "./assets/images/icon.png",
-          "color": "#ffffff"
+          "color": "#0F766E"
         }
       ],
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "DeccorBuddys uses your location to show decorations available near you and improve delivery estimates."
+          "locationWhenInUsePermission": "Sajawat24 uses your location to show decorations available near you and improve delivery estimates."
         }
       ],
-      "@maplibre/maplibre-react-native"
+      "@maplibre/maplibre-react-native",
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true,
@@ -86,9 +92,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "3f49ca84-dbf8-4deb-b6c2-de8dc5a20128"
+        "projectId": "1fd6d717-f9fa-40ff-bcf4-bc32739240bc"
       }
     },
-    "owner": "expo1212"
+    "owner": "sajawat24"
   }
 }

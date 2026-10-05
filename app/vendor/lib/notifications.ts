@@ -27,7 +27,7 @@ export async function ensureAndroidNotificationChannels() {
   if (Platform.OS !== 'android') return;
 
   await Notifications.setNotificationChannelAsync(ANDROID_CHANNEL_DEFAULT, {
-    name: 'Decoryy vendor',
+    name: 'Sajawat24 vendor',
     importance: Notifications.AndroidImportance.HIGH,
     vibrationPattern: [0, 250, 250, 250],
     sound: 'default',

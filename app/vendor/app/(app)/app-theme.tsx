@@ -24,7 +24,7 @@ export default function AppThemeScreen() {
       </View>
 
       <Text className="text-muted-foreground mb-4 px-1 text-sm">
-        Choose how Decoryy Partner looks on your device.
+        Choose how Sajawat24 Partner looks on your device.
       </Text>
 
       <AppThemeOptions />

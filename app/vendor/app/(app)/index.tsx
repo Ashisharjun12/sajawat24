@@ -47,7 +47,7 @@ function OwnerHomeScreen() {
 
   return (
     <Screen scrollProps={{ refreshControl }}>
-      <ScreenHeader title={`Hi, ${firstName}`} subtitle="Decoryy Partner" unreadCount={unreadCount} />
+      <ScreenHeader title={`Hi, ${firstName}`} subtitle="Sajawat24 Partner" unreadCount={unreadCount} />
 
       <DutyStatusCard pendingActionCount={actionCount} className="mb-1" />
 

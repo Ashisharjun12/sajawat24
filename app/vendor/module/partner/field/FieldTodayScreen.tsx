@@ -39,7 +39,7 @@ export function FieldTodayScreen() {
       <ScreenHeader title={`Hi, ${firstName}`} subtitle="Worker" unreadCount={unreadCount} />
 
       {!isOnDuty ? (
-        <View className="mb-4 rounded-2xl border border-border bg-muted/40 px-4 py-3">
+        <View className="mb-4 rounded-card border border-border bg-muted/40 px-4 py-3">
           <Text className="text-muted-foreground text-sm leading-5">
             Your shop is offline. Trip actions stay disabled until the owner turns duty on.
           </Text>

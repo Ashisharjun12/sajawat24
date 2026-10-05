@@ -8,10 +8,12 @@
     "android": "node ./scripts/expo-dev.js run:android",
     "ios": "node ./scripts/expo-dev.js run:ios",
     "web": "node ./scripts/expo-dev.js start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "reinstall": "node ./scripts/clean-node-modules.js && npm install"
   },
   "dependencies": {
     "@avasapp/react-native-otp-autofill": "^1.1.0",
+    "@expo-google-fonts/poppins": "^0.4.1",
     "@expo/vector-icons": "^15.0.3",
     "@hookform/resolvers": "^5.9.1",
     "@maplibre/maplibre-react-native": "^11.4.0",

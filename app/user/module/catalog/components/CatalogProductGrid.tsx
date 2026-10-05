@@ -17,8 +17,8 @@ export function CatalogProductGrid({ products }: CatalogProductGridProps) {
       {rows.map((row, rowIndex) => (
         <View key={`row-${rowIndex}`} className="flex-row gap-2.5">
           {row.map((product) => (
-            <View key={product.id} className="min-w-0 flex-1">
-              <CatalogProductCard product={product} layout="grid" />
+            <View key={product.id} className="min-w-0 flex-1 self-stretch">
+              <CatalogProductCard product={product} layout="grid" className="h-full" />
             </View>
           ))}
           {row.length === 1 ? <View className="min-w-0 flex-1" /> : null}
@@ -33,8 +33,14 @@ export function CatalogProductGridSkeleton() {
     <View className="gap-2.5">
       {Array.from({ length: 4 }).map((_, rowIndex) => (
         <View key={rowIndex} className="flex-row gap-2.5">
-          <View className="min-w-0 flex-1 aspect-square rounded-2xl bg-muted" />
-          <View className="min-w-0 flex-1 aspect-square rounded-2xl bg-muted" />
+          <View className="min-w-0 flex-1 overflow-hidden rounded-card border border-border bg-card">
+            <View className="aspect-square w-full bg-muted" />
+            <View className="h-20 bg-muted/40" />
+          </View>
+          <View className="min-w-0 flex-1 overflow-hidden rounded-card border border-border bg-card">
+            <View className="aspect-square w-full bg-muted" />
+            <View className="h-20 bg-muted/40" />
+          </View>
         </View>
       ))}
     </View>

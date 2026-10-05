@@ -1,5 +1,4 @@
 import { Screen, SmoothScrollView } from '@/components/shell';
-import { SELECT_LOCATION_HREF } from '@/lib/select-location-route';
 import { HomeBannerCarousel } from '@/module/home/components/HomeBannerCarousel';
 import { HomeDiscoveryFeed } from '@/module/home/components/HomeDiscoveryFeed';
 import { HomeFeedSkeleton } from '@/module/home/components/HomeFeedSkeleton';
@@ -13,12 +12,11 @@ import { useHomeDiscovery } from '@/module/home/hooks/use-home-discovery';
 import { useAuthStore } from '@/store/auth.store';
 import { useCartStore } from '@/store/cart.store';
 import { useLocationStore } from '@/store/location.store';
-import { router, useFocusEffect } from 'expo-router';
+import { useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { RefreshControl } from 'react-native';
 
 export function HomeScreen() {
-  const openSelectLocation = useCallback(() => router.push(SELECT_LOCATION_HREF), []);
   const locationStatus = useLocationStore((s) => s.status);
   const bootstrapDone = useLocationStore((s) => s.bootstrapDone);
   const locationChosen = useLocationStore((s) => s.isLocationChosen());
@@ -102,7 +100,6 @@ export function HomeScreen() {
   return (
     <Screen scroll={false} edges={['top']} contentClassName="flex-1">
       <HomeStickyHeader
-        onLocationPress={openSelectLocation}
         cityPickerOpen={cityPickerOpen}
         onCityPickerOpenChange={setCityPickerOpen}
       />

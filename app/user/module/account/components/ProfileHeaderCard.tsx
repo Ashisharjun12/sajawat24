@@ -30,7 +30,7 @@ export function ProfileHeaderCard() {
         </AvatarFallback>
       </Avatar>
       <View className="min-w-0 flex-1">
-        <Text className="text-foreground text-xl font-bold tracking-tight" numberOfLines={1}>
+        <Text className="text-foreground text-h1 font-semibold" numberOfLines={1}>
           {name}
         </Text>
         <Text className="text-muted-foreground mt-1 text-sm" numberOfLines={1}>

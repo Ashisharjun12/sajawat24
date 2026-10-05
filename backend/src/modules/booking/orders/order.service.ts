@@ -24,6 +24,7 @@ import type {
     OrderItemInsert,
 } from "@/modules/booking/orders/order.repository.js";
 import type { OrderWithItems } from "@/modules/booking/orders/order.repository.js";
+import { isCheckoutAbandonedOrder } from "@/modules/booking/domain/checkout-abandoned-order.js";
 import {
     ORDER_STATUSES,
     type OrderStatus,
@@ -121,6 +122,7 @@ export type PublicOrderSummary = {
     itemCount: number;
     canReview: boolean;
     reviewSubmitted: boolean;
+    checkoutAbandoned?: boolean;
 };
 
 export type PublicAdminOrderSummary = PublicOrderSummary & {
@@ -195,6 +197,7 @@ export type PublicOrder = {
     canReview: boolean;
     reviewSubmitted: boolean;
     review: PublicOrderReview | null;
+    checkoutAbandoned?: boolean;
 };
 
 type OrderLineInput = {
@@ -343,6 +346,7 @@ export class OrderService implements IOrderService {
                     itemCount: row.itemCount,
                     canReview: meta.canReview,
                     reviewSubmitted: meta.reviewSubmitted,
+                    checkoutAbandoned: isCheckoutAbandonedOrder(row),
                 };
             }),
             page: pagination.page,
@@ -1054,12 +1058,14 @@ export class OrderService implements IOrderService {
     }
 
     toPublic(order: OrderWithItems): PublicOrder {
+        const checkoutAbandoned = isCheckoutAbandonedOrder(order);
         return {
             id: order.id,
             userId: order.userId,
             reference: order.reference,
             status: order.status,
             paymentMethod: order.paymentMethod,
+            checkoutAbandoned,
             cityId: order.cityId,
             pincode: order.pincode,
             fulfillmentType: order.fulfillmentType,

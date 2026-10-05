@@ -2,13 +2,12 @@ import { Screen } from '@/components/shell';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { getApiError } from '@/api/client';
-import { PRIMARY_CTA_BUTTON_CLASS, PRIMARY_CTA_BUTTON_TEXT_CLASS } from '@/lib/primary-cta-button';
+import { PRIMARY_CTA_BUTTON_CLASS } from '@/lib/primary-cta-button';
 import { useOrderDetailQuery } from '@/module/account/hooks/use-orders-query';
 import { useCartMutations } from '@/module/booking/hooks/use-cart-query';
-import { BOOKING_CONFIRMED_ICON_URI } from '@/module/booking/lib/booking-assets';
+import { BookingConfirmedSuccessMotion } from '@/module/booking/components/checkout/BookingConfirmedSuccessMotion';
 import { useCheckoutStore } from '@/store/checkout.store';
 import { type Href, router, useLocalSearchParams, useNavigation } from 'expo-router';
-import { Image } from 'expo-image';
 import { useEffect, useLayoutEffect } from 'react';
 import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -82,14 +81,14 @@ export function BookingConfirmedScreen() {
       <View className="flex-1 items-center justify-center px-8">
         {isError || (!isLoading && !order && !justPlaced) ? (
           <>
-            <Text className="text-foreground text-center text-xl font-bold">Could not load booking</Text>
+            <Text className="text-foreground text-center text-h1 font-semibold">Could not load booking</Text>
             <Text className="text-muted-foreground mt-2 text-center text-sm">
               {getApiError(error)}
             </Text>
           </>
         ) : showPaymentIncomplete ? (
           <>
-            <Text className="text-foreground text-center text-2xl font-bold leading-tight">
+            <Text className="text-foreground text-center text-display font-semibold">
               Payment incomplete
             </Text>
             <Text className="text-muted-foreground mt-3 text-center text-base leading-relaxed">
@@ -98,7 +97,7 @@ export function BookingConfirmedScreen() {
           </>
         ) : isCancelled && !justPlaced && !isLoading ? (
           <>
-            <Text className="text-foreground text-center text-2xl font-bold leading-tight">
+            <Text className="text-foreground text-center text-display font-semibold">
               Booking cancelled
             </Text>
             <Text className="text-muted-foreground mt-3 text-center text-base leading-relaxed">
@@ -107,15 +106,8 @@ export function BookingConfirmedScreen() {
           </>
         ) : showConfirmedHero ? (
           <>
-            <Image
-              source={{ uri: BOOKING_CONFIRMED_ICON_URI }}
-              style={{ width: 112, height: 112 }}
-              contentFit="contain"
-              cachePolicy="memory-disk"
-              accessibilityIgnoresInvertColors
-              accessibilityLabel="Booking confirmed"
-            />
-            <Text className="text-foreground mt-8 text-center text-2xl font-bold leading-tight">
+            <BookingConfirmedSuccessMotion />
+            <Text className="text-foreground mt-8 text-center text-display font-semibold">
               Your booking is confirmed
             </Text>
             <Text className="text-muted-foreground mt-3 text-center text-base leading-relaxed">
@@ -137,25 +129,18 @@ export function BookingConfirmedScreen() {
         style={{ paddingBottom: Math.max(insets.bottom, 16) }}>
         {showPaymentIncomplete ? (
           <Button className={PRIMARY_CTA_BUTTON_CLASS} onPress={completePayment}>
-            <Text className={PRIMARY_CTA_BUTTON_TEXT_CLASS}>Complete payment</Text>
+            <Text>Complete payment</Text>
           </Button>
         ) : null}
         <Button
-          className={showPaymentIncomplete ? 'h-12 w-full rounded-full' : PRIMARY_CTA_BUTTON_CLASS}
-          variant={showPaymentIncomplete ? 'outline' : 'default'}
+          className={PRIMARY_CTA_BUTTON_CLASS}
+          variant={showPaymentIncomplete ? 'secondary' : 'default'}
           onPress={browseProducts}>
-          <Text
-            className={
-              showPaymentIncomplete
-                ? 'text-foreground text-base font-semibold'
-                : PRIMARY_CTA_BUTTON_TEXT_CLASS
-            }>
-            Browse more products
-          </Text>
+          <Text>Browse more products</Text>
         </Button>
         {!showPaymentIncomplete && !(isCancelled && !justPlaced) ? (
-          <Button variant="outline" className="h-12 w-full rounded-full" onPress={viewBooking}>
-            <Text className="text-foreground text-base font-semibold">View order</Text>
+          <Button variant="secondary" className={PRIMARY_CTA_BUTTON_CLASS} onPress={viewBooking}>
+            <Text>View order</Text>
           </Button>
         ) : null}
       </View>

@@ -51,7 +51,7 @@ export function AssignWorkerConfirmSheet({
               Customer chat will go to this worker for this booking.
             </Text>
 
-            <View className="mt-5 rounded-2xl border border-border bg-muted/40 px-4 py-4">
+            <View className="mt-5 rounded-card border border-border bg-muted/40 px-4 py-4">
               <Text className="text-foreground text-lg font-semibold">{worker.displayName}</Text>
               <Text className="text-muted-foreground mt-1 text-sm">{phone}</Text>
             </View>

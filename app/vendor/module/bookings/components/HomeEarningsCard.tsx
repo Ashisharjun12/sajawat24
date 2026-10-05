@@ -8,7 +8,7 @@ import { View } from 'react-native';
 type EarningsTint = 'today' | 'month';
 
 const TINT_SURFACES: Record<EarningsTint, string> = {
-  today: 'bg-emerald-500/15',
+  today: 'bg-success/15',
   month: 'bg-sky-500/15',
 };
 
@@ -29,7 +29,7 @@ function EarningsTile({ label, amountPaise, jobCount, tint, onPress }: EarningsT
   return (
     <PressableScale
       containerClassName="flex-1"
-      className={cn('rounded-3xl px-4 py-5', TINT_SURFACES[tint])}
+      className={cn('rounded-card px-4 py-5', TINT_SURFACES[tint])}
       onPress={() => {
         if (!onPress) return;
         triggerHaptic();

@@ -84,7 +84,7 @@ function AddonRow({ addon, imageUri }: { addon: CartAddonLine; imageUri: string 
         {addon.quantity > 1 ? ` × ${addon.quantity}` : ''}
       </Text>
       {free ? (
-        <Text className="text-sm font-medium text-emerald-600">Free</Text>
+        <Text className="text-sm font-medium text-success">Free</Text>
       ) : (
         <Text className="text-foreground text-sm font-medium tabular-nums">
           {formatPaise(addon.pricePaise ?? 0)}
@@ -160,9 +160,9 @@ export function ConfirmProductCard({
         {slotLabel || onEdit || onRemove ? (
           <View className="flex-row items-center justify-between gap-3">
             {slotLabel ? (
-              <View className="flex-row items-center gap-2 rounded-lg bg-sky-50 px-2.5 py-1.5 dark:bg-sky-950/40">
-                <Icon as={CalendarDays} className="size-3.5 text-sky-600" />
-                <Text className="text-xs font-medium text-sky-700 dark:text-sky-400">{slotLabel}</Text>
+              <View className="flex-row items-center gap-2 rounded-lg bg-primary-tint px-2.5 py-1.5">
+                <Icon as={CalendarDays} className="size-3.5 text-primary" />
+                <Text className="text-xs font-medium text-primary">{slotLabel}</Text>
               </View>
             ) : (
               <View className="flex-1" />

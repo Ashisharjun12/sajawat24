@@ -29,7 +29,7 @@ export function AppThemeOptions() {
             scaleTo={0.98}>
             <View
               className={cn(
-                'flex-row items-center justify-between rounded-2xl border px-4 py-3.5',
+                'flex-row items-center justify-between rounded-card border px-4 py-3.5',
                 selected ? 'border-primary bg-primary/8' : 'border-border bg-card',
               )}>
               <View className="flex-row items-center gap-3">

@@ -8,11 +8,16 @@ export const SECTION_BADGE_COLORS = [
   'slate',
 ] as const;
 
+import { colors } from '@/lib/design-tokens';
+
 const HEX_COLOR_RE = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
 
-/** Preset → solid fill (inline style — NativeWind won't pick up dynamic `bg-*` classes). */
+/**
+ * Preset → solid fill (inline style — NativeWind won't pick up dynamic `bg-*` classes).
+ * Matches web `section-badge-color.js`: the default `amber` preset is the brand primary.
+ */
 export const SECTION_BADGE_PRESET_HEX: Record<string, string> = {
-  amber: '#f59e0b',
+  amber: colors.light.primary,
   emerald: '#059669',
   rose: '#f43f5e',
   sky: '#0284c7',

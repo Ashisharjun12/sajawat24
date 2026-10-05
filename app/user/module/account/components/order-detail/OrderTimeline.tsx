@@ -1,14 +1,42 @@
 import { Text } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
 import { BOOKING_TIMELINE, bookingTimelineIndex } from '@/module/account/lib/booking-ui';
+import {
+  orderStatusDisplayLabel,
+  orderStatusPillClass,
+  orderStatusPillTextClass,
+  orderStatusTone,
+} from '@/module/account/lib/order-status-ui';
 import { View } from 'react-native';
 
-export function OrderTimeline({ status }: { status: string }) {
-  if (status === 'CANCELLED') {
+type Props = {
+  status: string;
+  checkoutAbandoned?: boolean;
+};
+
+export function OrderTimeline({ status, checkoutAbandoned = false }: Props) {
+  if (status === 'PENDING_PAYMENT') {
     return (
-      <Text className="text-muted-foreground rounded-xl bg-muted/40 px-4 py-3 text-sm">
-        This booking was cancelled.
+      <Text className="text-cta rounded-xl bg-cta/10 px-4 py-3 text-sm leading-5">
+        Complete payment to confirm this booking. Your bag is saved until you pay or the session
+        expires.
       </Text>
+    );
+  }
+
+  if (status === 'CANCELLED' || checkoutAbandoned) {
+    const tone = orderStatusTone(status, checkoutAbandoned);
+    return (
+      <View className={cn('rounded-xl px-4 py-3', orderStatusPillClass(tone))}>
+        <Text className={cn('text-sm font-semibold', orderStatusPillTextClass(tone))}>
+          {orderStatusDisplayLabel(status, checkoutAbandoned)}
+        </Text>
+        <Text className="text-muted-foreground mt-1 text-sm leading-5">
+          {checkoutAbandoned
+            ? 'No payment was taken. You can checkout again from your bag anytime.'
+            : 'This booking was cancelled.'}
+        </Text>
+      </View>
     );
   }
 
@@ -27,21 +55,21 @@ export function OrderTimeline({ status }: { status: string }) {
               <View
                 className={cn(
                   'size-8 items-center justify-center rounded-full border-2',
-                  done && 'border-emerald-600 bg-emerald-600',
-                  current && 'border-primary bg-primary/15',
+                  done && 'border-success bg-success',
+                  current && 'border-primary bg-primary-tint',
                   !done && !current && 'border-border bg-background',
                 )}>
                 <Text
                   className={cn(
                     'text-xs font-bold',
-                    done ? 'text-white' : current ? 'text-foreground' : 'text-muted-foreground',
+                    done ? 'text-white' : current ? 'text-primary' : 'text-muted-foreground',
                   )}>
                   {done ? '✓' : index + 1}
                 </Text>
               </View>
               {!isLast ? (
                 <View
-                  className={cn('my-1 w-0.5 flex-1 min-h-4', done ? 'bg-emerald-600' : 'bg-border')}
+                  className={cn('my-1 w-0.5 flex-1 min-h-4', done ? 'bg-success' : 'bg-border')}
                 />
               ) : null}
             </View>

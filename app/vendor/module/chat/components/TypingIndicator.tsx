@@ -39,7 +39,7 @@ export function TypingIndicator({ align = 'left' }: TypingIndicatorProps) {
 
   return (
     <View className={`flex-row ${align === 'right' ? 'justify-end' : 'justify-start'}`}>
-      <View className="flex-row items-center gap-1.5 rounded-2xl bg-muted px-2.5 py-1.5">
+      <View className="flex-row items-center gap-1.5 rounded-card bg-muted px-2.5 py-1.5">
         <View className="flex-row items-center gap-0.5">
           {[dot1, dot2, dot3].map((dot, i) => (
             <Animated.View

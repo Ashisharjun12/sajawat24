@@ -1,8 +1,7 @@
 import { Icon } from '@/components/ui/icon';
-import { Text } from '@/components/ui/text';
 import { Href, router } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 type AuthTopBarProps = {
   onBackPress?: () => void;
@@ -33,33 +32,13 @@ export function AuthTopBar({ onBackPress, backHref, showBack = true }: AuthTopBa
           accessibilityRole="button"
           accessibilityLabel="Go back"
           hitSlop={8}
-          style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}>
+          className="size-11 items-center justify-center rounded-pill border border-border bg-surface active:bg-primary-tint">
           <Icon as={ArrowLeft} className="text-foreground size-5" />
         </Pressable>
       ) : (
-        <View style={styles.iconButton} />
+        <View className="size-11" />
       )}
-      <View style={styles.trailingPlaceholder} />
+      <View className="h-11 min-w-11" />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  iconButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#E4E4E7',
-    backgroundColor: '#FFFFFF',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  trailingPlaceholder: {
-    height: 40,
-    minWidth: 40,
-  },
-  pressed: {
-    opacity: 0.75,
-  },
-});

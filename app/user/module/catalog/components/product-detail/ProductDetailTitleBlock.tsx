@@ -19,7 +19,7 @@ export function ProductDetailTitleBlock({
 
   return (
     <View className="gap-2">
-      <Text className="text-foreground text-2xl font-semibold leading-snug">{title}</Text>
+      <Text className="text-foreground text-h1 font-semibold">{title}</Text>
       {showInstantBadge ? (
         <View
           className="self-start rounded-md px-2 py-0.5"

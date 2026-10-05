@@ -69,12 +69,12 @@ export function LinkGoogleSheet({ open, onOpenChange }: LinkGoogleSheetProps) {
           Connect Google sign-in to this account.
         </Text>
         <Button
-          variant="outline"
-          className="h-11 w-full flex-row gap-2 rounded-full"
-          disabled={pending}
+          variant="secondary"
+          className="w-full"
+          loading={pending}
           onPress={() => void onLink()}>
           <GoogleMark />
-          <Text>{pending ? 'Linking…' : 'Link Google account'}</Text>
+          <Text>Link Google account</Text>
         </Button>
       </View>
     </HomeBottomSheetModal>

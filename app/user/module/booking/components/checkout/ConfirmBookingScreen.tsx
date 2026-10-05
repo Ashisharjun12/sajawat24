@@ -2,7 +2,7 @@ import { Screen, TabScreenTitle } from '@/components/shell';
 import { SmoothScrollView } from '@/components/shell/SmoothScrollView';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
-import { PRIMARY_CTA_BUTTON_CLASS, PRIMARY_CTA_BUTTON_TEXT_CLASS } from '@/lib/primary-cta-button';
+import { PRIMARY_CTA_BUTTON_CLASS } from '@/lib/primary-cta-button';
 import { useGoBack } from '@/lib/use-go-back';
 import { CheckoutAddressPickerSheet } from '@/module/booking/components/checkout/CheckoutAddressPickerSheet';
 import { BillDetailsCard } from '@/module/booking/components/checkout/BillDetailsCard';
@@ -162,7 +162,7 @@ export function ConfirmBookingScreen() {
         className="absolute inset-x-0 bottom-0 border-t border-border/60 bg-background px-5 pt-3"
         style={{ paddingBottom: Math.max(insets.bottom, 12) }}>
         <Button className={PRIMARY_CTA_BUTTON_CLASS} disabled={!addressReady} onPress={goPayment}>
-          <Text className={PRIMARY_CTA_BUTTON_TEXT_CLASS}>Proceed to pay</Text>
+          <Text>Proceed to pay</Text>
         </Button>
       </View>
       <CheckoutContactEditSheet
@@ -179,6 +179,7 @@ export function ConfirmBookingScreen() {
       <CheckoutAddressPickerSheet
         visible={addressSheetOpen}
         onClose={() => setAddressSheetOpen(false)}
+        cartCityId={cart.cityId ?? delivery.cityId}
       />
     </Screen>
   );

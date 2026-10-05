@@ -23,9 +23,9 @@ function statusLabel(status: TeamMember['status']) {
 function statusChipClass(status: TeamMember['status']) {
   switch (status) {
     case 'active':
-      return 'bg-emerald-500/15';
+      return 'bg-success/15';
     case 'invited':
-      return 'bg-amber-500/15';
+      return 'bg-warning/15';
     case 'disabled':
       return 'bg-muted';
   }
@@ -34,9 +34,9 @@ function statusChipClass(status: TeamMember['status']) {
 function statusTextClass(status: TeamMember['status']) {
   switch (status) {
     case 'active':
-      return 'text-emerald-800';
+      return 'text-success';
     case 'invited':
-      return 'text-amber-800';
+      return 'text-warning-foreground';
     case 'disabled':
       return 'text-muted-foreground';
   }
@@ -47,7 +47,7 @@ export function TeamMemberRow({ member, onRemove }: Props) {
   const canRemove = member.status !== 'disabled' && onRemove;
 
   return (
-    <View className="flex-row items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3.5">
+    <View className="flex-row items-center gap-3 rounded-card border border-border bg-card px-4 py-3.5">
       <View className="min-w-0 flex-1 gap-0.5">
         <Text className="text-foreground text-base font-semibold" numberOfLines={1}>
           {member.displayName}

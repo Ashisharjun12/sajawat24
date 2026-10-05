@@ -33,7 +33,10 @@ export function OrdersScreen() {
   } = useOrdersInfiniteQuery(bucket);
 
   const orders = useMemo(
-    () => data?.pages.flatMap((page) => page.items) ?? [],
+    () =>
+      (data?.pages.flatMap((page) => page.items) ?? []).filter(
+        (order) => !order.checkoutAbandoned,
+      ),
     [data],
   );
 
@@ -75,8 +78,8 @@ export function OrdersScreen() {
               <ActivityIndicator className="py-4" />
             ) : hasNextPage ? (
               <Button
-                variant="outline"
-                className="mt-2 self-center rounded-full"
+                variant="secondary"
+                className="mt-2 self-center"
                 onPress={() => void fetchNextPage()}>
                 <Text>Load more</Text>
               </Button>

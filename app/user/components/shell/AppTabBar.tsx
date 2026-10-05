@@ -9,17 +9,14 @@ import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { type Href, router } from 'expo-router';
 import { Home, LayoutGrid, ShoppingBag, User, Zap } from 'lucide-react-native';
 import { lightImpact } from '@/lib/light-haptic';
-import { BRAND_PRIMARY_HEX, INSTANT_TAB_HEX } from '@/lib/theme';
+import { useThemeColors } from '@/lib/theme';
 import { useEffect } from 'react';
-import { Platform, Pressable, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-/** Labels: active black, inactive light grey. Icons: active yellow (Instant orange). */
-const ACTIVE_ICON = BRAND_PRIMARY_HEX;
-const INACTIVE_ICON = '#A3A3A3';
-const ACTIVE_LABEL = '#1A1A1A';
-const INACTIVE_LABEL = '#A3A3A3';
+/** Bar content height; the safe-area inset is added below it. */
+const TAB_BAR_HEIGHT = 72;
 
 const VISIBLE_TABS = BOTTOM_TAB_ROUTE_NAMES;
 
@@ -31,14 +28,15 @@ const TAB_LABELS: Record<string, string> = {
   profile: 'Profile',
 };
 
-function tabIconColor(routeName: string, focused: boolean) {
-  if (!focused) return INACTIVE_ICON;
-  if (routeName === 'instant') return INSTANT_TAB_HEX;
-  return ACTIVE_ICON;
-}
-
-function TabIcon({ routeName, focused }: { routeName: string; focused: boolean }) {
-  const color = tabIconColor(routeName, focused);
+function TabIcon({
+  routeName,
+  focused,
+  color,
+}: {
+  routeName: string;
+  focused: boolean;
+  color: string;
+}) {
   const stroke = focused ? 2.4 : 1.75;
   const size = 24;
   const scale = useSharedValue(focused ? 1.06 : 1);
@@ -92,6 +90,7 @@ function isTabBarHidden(
 
 export function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
+  const theme = useThemeColors();
   const focusedRoute = state.routes[state.index];
   const focusedHidden =
     !TAB_BAR_VISIBLE_ROUTE_NAMES.has(focusedRoute.name) ||
@@ -105,21 +104,23 @@ export function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps)
 
   return (
     <View
-      className="border-t border-border/80 bg-background"
+      className="border-t border-border bg-surface"
       style={{
-        paddingBottom: Math.max(insets.bottom, Platform.OS === 'android' ? 10 : 6),
-        paddingTop: 8,
-        elevation: 12,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: -1 },
-        shadowOpacity: 0.08,
-        shadowRadius: 6,
+        paddingBottom: insets.bottom,
+        elevation: 8,
+        shadowColor: theme.foreground,
+        shadowOffset: { width: 0, height: -2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 12,
       }}>
-      <View className="flex-row items-end justify-around px-2">
+      <View className="flex-row items-center justify-around px-2" style={{ height: TAB_BAR_HEIGHT }}>
         {visibleRoutes.map((route) => {
           const routeIndex = state.routes.findIndex((r) => r.key === route.key);
           const focused = state.index === routeIndex;
           const label = TAB_LABELS[route.name] ?? route.name;
+          // Crimson is reserved for Instant; every other active tab is primary.
+          const activeColor = route.name === 'instant' ? theme.instant : theme.primary;
+          const color = focused ? activeColor : theme.mutedForeground;
 
           const onPress = () => {
             const event = navigation.emit({
@@ -147,11 +148,11 @@ export function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps)
               accessibilityRole="button"
               accessibilityState={focused ? { selected: true } : {}}
               accessibilityLabel={label}
-              className="min-w-[60px] flex-1 items-center gap-1 pb-1">
-              <TabIcon routeName={route.name} focused={focused} />
+              className="min-h-11 min-w-[60px] flex-1 items-center justify-center gap-1">
+              <TabIcon routeName={route.name} focused={focused} color={color} />
               <Text
-                className={cn('text-[11px]', focused ? 'font-semibold' : 'font-medium')}
-                style={{ color: focused ? ACTIVE_LABEL : INACTIVE_LABEL }}>
+                className={cn('text-micro', focused ? 'font-semibold' : 'font-medium')}
+                style={{ color }}>
                 {label}
               </Text>
             </Pressable>

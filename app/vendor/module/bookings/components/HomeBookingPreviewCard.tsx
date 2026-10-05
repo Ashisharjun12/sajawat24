@@ -17,7 +17,7 @@ type HomeBookingPreviewCardProps = {
 export function HomeBookingPreviewCard({ booking, onPress }: HomeBookingPreviewCardProps) {
   return (
     <PressableScale
-      className="rounded-3xl"
+      className="rounded-card"
       onPress={() => {
         triggerHaptic();
         onPress();

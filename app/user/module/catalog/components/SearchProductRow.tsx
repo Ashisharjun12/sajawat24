@@ -35,12 +35,12 @@ export function SearchProductRow({ product, onPress }: SearchProductRowProps) {
           {product.title}
         </Text>
         <View className="mt-1 flex-row flex-wrap items-center gap-2">
-          <Text className="text-sm font-semibold tabular-nums text-emerald-700">
+          <Text className="text-sm font-semibold tabular-nums text-success">
             {formatPaise(product.pricePaise)}
           </Text>
           {percentOff > 0 ? (
-            <View className="rounded-md bg-emerald-100 px-1.5 py-0.5">
-              <Text className="text-[11px] font-semibold text-emerald-800">
+            <View className="rounded-md bg-success/15 px-1.5 py-0.5">
+              <Text className="text-[11px] font-semibold text-success">
                 {percentOff}% off
               </Text>
             </View>

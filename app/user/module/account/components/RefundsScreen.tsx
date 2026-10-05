@@ -111,8 +111,8 @@ export function RefundsScreen() {
           <View className="rounded-xl border border-dashed border-border px-6 py-10">
             <Text className="text-muted-foreground text-center text-sm">No refund requests yet.</Text>
             <Button
-              variant="outline"
-              className="mt-4 self-center rounded-full"
+              variant="secondary"
+              className="mt-4 self-center"
               onPress={() => router.push('/(app)/profile/orders' as Href)}>
               <Text>View my orders</Text>
             </Button>
@@ -170,7 +170,8 @@ export function RefundsScreen() {
             {paymentTopic?.description ?? 'COD, online payment, or refund status.'}
           </Text>
           <Button
-            className="self-start rounded-lg"
+            variant="primary"
+            className="self-start"
             onPress={() =>
               router.push('/(app)/profile/help/payment' as Href)
             }>

@@ -16,9 +16,9 @@ type JobCardProps = {
 
 function NeedsActionTag() {
   return (
-    <View className="flex-row items-center gap-1.5 self-start rounded-full bg-amber-500/15 px-2.5 py-1">
-      <View className="size-1.5 rounded-full bg-amber-500" />
-      <Text className="text-xs font-semibold text-amber-600">Response needed</Text>
+    <View className="flex-row items-center gap-1.5 self-start rounded-full bg-warning/15 px-2.5 py-1">
+      <View className="size-1.5 rounded-full bg-warning" />
+      <Text className="text-xs font-semibold text-warning">Response needed</Text>
     </View>
   );
 }
@@ -26,7 +26,7 @@ function NeedsActionTag() {
 export function JobCard({ booking, onPress }: JobCardProps) {
   return (
     <PressableScale onPress={onPress} disabled={!onPress} scaleTo={0.98}>
-      <Surface className={cn('p-4', booking.needsAction && 'border border-amber-500/30')}>
+      <Surface className={cn('p-4', booking.needsAction && 'border border-warning/30')}>
         <View className="gap-3">
           <View className="flex-row items-start justify-between gap-2">
             <View className="flex-1 gap-1">

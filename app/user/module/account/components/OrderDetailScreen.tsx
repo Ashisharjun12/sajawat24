@@ -1,5 +1,6 @@
 import { getApiError } from '@/api/client';
 import { Screen, TabScreenTitle } from '@/components/shell';
+import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { formatPaise } from '@/lib/format-money';
 import { cn } from '@/lib/utils';
@@ -10,10 +11,15 @@ import { OrderDetailTrackingLayout } from '@/module/account/components/order-det
 import { OrderTimeline } from '@/module/account/components/order-detail/OrderTimeline';
 import { OrderDetailSkeleton } from '@/module/account/components/OrderDetailSkeleton';
 import { useOrderDetailQuery } from '@/module/account/hooks/use-orders-query';
+import { formatBookingSlot } from '@/module/account/lib/booking-ui';
 import {
-  bookingStatusLabel,
-  formatBookingSlot,
-} from '@/module/account/lib/booking-ui';
+  isCheckoutAbandonedOrder,
+  orderStatusDisplayLabel,
+  orderStatusPillClass,
+  orderStatusPillTextClass,
+  orderStatusTone,
+  shouldShowBookingTimeline,
+} from '@/module/account/lib/order-status-ui';
 import { isOrderTrackingLayout } from '@/module/account/lib/order-tracking-mode';
 import { useCheckoutStore } from '@/store/checkout.store';
 import { Image } from 'expo-image';
@@ -21,24 +27,10 @@ import { type Href, router, useLocalSearchParams, useFocusEffect } from 'expo-ro
 import { Clock, MapPin, Phone } from 'lucide-react-native';
 import { Icon } from '@/components/ui/icon';
 import { useCallback, useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 
 const HERO_PLACEHOLDER =
   'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=800&h=480&fit=crop';
-
-function statusPillClass(status: string): string {
-  if (status === 'COMPLETED') return 'bg-emerald-100';
-  if (status === 'CANCELLED') return 'bg-muted';
-  if (status === 'PENDING_PAYMENT') return 'bg-amber-100';
-  return 'bg-primary/20';
-}
-
-function statusPillTextClass(status: string): string {
-  if (status === 'COMPLETED') return 'text-emerald-800';
-  if (status === 'CANCELLED') return 'text-muted-foreground';
-  if (status === 'PENDING_PAYMENT') return 'text-amber-900';
-  return 'text-foreground';
-}
 
 export function OrderDetailScreen() {
   const onBack = useGoBack({ fallbackHref: '/(app)/profile/orders' as Href });
@@ -89,14 +81,9 @@ export function OrderDetailScreen() {
   }
 
   const heroImage = order.items?.find((item) => item.imageUrl)?.imageUrl ?? HERO_PLACEHOLDER;
-  const showTimeline =
-    order.status !== 'PENDING_PAYMENT' &&
-    (order.status === 'COMPLETED' ||
-      order.status === 'CANCELLED' ||
-      order.status === 'CONFIRMED' ||
-      order.status === 'ASSIGNED' ||
-      order.status === 'ON_SITE' ||
-      order.status === 'COMPLETED');
+  const checkoutAbandoned = isCheckoutAbandonedOrder(order);
+  const statusTone = orderStatusTone(order.status, checkoutAbandoned);
+  const showTimeline = shouldShowBookingTimeline(order.status, checkoutAbandoned);
 
   return (
     <Screen edges={['top', 'left', 'right']} gutter contentClassName="pb-10">
@@ -110,9 +97,9 @@ export function OrderDetailScreen() {
               contentFit="cover"
             />
             <View className="absolute left-4 top-4">
-              <View className={cn('rounded-full px-3 py-1', statusPillClass(order.status))}>
-                <Text className={cn('text-xs font-semibold', statusPillTextClass(order.status))}>
-                  {bookingStatusLabel(order.status)}
+              <View className={cn('rounded-full px-3 py-1', orderStatusPillClass(statusTone))}>
+                <Text className={cn('text-xs font-semibold', orderStatusPillTextClass(statusTone))}>
+                  {orderStatusDisplayLabel(order.status, checkoutAbandoned)}
                 </Text>
               </View>
             </View>
@@ -122,17 +109,30 @@ export function OrderDetailScreen() {
               {order.items?.[0]?.name ?? 'Your booking'}
             </Text>
             <Text className="text-muted-foreground font-mono text-xs">{order.reference}</Text>
-            <Text className="text-foreground mt-1 text-2xl font-bold tabular-nums">
+            <Text className="text-foreground mt-1 text-display font-semibold tabular-nums">
               {formatPaise(order.totalPaise)}
             </Text>
           </View>
         </View>
 
         {order.status === 'ON_SITE' ? (
-          <Text className="text-foreground rounded-2xl bg-emerald-500/10 px-4 py-3 text-sm">
+          <Text className="text-foreground rounded-2xl bg-success/15 px-4 py-3 text-sm">
             {order.deliveryCodePending
               ? 'Your decorator has arrived. Share your completion code when they ask.'
               : 'Your decorator is on site and setup is in progress.'}
+          </Text>
+        ) : null}
+
+        {checkoutAbandoned ? (
+          <Text className="text-destructive rounded-2xl bg-destructive/10 px-4 py-3 text-sm leading-5">
+            Payment was not completed for this attempt. Nothing was charged — book again from your
+            bag when you are ready.
+          </Text>
+        ) : null}
+
+        {!checkoutAbandoned && order.status === 'PENDING_PAYMENT' ? (
+          <Text className="text-cta rounded-2xl bg-cta/10 px-4 py-3 text-sm leading-5">
+            This booking is waiting for payment. Complete checkout to confirm your slot.
           </Text>
         ) : null}
 
@@ -140,14 +140,14 @@ export function OrderDetailScreen() {
 
         <View className="rounded-2xl border border-border bg-card p-4 gap-4">
           <View className="flex-row gap-3">
-            <Icon as={Clock} className="text-amber-700 size-5" />
+            <Icon as={Clock} className="text-primary size-5" />
             <View className="flex-1">
               <Text className="text-muted-foreground text-xs uppercase">Setup slot</Text>
               <Text className="text-foreground text-sm">{formatBookingSlot(order.scheduledAt)}</Text>
             </View>
           </View>
           <View className="flex-row gap-3">
-            <Icon as={MapPin} className="text-rose-600 size-5" />
+            <Icon as={MapPin} className="text-primary size-5" />
             <View className="flex-1">
               <Text className="text-muted-foreground text-xs uppercase">Delivery</Text>
               <Text className="text-foreground text-sm">{order.delivery.address}</Text>
@@ -165,16 +165,19 @@ export function OrderDetailScreen() {
         {showTimeline ? (
           <View className="rounded-2xl border border-border bg-card p-4">
             <Text className="text-foreground mb-4 font-semibold">Booking progress</Text>
-            <OrderTimeline status={order.status} />
+            <OrderTimeline status={order.status} checkoutAbandoned={checkoutAbandoned} />
+          </View>
+        ) : !showTimeline && (order.status === 'CANCELLED' || order.status === 'PENDING_PAYMENT') ? (
+          <View className="rounded-2xl border border-border bg-card p-4">
+            <Text className="text-foreground mb-4 font-semibold">Status</Text>
+            <OrderTimeline status={order.status} checkoutAbandoned={checkoutAbandoned} />
           </View>
         ) : null}
 
         {order.canReview && !order.reviewSubmitted ? (
-          <Pressable
-            onPress={() => setReviewOpen(true)}
-            className="w-full items-center rounded-full bg-primary py-3.5 active:opacity-90">
-            <Text className="text-primary-foreground text-sm font-semibold">Leave a review</Text>
-          </Pressable>
+          <Button variant="secondary" className="w-full" onPress={() => setReviewOpen(true)}>
+            <Text>Leave a review</Text>
+          </Button>
         ) : null}
 
         {order.reviewSubmitted ? (
@@ -183,12 +186,10 @@ export function OrderDetailScreen() {
           </Text>
         ) : null}
 
-        {order.status === 'PENDING_PAYMENT' ? (
-          <Pressable
-            onPress={openCompletePayment}
-            className="w-full items-center rounded-full bg-primary py-3.5">
-            <Text className="text-primary-foreground text-sm font-semibold">Complete payment</Text>
-          </Pressable>
+        {order.status === 'PENDING_PAYMENT' && !checkoutAbandoned ? (
+          <Button variant="cta" className="w-full" onPress={openCompletePayment}>
+            <Text>Complete payment</Text>
+          </Button>
         ) : null}
       </View>
 

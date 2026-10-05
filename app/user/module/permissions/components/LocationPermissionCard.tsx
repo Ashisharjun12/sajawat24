@@ -19,8 +19,8 @@ export function LocationPermissionCard({
   return (
     <View className="mx-4 rounded-2xl border border-border bg-card p-4">
       <View className="flex-row items-start gap-3">
-        <View className="size-10 items-center justify-center rounded-xl bg-sky-500/15">
-          <Icon as={MapPin} className="size-5 text-sky-600" />
+        <View className="size-10 items-center justify-center rounded-xl bg-primary-tint">
+          <Icon as={MapPin} className="size-5 text-primary" />
         </View>
         <View className="min-w-0 flex-1 gap-1">
           <Text className="text-foreground text-sm font-semibold">Use your location</Text>
@@ -39,15 +39,16 @@ export function LocationPermissionCard({
         </ScalePressable>
       </View>
       <View className="mt-3 flex-row gap-2">
-        <Button className="h-10 flex-1 rounded-full" disabled={loading} onPress={onAllow}>
-          <Text className="text-sm font-semibold">{loading ? 'Please wait…' : 'Allow'}</Text>
+        <Button variant="primary" size="md" className="flex-1" loading={loading} onPress={onAllow}>
+          <Text>Allow</Text>
         </Button>
         <Button
-          variant="outline"
-          className="h-10 flex-1 rounded-full"
+          variant="secondary"
+          size="md"
+          className="flex-1"
           disabled={loading}
           onPress={onDismiss}>
-          <Text className="text-sm">Not now</Text>
+          <Text>Not now</Text>
         </Button>
       </View>
     </View>

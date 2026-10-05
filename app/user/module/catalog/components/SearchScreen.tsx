@@ -138,7 +138,7 @@ export function SearchScreen() {
           <Text className="text-muted-foreground mt-1 text-center text-sm">
             We need a serviceable city to search local setups.
           </Text>
-          <Button className="mt-4 rounded-lg" onPress={() => setLocationOpen(true)}>
+          <Button variant="primary" className="mt-4" onPress={() => setLocationOpen(true)}>
             <Text>Select city</Text>
           </Button>
         </View>
@@ -162,7 +162,7 @@ export function SearchScreen() {
             <View className="flex-row items-baseline justify-between gap-2 py-1.5">
               <View className="flex-row items-center gap-1.5">
                 {isBrowseMode ? (
-                  <Icon as={Sparkles} className="size-4 text-emerald-600" />
+                  <Icon as={Sparkles} className="size-4 text-success" />
                 ) : null}
                 <Text className="text-foreground text-sm font-semibold">
                   {isBrowseMode ? 'Popular right now' : 'Results'}

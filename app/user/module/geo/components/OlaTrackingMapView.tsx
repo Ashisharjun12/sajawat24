@@ -20,6 +20,7 @@ export type TrackingMapMarker = {
   latitude: number;
   longitude: number;
   variant: 'worker' | 'customer';
+  heading?: number;
 };
 
 const ROUTE_SOURCE_ID = 'decory-user-route';
@@ -159,7 +160,7 @@ export function OlaTrackingMapView({
             lngLat={[marker.longitude, marker.latitude]}
             anchor={marker.variant === 'customer' ? 'bottom' : 'center'}>
             {marker.variant === 'worker' ? (
-              <LiveLocationDotView />
+              <LiveLocationDotView heading={marker.heading} />
             ) : (
               <FixedLocationPinMarker />
             )}

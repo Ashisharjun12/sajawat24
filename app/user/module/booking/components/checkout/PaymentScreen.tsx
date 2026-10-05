@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { devApiLog } from '@/lib/dev-api-log';
 import { formatPaise } from '@/lib/format-money';
-import { PRIMARY_CTA_BUTTON_CLASS, PRIMARY_CTA_BUTTON_TEXT_CLASS } from '@/lib/primary-cta-button';
+import { PRIMARY_CTA_BUTTON_CLASS } from '@/lib/primary-cta-button';
 import { useGoBack } from '@/lib/use-go-back';
 import { BillDetailsCard } from '@/module/booking/components/checkout/BillDetailsCard';
 import { PaymentMethodCard } from '@/module/booking/components/checkout/PaymentMethodCard';
@@ -183,7 +183,7 @@ export function PaymentScreen() {
         <View className="flex-row items-center justify-between gap-3">
           <Text className="text-foreground text-lg font-bold">How to pay</Text>
           <View className="shrink-0 flex-row items-center gap-1">
-            <Icon as={ShieldCheck} className="size-4 text-green-600" />
+            <Icon as={ShieldCheck} className="size-4 text-success" />
             <Text className="text-muted-foreground text-xs font-medium">100% secure</Text>
           </View>
         </View>
@@ -194,11 +194,12 @@ export function PaymentScreen() {
               Couldn&apos;t load payment options. Check your connection and try again.
             </Text>
             <Button
-              variant="outline"
-              className="mt-3 self-start rounded-full"
-              disabled={methodsFetching}
+              variant="secondary"
+              size="md"
+              className="mt-3 self-start"
+              loading={methodsFetching}
               onPress={() => void refetchMethods()}>
-              <Text>{methodsFetching ? 'Retrying…' : 'Retry'}</Text>
+              <Text>Retry</Text>
             </Button>
           </View>
         ) : methodsLoading && !allowCod && !allowOnline ? (
@@ -209,8 +210,8 @@ export function PaymentScreen() {
               <PaymentMethodCard
                 label="Pay online"
                 icon={Wallet}
-                iconContainerClassName="bg-sky-50 dark:bg-sky-950/40"
-                iconClassName="text-sky-600 dark:text-sky-400"
+                iconContainerClassName="bg-primary-tint"
+                iconClassName="text-primary"
                 selected={payment === 'online'}
                 onSelect={() => setPayment('online')}
               />
@@ -219,8 +220,8 @@ export function PaymentScreen() {
               <PaymentMethodCard
                 label="Cash on delivery"
                 icon={Banknote}
-                iconContainerClassName="bg-emerald-50 dark:bg-emerald-950/40"
-                iconClassName="text-emerald-600 dark:text-emerald-400"
+                iconContainerClassName="bg-success/10"
+                iconClassName="text-success"
                 selected={payment === 'cod'}
                 onSelect={() => setPayment('cod')}
                 subtitle="Pay the decorator after setup"
@@ -254,12 +255,10 @@ export function PaymentScreen() {
           className={PRIMARY_CTA_BUTTON_CLASS}
           disabled={!canPay || placing}
           onPress={() => void onPlace()}>
-          <Text className={PRIMARY_CTA_BUTTON_TEXT_CLASS}>
-            {payCtaLabel(payment, totalStr, placing)}
-          </Text>
+          <Text>{payCtaLabel(payment, totalStr, placing)}</Text>
         </Button>
         <View className="mt-2 flex-row items-center justify-center gap-1.5">
-          <Icon as={ShieldCheck} className="size-3.5 text-green-600" />
+          <Icon as={ShieldCheck} className="size-3.5 text-success" />
           <Text className="text-muted-foreground text-xs">100% secure payment</Text>
         </View>
       </View>

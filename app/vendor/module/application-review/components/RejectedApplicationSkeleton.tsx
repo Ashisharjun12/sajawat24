@@ -41,12 +41,12 @@ export function RejectedApplicationSkeleton() {
           <RejectedStepRowSkeleton isLast />
         </View>
 
-        <Skeleton className="h-16 w-full rounded-2xl" />
+        <Skeleton className="h-16 w-full rounded-card" />
       </View>
 
       <View className="border-border gap-3 border-t px-8 pb-10 pt-4">
-        <Skeleton className="h-12 w-full rounded-2xl" />
-        <Skeleton className="h-12 w-full rounded-2xl" />
+        <Skeleton className="h-12 w-full rounded-card" />
+        <Skeleton className="h-12 w-full rounded-card" />
       </View>
     </View>
   );

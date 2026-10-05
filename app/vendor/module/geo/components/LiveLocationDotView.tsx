@@ -1,44 +1,43 @@
+import {
+  MAP_DRIVER_MARKER_FRAME_PX,
+  MAP_DRIVER_MARKER_ICON_PX,
+  MAP_DRIVER_MARKER_URL,
+} from '@/lib/map-assets';
+import { Image } from 'expo-image';
 import { View } from 'react-native';
 
-const SIZE = 44;
-const HALO = '#4285F433';
-const BLUE = '#4285F4';
+type Props = {
+  /** Degrees clockwise from north; rotates the rider icon when en route. */
+  heading?: number;
+  accessibilityLabel?: string;
+};
 
-/** Google Maps–style live GPS dot (partner on trip). */
-export function LiveLocationDotView() {
+/** Live partner position on trip maps (replaces generic blue GPS dot). */
+export function LiveLocationDotView({
+  heading,
+  accessibilityLabel = 'Your location',
+}: Props) {
+  const rotation =
+    heading != null && Number.isFinite(heading) && heading >= 0 ? heading - 90 : 0;
+
   return (
     <View
       style={{
-        width: SIZE,
-        height: SIZE,
+        width: MAP_DRIVER_MARKER_FRAME_PX,
+        height: MAP_DRIVER_MARKER_FRAME_PX,
         alignItems: 'center',
         justifyContent: 'center',
       }}>
-      <View
+      <Image
+        source={MAP_DRIVER_MARKER_URL}
         style={{
-          width: 28,
-          height: 28,
-          borderRadius: 14,
-          backgroundColor: HALO,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
-        <View
-          style={{
-            width: 18,
-            height: 18,
-            borderRadius: 9,
-            backgroundColor: BLUE,
-            borderWidth: 3,
-            borderColor: '#ffffff',
-            elevation: 4,
-            shadowColor: '#000',
-            shadowOpacity: 0.2,
-            shadowRadius: 3,
-            shadowOffset: { width: 0, height: 1 },
-          }}
-        />
-      </View>
+          width: MAP_DRIVER_MARKER_ICON_PX,
+          height: MAP_DRIVER_MARKER_ICON_PX,
+          transform: [{ rotate: `${rotation}deg` }],
+        }}
+        contentFit="contain"
+        accessibilityLabel={accessibilityLabel}
+      />
     </View>
   );
 }

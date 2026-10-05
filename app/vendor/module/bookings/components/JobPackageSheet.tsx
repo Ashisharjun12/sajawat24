@@ -69,7 +69,7 @@ export function JobPackageSheet({ open, onClose, items, subtotalPaise }: JobPack
             <BookingPackageItem item={active} showLineTotal />
           </Surface>
 
-          <View className="mt-4 flex-row items-center justify-between rounded-2xl bg-muted/40 px-4 py-3.5">
+          <View className="mt-4 flex-row items-center justify-between rounded-card bg-muted/40 px-4 py-3.5">
             <Text className="text-foreground text-sm font-semibold">Order value</Text>
             <Text className="text-foreground text-xl font-bold">{formatInr(subtotalPaise)}</Text>
           </View>

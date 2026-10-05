@@ -61,7 +61,7 @@ export function TabScreenTitle({
 
   return (
     <View className="border-b border-border/60 bg-background px-5 pb-3 pt-1">
-      <Text className="text-foreground text-2xl font-bold tracking-tight">{title}</Text>
+      <Text className="text-foreground text-h1 font-semibold">{title}</Text>
       {subtitle ? (
         <Text className="text-muted-foreground mt-1 text-sm" numberOfLines={2}>
           {subtitle}
