@@ -49,6 +49,7 @@ import { ProductPdpPrice } from './ProductPdpPrice';
 import { ProductReviewsPreview } from './ProductReviewsPreview';
 import { ProductPdpSimilarPackages } from './ProductPdpSimilarPackages';
 import { ProductShareSheet } from './ProductShareSheet';
+import { ProductScheduleBookingSheet } from './ProductScheduleBookingSheet';
 import { useProductAddonSelection } from './use-product-addon-selection';
 
 type ProductPdpScreenProps = {
@@ -79,6 +80,7 @@ export function ProductPdpScreen({ productId }: ProductPdpScreenProps) {
   const [booking, setBooking] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [similarOpen, setSimilarOpen] = useState(false);
+  const [scheduleSheetOpen, setScheduleSheetOpen] = useState(false);
   const addons = product?.addons ?? [];
   const addonSelection = useProductAddonSelection(addons);
 
@@ -111,12 +113,11 @@ export function ProductPdpScreen({ productId }: ProductPdpScreenProps) {
   const isInstantBooking = fulfillment === 'instant' && canInstant;
   const hasAddons = addons.length > 0;
 
-  const onScheduledAtChange = useCallback((iso: string | null) => {
-    setScheduledAt(iso);
-  }, []);
-
   const completeBooking = useCallback(
-    async (addonSelections: { addonId: string; quantity: number }[]) => {
+    async (
+      addonSelections: { addonId: string; quantity: number }[],
+      scheduledIso?: string | null,
+    ) => {
       if (!product?.id) return;
       const serviceCityId =
         city?.id && isBackendCityId(city.id) ? city.id : undefined;
@@ -133,7 +134,9 @@ export function ProductPdpScreen({ productId }: ProductPdpScreenProps) {
           quantity: 1,
           addons: addonSelections.length ? addonSelections : undefined,
           ...locationBody,
-          scheduledAt: isInstantBooking ? null : scheduledAt || undefined,
+          scheduledAt: isInstantBooking
+            ? null
+            : (scheduledIso ?? scheduledAt) || undefined,
           fulfillmentType: isInstantBooking ? 'instant' : 'scheduled',
         });
         syncCartQueryCache(queryClient, cart);
@@ -162,19 +165,21 @@ export function ProductPdpScreen({ productId }: ProductPdpScreenProps) {
       Alert.alert('Select your city first', 'Choose your delivery area to continue.');
       return;
     }
-    if (!isInstantBooking && !scheduledAt) {
-      Alert.alert('Choose date and time', 'Pick a delivery date and time slot, then tap Book Now.');
+    if (isInstantBooking) {
+      void completeBooking(addonSelection.buildSelections());
       return;
     }
-    void completeBooking(addonSelection.buildSelections());
-  }, [
-    product,
-    hasLocation,
-    isInstantBooking,
-    scheduledAt,
-    completeBooking,
-    addonSelection.buildSelections,
-  ]);
+    setScheduleSheetOpen(true);
+  }, [product, hasLocation, isInstantBooking, completeBooking, addonSelection.buildSelections]);
+
+  const onScheduleSheetContinue = useCallback(
+    (iso: string) => {
+      setScheduledAt(iso);
+      setScheduleSheetOpen(false);
+      void completeBooking(addonSelection.buildSelections(), iso);
+    },
+    [completeBooking, addonSelection.buildSelections],
+  );
 
   const onBack = useGoBack();
 
@@ -238,9 +243,20 @@ export function ProductPdpScreen({ productId }: ProductPdpScreenProps) {
           title={title}
           onBack={onBack}
           onHome={onHome}
+          wishlistProduct={{
+            id: detail.id,
+            title,
+            imageUrl: images[0] ?? null,
+            pricePaise: detail.pricePaise ?? 0,
+            compareAtPaise: detail.compareAtPaise,
+          }}
           onShare={detail.id ? () => setShareOpen(true) : undefined}
           showSimilar={Boolean(detail.categoryId)}
           onSimilar={() => setSimilarOpen(true)}
+          suppressChrome={scheduleSheetOpen}
+          onSchedulePress={
+            canScheduled && !isInstantBooking ? () => setScheduleSheetOpen(true) : undefined
+          }
         />
 
         <View className="mt-4 gap-4">
@@ -254,7 +270,9 @@ export function ProductPdpScreen({ productId }: ProductPdpScreenProps) {
             ratingAvg={rating}
             reviewCount={detail.reviewCount != null ? Number(detail.reviewCount) : null}
           />
+        </View>
 
+        <View className="-mx-5 gap-4 bg-primary-tint px-5 py-4">
           <ProductDetailDeliverySection
             canInstant={canInstant}
             canScheduled={canScheduled}
@@ -263,7 +281,6 @@ export function ProductPdpScreen({ productId }: ProductPdpScreenProps) {
             instantLabel={detail.instant?.badgeLabel}
             instantNote={detail.instant?.pdpNote}
             instantEtaMinutes={detail.instant?.etaMinutes}
-            onScheduledAtChange={onScheduledAtChange}
           />
 
           <ProductPdpOffers productId={detail.id} categoryId={detail.categoryId} />
@@ -278,7 +295,9 @@ export function ProductPdpScreen({ productId }: ProductPdpScreenProps) {
               onIncrement={addonSelection.increment}
             />
           ) : null}
+        </View>
 
+        <View className="mt-4 gap-4">
           <ProductPdpAboutPackage description={detail.description} />
 
           <ProductPdpDetailsTabs
@@ -303,24 +322,26 @@ export function ProductPdpScreen({ productId }: ProductPdpScreenProps) {
         </View>
       </ScrollView>
 
-      <View
-        className="absolute inset-x-0 bottom-0 border-t border-border bg-surface px-4 pt-3"
-        style={{
-          paddingBottom: Math.max(insets.bottom, 12),
-          shadowColor: cardShadow.shadowColor,
-          shadowOffset: { width: 0, height: -4 },
-          shadowOpacity: cardShadow.shadowOpacity,
-          shadowRadius: cardShadow.shadowRadius,
-          elevation: 8,
-        }}>
-        <ProductPdpMobileBookingBar
-          pricePaise={detail.pricePaise}
-          booking={booking}
-          isInstantBooking={isInstantBooking}
-          onWhatsApp={() => void openWhatsAppSupport()}
-          onBookNow={onBookNow}
-        />
-      </View>
+      {!scheduleSheetOpen ? (
+        <View
+          className="absolute inset-x-0 bottom-0 border-t border-border bg-surface px-4 pt-3"
+          style={{
+            paddingBottom: Math.max(insets.bottom, 12),
+            shadowColor: cardShadow.shadowColor,
+            shadowOffset: { width: 0, height: -4 },
+            shadowOpacity: cardShadow.shadowOpacity,
+            shadowRadius: cardShadow.shadowRadius,
+            elevation: 8,
+          }}>
+          <ProductPdpMobileBookingBar
+            pricePaise={detail.pricePaise}
+            booking={booking}
+            isInstantBooking={isInstantBooking}
+            onWhatsApp={() => void openWhatsAppSupport()}
+            onBookNow={onBookNow}
+          />
+        </View>
+      ) : null}
 
       {detail.id ? (
         <ProductShareSheet
@@ -335,6 +356,15 @@ export function ProductPdpScreen({ productId }: ProductPdpScreenProps) {
         product={detail}
         open={similarOpen}
         onOpenChange={setSimilarOpen}
+      />
+
+      <ProductScheduleBookingSheet
+        visible={scheduleSheetOpen}
+        submitting={booking}
+        title={title}
+        imageUrl={images[0]}
+        onClose={() => setScheduleSheetOpen(false)}
+        onContinue={onScheduleSheetContinue}
       />
     </View>
   );

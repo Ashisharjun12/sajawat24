@@ -13,6 +13,7 @@ export * from "../modules/catalog/products/product.schema.js";
 export * from "../modules/catalog/addons/addon.schema.js";
 export * from "../modules/catalog/pricing/city-price.schema.js";
 export * from "../modules/catalog/sections/section.schema.js";
+export * from "../modules/catalog/wishlist/wishlist.schema.js";
 export * from "../modules/booking/carts/cart.schema.js";
 export * from "../modules/booking/orders/order.schema.js";
 export * from "../modules/booking/refunds/refund-request.schema.js";

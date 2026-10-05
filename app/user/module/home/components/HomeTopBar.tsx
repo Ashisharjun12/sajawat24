@@ -6,16 +6,27 @@ import { useCartStore } from '@/store/cart.store';
 import { useAuthStore } from '@/store/auth.store';
 import { openCartCheckout } from '@/module/booking/lib/open-cart-checkout';
 import { Href, router } from 'expo-router';
-import { Bell, ShoppingBag } from 'lucide-react-native';
+import { useWishlistStore } from '@/store/wishlist.store';
+import { Bell, Heart, ShoppingBag } from 'lucide-react-native';
+import { useEffect } from 'react';
 import { View } from 'react-native';
 
 type HomeTopBarProps = {
   onCityPress: () => void;
 };
 
+const headerActionClass =
+  'size-10 items-center justify-center rounded-full border border-primary-foreground/30 bg-primary-foreground/15';
+
 export function HomeTopBar({ onCityPress }: HomeTopBarProps) {
   const user = useAuthStore((s) => s.user);
   const itemCount = useCartStore((s) => s.itemCount);
+  const wishlistCount = useWishlistStore((s) => s.rows.length);
+  const hydrateWishlist = useWishlistStore((s) => s.hydrate);
+
+  useEffect(() => {
+    void hydrateWishlist();
+  }, [hydrateWishlist]);
 
   return (
     <View className="flex-row items-center justify-between gap-2">
@@ -25,13 +36,29 @@ export function HomeTopBar({ onCityPress }: HomeTopBarProps) {
           haptic
           hitSlop={8}
           accessibilityRole="button"
+          accessibilityLabel="Wishlist"
+          onPress={() => router.push('/(app)/wishlist' as Href)}
+          className={`relative ${headerActionClass}`}>
+          <Icon as={Heart} className="size-5 text-primary-foreground" strokeWidth={2.25} />
+          {wishlistCount > 0 ? (
+            <View className="absolute -right-1 -top-1 min-w-[18px] rounded-full border-2 border-primary bg-cta px-1 py-0.5">
+              <Text className="text-cta-foreground text-center text-[10px] font-bold">
+                {wishlistCount > 9 ? '9+' : wishlistCount}
+              </Text>
+            </View>
+          ) : null}
+        </ScalePressable>
+        <ScalePressable
+          haptic
+          hitSlop={8}
+          accessibilityRole="button"
           accessibilityLabel="Cart"
           onPress={() => openCartCheckout(user, itemCount)}
-          className="relative size-10 items-center justify-center rounded-full border border-border bg-surface">
-          <Icon as={ShoppingBag} className="text-foreground size-5" />
+          className={`relative ${headerActionClass}`}>
+          <Icon as={ShoppingBag} className="size-5 text-primary-foreground" strokeWidth={2.25} />
           {itemCount > 0 ? (
-            <View className="absolute -right-0.5 -top-0.5 min-w-[18px] rounded-full bg-primary px-1 py-0.5">
-              <Text className="text-primary-foreground text-center text-[10px] font-bold">
+            <View className="absolute -right-1 -top-1 min-w-[18px] rounded-full border-2 border-primary bg-cta px-1 py-0.5">
+              <Text className="text-cta-foreground text-center text-[10px] font-bold">
                 {itemCount > 9 ? '9+' : itemCount}
               </Text>
             </View>
@@ -43,8 +70,8 @@ export function HomeTopBar({ onCityPress }: HomeTopBarProps) {
           hitSlop={8}
           accessibilityRole="button"
           accessibilityLabel="Notifications"
-          className="size-10 items-center justify-center rounded-full border border-border bg-surface">
-          <Icon as={Bell} className="text-foreground size-5" />
+          className={headerActionClass}>
+          <Icon as={Bell} className="size-5 text-primary-foreground" strokeWidth={2.25} />
         </ScalePressable>
       </View>
     </View>

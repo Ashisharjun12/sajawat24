@@ -1,21 +1,29 @@
 import { Text } from '@/components/ui/text';
 import { formatPaise } from '@/lib/format-money';
+import { CheckoutSavingsBanner } from '@/module/booking/components/checkout/CheckoutSavingsBanner';
+import { checkoutSectionShell } from '@/module/booking/lib/checkout-section-shell';
 import type { CartSnapshot } from '@/module/booking/lib/cart-types';
+import { cn } from '@/lib/utils';
 import { View } from 'react-native';
 
 type BillDetailsCardProps = {
   cart: CartSnapshot;
   totalLabel?: string;
+  fullBleed?: boolean;
 };
 
-export function BillDetailsCard({ cart, totalLabel = 'To pay' }: BillDetailsCardProps) {
+export function BillDetailsCard({
+  cart,
+  totalLabel = 'To pay',
+  fullBleed = false,
+}: BillDetailsCardProps) {
   const subtotal = cart.subtotalPaise ?? 0;
   const discount = cart.discountPaise ?? 0;
   const total = cart.totalPaise ?? Math.max(0, subtotal - discount);
   const promoCode = cart.appliedCoupon?.code;
 
   return (
-    <View className="rounded-2xl border border-border bg-card p-4">
+    <View className={cn('p-4', checkoutSectionShell(!fullBleed))}>
       <Text className="text-foreground mb-3 text-base font-semibold">Bill details</Text>
       <View className="gap-2.5">
         <View className="flex-row items-center justify-between gap-3">
@@ -30,19 +38,20 @@ export function BillDetailsCard({ cart, totalLabel = 'To pay' }: BillDetailsCard
         </View>
         {discount > 0 ? (
           <View className="flex-row items-center justify-between gap-3">
-            <Text className="min-w-0 flex-1 text-sm text-success" numberOfLines={1}>
+            <Text className="text-primary min-w-0 flex-1 text-sm" numberOfLines={1}>
               Coupon{promoCode ? ` (${promoCode})` : ''}
             </Text>
-            <Text className="shrink-0 text-sm font-semibold tabular-nums text-success">
+            <Text className="text-primary shrink-0 text-sm font-semibold tabular-nums">
               −{formatPaise(discount)}
             </Text>
           </View>
         ) : null}
+        <CheckoutSavingsBanner savingsPaise={discount} variant="card" />
         <View className="mt-1 flex-row items-center justify-between gap-3 border-t border-border/60 pt-3">
           <Text className="text-foreground shrink-0 text-base font-semibold" numberOfLines={1}>
             {totalLabel}
           </Text>
-          <Text className="shrink-0 text-lg font-bold tabular-nums text-success">
+          <Text className="text-foreground shrink-0 text-lg font-bold tabular-nums">
             {formatPaise(total)}
           </Text>
         </View>

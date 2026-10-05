@@ -34,7 +34,7 @@ function NotificationBellIcon({ shaking, unreadCount }) {
       <motion.span
         animate={shaking ? { rotate: [0, -12, 12, -8, 8, 0] } : { rotate: 0 }}
         transition={{ duration: 0.45 }}
-        className="relative z-10 inline-flex text-foreground"
+        className="relative z-10 inline-flex text-inherit"
       >
         <BellIcon className="size-5" />
       </motion.span>

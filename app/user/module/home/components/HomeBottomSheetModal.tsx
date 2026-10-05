@@ -1,7 +1,10 @@
 import { useKeyboardInset } from '@/lib/use-keyboard-inset';
 import type { ReactNode } from 'react';
-import { Keyboard, Modal, Pressable, StyleSheet, View } from 'react-native';
+import { Keyboard, Modal, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { FullWindowOverlay } from 'react-native-screens';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+const WindowOverlay = Platform.OS === 'ios' ? FullWindowOverlay : View;
 
 type HomeBottomSheetModalProps = {
   visible: boolean;
@@ -47,24 +50,26 @@ export function HomeBottomSheetModal({
       animationType="slide"
       transparent
       statusBarTranslucent
+      presentationStyle="overFullScreen"
       onRequestClose={close}>
-      <View className="flex-1">
-        <Pressable
-          style={[StyleSheet.absoluteFill, { zIndex: 1 }]}
-          onPress={close}
-          accessibilityRole="button"
-          accessibilityLabel={closeAccessibilityLabel}>
-          <View className="flex-1 bg-scrim/55 dark:bg-scrim/65" />
-        </Pressable>
-        <View
-          className="absolute left-0 right-0"
-          style={{ bottom: 0, zIndex: 2, elevation: 8 }}
-          pointerEvents="box-none">
+      <WindowOverlay style={styles.windowOverlay}>
+        <View className="flex-1" style={styles.modalRoot}>
+          <Pressable
+            style={[StyleSheet.absoluteFill, { zIndex: 1 }]}
+            onPress={close}
+            accessibilityRole="button"
+            accessibilityLabel={closeAccessibilityLabel}>
+            <View className="flex-1 bg-scrim/70 dark:bg-scrim/75" />
+          </Pressable>
           <View
-            className="w-full rounded-t-sheet bg-surface"
-            pointerEvents="auto"
-            style={[
-              { paddingBottom: sheetBottom + 16 },
+            className="absolute left-0 right-0"
+            style={{ bottom: 0, zIndex: 2, elevation: 32 }}
+            pointerEvents="box-none">
+            <View
+              className="w-full overflow-hidden rounded-t-sheet bg-surface"
+              pointerEvents="auto"
+              style={[
+                { paddingBottom: sheetBottom + 16 },
               sizedSheet
                 ? {
                     height: sheetMinHeight,
@@ -83,8 +88,21 @@ export function HomeBottomSheetModal({
               children
             )}
           </View>
+          </View>
         </View>
-      </View>
+      </WindowOverlay>
     </Modal>
   );
 }
+
+const styles = StyleSheet.create({
+  windowOverlay: {
+    flex: 1,
+    ...(Platform.OS === 'android' ? { elevation: 32 } : null),
+  },
+  modalRoot: {
+    flex: 1,
+    zIndex: 9999,
+    elevation: 32,
+  },
+});

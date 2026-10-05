@@ -121,7 +121,7 @@ export function ProductPdpAddonsSection({
               addon={addon}
               width={gridCardWidth}
               qty={qtyById[addon.id] ?? 0}
-              submitting={disabled}
+              busy={disabled}
               onToggle={onToggle}
               onIncrement={onIncrement}
               onSetQty={onSetQty}
@@ -147,7 +147,7 @@ export function ProductPdpAddonsSection({
               addon={addon}
               width={cardWidth}
               qty={qtyById[addon.id] ?? 0}
-              submitting={disabled}
+              busy={disabled}
               onToggle={onToggle}
               onIncrement={onIncrement}
               onSetQty={onSetQty}

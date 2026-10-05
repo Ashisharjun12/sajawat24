@@ -22,7 +22,6 @@ import { useCatalogStore } from "@/store/catalog.store";
 import { toast } from "@/components/ui/toast";
 import { getApiError } from "@/api/api";
 import { useCartStore } from "@/store/cart.store";
-import { ProductPdpMobileHeader } from "@/module/catalog/components/ProductPdpMobileHeader";
 import { ProductGalleryLightbox } from "@/module/catalog/components/ProductGalleryLightbox";
 import { isBackendCityId, useLocationStore } from "@/store/location.store";
 import { Button } from "@/components/ui/button";
@@ -41,6 +40,7 @@ import {
   ProductShareSheet,
   ProductShareTrigger,
 } from "@/module/catalog/components/ProductShareSheet";
+import { WishlistHeartButton } from "@/module/catalog/components/WishlistHeartButton";
 import { ProductPdpOffers } from "@/module/catalog/components/ProductPdpOffers";
 import { ProductPdpDetailsTabs } from "@/module/catalog/components/ProductPdpDetailsTabs";
 import { FulfillmentModeSwitch } from "@/module/catalog/components/FulfillmentModeTabs";
@@ -450,7 +450,7 @@ function ProductBreadcrumb({ title, categoryId }) {
   );
 }
 
-function ProductGallery({ images, title, onShare, onSimilar, showSimilar }) {
+function ProductGallery({ images, title, product, onShare, onSimilar, showSimilar }) {
   const navigate = useNavigate();
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -467,6 +467,16 @@ function ProductGallery({ images, title, onShare, onSimilar, showSimilar }) {
   function step(delta) {
     if (images.length < 2) return;
     setSelectedIndex((index) => (index + delta + images.length) % images.length);
+  }
+
+  function onMobileGalleryScroll(event) {
+    const el = event.currentTarget;
+    const width = el.clientWidth;
+    if (!width) return;
+    const next = Math.round(el.scrollLeft / width);
+    if (next !== selectedIndex && next >= 0 && next < images.length) {
+      setSelectedIndex(next);
+    }
   }
 
   const thumbButtons =
@@ -495,6 +505,9 @@ function ProductGallery({ images, title, onShare, onSimilar, showSimilar }) {
         })
       : null;
 
+  const mobileChromeTop =
+    "pointer-events-none absolute inset-x-0 top-0 z-20 flex items-start justify-between p-3 pt-[max(0.75rem,env(safe-area-inset-top))] md:hidden";
+
   return (
     <div className="flex w-full min-w-0 flex-col gap-3 md:flex-row md:items-start md:gap-3">
       {thumbButtons ? (
@@ -509,6 +522,47 @@ function ProductGallery({ images, title, onShare, onSimilar, showSimilar }) {
           "md:rounded-2xl md:border md:border-border/80 md:shadow-sm md:ring-1 md:ring-border/60",
         )}
       >
+        {images.length > 0 ? (
+          <div
+            className={cn(
+              "flex w-full snap-x snap-mandatory overflow-x-auto overscroll-x-contain [-ms-overflow-style:none] [scrollbar-width:none] md:hidden [&::-webkit-scrollbar]:hidden",
+            )}
+            onScroll={onMobileGalleryScroll}
+            aria-label="Product images"
+          >
+            {images.map((item, index) => {
+              const slideSrc = imageSrc(item);
+              return (
+                <button
+                  key={item.uploadId || item.url || index}
+                  type="button"
+                  className="block w-full shrink-0 snap-center cursor-zoom-in border-0 bg-transparent p-0"
+                  onClick={() => {
+                    setSelectedIndex(index);
+                    setLightboxOpen(true);
+                  }}
+                  aria-label={`View image ${index + 1} of ${images.length}`}
+                >
+                  {slideSrc ? (
+                    <img
+                      src={slideSrc}
+                      alt={title}
+                      className="aspect-square w-full object-cover object-center"
+                      decoding="async"
+                      fetchPriority={index === 0 ? "high" : "low"}
+                    />
+                  ) : (
+                    <DecoryImageFallback className="aspect-square w-full" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        ) : (
+          <DecoryImageFallback className="aspect-square w-full md:hidden" />
+        )}
+
+        <div className="hidden md:block">
         {src ? (
           <button
             type="button"
@@ -519,14 +573,15 @@ function ProductGallery({ images, title, onShare, onSimilar, showSimilar }) {
             <img
               src={src}
               alt={title}
-              className="block h-auto w-full max-w-full object-contain object-center max-md:rounded-none md:rounded-2xl"
+              className="block h-auto w-full max-w-full rounded-2xl object-contain object-center"
               decoding="async"
               fetchPriority="high"
             />
           </button>
-        ) : (
+        ) : images.length === 0 ? (
           <DecoryImageFallback className="min-h-[200px] w-full" />
-        )}
+        ) : null}
+        </div>
         {src ? (
           <button
             type="button"
@@ -540,9 +595,7 @@ function ProductGallery({ images, title, onShare, onSimilar, showSimilar }) {
             <Maximize2Icon className="size-[1.15rem]" aria-hidden />
           </button>
         ) : null}
-        <div
-          className="pointer-events-none absolute inset-x-0 top-0 z-20 flex items-start justify-between p-3 pt-[max(0.75rem,env(safe-area-inset-top))] md:hidden"
-        >
+        <div className={mobileChromeTop}>
           <button
             type="button"
             onClick={() => navigate(-1)}
@@ -552,17 +605,9 @@ function ProductGallery({ images, title, onShare, onSimilar, showSimilar }) {
             <ChevronLeftIcon className="size-5" aria-hidden />
           </button>
           <div className="pointer-events-auto flex items-center gap-2">
-            <button
-              type="button"
-              onClick={(event) => {
-                event.stopPropagation();
-                setLightboxOpen(true);
-              }}
-              className="flex size-10 items-center justify-center rounded-full bg-white/95 text-foreground shadow-md ring-1 ring-black/5 dark:bg-background/95"
-              aria-label="Expand image"
-            >
-              <Maximize2Icon className="size-[1.15rem]" aria-hidden />
-            </button>
+            {product ? (
+              <WishlistHeartButton product={product} size="md" className="bg-white/95 shadow-md" />
+            ) : null}
             {onShare ? <ProductShareGalleryTrigger onClick={onShare} /> : null}
             <Link
               to="/"
@@ -574,10 +619,26 @@ function ProductGallery({ images, title, onShare, onSimilar, showSimilar }) {
           </div>
         </div>
         {images.length > 1 ? (
+          <div
+            className="pointer-events-none absolute inset-x-0 bottom-3 z-20 flex justify-center gap-1.5 md:hidden"
+            aria-hidden
+          >
+            {images.map((item, index) => (
+              <span
+                key={item.uploadId || item.url || `dot-${index}`}
+                className={cn(
+                  "h-2 rounded-full transition-[width]",
+                  index === selectedIndex ? "w-5 bg-primary" : "w-2 bg-white/70",
+                )}
+              />
+            ))}
+          </div>
+        ) : null}
+        {images.length > 1 ? (
           <>
             <button
               type="button"
-              className="absolute top-1/2 left-2 z-20 flex size-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-foreground shadow-md ring-1 ring-black/10 hover:bg-white md:left-3 dark:bg-background/95"
+              className="absolute top-1/2 left-2 z-20 hidden size-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-foreground shadow-md ring-1 ring-black/10 hover:bg-white md:flex md:left-3 dark:bg-background/95"
               onClick={(event) => {
                 event.stopPropagation();
                 step(-1);
@@ -588,7 +649,7 @@ function ProductGallery({ images, title, onShare, onSimilar, showSimilar }) {
             </button>
             <button
               type="button"
-              className="absolute top-1/2 right-2 z-20 flex size-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-foreground shadow-md ring-1 ring-black/10 hover:bg-white md:right-3 dark:bg-background/95"
+              className="absolute top-1/2 right-2 z-20 hidden size-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-foreground shadow-md ring-1 ring-black/10 hover:bg-white md:flex md:right-3 dark:bg-background/95"
               onClick={(event) => {
                 event.stopPropagation();
                 step(1);
@@ -600,7 +661,12 @@ function ProductGallery({ images, title, onShare, onSimilar, showSimilar }) {
           </>
         ) : null}
         {showSimilar && onSimilar ? (
-          <div className="pointer-events-none absolute inset-x-0 bottom-3 z-20 flex justify-end px-3 md:bottom-4 md:px-4">
+          <div
+            className={cn(
+              "pointer-events-none absolute inset-x-0 z-20 flex justify-end px-3 md:bottom-4 md:px-4",
+              images.length > 1 ? "bottom-10 md:bottom-4" : "bottom-3",
+            )}
+          >
             <ProductPdpSimilarGalleryButton onClick={onSimilar} />
           </div>
         ) : null}
@@ -928,12 +994,12 @@ export function ProductPdp({ product, onChangeLocation }) {
 
   return (
     <div className="flex min-w-0 flex-col gap-0 max-md:pb-[calc(5.75rem+env(safe-area-inset-bottom))]">
-      <ProductPdpMobileHeader />
-      <div className="grid min-w-0 gap-8 overflow-x-hidden lg:grid-cols-2 lg:items-start lg:gap-10">
+      <div className="grid min-w-0 gap-8 overflow-x-hidden max-md:gap-4 lg:grid-cols-2 lg:items-start lg:gap-10">
         <div className="flex min-w-0 flex-col gap-6 lg:sticky lg:top-20 lg:z-[1] lg:self-start">
           <ProductGallery
             images={images}
             title={title}
+            product={product}
             onShare={() => setShareOpen(true)}
             showSimilar={Boolean(product?.categoryId)}
             onSimilar={() => setSimilarOpen(true)}
@@ -941,26 +1007,27 @@ export function ProductPdp({ product, onChangeLocation }) {
           {isLgUp ? reviewsPreview : null}
         </div>
 
-        <div className="flex min-w-0 flex-col gap-4 px-4 pb-2 md:px-0">
+        <div className="flex min-w-0 flex-col gap-4 px-4 pb-2 max-md:px-5 md:gap-4 md:px-0">
         <ProductBreadcrumb title={title} categoryId={product?.categoryId} />
 
         <div className="flex min-w-0 flex-col gap-2">
           <div className="flex min-w-0 items-start justify-between gap-3">
             <h1
-              className="line-clamp-2 min-w-0 flex-1 font-heading text-2xl font-semibold tracking-tight md:text-[1.75rem] md:leading-snug"
+              className="min-w-0 flex-1 font-heading text-xl font-semibold tracking-tight max-md:line-clamp-3 md:line-clamp-2 md:text-[1.75rem] md:leading-snug"
               title={title}
             >
               {title}
             </h1>
-            <ProductShareTrigger
-              className="hidden md:inline-flex"
-              onClick={() => setShareOpen(true)}
-            />
+            <div className="hidden shrink-0 items-center gap-2 md:flex">
+              {product?.id ? <WishlistHeartButton product={product} size="md" /> : null}
+              <ProductShareTrigger onClick={() => setShareOpen(true)} />
+            </div>
           </div>
           <SectionMerchBadge
             variant="inline"
             label={merchBadge.badgeLabel}
             color={merchBadge.badgeColor}
+            className="max-md:hidden"
           />
         </div>
 
@@ -971,53 +1038,55 @@ export function ProductPdp({ product, onChangeLocation }) {
           reviewCount={product?.reviewCount}
         />
 
-        <div className="flex flex-col gap-3">
+        <div className="hidden flex-col gap-3 md:flex">
           <ProductOnSiteSetupBadge />
-          <div className="hidden md:block">
-            <ProductLocationCard cityLabel={cityLabel} onChangeLocation={onChangeLocation} />
-          </div>
+          <ProductLocationCard cityLabel={cityLabel} onChangeLocation={onChangeLocation} />
         </div>
 
-        {canInstant && canScheduled ? (
-          <FulfillmentModeSwitch
-            value={fulfillment}
-            onChange={setFulfillment}
-            instantLabel={product.instant?.badgeLabel}
+        <div
+          className="flex flex-col gap-4 max-md:-mx-5 max-md:bg-secondary/60 max-md:px-5 max-md:py-4 md:gap-4"
+        >
+          {canInstant && canScheduled ? (
+            <FulfillmentModeSwitch
+              value={fulfillment}
+              onChange={setFulfillment}
+              instantLabel={product.instant?.badgeLabel}
+            />
+          ) : canInstant && !canScheduled ? (
+            <div className="flex items-center gap-2 border-b border-border pb-3 text-sm font-semibold text-instant">
+              <ZapIcon className="size-5 shrink-0 fill-current" aria-hidden />
+              {product.instant?.badgeLabel || "Instant booking"}
+            </div>
+          ) : null}
+
+          {isInstantBooking ? (
+            <InstantBookingDetails
+              note={product.instant?.pdpNote}
+              etaMinutes={product.instant?.etaMinutes}
+            />
+          ) : canScheduled ? (
+            <ProductSchedule onChange={setScheduledAt} />
+          ) : null}
+
+          <ProductPdpBookingActions
+            className="hidden md:flex"
+            booking={booking}
+            isInstantBooking={isInstantBooking}
+            onWhatsApp={onWhatsApp}
+            onBookNow={onBookNow}
           />
-        ) : canInstant && !canScheduled ? (
-          <div className="flex items-center gap-2 border-b border-border pb-3 text-sm font-semibold text-instant">
-            <ZapIcon className="size-5 shrink-0 fill-current" aria-hidden />
-            {product.instant?.badgeLabel || "Instant booking"}
-          </div>
-        ) : null}
 
-        {isInstantBooking ? (
-          <InstantBookingDetails
-            note={product.instant?.pdpNote}
-            etaMinutes={product.instant?.etaMinutes}
-          />
-        ) : canScheduled ? (
-          <ProductSchedule onChange={setScheduledAt} />
-        ) : null}
+          <ProductPdpOffers productId={product?.id} categoryId={product?.categoryId} />
 
-        <ProductPdpBookingActions
-          className="hidden md:flex"
-          booking={booking}
-          isInstantBooking={isInstantBooking}
-          onWhatsApp={onWhatsApp}
-          onBookNow={onBookNow}
-        />
-
-        <ProductPdpOffers productId={product?.id} categoryId={product?.categoryId} />
-
-        {hasAddons ? (
-          <ProductPdpAddonsSection
-            addons={productAddons}
-            qtyById={addonQtyById}
-            onSetQty={setAddonQty}
-            disabled={booking}
-          />
-        ) : null}
+          {hasAddons ? (
+            <ProductPdpAddonsSection
+              addons={productAddons}
+              qtyById={addonQtyById}
+              onSetQty={setAddonQty}
+              disabled={booking}
+            />
+          ) : null}
+        </div>
 
         <ProductPdpAboutPackage description={copy} />
 
@@ -1033,7 +1102,7 @@ export function ProductPdp({ product, onChangeLocation }) {
         </div>
       </div>
 
-      <div className="px-4 md:px-0">
+      <div className="px-4 max-md:px-5 md:px-0">
         <ProductPdpSubcategoryRails product={product} />
         <ProductOtherCategoriesRail product={product} />
       </div>
@@ -1069,9 +1138,8 @@ export function ProductPdp({ product, onChangeLocation }) {
 export function ProductPdpSkeleton() {
   return (
     <div className="flex min-w-0 flex-col gap-0" aria-busy="true" aria-live="polite">
-      <ProductPdpMobileHeader />
       <div
-        className="grid min-w-0 gap-8 overflow-x-hidden lg:grid-cols-2 lg:items-start lg:gap-10"
+        className="grid min-w-0 gap-8 overflow-x-hidden max-md:gap-4 lg:grid-cols-2 lg:items-start lg:gap-10"
       >
       <span className="sr-only">Loading product</span>
       <div className="min-w-0 lg:sticky lg:top-20">
@@ -1081,7 +1149,7 @@ export function ProductPdpSkeleton() {
             <Skeleton className="size-[4.5rem] rounded-2xl" />
             <Skeleton className="size-[4.5rem] rounded-2xl" />
           </div>
-          <Skeleton className="aspect-[4/3] min-h-[200px] w-full flex-1 rounded-none md:rounded-2xl" />
+          <Skeleton className="aspect-square min-h-[200px] w-full flex-1 rounded-none md:aspect-[4/3] md:rounded-2xl" />
         </div>
       </div>
 

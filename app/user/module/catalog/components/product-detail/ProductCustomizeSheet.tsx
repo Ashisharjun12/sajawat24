@@ -100,7 +100,7 @@ export function ProductCustomizeSheet({
             addon={addon}
             width={cardWidth}
             qty={qtyById[addon.id] ?? 0}
-            submitting={submitting}
+            busy={submitting}
             onToggle={onToggle}
             onIncrement={onIncrement}
             onSetQty={onSetQty}

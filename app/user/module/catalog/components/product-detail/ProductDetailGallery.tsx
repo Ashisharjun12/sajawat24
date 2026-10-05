@@ -1,6 +1,8 @@
 import { Icon } from '@/components/ui/icon';
 import { cn } from '@/lib/utils';
+import { ProductCardWishlistButton } from '@/module/catalog/components/ProductCardWishlistButton';
 import { ProductPdpSimilarGalleryButton } from '@/module/catalog/components/product-detail/ProductPdpSimilarPackages';
+import type { HomeCatalogProduct } from '@/module/home/lib/home-catalog';
 import { ChevronLeft, Home, Share2 } from 'lucide-react-native';
 import { Image } from 'expo-image';
 import { useRef, useState } from 'react';
@@ -22,6 +24,14 @@ type ProductDetailGalleryProps = {
   onShare?: () => void;
   showSimilar?: boolean;
   onSimilar?: () => void;
+  /** Hide floating chrome so modals/sheets sit above the hero image (Android z-order). */
+  suppressChrome?: boolean;
+  /** Scheduled flow: tap hero to open date/time sheet. */
+  onSchedulePress?: () => void;
+  wishlistProduct?: Pick<
+    HomeCatalogProduct,
+    'id' | 'title' | 'imageUrl' | 'pricePaise' | 'compareAtPaise'
+  >;
 };
 
 const PLACEHOLDER =
@@ -35,6 +45,9 @@ export function ProductDetailGallery({
   onShare,
   showSimilar,
   onSimilar,
+  suppressChrome = false,
+  onSchedulePress,
+  wishlistProduct,
 }: ProductDetailGalleryProps) {
   const width = Dimensions.get('window').width;
   const insets = useSafeAreaInsets();
@@ -51,7 +64,12 @@ export function ProductDetailGallery({
   }
 
   return (
-    <View style={{ marginHorizontal: -20 }}>
+    <View
+      style={{
+        marginHorizontal: -20,
+        zIndex: suppressChrome ? 0 : undefined,
+        elevation: suppressChrome ? 0 : undefined,
+      }}>
       <ScrollView
         ref={scrollRef}
         horizontal
@@ -61,17 +79,27 @@ export function ProductDetailGallery({
         scrollEventThrottle={16}
         decelerationRate="fast">
         {urls.map((uri, i) => (
-          <Image
+          <Pressable
             key={`${uri}-${i}`}
-            source={{ uri }}
-            style={{ width, aspectRatio: 1 }}
-            contentFit="cover"
-            accessibilityLabel={title}
-          />
+            disabled={!onSchedulePress}
+            onPress={onSchedulePress}
+            accessibilityRole={onSchedulePress ? 'button' : undefined}
+            accessibilityLabel={onSchedulePress ? 'Pick date and time' : title}>
+            <Image
+              source={{ uri }}
+              style={{ width, aspectRatio: 1 }}
+              contentFit="cover"
+              accessibilityLabel={title}
+            />
+          </Pressable>
         ))}
       </ScrollView>
       <View
-        className="absolute inset-x-0 top-0 z-20 flex-row items-start justify-between px-3"
+        className={cn(
+          'absolute inset-x-0 top-0 flex-row items-start justify-between px-3',
+          suppressChrome ? 'opacity-0' : 'z-20',
+        )}
+        pointerEvents={suppressChrome ? 'none' : 'box-none'}
         style={{ paddingTop: Math.max(insets.top, 12) }}>
         <Pressable
           onPress={onBack}
@@ -81,6 +109,12 @@ export function ProductDetailGallery({
           <Icon as={ChevronLeft} className="text-foreground size-5" />
         </Pressable>
         <View className="flex-row items-center gap-2">
+          {wishlistProduct ? (
+            <ProductCardWishlistButton
+              product={wishlistProduct}
+              className="static left-auto top-auto"
+            />
+          ) : null}
           {onShare ? (
             <Pressable
               onPress={onShare}
@@ -100,7 +134,12 @@ export function ProductDetailGallery({
         </View>
       </View>
       {urls.length > 1 ? (
-        <View className="absolute bottom-3 w-full flex-row justify-center gap-1.5">
+        <View
+          className={cn(
+            'absolute bottom-3 w-full flex-row justify-center gap-1.5',
+            suppressChrome && 'opacity-0',
+          )}
+          pointerEvents={suppressChrome ? 'none' : 'auto'}>
           {urls.map((_, i) => (
             <View
               key={i}
@@ -115,10 +154,11 @@ export function ProductDetailGallery({
       {showSimilar && onSimilar ? (
         <View
           className={cn(
-            'absolute right-0 z-20 px-3',
+            'absolute right-0 px-3',
+            suppressChrome ? 'opacity-0' : 'z-20',
             urls.length > 1 ? 'bottom-10' : 'bottom-3',
           )}
-          pointerEvents="box-none">
+          pointerEvents={suppressChrome ? 'none' : 'box-none'}>
           <ProductPdpSimilarGalleryButton onPress={onSimilar} />
         </View>
       ) : null}

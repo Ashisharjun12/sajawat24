@@ -104,8 +104,9 @@ export function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps)
 
   return (
     <View
-      className="border-t border-border bg-surface"
+      className="relative border-t border-black/10"
       style={{
+        backgroundColor: theme.card,
         paddingBottom: insets.bottom,
         elevation: 8,
         shadowColor: theme.foreground,
@@ -113,6 +114,27 @@ export function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps)
         shadowOpacity: 0.05,
         shadowRadius: 12,
       }}>
+      <View
+        pointerEvents="none"
+        className="absolute left-0 right-0 top-0 z-10 flex-row px-2"
+        style={{ height: 3 }}
+        accessibilityElementsHidden>
+        {visibleRoutes.map((route) => {
+          const routeIndex = state.routes.findIndex((r) => r.key === route.key);
+          const focused = state.index === routeIndex;
+          const activeColor = route.name === 'instant' ? theme.instant : theme.primary;
+          return (
+            <View key={`${route.key}-indicator`} className="flex-1 items-center">
+              {focused ? (
+                <View
+                  className="h-[3px] w-[72%] max-w-[88px] rounded-b-sm"
+                  style={{ backgroundColor: activeColor }}
+                />
+              ) : null}
+            </View>
+          );
+        })}
+      </View>
       <View className="flex-row items-center justify-around px-2" style={{ height: TAB_BAR_HEIGHT }}>
         {visibleRoutes.map((route) => {
           const routeIndex = state.routes.findIndex((r) => r.key === route.key);

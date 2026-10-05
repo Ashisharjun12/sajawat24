@@ -1,6 +1,7 @@
 import type { AuthSessionPayload, CustomerUser } from '@/lib/auth.types';
 import { logoutSession } from '@/api/auth-refresh.api';
 import { useChatStore } from '@/store/chat.store';
+import { useWishlistStore } from '@/store/wishlist.store';
 import { clearPushRegistration } from '@/lib/push-registration';
 import {
   isAccessTokenExpired,
@@ -134,6 +135,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
     await clearAccessToken();
     useChatStore.getState().reset();
+    void useWishlistStore.getState().resetForLogout();
     set({ accessToken: null, user: null, pendingOtpPhone: null });
   },
 

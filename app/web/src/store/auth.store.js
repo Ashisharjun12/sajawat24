@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { useWishlistStore } from "@/store/wishlist.store";
 
 export const useAuthStore = create((set) => ({
   loginOpen: false,
@@ -10,5 +11,8 @@ export const useAuthStore = create((set) => ({
   setSession: ({ user, accessToken }) =>
     set({ user, accessToken, status: "ready", loginOpen: false }),
   updateUser: (user) => set({ user }),
-  clear: () => set({ user: null, accessToken: null, status: "ready" }),
+  clear: () => {
+    useWishlistStore.getState().resetForLogout();
+    set({ user: null, accessToken: null, status: "ready" });
+  },
 }));

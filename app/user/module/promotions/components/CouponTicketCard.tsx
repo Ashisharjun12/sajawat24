@@ -6,6 +6,10 @@ import {
   type CouponLike,
 } from '@/module/booking/lib/coupon-preview';
 import { resolveCouponCode } from '@/module/promotions/lib/pdp-coupon-display';
+import {
+  couponOfferIconBadgeClass,
+  couponOfferIconClass,
+} from '@/module/promotions/lib/coupon-offer-styles';
 import { cn } from '@/lib/utils';
 import { TicketPercent } from 'lucide-react-native';
 import { View } from 'react-native';
@@ -54,8 +58,9 @@ export function CouponTicketCard({
             isStack ? 'px-4 py-3.5' : 'px-3.5 py-3',
           )}>
           <View className="flex-row items-start gap-2.5">
-            <View className="size-9 shrink-0 items-center justify-center rounded-xl bg-primary-tint">
-              <Icon as={TicketPercent} className="size-4 text-primary" />
+            <View
+              className={`size-9 shrink-0 items-center justify-center rounded-xl ${couponOfferIconBadgeClass}`}>
+              <Icon as={TicketPercent} className={`size-4 ${couponOfferIconClass}`} />
             </View>
             <View className="min-w-0 flex-1">
               <Text className="text-foreground text-sm font-semibold leading-snug" numberOfLines={2}>

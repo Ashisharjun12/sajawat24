@@ -1,6 +1,4 @@
-import { ScalePressable } from '@/components/shell';
-import { Button } from '@/components/ui/button';
-import { Icon } from '@/components/ui/icon';
+import { AddonQtyControl } from '@/module/catalog/components/product-detail/AddonQtyControl';
 import { Text } from '@/components/ui/text';
 import { cardShadow } from '@/lib/design-tokens';
 import { formatPaise } from '@/lib/format-money';
@@ -12,8 +10,8 @@ import {
 } from '@/module/catalog/lib/addon-pricing';
 import { addonImageUrl, type PublicAddonForCity } from '@/module/catalog/lib/product-detail';
 import { Image } from 'expo-image';
-import { Minus, Plus } from 'lucide-react-native';
 import { View } from 'react-native';
+import { cn } from '@/lib/utils';
 
 /** Image spans full card width (two cards fill the rail row). */
 export const ADDON_IMAGE_SIZE_RATIO = 1;
@@ -80,7 +78,8 @@ type ProductAddonCustomizeCardProps = {
   addon: PublicAddonForCity;
   width: number;
   qty: number;
-  submitting: boolean;
+  /** Dims the action control only (no global disable / grey-out). */
+  busy?: boolean;
   onToggle: (addon: PublicAddonForCity) => void;
   onIncrement: (addon: PublicAddonForCity) => void;
   onSetQty: (addonId: string, qty: number) => void;
@@ -90,14 +89,13 @@ export function ProductAddonCustomizeCard({
   addon,
   width,
   qty,
-  submitting,
+  busy = false,
   onToggle,
   onIncrement,
   onSetQty,
 }: ProductAddonCustomizeCardProps) {
   const available = isAddonAvailable(addon.pricePaise);
   const max = addonMaxQuantity(addon);
-  const multi = max > 1;
   const src = addonImageUrl(addon);
   const percentOff = addonDiscountPercent(addon.pricePaise, addon.compareAtPaise);
   const imageSize = getAddonImageSize(width);
@@ -139,34 +137,17 @@ export function ProductAddonCustomizeCard({
           ) : null}
         </View>
         <View style={{ height: CARD_SECTION_GAP }} />
-        <View style={{ height: CARD_ACTION_MIN }} className="justify-center">
-          {multi && qty > 0 ? (
-            <View className="flex-row items-center justify-between rounded-full border border-border bg-muted/40 p-0.5">
-              <ScalePressable
-                haptic
-                onPress={() => onSetQty(addon.id, Math.max(0, qty - 1))}
-                className="size-7 items-center justify-center">
-                <Icon as={Minus} className="size-3.5" />
-              </ScalePressable>
-              <Text className="text-xs font-bold">{qty}</Text>
-              <ScalePressable
-                haptic
-                onPress={() => onIncrement(addon)}
-                className="size-7 items-center justify-center">
-                <Icon as={Plus} className="size-3.5" />
-              </ScalePressable>
-            </View>
-          ) : (
-            <Button
-              variant={qty > 0 ? 'primary' : 'secondary'}
-              size="sm"
-              disabled={submitting || !available}
-              onPress={() => (multi ? onIncrement(addon) : onToggle(addon))}>
-              <Text className="text-micro">
-                {!available ? 'Unavailable' : qty > 0 ? 'Added' : '+ Add'}
-              </Text>
-            </Button>
-          )}
+        <View
+          style={{ height: CARD_ACTION_MIN }}
+          className={cn('justify-center', busy ? 'opacity-80' : undefined)}>
+          <AddonQtyControl
+            qty={qty}
+            max={max}
+            available={available}
+            onAdd={() => (max > 1 ? onIncrement(addon) : onToggle(addon))}
+            onIncrement={() => onIncrement(addon)}
+            onDecrement={() => onSetQty(addon.id, Math.max(0, qty - 1))}
+          />
         </View>
         <View style={{ height: CARD_SECTION_GAP }} />
         <View style={{ height: CARD_COLOR_ROW_MIN }} className="justify-end">

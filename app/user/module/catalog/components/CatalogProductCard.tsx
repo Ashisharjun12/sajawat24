@@ -4,11 +4,9 @@ import { Text } from '@/components/ui/text';
 import { formatPaise } from '@/lib/format-money';
 import { sectionBadgeAppearance } from '@/lib/section-badge-color';
 import { cn } from '@/lib/utils';
-import {
-  ProductCardDiscountBadge,
-  ProductCardInstantImageBadge,
-  ProductCardInstantLine,
-} from '@/module/catalog/components/ProductCardInstant';
+import { ProductCardInstantLine } from '@/module/catalog/components/ProductCardInstant';
+import { ProductCardWishlistButton } from '@/module/catalog/components/ProductCardWishlistButton';
+import { discountPercent } from '@/lib/product-price';
 import {
   resolveCardBadges,
   useProductMerchBadge,
@@ -117,10 +115,8 @@ function ProductCardReviewsAndEta({
   size?: 'rail' | 'default';
   reserveSpace?: boolean;
 }) {
-  const instantOnImage = Boolean(instant?.enabled && instant.showBadge);
   const showInstantMeta =
     Boolean(instant?.enabled) &&
-    !instantOnImage &&
     (Boolean(instant.showBadge) || instant.etaMinutes != null);
   const hasReviews =
     ratingLabel != null || resolveReviewCount(reviewCount) != null;
@@ -143,7 +139,7 @@ function ProductCardReviewsAndEta({
         ) : null}
       </View>
       {showInstantMeta ? (
-        <ProductCardInstantLine instant={instant} size={size} />
+        <ProductCardInstantLine instant={instant} size={size} className="ml-auto max-w-[48%]" />
       ) : null}
     </View>
   );
@@ -159,24 +155,34 @@ function ProductCardPriceBlock({
   size?: 'rail' | 'default';
 }) {
   const hasCompare = compareAtPaise != null && compareAtPaise > pricePaise;
-  const priceClass =
-    size === 'rail' ? 'text-[15px]' : 'text-base';
+  const percentOff = discountPercent(pricePaise, compareAtPaise);
+  const priceClass = size === 'rail' ? 'text-[15px]' : 'text-base';
   const mrpClass = size === 'rail' ? 'text-[11px]' : 'text-xs';
+  const offClass = size === 'rail' ? 'text-[10px]' : 'text-[11px]';
   const wrapClass = size === 'rail' ? 'pt-1.5 min-h-6' : 'mt-auto pt-2';
 
   return (
     <View className={wrapClass}>
-      <View className="min-h-6 min-w-0 flex-row flex-nowrap items-center gap-1">
-        <Text className={cn('shrink-0 font-extrabold tabular-nums text-foreground', priceClass)}>
-          {formatPaise(pricePaise)}
-        </Text>
-        {hasCompare ? (
+      <View className="min-h-6 min-w-0 flex-row items-center justify-between gap-2">
+        <View className="min-w-0 flex-1 flex-row flex-wrap items-center gap-1">
+          <Text className={cn('shrink-0 font-extrabold tabular-nums text-foreground', priceClass)}>
+            {formatPaise(pricePaise)}
+          </Text>
+          {hasCompare ? (
+            <Text
+              className={cn(
+                'shrink-0 font-medium text-muted-foreground line-through tabular-nums',
+                mrpClass,
+              )}>
+              {formatPaise(compareAtPaise!)}
+            </Text>
+          ) : null}
+        </View>
+        {percentOff > 0 ? (
           <Text
-            className={cn(
-              'shrink-0 font-medium text-muted-foreground line-through tabular-nums',
-              mrpClass,
-            )}>
-            {formatPaise(compareAtPaise!)}
+            className={cn('shrink-0 font-bold text-primary tabular-nums', offClass)}
+            numberOfLines={1}>
+            {percentOff}% off
           </Text>
         ) : null}
       </View>
@@ -221,17 +227,13 @@ export function CatalogProductCard({
       accessibilityLabel={product.title}>
       <View className="relative aspect-square w-full shrink-0 overflow-hidden rounded-t-card bg-muted">
         <ProductSectionBadge label={resolved.badgeLabel} color={resolved.badgeColor} />
-        <ProductCardDiscountBadge
-          pricePaise={product.pricePaise}
-          compareAtPaise={product.compareAtPaise}
-        />
+        <ProductCardWishlistButton product={product} className="left-2 top-2" />
         <Image
           source={{ uri: imageUri }}
           style={{ width: '100%', height: '100%' }}
           contentFit="cover"
           accessibilityLabel={product.title}
         />
-        <ProductCardInstantImageBadge instant={product.instant} />
       </View>
       <View
         className={cn(

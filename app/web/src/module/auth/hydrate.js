@@ -1,6 +1,7 @@
 import { logout, refresh } from "@/api/auth.api";
 import { useAuthStore } from "@/store/auth.store";
 import { useCartStore } from "@/store/cart.store";
+import { useWishlistStore } from "@/store/wishlist.store";
 import { isConsumerAppEligible } from "@/module/auth/lib/consumer-eligibility";
 
 export { isConsumerAppEligible, isConsumerAppEligible as isCustomer } from "@/module/auth/lib/consumer-eligibility";
@@ -24,6 +25,11 @@ export async function applyCustomerSession(payload) {
     } catch {
       // bag hydrate is best-effort after login
     }
+  }
+  try {
+    await useWishlistStore.getState().syncAfterLogin();
+  } catch {
+    await useWishlistStore.getState().hydrate();
   }
 }
 

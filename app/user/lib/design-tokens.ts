@@ -32,6 +32,7 @@ export const colors = {
     onCta: '#1C1917',
     instant: '#E11D48',
     bg: '#0B1514',
+    beige: '#26241E',
     surface: '#12201F',
     text: '#F1F5F4',
     muted: '#94A3A0',

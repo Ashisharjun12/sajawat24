@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { UserRoundIcon } from "lucide-react";
-import { DecoryLogo } from "@/components/decory-logo";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { BannerSlider } from "@/module/home/components/BannerSlider";
@@ -9,70 +8,82 @@ import { LocationPicker } from "@/module/layout/components/LocationPicker";
 import { MobileNav } from "@/module/layout/components/MobileNav";
 import { SearchCommand } from "@/module/layout/components/SearchCommand";
 import { UserMenu } from "@/module/layout/components/UserMenu";
+import { WishlistButton } from "@/module/layout/components/WishlistButton";
 import { NotificationBell } from "@/module/notifications/components/NotificationBell";
 import { useAuthStore } from "@/store/auth.store";
-import { useSiteShell } from "@/module/site/hooks/use-site-shell.jsx";
+
+const onPrimaryIconClass =
+  "size-9 shrink-0 rounded-full text-primary-foreground hover:bg-primary-foreground/15 hover:text-primary-foreground";
 
 export function HomeMobileHero({ slides = [] }) {
-  const { brand } = useSiteShell();
-  const companyName = brand.companyName || "sajawat24";
   const user = useAuthStore((s) => s.user);
   const accessToken = useAuthStore((s) => s.accessToken);
   const setLoginOpen = useAuthStore((s) => s.setLoginOpen);
   const isLoggedIn = Boolean(user || accessToken);
 
   return (
-    <section className="w-full bg-background md:hidden" aria-label="Home hero">
-      <div
-        className="sticky top-0 z-40 flex items-center gap-1 border-b border-border/70 bg-background/95 px-3 py-2 backdrop-blur-sm"
-      >
-        <MobileNav triggerClassName="shrink-0" />
-        <Link to="/" className="shrink-0" aria-label={`${companyName} home`}>
-          <DecoryLogo
-            className="size-8"
-            lightSrc={brand.logoLightUrl}
-            darkSrc={brand.logoDarkUrl}
-            alt={companyName}
+    <section className="w-full md:hidden" aria-label="Home hero">
+      <div className="sticky top-0 z-40 bg-primary text-primary-foreground shadow-sm">
+        <div
+          className="flex flex-col gap-2.5 px-3 pb-3 pt-[max(0.5rem,env(safe-area-inset-top))]"
+        >
+          <div className="flex items-center gap-2 pt-2">
+            <MobileNav
+              triggerClassName="shrink-0 text-primary-foreground hover:bg-primary-foreground/15"
+            />
+            <div className="min-w-0 flex-1">
+              <LocationPicker variant="onBrand" className="!max-w-none w-full" />
+            </div>
+            <div className="flex shrink-0 items-center gap-0.5">
+              <WishlistButton className={onPrimaryIconClass} />
+              {isLoggedIn ? (
+                <NotificationBell className={onPrimaryIconClass} />
+              ) : null}
+              <CartButton className={onPrimaryIconClass} />
+              {isLoggedIn ? (
+                user ? (
+                  <UserMenu
+                    variant="iconToolbar"
+                    className="ring-primary-foreground/25"
+                  />
+                ) : (
+                  <Link
+                    to="/account"
+                    className="size-9 shrink-0 overflow-hidden rounded-full ring-1 ring-primary-foreground/25"
+                    aria-label="Account"
+                  >
+                    <Avatar className="size-9">
+                      <AvatarFallback className="bg-primary text-xs font-semibold text-primary-foreground">
+                        U
+                      </AvatarFallback>
+                    </Avatar>
+                  </Link>
+                )
+              ) : (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className={onPrimaryIconClass}
+                  onClick={() => setLoginOpen(true)}
+                  aria-label="Sign in"
+                >
+                  <UserRoundIcon className="size-5" />
+                </Button>
+              )}
+            </div>
+          </div>
+
+          <SearchCommand
+            variant="pill"
+            fullScreen
+            className="h-11 w-full rounded-[var(--r-btn)] border border-black/10 bg-card shadow-sm"
           />
-        </Link>
-        <div className="min-w-0 flex-1 px-1">
-          <LocationPicker variant="mobileToolbar" />
         </div>
-        <SearchCommand variant="toolbarIcon" fullScreen />
-        {isLoggedIn ? <NotificationBell /> : null}
-        <CartButton />
-        {isLoggedIn ? (
-          user ? (
-            <UserMenu variant="iconToolbar" />
-          ) : (
-            <Link
-              to="/account"
-              className="size-9 shrink-0 overflow-hidden rounded-full ring-1 ring-border"
-              aria-label="Account"
-            >
-              <Avatar className="size-9">
-                <AvatarFallback className="bg-primary text-xs font-semibold text-primary-foreground">
-                  U
-                </AvatarFallback>
-              </Avatar>
-            </Link>
-          )
-        ) : (
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="size-9 shrink-0"
-            onClick={() => setLoginOpen(true)}
-            aria-label="Sign in"
-          >
-            <UserRoundIcon className="size-5" />
-          </Button>
-        )}
       </div>
 
       {slides?.length ? (
-        <div className="px-4 pt-2 pb-3">
+        <div className="bg-background px-4 pt-2 pb-3">
           <BannerSlider slides={slides} variant="mobileHeroFull" />
         </div>
       ) : null}

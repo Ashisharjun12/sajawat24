@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/ui/mode-toggle";
 import { CategoryBar } from "@/module/catalog/components/CategoryBar";
 import { CartButton } from "@/module/layout/components/CartButton";
+import { WishlistButton } from "@/module/layout/components/WishlistButton";
 import { LocationPicker } from "@/module/layout/components/LocationPicker";
 import { MobileNav } from "@/module/layout/components/MobileNav";
 import { SearchCommand } from "@/module/layout/components/SearchCommand";
@@ -86,6 +87,7 @@ export function SiteHeader() {
           <SearchCommand variant="icon" />
           <SupportButton />
           {user ? <NotificationBell /> : null}
+          <WishlistButton />
           <CartButton />
           {user ? (
             <UserMenu />

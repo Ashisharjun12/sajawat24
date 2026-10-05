@@ -10,7 +10,7 @@ import { _config } from "@/config/config.js";
 import { authRouter, userRouter, vendorRouter } from "@/modules/identity/index.js";
 import { geoRouter } from "@/modules/geo/index.js";
 import { promotionsPublicRouter } from "@/modules/promotions/index.js";
-import { catalogRouter } from "@/modules/catalog/index.js";
+import { catalogRouter, wishlistRouter } from "@/modules/catalog/index.js";
 import { adminRouter } from "@/modules/admin/index.js";
 import { instantConfigPublicRouter, paymentsPublicRouter } from "@/modules/ops/index.js";
 import { cartRouter, orderRouter, paymentIntentRouter } from "@/modules/booking/index.js";
@@ -99,6 +99,7 @@ class App {
     this.app.use("/api/v1/payments", paymentIntentRouter);
     this.app.use("/api/v1/promotions", promotionsPublicRouter);
     this.app.use("/api/v1/cart", cartRouter);
+    this.app.use("/api/v1/wishlist", wishlistRouter);
     this.app.use("/api/v1/orders", orderRouter);
     this.app.use("/api/v1/admin", adminRouter);
   }

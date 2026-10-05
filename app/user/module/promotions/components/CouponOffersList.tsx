@@ -2,6 +2,10 @@ import { Text } from '@/components/ui/text';
 import { TicketPercent } from 'lucide-react-native';
 import { View } from 'react-native';
 import { Icon } from '@/components/ui/icon';
+import {
+  couponOfferIconBadgeClass,
+  couponOfferIconClass,
+} from '@/module/promotions/lib/coupon-offer-styles';
 
 type CouponOffersListProps = {
   coupons: Record<string, unknown>[];
@@ -29,8 +33,9 @@ export function CouponOffersList({ coupons, limit }: CouponOffersListProps) {
           <View
             key={code}
             className={`flex-row items-center gap-2.5 py-3 ${index > 0 ? 'border-t border-border/40' : ''}`}>
-            <View className="bg-primary/25 flex size-9 shrink-0 items-center justify-center rounded-xl">
-              <Icon as={TicketPercent} className="text-foreground size-4" />
+            <View
+              className={`flex size-9 shrink-0 items-center justify-center rounded-xl ${couponOfferIconBadgeClass}`}>
+              <Icon as={TicketPercent} className={`size-4 ${couponOfferIconClass}`} />
             </View>
             <View className="min-w-0 flex-1">
               <Text className="text-foreground text-sm font-semibold leading-tight">{discount}</Text>

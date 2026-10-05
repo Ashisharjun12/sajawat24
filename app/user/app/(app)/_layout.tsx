@@ -34,6 +34,11 @@ export default function AppLayout() {
         tabBar={(props) => <AppTabBar {...props} />}
         screenOptions={{
           headerShown: false,
+          tabBarStyle: {
+            backgroundColor: 'transparent',
+            borderTopWidth: 0,
+            elevation: 0,
+          },
         }}>
       <Tabs.Screen name="index" options={{ title: 'Home' }} />
       <Tabs.Screen name="category" options={{ title: 'Category' }} />
@@ -50,6 +55,7 @@ export default function AppLayout() {
       <Tabs.Screen name="checkout" options={{ href: null }} />
       <Tabs.Screen name="offers" options={{ href: null }} />
       <Tabs.Screen name="notifications" options={{ href: null }} />
+      <Tabs.Screen name="wishlist" options={{ href: null }} />
       </Tabs>
       <TabActiveOrderOverlay />
     </View>

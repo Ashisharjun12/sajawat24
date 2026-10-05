@@ -2,6 +2,8 @@ import { ScalePressable } from '@/components/shell';
 import { Text } from '@/components/ui/text';
 import { ChevronRight, MapPin } from 'lucide-react-native';
 import { Icon } from '@/components/ui/icon';
+import { checkoutSectionShell } from '@/module/booking/lib/checkout-section-shell';
+import { cn } from '@/lib/utils';
 import { View } from 'react-native';
 
 type DeliveryAddressCardProps = {
@@ -9,6 +11,7 @@ type DeliveryAddressCardProps = {
   addressLine: string;
   hasServiceableAddress: boolean;
   onPress: () => void;
+  fullBleed?: boolean;
 };
 
 export function DeliveryAddressCard({
@@ -16,7 +19,9 @@ export function DeliveryAddressCard({
   addressLine,
   hasServiceableAddress,
   onPress,
+  fullBleed = false,
 }: DeliveryAddressCardProps) {
+  const shell = checkoutSectionShell(!fullBleed);
   if (!hasServiceableAddress) {
     return (
       <ScalePressable
@@ -24,7 +29,7 @@ export function DeliveryAddressCard({
         onPress={onPress}
         accessibilityRole="button"
         accessibilityLabel="Add delivery address"
-        className="flex-row items-center gap-3 rounded-2xl border border-border bg-card p-4">
+        className={cn('flex-row items-center gap-3 p-4', shell)}>
         <View className="size-10 items-center justify-center rounded-full bg-muted">
           <Icon as={MapPin} className="text-foreground size-5" />
         </View>
@@ -40,7 +45,7 @@ export function DeliveryAddressCard({
   }
 
   return (
-    <View className="rounded-2xl border border-border bg-card p-4">
+    <View className={cn('p-4', shell)}>
       <View className="flex-row items-center justify-between gap-3">
         <Text className="text-foreground min-w-0 flex-1 text-base font-semibold" numberOfLines={1}>
           Deliver to {label}

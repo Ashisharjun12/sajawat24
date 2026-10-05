@@ -6,6 +6,7 @@ import { HomeTopBar } from '@/module/home/components/HomeTopBar';
 import { useLocationStore } from '@/store/location.store';
 import { useEffect } from 'react';
 import { useWindowDimensions, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type HomeStickyHeaderProps = {
   cityPickerOpen: boolean;
@@ -16,6 +17,7 @@ export function HomeStickyHeader({
   cityPickerOpen,
   onCityPickerOpenChange,
 }: HomeStickyHeaderProps) {
+  const insets = useSafeAreaInsets();
   const { height: windowHeight } = useWindowDimensions();
   const citySheetMinHeight = Math.round(windowHeight * 0.62);
   const citySheetMaxHeight = Math.round(windowHeight * 0.85);
@@ -34,21 +36,23 @@ export function HomeStickyHeader({
   }, [cityPickerOpen, fetchCities]);
 
   return (
-    <View className="gap-2.5 border-b border-border/70 bg-background/95 px-3 pb-3 pt-1">
-      <HomeTopBar onCityPress={() => onCityPickerOpenChange(true)} />
-      <HomeSearchBar />
+    <View className="bg-primary" style={{ paddingTop: insets.top }}>
+      <View className="gap-2.5 px-3 pb-3 pt-2">
+        <HomeTopBar onCityPress={() => onCityPickerOpenChange(true)} />
+        <HomeSearchBar />
 
-      <HomeBottomSheetModal
-        visible={cityPickerOpen}
-        onClose={() => onCityPickerOpenChange(false)}
-        sheetMinHeight={citySheetMinHeight}
-        sheetMaxHeight={citySheetMaxHeight}
-        closeAccessibilityLabel="Close city picker">
-        <HomeCityPickerSheet
+        <HomeBottomSheetModal
+          visible={cityPickerOpen}
           onClose={() => onCityPickerOpenChange(false)}
-          currentLabel={cityLabel}
-        />
-      </HomeBottomSheetModal>
+          sheetMinHeight={citySheetMinHeight}
+          sheetMaxHeight={citySheetMaxHeight}
+          closeAccessibilityLabel="Close city picker">
+          <HomeCityPickerSheet
+            onClose={() => onCityPickerOpenChange(false)}
+            currentLabel={cityLabel}
+          />
+        </HomeBottomSheetModal>
+      </View>
     </View>
   );
 }

@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
 import {
   BellIcon,
+  HeartIcon,
   LifeBuoyIcon,
   MapPinIcon,
   PackageIcon,
@@ -12,6 +13,7 @@ import { cn } from "@/lib/utils";
 const PRIMARY_NAV = [
   { label: "Personal Info", to: "/account", icon: UserRoundIcon, end: true },
   { label: "My Orders", to: "/account/bookings", icon: PackageIcon, end: false },
+  { label: "Wishlist", to: "/wishlist", icon: HeartIcon, end: false },
   { label: "Addresses", to: "/account/addresses", icon: MapPinIcon, end: false },
   {
     label: "Refunds",

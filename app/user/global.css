@@ -48,6 +48,7 @@
   /* Tinted dark, never pure black. */
   .dark:root {
     --background: 11 21 20;
+    --beige: 38 36 30;
     --foreground: 241 245 244;
     --card: 18 32 31;
     --card-foreground: 241 245 244;

@@ -44,7 +44,9 @@ Living brief for the customer mobile app (`app/user`). Update this file when eac
 | `module/booking/` | `checkout/*`, `abandon-incomplete-online-payment.ts`, `CashfreePaymentGatewayHost`, `cashfree-payment-bridge.ts`, `online-checkout-native.ts`, `place-order.ts` |
 | `module/catalog/` | PLP + `ProductPdpScreen` (gallery Share + Home, `ProductShareSheet`, web `/p/{id}` share URL, breadcrumb, price, location, schedule/instant, coupon ticket rail, `ProductPdpAddonsSection`, About accordion, details tabs, rails, reviews, `ProductPdpMobileBookingBar`); hooks `use-product-detail-query`, `use-product-reviews-preview-query`, `use-similar-products-query`, `use-other-category-products-query`, `use-available-coupons` |
 | `module/promotions/` | `CouponTicketCard` (rail/stack), `CouponOffersRail`, `CouponDetailSheet`, `CouponOffersFilterSheet`, `OffersScreen`; PDP horizontal coupons + `app/(app)/offers` (stacked tickets, filter, load more) |
-| `module/account/` | `ProfileTabScreen`, `AccountScreen` (Personal info), `RefundsScreen`, `HelpScreen`, link phone/Google sheets; orders list/detail; `order-detail/*`; `account-nav`, `profile-menu` |
+| `module/account/` | `ProfileTabScreen`, `AccountScreen` (Personal info), `RefundsScreen`, `HelpScreen`, `WishlistScreen`, link phone/Google sheets; orders list/detail; `order-detail/*`; `account-nav`, `profile-menu` |
+| `store/wishlist.store.ts` | Guest SecureStore + logged-in `GET/POST/DELETE /wishlist`; merge on login via `apply-consumer-session` |
+| `api/wishlist.api.ts` | Wishlist REST client (city-scoped hydration) |
 | `module/settings/` | `ThemeBootstrap`, `AppThemeOptions`, `use-app-theme`; light/dark preference (default light, not system) |
 | `module/chat/` | `BookingChatScreen`, `SupportTopicChatScreen`, `use-booking-chat-thread`, `use-support-topic-chat-thread`, `help-topics`; order + support chat routes |
 | `module/geo/` | `OlaTrackingMapView`, trip pins, `map-bounds` |
@@ -127,6 +129,11 @@ Living brief for the customer mobile app (`app/user`). Update this file when eac
 ## History (newest first)
 
 ```text
+2026-10-06 — Server wishlist — backend `wishlist_items` + `/api/v1/wishlist`; app sync on login (cart merge + wishlist merge); PDP/card hearts; unavailable rows on wishlist screen
+2026-10-06 — Home header glass actions — wishlist, cart, notifications use `HomeHeaderGlassIconButton` (BlurView + light border/highlight on teal header)
+2026-10-06 — Confirm booking — cart line image-left layout; Flipkart-style proceed bar + teal savings strip; horizontal suggested add-ons rail above offers (add updates cart)
+2026-10-06 — PDP schedule bottom sheet — inline date/time removed; Book your setup opens Pick date & time slot sheet (product, slots, address, pay split, checkout CTA)
+2026-10-06 — PDP pale green band — full-bleed `bg-primary-tint` behind fulfillment, offers, and add-ons; white cards sit on top
 2026-10-05 — My orders status UX — hide payment-abandoned `CANCELLED` online orders from list (backend + client); status colors (teal active, orange pending, green complete, red cancelled); timeline only for confirmed+ journeys; `checkoutAbandoned` on order API
 2026-10-05 — PDP web mobile parity — Schedule/Instant tab icons (calendar + zap), schedule card header, instant detail row colors, package-details chips + included list, add-ons rose gift icon
 2026-10-05 — City picker sheet — web layout (search, popular grid, all cities); Lucide MapPin; removed map image URLs

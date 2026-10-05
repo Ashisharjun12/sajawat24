@@ -3,15 +3,14 @@ import { Link } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import { productPath } from "@/lib/catalog-path";
 import { formatPaise } from "@/lib/money";
+import { discountPercent } from "@/lib/product-price";
 import { DecoryImageFallback } from "@/components/decory-image-fallback";
 import { SectionMerchBadge } from "@/components/section-merch-badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { staggerItem } from "@/lib/motion-variants";
 import { cn } from "@/lib/utils";
-import {
-  ProductCardDiscountBadge,
-  ProductCardInstantLine,
-} from "@/module/catalog/components/ProductCardInstant";
+import { ProductCardInstantLine } from "@/module/catalog/components/ProductCardInstant";
+import { WishlistHeartButton } from "@/module/catalog/components/WishlistHeartButton";
 import {
   resolveCardBadges,
   useProductMerchBadge,
@@ -113,6 +112,7 @@ function ProductCardReviewsAndEta({
 
 function ProductCardPriceBlock({ pricePaise, compareAtPaise, size = "default" }) {
   const hasCompare = compareAtPaise != null && compareAtPaise > pricePaise;
+  const percentOff = discountPercent(pricePaise, compareAtPaise);
   const priceClass =
     size === "rail"
       ? "text-sm font-extrabold tracking-tight sm:text-[15px]"
@@ -121,6 +121,7 @@ function ProductCardPriceBlock({ pricePaise, compareAtPaise, size = "default" })
     size === "rail"
       ? "text-[10px] sm:text-[11px]"
       : "text-xs sm:text-[13px]";
+  const offClass = size === "rail" ? "text-[10px] sm:text-[11px]" : "text-[11px]";
 
   const priceWrapClass =
     size === "rail" ? "pt-1.5" : "mt-auto pt-2";
@@ -132,22 +133,32 @@ function ProductCardPriceBlock({ pricePaise, compareAtPaise, size = "default" })
           Sale price {formatPaise(pricePaise)}, was {formatPaise(compareAtPaise)}
         </span>
       ) : null}
-      <div className="flex min-h-6 min-w-0 flex-nowrap items-center gap-1">
-        <span
-          className={cn("shrink-0 tabular-nums text-foreground", priceClass)}
-          aria-hidden={hasCompare ? true : undefined}
-        >
-          {formatPaise(pricePaise)}
-        </span>
-        {hasCompare ? (
+      <div className="flex min-h-6 min-w-0 flex-nowrap items-center justify-between gap-2">
+        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1">
           <span
-            className={cn(
-              "shrink-0 font-medium text-muted-foreground line-through tabular-nums",
-              mrpClass,
-            )}
-            aria-hidden
+            className={cn("shrink-0 tabular-nums text-foreground", priceClass)}
+            aria-hidden={hasCompare ? true : undefined}
           >
-            {formatPaise(compareAtPaise)}
+            {formatPaise(pricePaise)}
+          </span>
+          {hasCompare ? (
+            <span
+              className={cn(
+                "shrink-0 font-medium text-muted-foreground line-through tabular-nums",
+                mrpClass,
+              )}
+              aria-hidden
+            >
+              {formatPaise(compareAtPaise)}
+            </span>
+          ) : null}
+        </div>
+        {percentOff > 0 ? (
+          <span
+            className={cn("shrink-0 font-bold tabular-nums text-primary", offClass)}
+            aria-hidden={hasCompare ? true : undefined}
+          >
+            {percentOff}% off
           </span>
         ) : null}
       </div>
@@ -170,10 +181,9 @@ function CompactProductCardContent({ product, onNavigate }) {
     >
       <div className="relative aspect-square w-full shrink-0 overflow-hidden rounded-t-(--radius-card) bg-muted">
         <SectionMerchBadge label={badgeLabel} color={badgeColor} />
-        <ProductCardDiscountBadge
-          pricePaise={product.pricePaise}
-          compareAtPaise={product.compareAtPaise}
-        />
+        <div className="absolute left-2 top-2 z-10">
+          <WishlistHeartButton product={product} />
+        </div>
         {src && !broken ? (
           <img
             src={src}
@@ -222,10 +232,9 @@ function DefaultProductCardContent({ product }) {
     >
       <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden bg-muted">
         <SectionMerchBadge label={badgeLabel} color={badgeColor} />
-        <ProductCardDiscountBadge
-          pricePaise={product.pricePaise}
-          compareAtPaise={product.compareAtPaise}
-        />
+        <div className="absolute left-2 top-2 z-10">
+          <WishlistHeartButton product={product} />
+        </div>
         {src && !broken ? (
           <img
             src={src}
@@ -314,10 +323,9 @@ function RailProductCardContent({ product, badgeLabel, badgeColor }) {
     >
       <div className="relative aspect-square w-full shrink-0 overflow-hidden rounded-t-(--radius-card) bg-muted">
         <SectionMerchBadge label={resolved.badgeLabel} color={resolved.badgeColor} />
-        <ProductCardDiscountBadge
-          pricePaise={product.pricePaise}
-          compareAtPaise={product.compareAtPaise}
-        />
+        <div className="absolute left-2 top-2 z-10">
+          <WishlistHeartButton product={product} />
+        </div>
         {src && !broken ? (
           <img
             src={src}

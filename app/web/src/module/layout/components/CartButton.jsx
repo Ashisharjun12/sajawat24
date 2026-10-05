@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/cart.store";
 
-export function CartButton({ variant = "default" }) {
+export function CartButton({ variant = "default", className }) {
   const count = useCartStore((s) => s.count);
   const setOpen = useCartStore((s) => s.setOpen);
   const isHero = variant === "hero";
@@ -16,7 +16,8 @@ export function CartButton({ variant = "default" }) {
       className={cn(
         "relative shrink-0",
         isHero &&
-          "size-11 rounded-xl border border-primary-foreground/15 bg-background text-foreground shadow-sm hover:bg-background/95 hover:text-foreground",
+          "size-11 rounded-[var(--r-btn)] border border-primary-foreground/15 bg-background text-foreground shadow-sm hover:bg-background/95 hover:text-foreground",
+        className,
       )}
       onClick={() => setOpen(true)}
       aria-label="Open bag"

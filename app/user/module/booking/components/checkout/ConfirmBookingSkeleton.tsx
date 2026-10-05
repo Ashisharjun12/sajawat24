@@ -11,11 +11,11 @@ export function ConfirmBookingSkeleton({ onBack }: ConfirmBookingSkeletonProps) 
   const insets = useSafeAreaInsets();
 
   return (
-    <Screen edges={['top', 'left', 'right']} gutter contentClassName="flex-1">
-      <TabScreenTitle title="Confirm booking" showBack onBack={onBack} insetFromParentGutter />
+    <Screen scroll={false} edges={['left', 'right']} contentClassName="flex-1 bg-bg">
+      <TabScreenTitle title="Confirm booking" tone="primary" showBack onBack={onBack} />
       <SmoothScrollView
-        className="flex-1"
-        contentContainerClassName="gap-4 pb-4 pt-2"
+        className="flex-1 bg-bg"
+        contentContainerClassName="pb-4"
         contentContainerStyle={{ paddingBottom: 132 + insets.bottom }}
         showsVerticalScrollIndicator={false}>
         <View className="overflow-hidden rounded-2xl border border-border bg-card">

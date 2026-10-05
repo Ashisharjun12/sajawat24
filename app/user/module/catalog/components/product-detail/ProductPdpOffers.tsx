@@ -6,6 +6,10 @@ import { TicketPercent } from 'lucide-react-native';
 import { CouponOffersRail } from '@/module/promotions/components/CouponOffersRail';
 import { useAvailableCoupons } from '@/module/promotions/hooks/use-available-coupons';
 import { couponsForPdpDisplay } from '@/module/promotions/lib/pdp-coupon-display';
+import {
+  couponOfferIconBadgeClass,
+  couponOfferIconClass,
+} from '@/module/promotions/lib/coupon-offer-styles';
 import { router } from 'expo-router';
 import { useMemo } from 'react';
 import { View } from 'react-native';
@@ -54,8 +58,9 @@ export function ProductPdpOffers({ productId, categoryId }: ProductPdpOffersProp
     <View className="gap-3">
       <View className="flex-row items-center justify-between gap-3">
         <View className="min-w-0 flex-1 flex-row items-center gap-2">
-          <View className="size-8 items-center justify-center rounded-lg bg-primary-tint">
-            <Icon as={TicketPercent} className="size-4 text-primary" />
+          <View
+            className={`size-8 items-center justify-center rounded-lg ${couponOfferIconBadgeClass}`}>
+            <Icon as={TicketPercent} className={`size-4 ${couponOfferIconClass}`} />
           </View>
           <Text className="text-foreground text-base font-semibold">Available offers</Text>
         </View>

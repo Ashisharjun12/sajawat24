@@ -34,6 +34,7 @@ import { SectionService } from "@/modules/catalog/sections/section.service.js";
 import { reviewPublicController } from "@/modules/reviews/index.js";
 import { createCmsModule } from "@/modules/cms/index.js";
 import { createBrandModule } from "@/modules/brand/index.js";
+import { createWishlistRouterForApp } from "@/modules/catalog/wishlist/index.js";
 
 const categoryRepository = new CategoryRepository();
 const productRepository = new ProductRepository();
@@ -77,6 +78,8 @@ const cmsModule = createCmsModule(
 export const cmsPublicRouter = cmsModule.cmsPublicRouter;
 export const cmsAdminRouter = cmsModule.cmsAdminRouter;
 export const brandAdminRouter = brandModule.brandAdminRouter;
+
+export const wishlistRouter = createWishlistRouterForApp(productService);
 
 export const catalogRouter = Router();
 catalogRouter.use("/categories", createCategoryPublicRouter(categoryController));

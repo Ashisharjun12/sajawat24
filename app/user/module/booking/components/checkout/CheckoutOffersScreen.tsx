@@ -12,6 +12,10 @@ import {
 } from '@/module/booking/lib/coupon-preview';
 import { listAvailableCouponsForLocation } from '@/module/promotions/lib/coupons-location';
 import { resolveCouponCode } from '@/module/promotions/lib/pdp-coupon-display';
+import {
+  couponOfferIconBadgeClass,
+  couponOfferIconClass,
+} from '@/module/promotions/lib/coupon-offer-styles';
 import { useAuthStore } from '@/store/auth.store';
 import { useCheckoutStore } from '@/store/checkout.store';
 import { useQuery } from '@tanstack/react-query';
@@ -187,8 +191,9 @@ export function CheckoutOffersScreen() {
           <ActivityIndicator className="py-8" />
         ) : coupons.length === 0 ? (
           <View className="items-center rounded-2xl bg-muted/40 px-6 py-10">
-            <View className="size-16 items-center justify-center rounded-2xl bg-primary-tint">
-              <Icon as={TicketPercent} className="size-8 text-primary" />
+            <View
+              className={`size-16 items-center justify-center rounded-2xl ${couponOfferIconBadgeClass}`}>
+              <Icon as={TicketPercent} className={`size-8 ${couponOfferIconClass}`} />
             </View>
             <Text className="text-foreground mt-4 text-center text-base font-semibold">
               No best coupons available
@@ -214,8 +219,9 @@ export function CheckoutOffersScreen() {
                       ? 'border-success/40 bg-success/10'
                       : 'border-border bg-card',
                   )}>
-                  <View className="size-10 shrink-0 items-center justify-center rounded-xl bg-primary-tint">
-                    <Icon as={TicketPercent} className="size-5 text-primary" />
+                  <View
+                    className={`size-10 shrink-0 items-center justify-center rounded-xl ${couponOfferIconBadgeClass}`}>
+                    <Icon as={TicketPercent} className={`size-5 ${couponOfferIconClass}`} />
                   </View>
                   <View className="min-w-0 flex-1">
                     <Text className="text-foreground text-sm font-semibold">{couponTitle(c)}</Text>

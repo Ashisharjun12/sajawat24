@@ -27,8 +27,8 @@ export function ProductInstantDetails({ note, etaMinutes }: ProductInstantDetail
         </View>
       ) : null}
       <View className="flex-row gap-3">
-        <View className="size-10 shrink-0 items-center justify-center rounded-full bg-blue-600/15">
-          <Icon as={Clock} className="size-4 text-blue-600" />
+        <View className="size-10 shrink-0 items-center justify-center rounded-full bg-primary-tint">
+          <Icon as={Clock} className="size-4 text-primary" />
         </View>
         <Text className="text-muted-foreground min-w-0 flex-1 pt-2 text-sm leading-relaxed">
           Typical arrival window: about {eta} minutes after confirmation.

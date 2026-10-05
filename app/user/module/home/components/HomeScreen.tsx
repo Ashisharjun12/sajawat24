@@ -98,7 +98,7 @@ export function HomeScreen() {
   ]);
 
   return (
-    <Screen scroll={false} edges={['top']} contentClassName="flex-1">
+    <Screen scroll={false} edges={['left', 'right']} contentClassName="flex-1">
       <HomeStickyHeader
         cityPickerOpen={cityPickerOpen}
         onCityPickerOpenChange={setCityPickerOpen}

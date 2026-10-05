@@ -3,6 +3,7 @@ import { getProductForCatalogLocation } from '@/lib/catalog-location';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { formatPaise } from '@/lib/format-money';
+import { discountPercent } from '@/lib/product-price';
 import { isBackendCityId } from '@/lib/location-label';
 import { checkoutLineTitle } from '@/module/booking/lib/checkout-line-title';
 import { formatCartSlotLabel } from '@/module/booking/lib/format-cart-slot';
@@ -15,8 +16,14 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { CalendarDays, Pencil } from 'lucide-react-native';
 import { Image } from 'expo-image';
+import { checkoutSectionShell } from '@/module/booking/lib/checkout-section-shell';
+import type { useCheckoutLineAddons } from '@/module/booking/hooks/use-checkout-line-addons';
+import { AddonQtyControl } from '@/module/catalog/components/product-detail/AddonQtyControl';
+import { cn } from '@/lib/utils';
 import { useMemo } from 'react';
 import { View } from 'react-native';
+
+type LineAddonControls = ReturnType<typeof useCheckoutLineAddons>;
 
 const LINE_IMAGE_PLACEHOLDER =
   'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=800&h=480&fit=crop';
@@ -24,7 +31,7 @@ const LINE_IMAGE_PLACEHOLDER =
 const ADDON_THUMB_PLACEHOLDER =
   'https://images.unsplash.com/photo-1464349153735-7db50ed83c16?w=200&h=200&fit=crop';
 
-const HERO_HEIGHT = 164;
+const PRODUCT_THUMB = 88;
 const ADDON_THUMB = 40;
 
 type ConfirmProductCardProps = {
@@ -35,6 +42,8 @@ type ConfirmProductCardProps = {
   onEdit?: () => void;
   onRemove?: () => void;
   removing?: boolean;
+  fullBleed?: boolean;
+  lineAddons?: LineAddonControls;
 };
 
 function useCheckoutLineProduct(
@@ -65,8 +74,24 @@ function baseProductPaise(item: CartItemLine, addons: CartAddonLine[]) {
   return Math.max(0, item.lineTotalPaise - addonsTotal);
 }
 
-function AddonRow({ addon, imageUri }: { addon: CartAddonLine; imageUri: string }) {
+function AddonRow({
+  addon,
+  imageUri,
+  qty,
+  max,
+  busy,
+  lineAddons,
+}: {
+  addon: CartAddonLine;
+  imageUri: string;
+  qty: number;
+  max: number;
+  busy: boolean;
+  lineAddons?: LineAddonControls;
+}) {
   const free = addon.pricePaise == null || addon.pricePaise === 0;
+  const lineTotal =
+    free || addon.pricePaise == null ? null : formatPaise((addon.pricePaise ?? 0) * qty);
 
   return (
     <View className="flex-row items-center gap-3">
@@ -79,11 +104,28 @@ function AddonRow({ addon, imageUri }: { addon: CartAddonLine; imageUri: string 
           contentFit="cover"
         />
       </View>
-      <Text className="text-foreground min-w-0 flex-1 text-sm leading-snug" numberOfLines={2}>
-        {addon.name}
-        {addon.quantity > 1 ? ` × ${addon.quantity}` : ''}
-      </Text>
-      {free ? (
+      <View className="min-w-0 flex-1 gap-0.5">
+        <Text className="text-foreground text-sm leading-snug" numberOfLines={2}>
+          {addon.name}
+        </Text>
+        {free ? (
+          <Text className="text-sm font-medium text-success">Free</Text>
+        ) : lineTotal ? (
+          <Text className="text-foreground text-sm font-medium tabular-nums">{lineTotal}</Text>
+        ) : null}
+      </View>
+      {lineAddons ? (
+        <View className={cn('shrink-0', busy ? 'opacity-80' : undefined)}>
+          <AddonQtyControl
+            compact
+            qty={qty}
+            max={max}
+            onAdd={() => lineAddons.increment(addon.id)}
+            onIncrement={() => lineAddons.increment(addon.id)}
+            onDecrement={() => lineAddons.decrement(addon.id)}
+          />
+        </View>
+      ) : free ? (
         <Text className="text-sm font-medium text-success">Free</Text>
       ) : (
         <Text className="text-foreground text-sm font-medium tabular-nums">
@@ -102,6 +144,8 @@ export function ConfirmProductCard({
   onEdit,
   onRemove,
   removing = false,
+  fullBleed = false,
+  lineAddons,
 }: ConfirmProductCardProps) {
   const slotLabel = formatCartSlotLabel(scheduledAt);
   const addons = (item.addons ?? []).filter((a) => (a.quantity ?? 0) > 0);
@@ -127,38 +171,78 @@ export function ConfirmProductCard({
     return addon.imageUrl?.trim() || addonImageById.get(addon.id) || ADDON_THUMB_PLACEHOLDER;
   }
 
-  return (
-    <View className="overflow-hidden rounded-2xl border border-border bg-card">
-      <View className="w-full bg-muted" style={{ height: HERO_HEIGHT }}>
-        <Image
-          source={{ uri: heroSrc }}
-          style={{ width: '100%', height: '100%' }}
-          contentFit="cover"
-          transition={200}
-          accessibilityLabel={item.name}
-        />
-      </View>
+  const qty = item.quantity ?? 1;
+  const lineProductPaise = baseProductPaise(item, addons);
+  const unitPricePaise =
+    item.productPaise ?? (qty > 0 ? Math.round(lineProductPaise / qty) : lineProductPaise);
+  const compareAtUnit = productQuery.data?.compareAtPaise ?? null;
+  const compareAtLinePaise =
+    compareAtUnit != null && compareAtUnit > unitPricePaise ? compareAtUnit * qty : null;
+  const percentOff = discountPercent(unitPricePaise, compareAtUnit);
 
-      <View className="gap-3 p-4">
-        <View className="flex-row items-start justify-between gap-3">
-          <Text className="text-foreground min-w-0 flex-1 text-base font-semibold leading-snug">
-            {checkoutLineTitle(item.name)}
-          </Text>
-          <Text className="text-foreground shrink-0 text-base font-semibold tabular-nums">
-            {formatPaise(baseProductPaise(item, addons))}
-          </Text>
+  return (
+    <View className={cn('overflow-hidden', checkoutSectionShell(!fullBleed))}>
+      <View className="flex-row gap-3 p-4">
+        <View
+          className="shrink-0 overflow-hidden rounded-xl bg-muted"
+          style={{ width: PRODUCT_THUMB, height: PRODUCT_THUMB }}>
+          <Image
+            source={{ uri: heroSrc }}
+            style={{ width: PRODUCT_THUMB, height: PRODUCT_THUMB }}
+            contentFit="cover"
+            transition={200}
+            accessibilityLabel={item.name}
+          />
         </View>
 
+        <View className="min-w-0 flex-1 gap-1.5">
+          <Text className="text-foreground text-base font-semibold leading-snug" numberOfLines={3}>
+            {checkoutLineTitle(item.name)}
+          </Text>
+          <View className="flex-row flex-wrap items-center gap-x-2 gap-y-0.5">
+            <Text className="text-foreground text-lg font-bold tabular-nums">
+              {formatPaise(lineProductPaise)}
+            </Text>
+            {compareAtLinePaise != null ? (
+              <Text className="text-muted-foreground text-sm line-through tabular-nums">
+                {formatPaise(compareAtLinePaise)}
+              </Text>
+            ) : null}
+            {percentOff > 0 ? (
+              <Text className="text-primary text-sm font-bold">{percentOff}% off</Text>
+            ) : null}
+          </View>
+          {qty > 1 ? (
+            <Text className="text-muted-foreground text-xs">Qty {qty}</Text>
+          ) : null}
+        </View>
+      </View>
+
+      {addons.length || slotLabel || onEdit || onRemove ? (
+      <View className="gap-3 px-4 pb-4">
         {addons.length ? (
           <View className="gap-3 border-t border-border/60 pt-3">
-            {addons.map((addon) => (
-              <AddonRow key={addon.id} addon={addon} imageUri={resolveAddonImage(addon)} />
-            ))}
+            {addons.map((addon) => {
+              const qty = lineAddons?.qtyById[addon.id] ?? addon.quantity ?? 0;
+              const max = lineAddons?.resolveMax(addon.id) ?? 99;
+              const busy = lineAddons?.pendingAddonId === addon.id;
+              return (
+                <AddonRow
+                  key={addon.id}
+                  addon={addon}
+                  imageUri={resolveAddonImage(addon)}
+                  qty={qty}
+                  max={max}
+                  busy={Boolean(busy)}
+                  lineAddons={lineAddons}
+                />
+              );
+            })}
           </View>
         ) : null}
 
         {slotLabel || onEdit || onRemove ? (
-          <View className="flex-row items-center justify-between gap-3">
+          <View className="flex-row items-center justify-between gap-3 border-t border-border/60 pt-3">
             {slotLabel ? (
               <View className="flex-row items-center gap-2 rounded-lg bg-primary-tint px-2.5 py-1.5">
                 <Icon as={CalendarDays} className="size-3.5 text-primary" />
@@ -204,6 +288,7 @@ export function ConfirmProductCard({
           </View>
         ) : null}
       </View>
+      ) : null}
     </View>
   );
 }

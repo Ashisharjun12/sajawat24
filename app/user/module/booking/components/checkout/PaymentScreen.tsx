@@ -4,10 +4,12 @@ import { SmoothScrollView } from '@/components/shell/SmoothScrollView';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { devApiLog } from '@/lib/dev-api-log';
-import { formatPaise } from '@/lib/format-money';
-import { PRIMARY_CTA_BUTTON_CLASS } from '@/lib/primary-cta-button';
 import { useGoBack } from '@/lib/use-go-back';
 import { BillDetailsCard } from '@/module/booking/components/checkout/BillDetailsCard';
+import {
+  CheckoutProceedBar,
+  checkoutProceedBarScrollPad,
+} from '@/module/booking/components/checkout/CheckoutProceedBar';
 import { PaymentMethodCard } from '@/module/booking/components/checkout/PaymentMethodCard';
 import { useCartData, useCartMutations, useCartQuery } from '@/module/booking/hooks/use-cart-query';
 import { usePaymentMethodsQuery } from '@/module/booking/hooks/use-payment-methods-query';
@@ -32,11 +34,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-function payCtaLabel(payment: CheckoutPaymentMethod, total: string, placing: boolean): string {
+function payBarCtaLabel(payment: CheckoutPaymentMethod, placing: boolean): string {
   if (placing) return 'Placing order…';
-  if (payment === 'online') return `Pay online · ${total}`;
-  if (payment === 'cod') return `Place order (COD) · ${total}`;
-  return `Pay · ${total}`;
+  if (payment === 'online') return 'Pay online';
+  if (payment === 'cod') return 'Place order';
+  return 'Proceed to pay';
 }
 
 function newIdempotencyKey() {
@@ -117,7 +119,10 @@ export function PaymentScreen() {
   );
 
   const slotLabel = formatCartSlotLabel(cart.scheduledAt);
-  const totalStr = formatPaise(cart.totalPaise);
+  const subtotalPaise = cart.subtotalPaise ?? 0;
+  const discountPaise = cart.discountPaise ?? 0;
+  const totalPaise = cart.totalPaise ?? Math.max(0, subtotalPaise - discountPaise);
+  const scrollPad = checkoutProceedBarScrollPad(insets.bottom, discountPaise > 0, 28);
 
   const canPay =
     ready &&
@@ -179,7 +184,7 @@ export function PaymentScreen() {
       <SmoothScrollView
         className="flex-1"
         contentContainerClassName="gap-5 pb-4 pt-2"
-        contentContainerStyle={{ paddingBottom: 130 + insets.bottom }}>
+        contentContainerStyle={{ paddingBottom: scrollPad }}>
         <View className="flex-row items-center justify-between gap-3">
           <Text className="text-foreground text-lg font-bold">How to pay</Text>
           <View className="shrink-0 flex-row items-center gap-1">
@@ -248,20 +253,21 @@ export function PaymentScreen() {
         ) : null}
       </SmoothScrollView>
 
-      <View
-        className="absolute inset-x-0 bottom-0 border-t border-border/60 bg-background px-5 pt-3"
-        style={{ paddingBottom: Math.max(insets.bottom, 12) }}>
-        <Button
-          className={PRIMARY_CTA_BUTTON_CLASS}
-          disabled={!canPay || placing}
-          onPress={() => void onPlace()}>
-          <Text>{payCtaLabel(payment, totalStr, placing)}</Text>
-        </Button>
-        <View className="mt-2 flex-row items-center justify-center gap-1.5">
-          <Icon as={ShieldCheck} className="size-3.5 text-success" />
-          <Text className="text-muted-foreground text-xs">100% secure payment</Text>
-        </View>
-      </View>
+      <CheckoutProceedBar
+        subtotalPaise={subtotalPaise}
+        discountPaise={discountPaise}
+        totalPaise={totalPaise}
+        ctaLabel={payBarCtaLabel(payment, placing)}
+        disabled={!canPay}
+        loading={placing}
+        onPress={() => void onPlace()}
+        footerNote={
+          <View className="flex-row items-center justify-center gap-1.5">
+            <Icon as={ShieldCheck} className="size-3.5 text-success" />
+            <Text className="text-muted-foreground text-xs">100% secure payment</Text>
+          </View>
+        }
+      />
     </Screen>
   );
 }

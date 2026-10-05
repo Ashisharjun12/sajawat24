@@ -1,5 +1,6 @@
 import { requestOtp, verifyOtp } from '@/api/auth.api';
 import { getAndroidOtpAppHash } from '@/lib/android-app-hash';
+import { applyConsumerSession } from '@/module/auth/lib/apply-consumer-session';
 import { toAuthSessionPayload } from '@/module/auth/lib/consumer-session';
 import { useAuthStore } from '@/store/auth.store';
 
@@ -15,6 +16,6 @@ export async function sendSignInOtp(phone: string) {
 export async function verifySignInOtp(phone: string, otp: string) {
   const data = await verifyOtp(phone, otp);
   const payload = toAuthSessionPayload(data);
-  await useAuthStore.getState().setSession(payload);
+  await applyConsumerSession(payload);
   return payload;
 }

@@ -7,7 +7,7 @@ import type { HomeProductInstant } from '@/module/home/lib/home-catalog';
 import { Zap } from 'lucide-react-native';
 import { View } from 'react-native';
 
-/** Top-left on card image (web `ProductCardDiscountBadge`). */
+/** Optional overlay on card image (catalog uses inline % by price instead). */
 export function ProductCardDiscountBadge({
   pricePaise,
   compareAtPaise,
@@ -61,7 +61,7 @@ export function ProductCardInstantLine({
   return (
     <View
       className={cn(
-        'max-w-[62%] shrink-0 flex-row items-center gap-1',
+        'shrink-0 flex-row items-center justify-end gap-1',
         className,
       )}
       accessibilityLabel={

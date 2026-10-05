@@ -2,7 +2,7 @@ import { googleLogin } from '@/api/auth.api';
 import type { AuthSessionPayload } from '@/lib/auth.types';
 import { toAuthSessionPayload } from '@/module/auth/lib/consumer-session';
 import { GOOGLE_WEB_CLIENT_ID } from '@/lib/env';
-import { useAuthStore } from '@/store/auth.store';
+import { applyConsumerSession } from '@/module/auth/lib/apply-consumer-session';
 import {
   GoogleSignin,
   isErrorWithCode,
@@ -34,6 +34,6 @@ export async function signInWithGoogle(): Promise<AuthSessionPayload> {
   const data = await googleLogin(idToken);
   const payload = toAuthSessionPayload(data);
 
-  await useAuthStore.getState().setSession(payload);
+  await applyConsumerSession(payload);
   return payload;
 }
