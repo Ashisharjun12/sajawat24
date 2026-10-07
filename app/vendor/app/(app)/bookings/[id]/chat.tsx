@@ -1,3 +1,4 @@
+import { getApiError } from '@/api/client';
 import { FadeInView, PressableScale } from '@/components/motion';
 import { triggerHaptic } from '@/components/motion/haptics';
 import { LoadingPlaceholder, Surface } from '@/components/shell';
@@ -7,19 +8,22 @@ import { Text } from '@/components/ui/text';
 import type { VendorJobDetail } from '@/module/bookings/lib/booking.types';
 import { ChatAttachmentBubble } from '@/module/chat/components/ChatAttachmentBubble';
 import { ChatAttachmentSheet } from '@/module/chat/components/ChatAttachmentSheet';
+import { ChatQuickReplyChips } from '@/module/chat/components/ChatQuickReplyChips';
 import { useChatAttachment } from '@/module/chat/hooks/use-chat-attachment';
 import { useVendorJob } from '@/module/bookings/hooks/use-vendor-jobs';
 import { MessageReceiptIcon } from '@/module/chat/components/MessageReceiptIcon';
 import { TypingIndicator } from '@/module/chat/components/TypingIndicator';
 import { useConversationTyping } from '@/module/chat/hooks/use-conversation-typing';
 import { useBookingChatThread } from '@/module/chat/hooks/use-chat-thread';
+import { BOOKING_CHAT_QUICK_REPLIES } from '@/module/chat/lib/booking-chat-quick-replies';
 import { formatMessageTime } from '@/module/chat/lib/chat-utils';
 import type { ChatMessage } from '@/api/chat.api';
 import * as Haptics from 'expo-haptics';
 import { Href, router, useLocalSearchParams } from 'expo-router';
-import { ArrowLeft, Phone, Plus, Send } from 'lucide-react-native';
+import { ArrowLeft, MessageCircle, Phone, Plus, Send } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
 import {
+  Alert,
   FlatList,
   Keyboard,
   LayoutAnimation,
@@ -120,20 +124,35 @@ function BookingChatContent({ orderId, job }: { orderId: string; job: VendorJobD
     };
   }, []);
 
+  async function sendText(text: string) {
+    const body = text.trim();
+    if (!body || isSending || isUploading) return;
+    triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
+    try {
+      await sendMessage(body);
+      setTimeout(() => {
+        listRef.current?.scrollToEnd({ animated: true });
+      }, 50);
+    } catch (err) {
+      Alert.alert('Could not send message', getApiError(err));
+      throw err;
+    }
+  }
+
   async function handleSend() {
     const text = draft.trim();
     if (!text) return;
     setDraft('');
-    triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
     try {
-      await sendMessage(text);
-      setTimeout(() => {
-        listRef.current?.scrollToEnd({ animated: true });
-      }, 50);
+      await sendText(text);
     } catch {
       setDraft(text);
     }
   }
+
+  const visibleMessages = messages.filter((m) => m.messageType !== 'system');
+  const isThreadEmpty = visibleMessages.length === 0;
+  const composerBusy = isSending || isUploading;
 
   const keyboardOffset =
     keyboardHeight > 0 ? Math.max(0, keyboardHeight - insets.bottom) : 0;
@@ -199,6 +218,21 @@ function BookingChatContent({ orderId, job }: { orderId: string; job: VendorJobD
             keyboardShouldPersistTaps="handled"
             keyboardDismissMode="interactive"
             onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: false })}
+            ListEmptyComponent={
+              isThreadEmpty ? (
+                <View className="flex-1 items-center justify-center px-6 py-12">
+                  <View className="mb-4 size-16 items-center justify-center rounded-full bg-primary-tint">
+                    <Icon as={MessageCircle} className="text-primary size-9" />
+                  </View>
+                  <Text className="text-foreground text-center text-base font-semibold">
+                    Chat with your customer
+                  </Text>
+                  <Text className="text-muted-foreground mt-2 text-center text-sm leading-5">
+                    Share updates on the way to the booking or confirm when you have arrived.
+                  </Text>
+                </View>
+              ) : null
+            }
             ListFooterComponent={
               otherTyping ? <TypingIndicator align="left" /> : null
             }
@@ -248,7 +282,14 @@ function BookingChatContent({ orderId, job }: { orderId: string; job: VendorJobD
         <View
           className="border-t border-border bg-background px-4 pt-3"
           style={{ paddingBottom: keyboardHeight > 0 ? 8 : Math.max(insets.bottom, 12) }}>
-          <View className="flex-row items-end gap-2">
+          <ChatQuickReplyChips
+            suggestions={BOOKING_CHAT_QUICK_REPLIES}
+            disabled={composerBusy}
+            onSelect={(text) => {
+              void sendText(text);
+            }}
+          />
+          <View className="mt-2 flex-row items-end gap-2">
             <View className="min-h-11 flex-1 flex-row items-end rounded-2xl border border-border bg-background px-3 py-2">
               <TextInput
                 className="max-h-24 flex-1 py-1.5 text-base text-foreground"

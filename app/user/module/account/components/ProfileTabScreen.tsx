@@ -17,7 +17,7 @@ import { useAppTheme } from '@/module/settings/hooks/use-app-theme';
 import { useNotificationPermissionStatus } from '@/module/permissions/hooks/use-notification-permission-status';
 import { useAuthStore } from '@/store/auth.store';
 import { Href, router } from 'expo-router';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { Linking, ScrollView, View } from 'react-native';
 
 function renderMenuItem(
@@ -63,10 +63,17 @@ export function ProfileTabScreen() {
   const { notificationStatus, refresh } = useNotificationPermissionStatus();
   const notificationsOn = notificationStatus === 'granted';
   const { themeLabel } = useAppTheme();
+  const [loggingOut, setLoggingOut] = useState(false);
 
   async function handleSignOut() {
-    await signOut();
-    router.replace('/(onboarding)/login' as Href);
+    if (loggingOut) return;
+    setLoggingOut(true);
+    try {
+      await signOut();
+      router.replace('/(onboarding)/login' as Href);
+    } finally {
+      setLoggingOut(false);
+    }
   }
 
   const onNotificationToggle = useCallback(
@@ -124,7 +131,7 @@ export function ProfileTabScreen() {
           ))}
         </View>
 
-        <ProfileLogoutButton onPress={() => void handleSignOut()} />
+        <ProfileLogoutButton loading={loggingOut} onPress={() => void handleSignOut()} />
       </ScrollView>
     </Screen>
   );

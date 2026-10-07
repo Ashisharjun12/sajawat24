@@ -14,7 +14,7 @@ export function OnboardingSlide({ slide }: OnboardingSlideProps) {
         source={{ uri: slide.imageUrl }}
         accessibilityLabel={slide.title}
         contentFit="contain"
-        style={{ width: '100%', maxWidth: 300, height: 220, marginBottom: 28, alignSelf: 'center' }}
+        style={{ width: '100%', maxWidth: 320, height: 260, marginBottom: 28, alignSelf: 'center' }}
       />
 
       <View className="max-w-[340px] gap-4 self-center px-2">

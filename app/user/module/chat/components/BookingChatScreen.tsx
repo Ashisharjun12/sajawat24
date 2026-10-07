@@ -9,15 +9,17 @@ import { lightImpact } from '@/lib/light-haptic';
 import { useThemeColors } from '@/lib/theme';
 import { ChatAttachmentBubble } from '@/module/chat/components/ChatAttachmentBubble';
 import { ChatAttachmentSheet } from '@/module/chat/components/ChatAttachmentSheet';
+import { ChatQuickReplyChips } from '@/module/chat/components/ChatQuickReplyChips';
 import { MessageReceiptIcon } from '@/module/chat/components/MessageReceiptIcon';
 import { TypingIndicator } from '@/module/chat/components/TypingIndicator';
 import { useChatAttachment } from '@/module/chat/hooks/use-chat-attachment';
 import { useBookingChatThread } from '@/module/chat/hooks/use-booking-chat-thread';
 import { useConversationTyping } from '@/module/chat/hooks/use-conversation-typing';
+import { BOOKING_CHAT_QUICK_REPLIES } from '@/module/chat/lib/booking-chat-quick-replies';
 import { formatMessageTime } from '@/module/chat/lib/chat-utils';
 import { getOrderContacts } from '@/module/account/lib/order-contact';
 import { router } from 'expo-router';
-import { ArrowLeft, Phone, Plus, Send } from 'lucide-react-native';
+import { ArrowLeft, MessageCircle, Phone, Plus, Send } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
 import {
   FlatList,
@@ -102,19 +104,33 @@ export function BookingChatScreen({ orderId, order }: BookingChatScreenProps) {
     }
   }, [otherTyping]);
 
+  async function sendText(text: string) {
+    const body = text.trim();
+    if (!body || isSending || isUploading) return;
+    lightImpact();
+    try {
+      await sendMessage(body);
+      setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 50);
+    } catch (err) {
+      Alert.alert('Could not send message', getApiError(err));
+      throw err;
+    }
+  }
+
   async function handleSend() {
     const text = draft.trim();
     if (!text) return;
     setDraft('');
-    lightImpact();
     try {
-      await sendMessage(text);
-      setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 50);
-    } catch (err) {
+      await sendText(text);
+    } catch {
       setDraft(text);
-      Alert.alert('Could not send message', getApiError(err));
     }
   }
+
+  const visibleMessages = messages.filter((m) => m.messageType !== 'system');
+  const isThreadEmpty = visibleMessages.length === 0;
+  const composerBusy = isSending || isUploading;
 
   function handleCall() {
     if (!callPhone) return;
@@ -187,6 +203,22 @@ export function BookingChatScreen({ orderId, order }: BookingChatScreenProps) {
             keyboardShouldPersistTaps="handled"
             keyboardDismissMode="interactive"
             onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: false })}
+            ListEmptyComponent={
+              isThreadEmpty ? (
+                <View className="flex-1 items-center justify-center px-6 py-12">
+                  <View className="mb-4 size-16 items-center justify-center rounded-full bg-primary-tint">
+                    <Icon as={MessageCircle} className="text-primary size-9" />
+                  </View>
+                  <Text className="text-foreground text-center text-base font-semibold">
+                    Chat with your decorator
+                  </Text>
+                  <Text className="text-muted-foreground mt-2 text-center text-sm leading-5">
+                    Coordinate on the day of your booking — share updates or ask when they will
+                    arrive.
+                  </Text>
+                </View>
+              ) : null
+            }
             ListFooterComponent={otherTyping ? <TypingIndicator align="left" /> : null}
             renderItem={({ item }) => {
               const isMine = item.senderRole === 'customer';
@@ -243,7 +275,14 @@ export function BookingChatScreen({ orderId, order }: BookingChatScreenProps) {
         <View
           className="border-t border-border bg-background px-4 pt-3"
           style={{ paddingBottom: keyboardHeight > 0 ? 8 : Math.max(insets.bottom, 12) }}>
-          <View className="flex-row items-end gap-2">
+          <ChatQuickReplyChips
+            suggestions={BOOKING_CHAT_QUICK_REPLIES}
+            disabled={composerBusy}
+            onSelect={(text) => {
+              void sendText(text);
+            }}
+          />
+          <View className="mt-2 flex-row items-end gap-2">
             <View className="min-h-11 flex-1 flex-row items-end rounded-input border border-border bg-surface px-3 py-2">
               <TextInput
                 className="max-h-24 flex-1 py-1.5 text-body font-normal text-foreground"

@@ -48,7 +48,7 @@ Living brief for the customer mobile app (`app/user`). Update this file when eac
 | `store/wishlist.store.ts` | Guest SecureStore + logged-in `GET/POST/DELETE /wishlist`; merge on login via `apply-consumer-session` |
 | `api/wishlist.api.ts` | Wishlist REST client (city-scoped hydration) |
 | `module/settings/` | `ThemeBootstrap`, `AppThemeOptions`, `use-app-theme`; light/dark preference (default light, not system) |
-| `module/chat/` | `BookingChatScreen`, `SupportTopicChatScreen`, `use-booking-chat-thread`, `use-support-topic-chat-thread`, `help-topics`; order + support chat routes |
+| `module/chat/` | `BookingChatScreen` (empty state + `ChatQuickReplyChips`), `SupportTopicChatScreen`, `use-booking-chat-thread`, `use-support-topic-chat-thread`, `help-topics`, `booking-chat-quick-replies`; order + support chat routes |
 | `module/geo/` | `OlaTrackingMapView`, trip pins, `map-bounds` |
 | `module/notifications/` | Inbox list (`use-user-notifications`, `NotificationRow`), tap routing (`resolve-notification-target`), query invalidation on push |
 | `module/permissions/` | Post-login `enable-location` → `enable-notifications`; `use-permissions-setup-prompt` |
@@ -99,7 +99,7 @@ Living brief for the customer mobile app (`app/user`). Update this file when eac
 - [x] `app/(app)/notifications` — inbox (hidden tab route); back → home or profile by `from`; bottom tabs stay visible; re-tap tab → tab root (`lib/tab-roots.ts`)
 - [x] `app/(app)/profile/orders` — All / Upcoming / Completed / Cancelled (horizontal pills), infinite scroll + load more, `OrderListCard` CTAs (payment, view, review)
 - [x] `app/(app)/profile/orders/[id]` — map tracking layout only `EN_ROUTE`; `ON_SITE` / assigned / completed → classic detail + contact + timeline
-- [x] `app/(app)/profile/orders/[id]/chat` — in-app decorator chat
+- [x] `app/(app)/profile/orders/[id]/chat` — decorator chat; empty-state icon + tap-to-send quick replies above composer
 - [x] Home `HomeActiveOrderBar` — ASSIGNED / EN_ROUTE / ON_SITE above tab bar
 - [x] Home header notifications bell → `/(app)/notifications`; bag → checkout
 - [x] `app/(app)/account` (redirect → profile/account), `search`, `product/[id]` (hidden from tab bar)
@@ -129,6 +129,7 @@ Living brief for the customer mobile app (`app/user`). Update this file when eac
 ## History (newest first)
 
 ```text
+2026-10-07 — Booking chat UX — empty thread state (MessageCircle + copy); always-on quick-reply chips (location/ETA) above composer — `BookingChatScreen`, `ChatQuickReplyChips`, `booking-chat-quick-replies`
 2026-10-06 — Server wishlist — backend `wishlist_items` + `/api/v1/wishlist`; app sync on login (cart merge + wishlist merge); PDP/card hearts; unavailable rows on wishlist screen
 2026-10-06 — Home header glass actions — wishlist, cart, notifications use `HomeHeaderGlassIconButton` (BlurView + light border/highlight on teal header)
 2026-10-06 — Confirm booking — cart line image-left layout; Flipkart-style proceed bar + teal savings strip; horizontal suggested add-ons rail above offers (add updates cart)

@@ -5,7 +5,7 @@ import { Briefcase } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 
 export const BOOKINGS_EMPTY_IMAGE_URL =
-  'https://ik.imagekit.io/aevhlnk0h/undraw_order-delivered_gy61.png';
+  'https://ik.imagekit.io/aevhlnk0h/sajawat24/Package%20Delivery%20Success%20Illustration.png';
 
 type BookingsEmptyStateProps = {
   message: string;

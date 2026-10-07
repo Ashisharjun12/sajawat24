@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { getApiError } from "@/api/api"
 import { getAiPolicy, patchAiPolicy } from "@/api/settings.api"
+import { useAiPolicy } from "@/providers/ai-policy-provider"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
@@ -32,6 +33,7 @@ const SURFACES = [
 ]
 
 export function AiPolicyPanel() {
+  const { refreshAiPolicy } = useAiPolicy()
   const [policy, setPolicy] = useState(null)
   const [loading, setLoading] = useState(true)
   const [pending, setPending] = useState(null)
@@ -65,6 +67,7 @@ export function AiPolicyPanel() {
     try {
       const next = await patchAiPolicy(payload)
       setPolicy(next)
+      void refreshAiPolicy()
       toast.add({
         title: enabled ? `${labelFor(key)} enabled` : `${labelFor(key)} disabled`,
         description:

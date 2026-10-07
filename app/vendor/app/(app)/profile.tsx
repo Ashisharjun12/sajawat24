@@ -1,4 +1,5 @@
 import { Screen } from '@/components/shell';
+import { AppSpinner } from '@/components/ui/app-spinner';
 import { Text } from '@/components/ui/text';
 import { ProfileHeaderRow } from '@/module/profile/components/ProfileHeaderRow';
 import { ProfileSettingsSection } from '@/module/profile/components/ProfileSettingsSection';
@@ -32,12 +33,20 @@ export default function ProfileScreen() {
   const { themeLabel } = useAppTheme();
   const [modeSwitchOpen, setModeSwitchOpen] = useState(false);
   const [modeSwitchLoading, setModeSwitchLoading] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
 
   const displayName = user?.name ?? 'Partner';
   const modeSwitchTarget = isFieldShell ? 'owner' : 'field';
 
-  function handleSignOut() {
-    void signOut().then(() => router.replace('/'));
+  async function handleSignOut() {
+    if (signingOut) return;
+    setSigningOut(true);
+    try {
+      await signOut();
+      router.replace('/');
+    } finally {
+      setSigningOut(false);
+    }
   }
 
   function showComingSoon(feature: string) {
@@ -144,8 +153,15 @@ export default function ProfileScreen() {
 
           <ProfileSettingsSection items={settingsItems} />
 
-          <Pressable onPress={handleSignOut} className="py-3">
-            <Text className="text-center text-base font-medium text-destructive">Sign out</Text>
+          <Pressable
+            onPress={() => void handleSignOut()}
+            disabled={signingOut}
+            className="flex-row items-center justify-center gap-2 py-3"
+            accessibilityState={{ disabled: signingOut, busy: signingOut }}>
+            {signingOut ? <AppSpinner size="sm" /> : null}
+            <Text className="text-center text-base font-medium text-destructive">
+              {signingOut ? 'Signing out…' : 'Sign out'}
+            </Text>
           </Pressable>
         </View>
       </Screen>

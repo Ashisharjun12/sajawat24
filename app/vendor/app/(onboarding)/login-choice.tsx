@@ -26,7 +26,7 @@ export default function LoginChoiceScreen() {
         <View className="flex-1 items-center justify-center">
           <Image
             source={{ uri: LOGIN_CHOICE_IMAGE_URL }}
-            accessibilityLabel="Team collaboration"
+            accessibilityLabel="Sajawat24 partner app"
             contentFit="contain"
             style={styles.heroImage}
           />
@@ -61,8 +61,8 @@ export default function LoginChoiceScreen() {
 const styles = StyleSheet.create({
   heroImage: {
     width: '100%',
-    maxWidth: 280,
-    height: 220,
+    maxWidth: 340,
+    height: 280,
     alignSelf: 'center',
   },
 });
