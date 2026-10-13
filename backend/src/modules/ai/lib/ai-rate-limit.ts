@@ -1,11 +1,13 @@
 import DbFactory from "@/infrastructure/database/db.factory.js";
 import { ApiError } from "@/shared/errors/apiError.js";
+import { isRateLimitEnabled } from "@/shared/rate-limit/is-rate-limit-enabled.js";
 
 export async function assertAiRateLimit(
     key: string,
     limit: number,
     windowSeconds = 3600,
 ): Promise<void> {
+    if (!isRateLimitEnabled()) return;
     const redis = DbFactory.getRedisDatabase().getClient();
     const count = await redis.incr(key);
     if (count === 1) {

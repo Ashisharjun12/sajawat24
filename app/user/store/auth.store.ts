@@ -21,6 +21,7 @@ import {
   saveUserPhone,
   saveUserProfile,
 } from '@/lib/secure-storage';
+import { queryClient } from '@/lib/query-client';
 import { create } from 'zustand';
 
 export { getAuthRedirectPath } from '@/module/auth/lib/auth-routing';
@@ -134,6 +135,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
     }
     await clearAccessToken();
+    queryClient.clear();
     useChatStore.getState().reset();
     void useWishlistStore.getState().resetForLogout();
     set({ accessToken: null, user: null, pendingOtpPhone: null });

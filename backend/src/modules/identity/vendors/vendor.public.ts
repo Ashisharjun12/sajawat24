@@ -1,4 +1,5 @@
 import type { VendorOnboardingStatus } from "@/modules/identity/vendors/vendor.schema.js";
+import type { UserStatus } from "@/modules/identity/users/user.schema.js";
 
 export type PublicVendorProfile = {
     id: string;
@@ -22,6 +23,7 @@ export type AdminVendorListItem = {
     cityName: string;
     state: string;
     onboardingStatus: VendorOnboardingStatus;
+    userAccountStatus: UserStatus;
     isOnDuty: boolean;
     dutyChangedAt: Date | null;
     createdAt: Date;

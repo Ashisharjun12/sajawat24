@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, inArray, ne, or, sql, type SQL } from "drizzle-orm";
+import { and, asc, count, desc, eq, inArray, ne, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db/postgres-client.js";
 import { cities } from "@/modules/geo/cities/city.schema.js";
 import {
@@ -22,17 +22,14 @@ export type CmsBannerListFilter = {
 };
 
 function platformListFilter(platform: string): SQL {
+    if (platform === "android_only") {
+        return sql`${cmsBanners.platforms} @> ARRAY['android']::text[]`;
+    }
     if (platform === "android") {
-        return or(
-            sql`${cmsBanners.platforms} @> ARRAY['android']::text[]`,
-            sql`${cmsBanners.platforms} @> ARRAY['mobile']::text[]`,
-        )!;
+        return sql`${cmsBanners.platforms} @> ARRAY['android']::text[]`;
     }
     if (platform === "ios") {
-        return or(
-            sql`${cmsBanners.platforms} @> ARRAY['ios']::text[]`,
-            sql`${cmsBanners.platforms} @> ARRAY['mobile']::text[]`,
-        )!;
+        return sql`${cmsBanners.platforms} @> ARRAY['ios']::text[]`;
     }
     return sql`${cmsBanners.platforms} @> ARRAY[${platform}]::text[]`;
 }

@@ -1,6 +1,5 @@
 import { _config } from "@/config/config.js";
 import { getMastra } from "@/mastra/index.js";
-import { toolAgentModel } from "@/mastra/model.js";
 import { buildSeoSlug } from "@/modules/ai/lib/build-seo-slug.js";
 import { auditService } from "@/modules/ops/audit/audit.service.js";
 import { requireAiEnabled } from "@/modules/ai/guard/require-ai-enabled.js";
@@ -92,11 +91,10 @@ export class CatalogCopilotService {
         try {
             const result = await runCatalogCopilotLlm(async () =>
                 agent.generate(prompt, {
-                    maxSteps: 6,
+                    maxSteps: 1,
                     abortSignal: abortController.signal,
                     structuredOutput: {
                         schema: productCopyOutputSchema,
-                        model: toolAgentModel,
                         errorStrategy: "strict",
                     },
                 }),

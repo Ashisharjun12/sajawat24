@@ -64,6 +64,12 @@ export class MediaController {
         res.status(202).json(new ApiResponse(202, data, "optimize queued"));
     });
 
+    references = asyncHandler(async (req, res) => {
+        const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+        const data = await this.media.references(id);
+        res.status(200).json(new ApiResponse(200, data, "ok"));
+    });
+
     remove = asyncHandler(async (req, res) => {
         const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
         await this.media.remove(id);

@@ -56,58 +56,83 @@ export function SiteHeader() {
     <header
       ref={headerRef}
       className={cn(
-        "sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur-md",
+        "sticky top-0 z-50",
         (isHome || isProductPdp) && "hidden md:block",
       )}
     >
       <div
-        className={cn(
-          "mx-auto flex max-w-[1240px] items-center gap-3 px-4 transition-[padding] duration-200 md:gap-4 md:px-8",
-          compact ? "py-2" : "pt-4 pb-3",
-        )}
+        className="border-b border-primary-foreground/15 bg-primary text-primary-foreground shadow-sm"
       >
-        <MobileNav />
-        <Link to="/" className="flex shrink-0 items-center gap-2.5">
+        <div
+          className={cn(
+            "mx-auto flex max-w-[1240px] items-center gap-3 px-4 transition-[padding] duration-200 md:gap-4 md:px-8",
+            compact ? "py-2" : "pt-4 pb-3",
+          )}
+        >
+        <MobileNav
+          triggerClassName="text-primary-foreground hover:bg-primary-foreground/15 hover:text-primary-foreground"
+        />
+        <Link
+          to="/"
+          className="hidden shrink-0 items-center md:flex"
+          aria-label={`${brand.companyName} home`}
+        >
           <DecoryLogo
-            lightSrc={brand.logoLightUrl}
-            darkSrc={brand.logoDarkUrl}
+            variant="wordmark"
+            className="h-8 sm:h-9"
             alt={brand.companyName}
           />
-          <span className="hidden font-heading text-[21px] font-extrabold tracking-tight sm:inline">
-            {brand.companyName}
-          </span>
         </Link>
-        <div className="min-w-0 flex-1 md:flex-none">
-          <LocationPicker className="max-md:h-9 max-md:w-full max-md:max-w-full" />
+        <div className="min-w-0 flex-1 md:hidden">
+          <LocationPicker variant="onBrand" className="h-9 w-full max-w-full" />
+        </div>
+        <div className="hidden min-w-0 md:block md:flex-none">
+          <LocationPicker variant="onBrand" />
         </div>
         <div className="mx-auto hidden min-w-0 max-w-[340px] flex-1 md:block">
-          <SearchCommand />
+          <SearchCommand
+            className="border-black/10 shadow-sm"
+          />
         </div>
         <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-1.5">
-          <SearchCommand variant="icon" />
-          <SupportButton />
-          {user ? <NotificationBell /> : null}
-          <WishlistButton />
-          <CartButton />
+          <SearchCommand
+            variant="icon"
+            className="text-primary-foreground hover:bg-primary-foreground/15 hover:text-primary-foreground"
+          />
+          <SupportButton className="text-primary-foreground hover:bg-primary-foreground/15 hover:text-primary-foreground" />
           {user ? (
-            <UserMenu />
+            <NotificationBell className="text-primary-foreground hover:bg-primary-foreground/15 hover:text-primary-foreground" />
+          ) : null}
+          <WishlistButton className="text-primary-foreground hover:bg-primary-foreground/15 hover:text-primary-foreground" />
+          <CartButton className="text-primary-foreground hover:bg-primary-foreground/15 hover:text-primary-foreground" />
+          {user ? (
+            <>
+              <UserMenu className="md:hidden" />
+              <UserMenu
+                variant="iconBrand"
+                className="hidden ring-primary-foreground/25 md:inline-flex"
+              />
+            </>
           ) : (
             <Button
               size="sm"
-              className="hidden h-10 px-4 sm:inline-flex"
+              className="hidden h-10 px-4 sm:inline-flex md:border-primary-foreground/25 md:bg-primary-foreground md:text-primary md:hover:bg-primary-foreground/90"
               onClick={() => setLoginOpen(true)}
             >
               Sign in
             </Button>
           )}
-          <ModeToggle />
+          <ModeToggle
+            className="border-primary-foreground/25 bg-transparent text-primary-foreground hover:bg-primary-foreground/15"
+          />
+        </div>
         </div>
       </div>
       {!isAccount && !isCheckout ? (
         <div
           className={cn(
-            "hidden overflow-hidden border-t border-border transition-[max-height,opacity] duration-200 md:block",
-            compact ? "max-h-0 border-t-0 opacity-0" : "max-h-24 opacity-100",
+            "hidden overflow-hidden border-b border-border bg-background transition-[max-height,opacity] duration-200 md:block",
+            compact ? "max-h-0 border-b-0 opacity-0" : "max-h-24 opacity-100",
           )}
         >
           <div className="mx-auto max-w-[1240px] px-4 md:px-8">

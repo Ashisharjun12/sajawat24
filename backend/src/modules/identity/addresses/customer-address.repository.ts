@@ -68,4 +68,8 @@ export class CustomerAddressRepository {
             .set({ isDefault: false, updatedAt: new Date() })
             .where(and(eq(customerAddresses.userId, userId), eq(customerAddresses.isDefault, true)));
     }
+
+    async deleteAllForUser(userId: string): Promise<void> {
+        await db.delete(customerAddresses).where(eq(customerAddresses.userId, userId));
+    }
 }

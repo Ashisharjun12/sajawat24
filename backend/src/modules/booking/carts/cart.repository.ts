@@ -38,6 +38,7 @@ export interface ICartRepository {
     insert(data: NewCart): Promise<Cart>;
     update(id: string, data: CartPatch): Promise<Cart | undefined>;
     delete(id: string): Promise<boolean>;
+    deleteByUserId(userId: string): Promise<void>;
     loadWithItems(cartId: string): Promise<CartWithItems | undefined>;
     findItem(cartId: string, productId: string): Promise<CartItem | undefined>;
     findItemById(itemId: string): Promise<CartItem | undefined>;
@@ -85,6 +86,13 @@ export class CartRepository implements ICartRepository {
     async delete(id: string): Promise<boolean> {
         const rows = await db.delete(carts).where(eq(carts.id, id)).returning({ id: carts.id });
         return rows.length > 0;
+    }
+
+    async deleteByUserId(userId: string): Promise<void> {
+        const cart = await this.findByUserId(userId);
+        if (cart) {
+            await this.delete(cart.id);
+        }
     }
 
     async loadWithItems(cartId: string): Promise<CartWithItems | undefined> {

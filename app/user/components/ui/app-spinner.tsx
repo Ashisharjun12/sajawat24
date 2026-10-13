@@ -14,9 +14,9 @@ import Animated, {
 const SPIN_MS = 850;
 
 const sizeMap = {
-  sm: { box: 20, icon: 'size-4' },
-  md: { box: 28, icon: 'size-5' },
-  lg: { box: 36, icon: 'size-7' },
+  sm: { box: 24, icon: 'size-5' },
+  md: { box: 40, icon: 'size-8' },
+  lg: { box: 52, icon: 'size-10' },
 } as const;
 
 type AppSpinnerProps = {

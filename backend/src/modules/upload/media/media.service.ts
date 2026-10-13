@@ -10,6 +10,11 @@ import { safeFilename, toPublicMedia, type PublicMedia } from "@/modules/upload/
 import type { ImageCropInput } from "@/modules/upload/media/media.dto.js";
 import { runImagePipeline } from "@/modules/upload/media/image.pipeline.js";
 import type { MediaKind, OptimizeStatus, Upload, UploadStatus } from "@/modules/upload/media/media.schema.js";
+import {
+    findUploadReferences,
+    referencesBlockDelete,
+    type UploadReference,
+} from "@/modules/upload/media/upload-references.js";
 
 const IMAGE_MIMES = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
 const VIDEO_MIMES = new Set(["video/mp4", "video/webm"]);
@@ -60,6 +65,7 @@ export interface IMediaService {
         input?: { crop?: ImageCropInput; output?: { width?: number; height?: number } },
     ): Promise<PublicMedia>;
     remove(id: string): Promise<void>;
+    references(id: string): Promise<{ uploadId: string; references: UploadReference[] }>;
 }
 
 function keepExtension(next: string, current: string): string {
@@ -294,16 +300,30 @@ export class MediaService implements IMediaService {
         return toPublicMedia(row);
     }
 
+    async references(id: string): Promise<{ uploadId: string; references: UploadReference[] }> {
+        const existing = await this.media.findById(id);
+        if (!existing) {
+            throw ApiError.notFound("upload not found");
+        }
+        const refs = await findUploadReferences(id);
+        return { uploadId: id, references: refs };
+    }
+
     async remove(id: string): Promise<void> {
         const existing = await this.media.findById(id);
         if (!existing) {
             throw ApiError.notFound("upload not found");
         }
+        const refs = await findUploadReferences(id);
+        if (referencesBlockDelete(refs)) {
+            throw ApiError.conflict("upload is still in use", refs);
+        }
         try {
             await this.media.remove(id);
         } catch (err) {
             if (isForeignKeyViolation(err)) {
-                throw ApiError.conflict("upload is still in use");
+                const again = await findUploadReferences(id);
+                throw ApiError.conflict("upload is still in use", again);
             }
             throw err;
         }

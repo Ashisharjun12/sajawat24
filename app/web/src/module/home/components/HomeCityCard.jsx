@@ -1,18 +1,20 @@
-import { ArrowRightIcon } from "lucide-react";
+import { ChevronRightIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export const CITY_TONES = [
-  "from-teal-700 to-teal-400",
-  "from-teal-800 to-emerald-400",
-  "from-cyan-700 to-teal-300",
-  "from-teal-600 to-cyan-300",
-  "from-emerald-700 to-teal-300",
-  "from-slate-700 to-teal-400",
-  "from-teal-900 to-teal-500",
-  "from-cyan-800 to-teal-400",
-];
+/** Right image column ~176×116 CSS px; use 2× assets for retina. */
+export const CITY_CARD_IMAGE_SPECS = {
+  widthPx: 800,
+  heightPx: 480,
+  aspectRatio: "5:3",
+  format: "PNG (transparent background) or WebP",
+  notes:
+    "Fill the canvas; align landmark group to bottom-right. No extra transparent margin on the left of the file.",
+};
 
-export function HomeCityCard({ city, index = 0, onSelect, className }) {
+const CARD_HEIGHT = "h-[108px] md:h-[120px]";
+const VIEW_ALL_HEIGHT = "h-[108px] md:h-[120px]";
+
+export function HomeCityCard({ city, onSelect, className }) {
   const imageUrl = city.imageUrl;
 
   return (
@@ -20,20 +22,65 @@ export function HomeCityCard({ city, index = 0, onSelect, className }) {
       type="button"
       onClick={() => onSelect?.(city)}
       className={cn(
-        "relative h-[140px] w-full overflow-hidden rounded-[var(--r-card)] p-5 text-left text-white transition-shadow hover:shadow-md",
-        imageUrl ? "bg-cover bg-center" : `bg-linear-to-br ${CITY_TONES[index % CITY_TONES.length]}`,
+        "group relative w-full overflow-hidden rounded-[var(--r-card)] border border-border/80 bg-card text-left shadow-[var(--shadow-card)] transition-[border-color,box-shadow] hover:border-primary/30 hover:shadow-md",
+        CARD_HEIGHT,
         className,
       )}
-      style={imageUrl ? { backgroundImage: `url(${imageUrl})` } : undefined}
     >
+      <div className="relative z-10 flex h-full max-w-[54%] flex-col justify-center py-2.5 pl-3 pr-0.5 md:max-w-[48%] md:py-3 md:pl-4 md:pr-1">
+        <div className="flex min-w-0 items-center gap-0.5">
+          <h4 className="truncate font-heading text-[15px] font-bold tracking-tight text-foreground md:text-[17px]">
+            {city.name}
+          </h4>
+          <ChevronRightIcon
+            className="size-3.5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary md:size-4"
+            aria-hidden
+          />
+        </div>
+        {city.state ? (
+          <p className="mt-0.5 truncate text-[11px] text-muted-foreground md:text-[13px]">{city.state}</p>
+        ) : null}
+      </div>
       {imageUrl ? (
-        <span className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/70 via-black/25 to-black/10" />
+        <div
+          className="pointer-events-none absolute inset-y-0 right-0 left-[26%] flex items-end justify-end md:left-[30%]"
+          aria-hidden
+        >
+          <img
+            src={imageUrl}
+            alt=""
+            width={400}
+            height={240}
+            className="max-h-full w-full max-w-none object-contain object-bottom-right"
+            decoding="async"
+          />
+        </div>
       ) : null}
-      <h4 className="relative font-heading text-[19px] font-extrabold">{city.name}</h4>
-      <span className="relative text-[12.5px] text-white/90">{city.state}</span>
-      <span className="absolute right-4 bottom-4 flex size-8 items-center justify-center rounded-full bg-white/25">
-        <ArrowRightIcon className="size-4" />
-      </span>
     </button>
+  );
+}
+
+export function HomeCityViewAllCard({ className }) {
+  return (
+    <span
+      className={cn(
+        "group flex w-full items-center gap-2 overflow-hidden rounded-[var(--r-card)] border border-dashed border-primary/35 bg-secondary/60 px-3 py-2.5 text-left shadow-[var(--shadow-card)] transition-[border-color,background-color] hover:border-primary/50 hover:bg-secondary md:gap-3 md:px-4 md:py-3",
+        VIEW_ALL_HEIGHT,
+        className,
+      )}
+    >
+      <div className="min-w-0 flex-1">
+        <div className="flex min-w-0 items-center gap-0.5">
+          <span className="font-heading text-[15px] font-bold leading-tight tracking-tight text-foreground md:text-[17px]">
+            View all cities
+          </span>
+          <ChevronRightIcon
+            className="size-3.5 shrink-0 text-primary transition-transform group-hover:translate-x-0.5 md:size-4"
+            aria-hidden
+          />
+        </div>
+        <p className="mt-0.5 text-[11px] text-muted-foreground md:text-[13px]">See every location we serve</p>
+      </div>
+    </span>
   );
 }

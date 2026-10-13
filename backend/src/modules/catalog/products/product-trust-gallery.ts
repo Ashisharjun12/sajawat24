@@ -15,7 +15,12 @@ export async function appendTrustGallerySlide(
         return images;
     }
 
-    const upload = await getCompletedUpload(slide.uploadId);
+    let upload;
+    try {
+        upload = await getCompletedUpload(slide.uploadId);
+    } catch {
+        return images;
+    }
     const maxSort = images.reduce((max, item) => Math.max(max, item.sortIndex), -1);
 
     return [

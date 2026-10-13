@@ -12,7 +12,14 @@ import {
 import { Spinner } from "@/components/ui/spinner"
 import { AppBannerLinkField } from "@/module/cms/components/AppBannerLinkField"
 import { CmsFormDialogShell } from "@/module/cms/components/CmsFormDialogShell"
-import { CMS_STATUSES } from "@/module/cms/lib/cms-constants"
+import { PlatformCheckboxes } from "@/module/cms/components/PlatformCheckboxes"
+import {
+  CMS_BANNER_PLATFORMS,
+  CMS_STATUSES,
+  bannerPlatformsForEdit,
+  bannerPlatformsForSave,
+} from "@/module/cms/lib/cms-constants"
+import { toast } from "@/components/ui/toast"
 import { linkPreviewLabel } from "@/module/cms/lib/app-banner-link"
 import { CMS_BANNER_APP_HERO_HINT } from "@/module/cms/lib/cms-banner-media"
 
@@ -42,6 +49,7 @@ export function AppBannerFormDialog({
   const [ctaLabel, setCtaLabel] = useState("")
   const [status, setStatus] = useState("draft")
   const [cityId, setCityId] = useState("global")
+  const [platforms, setPlatforms] = useState(["android"])
   const [imageUploadId, setImageUploadId] = useState(null)
   const [imageUrl, setImageUrl] = useState("")
   const [imageError, setImageError] = useState("")
@@ -70,6 +78,7 @@ export function AppBannerFormDialog({
     setCtaLabel(item?.ctaLabel ?? "")
     setStatus(item?.status ?? "draft")
     setCityId(item?.cityId ?? "global")
+    setPlatforms(bannerPlatformsForEdit(item?.platforms, ["android"]))
     const preview =
       item?.mobileImageUrl || item?.imageUrl || imagePreview || ""
     setImageUrl(preview)
@@ -94,6 +103,15 @@ export function AppBannerFormDialog({
 
   function handleSubmit(event) {
     event.preventDefault()
+    const savedPlatforms = bannerPlatformsForSave(platforms)
+    if (!savedPlatforms.length) {
+      toast.add({ title: "Select at least one platform", type: "error" })
+      return
+    }
+    if (!savedPlatforms.includes("android")) {
+      toast.add({ title: "Android app must be selected for heroes in this tab", type: "error" })
+      return
+    }
     const resolvedUploadId =
       imageUploadId ?? pickedUploadId ?? item?.mobileImageUploadId ?? item?.imageUploadId ?? null
     if (!resolvedUploadId) {
@@ -115,7 +133,7 @@ export function AppBannerFormDialog({
       sortIndex: item?.sortIndex ?? 0,
       cityId: city,
       cityName,
-      platforms: ["android"],
+      platforms: savedPlatforms,
       priority: 0,
     })
   }
@@ -210,6 +228,18 @@ export function AppBannerFormDialog({
           </Select>
         </div>
         <div className="grid gap-2">
+          <Label>Show on</Label>
+          <PlatformCheckboxes
+            value={platforms}
+            onChange={setPlatforms}
+            options={CMS_BANNER_PLATFORMS}
+            allowEmpty
+          />
+          <p className="text-xs text-muted-foreground">
+            Android app is required in this tab. You can also enable Website and Mobile web.
+          </p>
+        </div>
+        <div className="grid gap-2">
           <Label>Status</Label>
           <Select value={status} onValueChange={setStatus}>
             <SelectTrigger><SelectValue /></SelectTrigger>
@@ -220,9 +250,6 @@ export function AppBannerFormDialog({
             </SelectContent>
           </Select>
         </div>
-        <p className="text-xs text-muted-foreground">
-          Saved for the Android customer app only (<code className="text-xs">platforms: android</code>).
-        </p>
       </form>
     </CmsFormDialogShell>
   )

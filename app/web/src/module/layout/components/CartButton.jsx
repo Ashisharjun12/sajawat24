@@ -27,7 +27,7 @@ export function CartButton({ variant = "default", className }) {
       {count > 0 ? (
         <span
           className={cn(
-            "absolute flex items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground",
+            "absolute flex items-center justify-center rounded-full bg-instant text-[10px] font-bold text-white",
             isHero ? "-top-1 -right-1 size-[18px]" : "-top-0.5 -right-0.5 size-4",
           )}
         >

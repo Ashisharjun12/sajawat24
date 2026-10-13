@@ -27,7 +27,8 @@ import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const APPLIED_BACK_DELAY_MS = 1600;
+/** Brief “Applied” state before returning to confirm booking. */
+const APPLIED_BACK_DELAY_MS = 280;
 
 function couponTitle(c: CouponLike) {
   const preview = buildCouponPreviewFromApplied(c);
@@ -58,6 +59,7 @@ export function CheckoutOffersScreen() {
     undefined;
 
   const [code, setCode] = useState(cart.appliedCoupon?.code ?? '');
+  const [applyingCode, setApplyingCode] = useState<string | null>(null);
   const backTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -103,22 +105,28 @@ export function CheckoutOffersScreen() {
   async function onApplyCode() {
     const trimmed = code.trim();
     if (!trimmed) return;
+    setApplyingCode(trimmed);
     try {
       await applyCoupon.mutateAsync(trimmed);
       scheduleReturnToCheckout();
     } catch (e) {
       Alert.alert('Promo failed', getApiError(e));
+    } finally {
+      setApplyingCode(null);
     }
   }
 
   async function onApplyListed(coupon: CouponLike) {
     const cCode = resolveCouponCode(coupon) || coupon.code?.trim();
     if (!cCode) return;
+    setApplyingCode(cCode);
     try {
-      await applyCoupon.mutateAsync(cCode);
+      await applyCoupon.mutateAsync({ code: cCode, coupon });
       scheduleReturnToCheckout();
     } catch (e) {
       Alert.alert('Could not apply', getApiError(e));
+    } finally {
+      setApplyingCode(null);
     }
   }
 
@@ -208,6 +216,7 @@ export function CheckoutOffersScreen() {
               const cCode = resolveCouponCode(c) || c.code?.trim();
               if (!cCode) return null;
               const isApplied = appliedCode === cCode;
+              const isApplyingThis = applyingCode === cCode;
               return (
                 <Pressable
                   key={cCode}
@@ -215,7 +224,7 @@ export function CheckoutOffersScreen() {
                   onPress={() => void onApplyListed(c)}
                   className={cn(
                     'flex-row items-center gap-3 rounded-2xl border px-4 py-3.5 active:opacity-80',
-                    isApplied
+                    isApplied || isApplyingThis
                       ? 'border-success/40 bg-success/10'
                       : 'border-border bg-card',
                   )}>
@@ -230,15 +239,17 @@ export function CheckoutOffersScreen() {
                     </Text>
                     <Text className="text-foreground mt-1.5 text-xs font-bold tracking-wide">{cCode}</Text>
                   </View>
-                  <Text
-                    className={cn(
-                      'text-xs font-bold',
-                      isApplied
-                        ? 'text-success'
-                        : 'text-muted-foreground font-semibold',
-                    )}>
-                    {isApplied ? 'Applied' : 'Apply'}
-                  </Text>
+                  {isApplyingThis ? (
+                    <ActivityIndicator size="small" className="text-primary" />
+                  ) : (
+                    <Text
+                      className={cn(
+                        'text-xs font-bold',
+                        isApplied ? 'text-success' : 'text-muted-foreground font-semibold',
+                      )}>
+                      {isApplied ? 'Applied' : 'Apply'}
+                    </Text>
+                  )}
                 </Pressable>
               );
             })}

@@ -1,7 +1,8 @@
 import { Icon } from '@/components/ui/icon';
-import { Text } from '@/components/ui/text';
 import { ScalePressable } from '@/components/shell';
+import { HomeHeaderIconBadge } from '@/module/home/components/HomeHeaderIconBadge';
 import { HomeLocationPill } from '@/module/home/components/HomeLocationPill';
+import { useUserNotifications } from '@/module/notifications/hooks/use-user-notifications';
 import { useCartStore } from '@/store/cart.store';
 import { useAuthStore } from '@/store/auth.store';
 import { openCartCheckout } from '@/module/booking/lib/open-cart-checkout';
@@ -23,6 +24,7 @@ export function HomeTopBar({ onCityPress }: HomeTopBarProps) {
   const itemCount = useCartStore((s) => s.itemCount);
   const wishlistCount = useWishlistStore((s) => s.rows.length);
   const hydrateWishlist = useWishlistStore((s) => s.hydrate);
+  const { unreadCount } = useUserNotifications();
 
   useEffect(() => {
     void hydrateWishlist();
@@ -40,13 +42,7 @@ export function HomeTopBar({ onCityPress }: HomeTopBarProps) {
           onPress={() => router.push('/(app)/wishlist' as Href)}
           className={`relative ${headerActionClass}`}>
           <Icon as={Heart} className="size-5 text-primary-foreground" strokeWidth={2.25} />
-          {wishlistCount > 0 ? (
-            <View className="absolute -right-1 -top-1 min-w-[18px] rounded-full border-2 border-primary bg-cta px-1 py-0.5">
-              <Text className="text-cta-foreground text-center text-[10px] font-bold">
-                {wishlistCount > 9 ? '9+' : wishlistCount}
-              </Text>
-            </View>
-          ) : null}
+          <HomeHeaderIconBadge count={wishlistCount} />
         </ScalePressable>
         <ScalePressable
           haptic
@@ -56,13 +52,7 @@ export function HomeTopBar({ onCityPress }: HomeTopBarProps) {
           onPress={() => openCartCheckout(user, itemCount)}
           className={`relative ${headerActionClass}`}>
           <Icon as={ShoppingBag} className="size-5 text-primary-foreground" strokeWidth={2.25} />
-          {itemCount > 0 ? (
-            <View className="absolute -right-1 -top-1 min-w-[18px] rounded-full border-2 border-primary bg-cta px-1 py-0.5">
-              <Text className="text-cta-foreground text-center text-[10px] font-bold">
-                {itemCount > 9 ? '9+' : itemCount}
-              </Text>
-            </View>
-          ) : null}
+          <HomeHeaderIconBadge count={itemCount} />
         </ScalePressable>
         <ScalePressable
           onPress={() => router.push('/(app)/notifications?from=home' as Href)}
@@ -70,8 +60,9 @@ export function HomeTopBar({ onCityPress }: HomeTopBarProps) {
           hitSlop={8}
           accessibilityRole="button"
           accessibilityLabel="Notifications"
-          className={headerActionClass}>
+          className={`relative ${headerActionClass}`}>
           <Icon as={Bell} className="size-5 text-primary-foreground" strokeWidth={2.25} />
+          <HomeHeaderIconBadge count={unreadCount} />
         </ScalePressable>
       </View>
     </View>

@@ -7,16 +7,22 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 import { useTheme } from "@/components/ui/theme-provider";
 
-export function ModeToggle() {
+export function ModeToggle({ className }) {
   const { setTheme, resolvedTheme } = useTheme();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          <Button aria-label="Select theme" size="icon" variant="outline" />
+          <Button
+            aria-label="Select theme"
+            size="icon"
+            variant="outline"
+            className={className}
+          />
         }
       >
         {resolvedTheme === "light" ? (

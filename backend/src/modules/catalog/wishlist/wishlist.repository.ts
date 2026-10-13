@@ -15,6 +15,7 @@ export interface IWishlistRepository {
     insertIgnore(userId: string, productId: string): Promise<WishlistItem | undefined>;
     deleteByUserAndProduct(userId: string, productId: string): Promise<boolean>;
     deleteByIds(ids: string[]): Promise<void>;
+    deleteAllForUser(userId: string): Promise<void>;
 }
 
 export class WishlistRepository implements IWishlistRepository {
@@ -66,6 +67,10 @@ export class WishlistRepository implements IWishlistRepository {
     async deleteByIds(ids: string[]): Promise<void> {
         if (ids.length === 0) return;
         await db.delete(wishlistItems).where(inArray(wishlistItems.id, ids));
+    }
+
+    async deleteAllForUser(userId: string): Promise<void> {
+        await db.delete(wishlistItems).where(eq(wishlistItems.userId, userId));
     }
 
     /** Oldest first — for cap trimming. */

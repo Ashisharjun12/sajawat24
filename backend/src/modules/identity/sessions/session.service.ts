@@ -64,6 +64,9 @@ export class SessionService implements ISessionService {
         if (user.status === "blocked") {
             throw ApiError.forbidden("account blocked");
         }
+        if (user.status === "deleted") {
+            throw ApiError.forbidden("account deleted");
+        }
 
         const accessToken = signAccessToken(user);
         const refreshToken = randomBytes(32).toString("hex");
@@ -95,6 +98,9 @@ export class SessionService implements ISessionService {
 
         const user = await this.users.findById(stored.userId);
         if (!user) {
+            throw ApiError.unauthorized("invalid refresh token");
+        }
+        if (user.status === "deleted") {
             throw ApiError.unauthorized("invalid refresh token");
         }
 

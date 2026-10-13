@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { cmsHomePlatformSchema, cmsPlatformsSchema } from "@/modules/cms/cms-platforms.js";
+import {
+    cmsAdminBannerPlatformFilterSchema,
+    cmsHomePlatformSchema,
+    cmsPlatformsSchema,
+} from "@/modules/cms/cms-platforms.js";
 
 const cmsStatusSchema = z.enum(["draft", "published", "hidden"]);
 const cmsPlacementSchema = z.enum(["announcement_bar", "home_hero", "home_mid", "home_end"]);
@@ -15,7 +19,7 @@ export const listCmsBannersQueryDto = z.object({
     placement: cmsPlacementSchema.optional(),
     excludePlacement: cmsPlacementSchema.optional(),
     status: cmsStatusSchema.optional(),
-    platform: cmsHomePlatformSchema.optional(),
+    platform: cmsAdminBannerPlatformFilterSchema.optional(),
 });
 
 export const listCmsTestimonialsQueryDto = z.object({

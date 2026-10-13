@@ -1,14 +1,9 @@
 import type { CustomerUser } from '@/lib/auth.types';
 import { type Href, router } from 'expo-router';
-import { Alert } from 'react-native';
 
-export function openCartCheckout(user: CustomerUser | null, itemCount: number) {
+export function openCartCheckout(user: CustomerUser | null, _itemCount: number) {
   if (!user) {
     router.push('/(onboarding)/login' as Href);
-    return false;
-  }
-  if (itemCount <= 0) {
-    Alert.alert('Your bag is empty', 'Add a setup from the catalog to continue.');
     return false;
   }
   router.push('/(app)/checkout' as Href);

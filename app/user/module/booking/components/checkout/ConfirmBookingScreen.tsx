@@ -30,6 +30,7 @@ import { getProductForCatalogLocation } from '@/lib/catalog-location';
 import { isBackendCityId } from '@/lib/location-label';
 import { useCheckoutLineAddons } from '@/module/booking/hooks/use-checkout-line-addons';
 import type { CatalogProductDetail } from '@/module/catalog/lib/product-detail';
+import { PackagesEmptyState } from '@/module/catalog/components/PackagesEmptyState';
 import { useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { View } from 'react-native';
@@ -49,7 +50,6 @@ export function ConfirmBookingScreen() {
   const deliveryLabel = useCheckoutStore((s) => s.deliveryLabel);
   const setCustomer = useCheckoutStore((s) => s.setCustomer);
   const hydrateCustomerFromUser = useCheckoutStore((s) => s.hydrateCustomerFromUser);
-  const suppressEmptyCartExit = useCheckoutStore((s) => s.suppressEmptyCartExit);
   const cartItemCount = useCartStore((s) => s.itemCount);
 
   const deliveryHydrated = useDeliveryLocationStore((s) => s.hydrated);
@@ -83,15 +83,6 @@ export function ConfirmBookingScreen() {
       if (!deliveryHydrated) return;
       void syncCheckoutDeliveryFromStores(addresses, queryClient);
     }, [deliveryHydrated, selectedAddressId, deliverySnapshot, addresses, queryClient]),
-  );
-
-  useFocusEffect(
-    useCallback(() => {
-      if (suppressEmptyCartExit) return;
-      if (!isLoading && cart.items.length === 0 && cartItemCount === 0) {
-        router.replace('/(app)/' as Href);
-      }
-    }, [suppressEmptyCartExit, cartItemCount, isLoading, cart.items.length]),
   );
 
   const isInstantCart = cart.fulfillmentType === 'instant';
@@ -160,6 +151,22 @@ export function ConfirmBookingScreen() {
 
   if (checkoutLoading) {
     return <ConfirmBookingSkeleton onBack={onBack} />;
+  }
+
+  const cartEmpty = cart.items.length === 0 && cartItemCount === 0;
+
+  if (cartEmpty) {
+    return (
+      <Screen scroll={false} edges={['left', 'right']} contentClassName="flex-1 bg-bg">
+        <TabScreenTitle title="My bag" tone="primary" showBack onBack={onBack} />
+        <PackagesEmptyState
+          icon="bag"
+          title="No package added"
+          description="Pick a decoration package from the catalog and add it to your bag to book."
+          buttonLabel="View packages"
+        />
+      </Screen>
+    );
   }
 
   return (

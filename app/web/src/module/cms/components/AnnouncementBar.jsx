@@ -12,13 +12,13 @@ function dismissKey(ids) {
 function MarqueeTrack({ announcements }) {
   const segment = announcements.map((item, index) => (
     <Fragment key={`${item.id}-${index}`}>
-      {index > 0 ? <span className="px-3 opacity-70">•</span> : null}
+      {index > 0 ? <span className="px-2 opacity-70 md:px-3">•</span> : null}
       {item.href ? (
-        <Link to={item.href} className="whitespace-nowrap hover:underline">
+        <Link to={item.href} className="whitespace-nowrap hover:underline leading-tight">
           {item.message}
         </Link>
       ) : (
-        <span className="whitespace-nowrap">{item.message}</span>
+        <span className="whitespace-nowrap leading-tight">{item.message}</span>
       )}
     </Fragment>
   ));
@@ -59,10 +59,13 @@ export function AnnouncementBar() {
 
   return (
     <div
-      className={cn("relative z-[60] w-full overflow-hidden py-2.5", barStyle.className)}
+      className={cn(
+        "relative z-[60] w-full overflow-hidden py-1.5 md:py-2.5",
+        barStyle.className,
+      )}
       style={barStyle.style}
     >
-      <div className="mx-auto flex max-w-[1240px] items-center md:px-8">
+      <div className="mx-auto flex max-w-[1240px] items-center px-2.5 md:px-8">
         <div className="min-w-0 flex-1 overflow-hidden">
           <MarqueeTrack announcements={announcements} />
         </div>
@@ -70,10 +73,10 @@ export function AnnouncementBar() {
           <button
             type="button"
             aria-label="Dismiss announcement"
-            className="ml-3 shrink-0 rounded-full p-1 opacity-80 hover:opacity-100"
+            className="ml-1.5 shrink-0 rounded-full p-0.5 opacity-80 hover:opacity-100 md:ml-3 md:p-1"
             onClick={dismiss}
           >
-            <XIcon className="size-4" />
+            <XIcon className="size-3.5 md:size-4" />
           </button>
         ) : null}
       </div>

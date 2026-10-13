@@ -1,7 +1,6 @@
 import { IconWell } from '@/components/shell';
 import { Text } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
-import { useAppTheme } from '@/module/settings/hooks/use-app-theme';
 import { APP_THEME_LABELS, type AppTheme } from '@/module/settings/lib/theme-preference';
 import { Moon, Sun } from 'lucide-react-native';
 import type { LucideIcon } from 'lucide-react-native';
@@ -14,17 +13,20 @@ const THEME_ICONS: Record<AppTheme, LucideIcon> = {
   dark: Moon,
 };
 
-export function AppThemeOptions() {
-  const { theme, setTheme } = useAppTheme();
+type AppThemeOptionsProps = {
+  value: AppTheme;
+  onChange: (theme: AppTheme) => void;
+};
 
+export function AppThemeOptions({ value, onChange }: AppThemeOptionsProps) {
   return (
     <View className="gap-2">
       {THEME_OPTIONS.map((option) => {
-        const selected = theme === option;
+        const selected = value === option;
         return (
           <Pressable
             key={option}
-            onPress={() => void setTheme(option)}
+            onPress={() => onChange(option)}
             className={cn(
               'flex-row items-center justify-between rounded-2xl border px-4 py-3.5 active:opacity-90',
               selected ? 'border-primary bg-primary/8' : 'border-border bg-card',

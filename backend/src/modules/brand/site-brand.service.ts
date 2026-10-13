@@ -80,11 +80,23 @@ export class SiteBrandService {
                     : current.defaultFaqs,
         };
 
-        if (next.logoLightUploadId) await this.validateLogo(next.logoLightUploadId);
-        if (next.logoDarkUploadId) await this.validateLogo(next.logoDarkUploadId);
-        if (next.productTrustGalleryUploadId) {
+        if (input.logoLightUploadId !== undefined && next.logoLightUploadId) {
+            await this.validateLogo(next.logoLightUploadId);
+        }
+        if (input.logoDarkUploadId !== undefined && next.logoDarkUploadId) {
+            await this.validateLogo(next.logoDarkUploadId);
+        }
+
+        const trustUploadTouched = input.productTrustGalleryUploadId !== undefined;
+        const trustEnabling =
+            input.productTrustGalleryEnabled === true && !current.productTrustGalleryEnabled;
+        if (
+            next.productTrustGalleryUploadId &&
+            (trustUploadTouched || trustEnabling)
+        ) {
             await this.validateTrustGalleryImage(next.productTrustGalleryUploadId);
         }
+
         if (next.productTrustGalleryEnabled && !next.productTrustGalleryUploadId) {
             throw ApiError.badRequest("choose a trust gallery image before enabling");
         }
@@ -126,7 +138,12 @@ export class SiteBrandService {
         if (!brand.productTrustGalleryEnabled || !brand.productTrustGalleryUploadId) {
             return null;
         }
-        const upload = await getCompletedUpload(brand.productTrustGalleryUploadId);
+        let upload;
+        try {
+            upload = await getCompletedUpload(brand.productTrustGalleryUploadId);
+        } catch {
+            return null;
+        }
         if (upload.kind !== "image") {
             return null;
         }
@@ -146,15 +163,29 @@ export class SiteBrandService {
     }
 
     private async validateTrustGalleryImage(uploadId: string) {
-        const upload = await getCompletedUpload(uploadId);
+        let upload;
+        try {
+            upload = await getCompletedUpload(uploadId);
+        } catch (err) {
+            if (err instanceof ApiError && err.message === "upload is not completed") {
+                throw ApiError.badRequest(
+                    "trust gallery image is not ready — wait for the upload to finish in Media, or pick another image",
+                );
+            }
+            throw err;
+        }
         if (upload.kind !== "image") {
             throw ApiError.badRequest("trust gallery slide must be an image");
         }
     }
 
-    private async mediaUrl(uploadId: string) {
-        const upload = await getCompletedUpload(uploadId);
-        const media = toPublicMedia(upload);
-        return media.optimizedUrl ?? media.publicUrl;
+    private async mediaUrl(uploadId: string): Promise<string | null> {
+        try {
+            const upload = await getCompletedUpload(uploadId);
+            const media = toPublicMedia(upload);
+            return media.optimizedUrl ?? media.publicUrl;
+        } catch {
+            return null;
+        }
     }
 }

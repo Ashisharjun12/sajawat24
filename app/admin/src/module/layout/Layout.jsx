@@ -3,7 +3,6 @@ import { motion, useReducedMotion } from "framer-motion"
 import { AppSidebar } from "@/components/blocks/admin/app-sidebar"
 import { SiteHeader } from "@/components/blocks/admin/site-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
-import { AdminFloatingMascot } from "@/module/layout/components/AdminFloatingMascot"
 import { AiPolicyProvider } from "@/providers/ai-policy-provider"
 
 export function Layout() {
@@ -38,7 +37,6 @@ export function Layout() {
             </SidebarInset>
           </div>
         </SidebarProvider>
-        <AdminFloatingMascot />
       </div>
     </AiPolicyProvider>
   )

@@ -1,6 +1,10 @@
 import type { CmsBanner } from "@/modules/cms/banners/banner.schema.js";
 import type { CmsTestimonial } from "@/modules/cms/testimonials/testimonial.schema.js";
-import { matchesCmsPlatform } from "@/modules/cms/cms-platforms.js";
+import {
+    matchesCmsAnnouncementPlatform,
+    matchesCmsBannerPlatform,
+    matchesCmsPlatform,
+} from "@/modules/cms/cms-platforms.js";
 
 type ResolveRow = {
     id: string;
@@ -89,13 +93,28 @@ function toHeroSlide(row: ResolveRow) {
 }
 
 function toAnnouncement(row: ResolveRow) {
+    const title = row.title?.trim() || null;
+    const subtitle = row.subtitle?.trim() || null;
+    const tag = row.tag?.trim() || null;
+    const ctaLabel = row.ctaLabel?.trim() || null;
+    const href = row.href?.trim() || null;
+    const imageUrl = row.imageUrl?.trim() || null;
+    const mobileImageUrl = row.mobileImageUrl?.trim() || null;
     return {
         id: row.id,
-        message: row.message ?? "",
-        href: row.href,
+        message: row.message?.trim() ?? "",
+        title,
+        subtitle,
+        tag,
+        imageUrl,
+        mobileImageUrl,
+        alt: row.alt?.trim() || title || null,
+        href,
+        ctaLabel,
         tone: row.tone ?? "promo",
         accentColor: row.accentColor?.trim() || null,
         dismissible: row.dismissible,
+        sortIndex: row.sortIndex,
     };
 }
 
@@ -139,9 +158,13 @@ export class CmsHomeService {
         const cityId = options.cityId ?? null;
         const at = new Date();
 
-        const eligibleBanners = banners.filter(
-            (row) => isPublished(row, at) && matchesCmsPlatform(row.platforms, platform),
-        );
+        const eligibleBanners = banners.filter((row) => {
+            if (!isPublished(row, at)) return false;
+            if (row.placement === "announcement_bar") {
+                return matchesCmsAnnouncementPlatform(row.platforms, platform);
+            }
+            return matchesCmsBannerPlatform(row.platforms, platform);
+        });
 
         const announcementPool = eligibleBanners.filter((row) => row.placement === "announcement_bar");
         const cityAnnouncements = announcementPool.filter((row) => row.cityId && cityId && row.cityId === cityId);

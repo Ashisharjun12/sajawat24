@@ -1,9 +1,17 @@
+import { cn } from "@/lib/utils";
 import { PLAY_STORE_URL } from "@/lib/env";
 
-export function FooterGetTheApp() {
+export function FooterGetTheApp({ onBrand = false }) {
   return (
     <div className="flex flex-col items-end gap-1.5">
-      <span className="text-sm font-semibold text-foreground">Get the app</span>
+      <span
+        className={cn(
+          "text-sm font-semibold",
+          onBrand ? "text-primary-foreground" : "text-foreground",
+        )}
+      >
+        Get the app
+      </span>
       <a
         href={PLAY_STORE_URL}
         target="_blank"

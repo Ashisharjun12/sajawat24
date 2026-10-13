@@ -136,17 +136,21 @@ export function CustomerDetailPage() {
         </div>
         <p className="mt-1 text-sm text-muted-foreground">
           Joined {formatJoinedDate(customer.createdAt)}
+          {customer.status === "deleted" && customer.deletedAt
+            ? ` · Deleted ${formatJoinedDate(customer.deletedAt)}`
+            : null}
         </p>
       </header>
 
       <div className="flex flex-wrap gap-2">
-        {customer.status === "blocked" ? (
-          <Button onClick={() => setDialog("unblock")}>Unblock customer</Button>
-        ) : (
-          <Button variant="destructive" onClick={() => setDialog("block")}>
-            Block customer
-          </Button>
-        )}
+        {customer.status !== "deleted" &&
+          (customer.status === "blocked" ? (
+            <Button onClick={() => setDialog("unblock")}>Unblock customer</Button>
+          ) : (
+            <Button variant="destructive" onClick={() => setDialog("block")}>
+              Block customer
+            </Button>
+          ))}
         <Button variant="ghost" onClick={() => navigate("/people?tab=customers")}>
           Back to list
         </Button>
@@ -182,7 +186,9 @@ export function CustomerDetailPage() {
 
       <PersonBookingsPanel userId={customer.id} title="Bookings" />
 
-      <CustomerRefundsPanel customerId={customer.id} customerName={customer.name} />
+      {customer.status !== "deleted" ? (
+        <CustomerRefundsPanel customerId={customer.id} customerName={customer.name} />
+      ) : null}
 
       <AlertDialog
         open={Boolean(dialog)}

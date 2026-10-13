@@ -33,7 +33,11 @@ import {
   vendorFiltersActive,
 } from "@/module/people/filters/vendor-filter-query"
 import { buildVendorFilterFields } from "@/module/people/filters/people-filter-fields"
-import { VENDOR_STATUS_TABS, vendorTabToStatus } from "@/module/people/lib/vendor-status"
+import {
+  VENDOR_STATUS_TABS,
+  vendorTabToStatus,
+  vendorTabToUserAccountStatus,
+} from "@/module/people/lib/vendor-status"
 import { ListPagination } from "@/module/geo/components/ListPagination"
 
 const LIMIT = 20
@@ -58,6 +62,10 @@ const EMPTY_COPY = {
   all: {
     title: "No vendors yet",
     description: "Vendors appear here after they register on the mobile app.",
+  },
+  deleted_account: {
+    title: "No vendors with deleted accounts",
+    description: "Vendors whose login user deleted their consumer account appear here.",
   },
   search: {
     title: "No vendors match",
@@ -102,6 +110,7 @@ export function VendorsPanel() {
       page,
       limit: LIMIT,
       status: vendorTabToStatus(tab) ?? undefined,
+      userAccountStatus: vendorTabToUserAccountStatus(tab),
       search: debouncedSearch || undefined,
       ...filterParams,
     }),

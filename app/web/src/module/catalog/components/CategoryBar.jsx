@@ -11,7 +11,7 @@ import { useCatalogStore } from "@/store/catalog.store";
 
 const VISIBLE_COUNT = 8;
 
-function CategoryLink({ category, active, layoutId }) {
+function CategoryLink({ category, active, layoutId, onPrimary }) {
   const { Icon, iconBg } = resolveCategoryIcon({
     iconKey: category.iconKey,
     iconTone: category.iconTone,
@@ -39,7 +39,10 @@ function CategoryLink({ category, active, layoutId }) {
       {active ? (
         <motion.span
           layoutId={layoutId}
-          className="absolute inset-x-3 bottom-0 h-0.5 rounded-full bg-foreground"
+          className={cn(
+            "absolute inset-x-3 bottom-0 h-0.5 rounded-full",
+            onPrimary ? "bg-primary-foreground" : "bg-foreground",
+          )}
           transition={{ type: "spring", stiffness: 380, damping: 30 }}
         />
       ) : null}
@@ -47,7 +50,7 @@ function CategoryLink({ category, active, layoutId }) {
   );
 }
 
-export function CategoryBar() {
+export function CategoryBar({ onPrimary = false }) {
   const reduceMotion = useReducedMotion();
   const location = useLocation();
   const status = useCatalogStore((s) => s.status);
@@ -76,6 +79,7 @@ export function CategoryBar() {
               category={category}
               active={active}
               layoutId={layoutId}
+              onPrimary={onPrimary}
             />
           );
         })}
@@ -92,8 +96,12 @@ export function CategoryBar() {
             className={cn(
               "flex size-9 items-center justify-center rounded-xl",
               decorationsActive
-                ? "bg-primary/15 text-primary"
-                : "bg-muted/80 text-foreground/70",
+                ? onPrimary
+                  ? "bg-primary-foreground/20 text-primary-foreground"
+                  : "bg-primary/15 text-primary"
+                : onPrimary
+                  ? "bg-primary-foreground/10 text-primary-foreground/80"
+                  : "bg-muted/80 text-foreground/70",
             )}
           >
             <LayoutGridIcon className="size-[18px]" strokeWidth={1.75} aria-hidden />
@@ -102,7 +110,10 @@ export function CategoryBar() {
           {decorationsActive ? (
             <motion.span
               layoutId={layoutId}
-              className="absolute inset-x-3 bottom-0 h-0.5 rounded-full bg-foreground"
+              className={cn(
+                "absolute inset-x-3 bottom-0 h-0.5 rounded-full",
+                onPrimary ? "bg-primary-foreground" : "bg-foreground",
+              )}
               transition={{ type: "spring", stiffness: 380, damping: 30 }}
             />
           ) : null}

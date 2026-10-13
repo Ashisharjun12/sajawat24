@@ -45,4 +45,10 @@ export class PreferenceService {
         await redis.del(cacheKey(userId));
         return row;
     }
+
+    async deleteForUser(userId: string): Promise<void> {
+        await this.repo.deletePreferenceForUser(userId);
+        const redis = DbFactory.getRedisDatabase().getClient();
+        await redis.del(cacheKey(userId));
+    }
 }

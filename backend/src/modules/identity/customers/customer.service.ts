@@ -55,6 +55,9 @@ export class CustomerService implements ICustomerService {
         if (!existing) {
             throw ApiError.notFound("customer not found");
         }
+        if (existing.status === "deleted") {
+            throw ApiError.conflict("cannot change status of a deleted account");
+        }
         if (existing.status === status) {
             return existing;
         }

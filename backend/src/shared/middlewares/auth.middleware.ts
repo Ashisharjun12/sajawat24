@@ -19,6 +19,9 @@ export const authRequired: RequestHandler = asyncHandler(async (req, _res, next)
     if (user.status === "blocked") {
         throw ApiError.forbidden("account blocked");
     }
+    if (user.status === "deleted") {
+        throw ApiError.forbidden("account deleted");
+    }
     req.actor = { id: user.id, role: user.role };
     next();
 });
@@ -29,7 +32,7 @@ export const authOptional: RequestHandler = asyncHandler(async (req, _res, next)
         try {
             const payload = verifyAccessToken(header.slice(7));
             const user = await users.findById(payload.sub);
-            if (user && user.status !== "blocked") {
+            if (user && user.status !== "blocked" && user.status !== "deleted") {
                 req.actor = { id: user.id, role: user.role };
             }
         } catch {

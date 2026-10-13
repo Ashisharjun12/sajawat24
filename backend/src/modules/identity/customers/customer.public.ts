@@ -7,6 +7,7 @@ export type AdminCustomerListItem = {
     phone: string | null;
     email: string | null;
     status: UserStatus;
+    deletedAt: Date | null;
     bookingCount: number;
     createdAt: Date;
 };

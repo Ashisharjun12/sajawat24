@@ -16,7 +16,9 @@ export class ApiError extends Error{
     static notFound(msg="not Found"){ return new ApiError(404 , msg) }
     static forbidden(msg="forbidden"){ return new ApiError(403 , msg) }
     static unauthorized(msg="unauthorized"){ return new ApiError(401 , msg) }
-    static conflict(msg="resource conflict"){ return new ApiError(409 , msg) }
+    static conflict(msg="resource conflict", errors: unknown[] = []) {
+        return new ApiError(409, msg, true, errors);
+    }
     static badRequest(msg="bad Request", error?:unknown[]){ return new ApiError(400 , msg , true , error) }
     static internalServerError(msg="internal Server Error", error?:unknown[]){ return new ApiError(500 , msg , true , error) }
     

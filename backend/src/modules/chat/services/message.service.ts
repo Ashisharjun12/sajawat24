@@ -23,6 +23,7 @@ import {
 } from "@/modules/chat/lib/chat.constants.js";
 import { CHAT_MESSAGE_EVENT, CHAT_READ_EVENT } from "@/modules/chat/lib/chat.events.js";
 import { checkRateLimit } from "@/modules/chat/lib/rate-limit.js";
+import { isRateLimitEnabled } from "@/shared/rate-limit/is-rate-limit-enabled.js";
 import type { Message } from "@/modules/chat/conversations/conversation.schema.js";
 import { displayUrl } from "@/modules/upload/media/media.public.js";
 import type { IMediaService } from "@/modules/upload/media/media.service.js";
@@ -141,9 +142,11 @@ export class MessageService implements IMessageService {
             }
         }
 
-        const rateKey = `chat:${userId}:${conversationId}`;
-        if (!checkRateLimit(rateKey, CHAT_RATE_LIMIT_PER_MINUTE)) {
-            throw new ApiError(429, "message rate limit exceeded");
+        if (isRateLimitEnabled()) {
+            const rateKey = `chat:${userId}:${conversationId}`;
+            if (!checkRateLimit(rateKey, CHAT_RATE_LIMIT_PER_MINUTE)) {
+                throw new ApiError(429, "message rate limit exceeded");
+            }
         }
 
         if (role === "admin") {

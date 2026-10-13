@@ -1,8 +1,8 @@
 import { requestForegroundLocationPermission } from '@/lib/location';
 import { PermissionStepScreen } from '@/module/permissions/components/PermissionStepScreen';
+import { LOCATION_PERMISSION_ILLUSTRATION } from '@/module/permissions/lib/permission-step-assets';
 import { usePermissionsSetupStore } from '@/store/permissions-setup.store';
 import { Href, router } from 'expo-router';
-import { MapPin } from 'lucide-react-native';
 import { useState } from 'react';
 
 export default function EnableLocationScreen() {
@@ -26,11 +26,12 @@ export default function EnableLocationScreen() {
 
   return (
     <PermissionStepScreen
-      icon={MapPin}
-      title="Turn on location"
-      description="See decorations and delivery options near you. We only use location while you're using the app."
-      accentClassName="bg-primary-tint"
+      illustrationUri={LOCATION_PERMISSION_ILLUSTRATION}
+      illustrationLabel="Map showing your delivery area"
+      title="Allow location access"
+      description="See decoration and delivery options near you. We only use your location while you're using the app."
       loading={loading}
+      allowLabel="Allow location"
       onAllow={() => void handleAllow()}
       onSkip={() => void goToNextStep()}
     />

@@ -2,6 +2,7 @@ import { ScreenBackButton } from '@/components/shell/ScreenBackButton';
 import { Text } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
 import type { Href } from 'expo-router';
+import type { ReactNode } from 'react';
 import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -19,6 +20,8 @@ type TabScreenTitleProps = {
   backAccessibilityLabel?: string;
   /** Set when parent `Screen` uses `gutter` — avoids double horizontal padding. */
   insetFromParentGutter?: boolean;
+  /** Right slot (e.g. Mark all read); defaults to spacer matching back button width. */
+  trailing?: ReactNode;
 };
 
 /** Fixed tab header — title stays visible while content scrolls below. */
@@ -32,6 +35,7 @@ export function TabScreenTitle({
   orHome = false,
   backAccessibilityLabel = 'Go back',
   insetFromParentGutter = false,
+  trailing,
 }: TabScreenTitleProps) {
   const insets = useSafeAreaInsets();
   const isPrimary = tone === 'primary';
@@ -63,7 +67,7 @@ export function TabScreenTitle({
             numberOfLines={1}>
             {title}
           </Text>
-          <View className="size-10" />
+          {trailing ?? <View className="size-10" />}
         </View>
         {subtitle ? (
           <Text

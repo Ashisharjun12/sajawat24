@@ -111,6 +111,14 @@ export function VendorsTable({
                       status={vendor.onboardingStatus}
                       className="max-w-full truncate text-[10px]"
                     />
+                    {vendor.userAccountStatus === "deleted" ? (
+                      <Badge
+                        className="w-fit border-transparent bg-destructive/15 text-[10px] text-destructive"
+                        variant="destructive"
+                      >
+                        Deleted account
+                      </Badge>
+                    ) : null}
                     {vendor.onboardingStatus === "ACTIVE" ? (
                       <Badge
                         className={

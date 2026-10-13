@@ -52,6 +52,10 @@ const EMPTY_COPY = {
     title: "No blocked customers",
     description: "Blocked customers cannot log in or book.",
   },
+  deleted: {
+    title: "No deleted accounts",
+    description: "Customers who deleted their app account appear here.",
+  },
   search: {
     title: "No customers match",
     description: "Try a different name or phone number.",

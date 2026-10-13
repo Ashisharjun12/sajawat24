@@ -39,6 +39,7 @@ import {
     assertPartnerLoginIntentOnProfile,
     requirePartnerLoginIntentForSignIn,
 } from "@/modules/identity/auth/partner-login-eligibility.js";
+import { userForAuthLookup } from "@/modules/identity/auth/consumer-auth-user.js";
 import { assertConsumerAppEligible } from "@/modules/identity/consumer/consumer-app-eligibility.js";
 import { buildOtpRequestPayload } from "@/modules/ops/settings/demo-auth-login.js";
 import { resolveDemoOtp, type DemoAuthPolicy } from "@/modules/ops/settings/demo-auth-policy.js";
@@ -318,7 +319,7 @@ export class AuthService implements IAuthService {
         const purpose = await consumeOtp(phone, input.otp);
         const device = resolveDevice(input.clientType, input.device);
 
-        let user = await this.users.findByPhone(phone);
+        let user = userForAuthLookup(await this.users.findByPhone(phone));
 
         if (purpose === "vendor_register") {
             const pendingData = await takeVendorPending(phone);
@@ -388,10 +389,10 @@ export class AuthService implements IAuthService {
             throw ApiError.unauthorized("invalid google token");
         }
 
-        let user = await this.users.findByGoogleId(payload.sub);
+        let user = userForAuthLookup(await this.users.findByGoogleId(payload.sub));
 
         if (!user && payload.email) {
-            const byEmail = await this.users.findByEmail(payload.email);
+            const byEmail = userForAuthLookup(await this.users.findByEmail(payload.email));
             if (byEmail) {
                 if (byEmail.googleId == null && byEmail.role === "user") {
                     user = await this.users.linkGoogleId(byEmail.id, payload.sub);
@@ -516,7 +517,7 @@ export class AuthService implements IAuthService {
             throw ApiError.conflict("phone already linked");
         }
 
-        const owner = await this.users.findByPhone(phone);
+        const owner = userForAuthLookup(await this.users.findByPhone(phone));
         if (owner && owner.id !== actor.id) {
             throw ApiError.conflict("phone already registered");
         }
@@ -555,13 +556,13 @@ export class AuthService implements IAuthService {
             throw ApiError.unauthorized("invalid google token");
         }
 
-        const byGoogle = await this.users.findByGoogleId(payload.sub);
+        const byGoogle = userForAuthLookup(await this.users.findByGoogleId(payload.sub));
         if (byGoogle && byGoogle.id !== actor.id) {
             throw ApiError.conflict("google already registered");
         }
 
         if (payload.email) {
-            const byEmail = await this.users.findByEmail(payload.email);
+            const byEmail = userForAuthLookup(await this.users.findByEmail(payload.email));
             if (byEmail && byEmail.id !== actor.id) {
                 throw ApiError.conflict("email already registered");
             }

@@ -1,12 +1,14 @@
 import type { Href } from 'expo-router';
 import {
   Bell,
-  Inbox,
+  CircleHelp,
+  Info,
   LifeBuoy,
   MapPin,
   Package,
   Palette,
   RotateCcw,
+  UserCog,
   UserRound,
 } from 'lucide-react-native';
 import type { LucideIcon } from 'lucide-react-native';
@@ -92,10 +94,9 @@ export const PROFILE_MENU_SECTIONS: ProfileMenuSection[] = [
     title: 'Preferences',
     items: [
       {
-        type: 'route',
+        type: 'action',
         id: 'appearance',
         label: 'Appearance',
-        href: '/(app)/profile/appearance',
         icon: Palette,
       },
       {
@@ -103,13 +104,6 @@ export const PROFILE_MENU_SECTIONS: ProfileMenuSection[] = [
         id: 'push-notifications',
         label: 'Push notifications',
         icon: Bell,
-      },
-      {
-        type: 'route',
-        id: 'notifications-inbox',
-        label: 'Notifications',
-        href: '/(app)/notifications?from=profile',
-        icon: Inbox,
       },
     ],
   },
@@ -129,6 +123,33 @@ export const PROFILE_MENU_SECTIONS: ProfileMenuSection[] = [
         id: 'whatsapp',
         label: 'WhatsApp support',
         subtitle: 'Chat with us',
+      },
+    ],
+  },
+  {
+    id: 'more',
+    title: 'More',
+    items: [
+      {
+        type: 'route',
+        id: 'manage-account',
+        label: 'Manage account',
+        href: '/(app)/profile/manage-account',
+        icon: UserCog,
+      },
+      {
+        type: 'route',
+        id: 'faq',
+        label: 'FAQ',
+        href: '/(app)/profile/faq',
+        icon: CircleHelp,
+      },
+      {
+        type: 'route',
+        id: 'about',
+        label: 'About us',
+        href: '/(app)/profile/about',
+        icon: Info,
       },
     ],
   },

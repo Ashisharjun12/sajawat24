@@ -75,7 +75,19 @@ export function BrandProductTrustPanel() {
   }
 
   const preview = site?.productTrustGalleryUrl
+  const hasUploadId = Boolean(site?.productTrustGalleryUploadId)
+  const brokenReference = hasUploadId && !preview
   const enabled = site?.productTrustGalleryEnabled === true
+
+  function clearImage() {
+    if (!site) return
+    setSite({
+      ...site,
+      productTrustGalleryUploadId: null,
+      productTrustGalleryUrl: null,
+      productTrustGalleryEnabled: false,
+    })
+  }
 
   return (
     <>
@@ -104,18 +116,29 @@ export function BrandProductTrustPanel() {
             <div className="flex min-h-24 items-center gap-4">
               {preview ? (
                 <img src={preview} alt="" className="h-24 w-auto max-w-full rounded-md object-contain" />
+              ) : brokenReference ? (
+                <span className="text-sm text-destructive">
+                  Saved image is missing or still processing. Choose a new file or remove it, then save.
+                </span>
               ) : (
                 <span className="text-sm text-muted-foreground">No image selected</span>
               )}
             </div>
-            <Button
-              type="button"
-              size="sm"
-              className="mt-4 bg-primary text-primary-foreground hover:bg-primary/90"
-              onClick={() => setPickerOpen(true)}
-            >
-              Choose image
-            </Button>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Button
+                type="button"
+                size="sm"
+                className="bg-primary text-primary-foreground hover:bg-primary/90"
+                onClick={() => setPickerOpen(true)}
+              >
+                Choose image
+              </Button>
+              {hasUploadId ? (
+                <Button type="button" size="sm" variant="outline" onClick={clearImage}>
+                  Remove image
+                </Button>
+              ) : null}
+            </div>
           </div>
           <Button type="button" onClick={onSave} disabled={saving}>
             Save trust slide

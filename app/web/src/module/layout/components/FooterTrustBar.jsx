@@ -1,4 +1,5 @@
 import { BadgeCheckIcon, ClockIcon, ShieldCheckIcon, SparklesIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const TRUST_ITEMS = [
   {
@@ -30,9 +31,16 @@ const TRUST_ITEMS = [
   },
 ];
 
-export function FooterTrustBar() {
+export function FooterTrustBar({ onBrand = false }) {
   return (
-    <div className="border-b border-border bg-muted/30">
+    <div
+      className={cn(
+        "border-b",
+        onBrand
+          ? "border-primary-foreground/15 bg-primary text-primary-foreground"
+          : "border-border bg-background",
+      )}
+    >
       <div className="mx-auto grid max-w-[1240px] grid-cols-1 gap-8 px-4 py-10 sm:grid-cols-2 lg:grid-cols-4 md:px-8">
         {TRUST_ITEMS.map((item) => {
           const Icon = item.icon;
@@ -44,8 +52,22 @@ export function FooterTrustBar() {
                 <Icon className="size-5" strokeWidth={2.25} aria-hidden="true" />
               </span>
               <div className="min-w-0 pt-0.5">
-                <p className="text-sm font-bold tracking-tight text-foreground">{item.title}</p>
-                <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{item.subtitle}</p>
+                <p
+                  className={cn(
+                    "text-sm font-bold tracking-tight",
+                    onBrand ? "text-primary-foreground" : "text-foreground",
+                  )}
+                >
+                  {item.title}
+                </p>
+                <p
+                  className={cn(
+                    "mt-0.5 text-xs leading-relaxed",
+                    onBrand ? "text-primary-foreground/70" : "text-muted-foreground",
+                  )}
+                >
+                  {item.subtitle}
+                </p>
               </div>
             </div>
           );

@@ -1,5 +1,6 @@
 import { Router } from "express";
 import type { AuthController } from "@/modules/identity/auth/auth.controller.js";
+import type { AccountController } from "@/modules/identity/account/account.controller.js";
 import type { UserController } from "@/modules/identity/users/user.controller.js";
 import { linkGoogleDto, linkPhoneDto } from "@/modules/identity/users/user.dto.js";
 import {
@@ -14,11 +15,13 @@ import { createCustomerAddressRouter } from "@/modules/identity/addresses/custom
 import type { RefundRequestController } from "@/modules/booking/refunds/refund-request.controller.js";
 import { createRefundRequestUserRouter } from "@/modules/booking/refunds/refund-request.route.js";
 import { authRequired } from "@/shared/middlewares/auth.middleware.js";
+import { requireRole } from "@/shared/middlewares/requireRole.middleware.js";
 import { validate } from "@/shared/middlewares/validate.middleware.js";
 
 export function createUserRouter(
     authController: AuthController,
     userController: UserController,
+    accountController: AccountController,
     userNotificationController: UserNotificationController,
     customerAddressController: CustomerAddressController,
     refundRequestController: RefundRequestController,
@@ -27,6 +30,12 @@ export function createUserRouter(
     router.use("/addresses", createCustomerAddressRouter(customerAddressController));
     router.use("/refunds", createRefundRequestUserRouter(refundRequestController));
     router.get("/me", authRequired, authController.me);
+    router.post(
+        "/account/delete",
+        authRequired,
+        requireRole("user"),
+        accountController.deleteConsumerAccount,
+    );
     router.post("/link-phone", authRequired, validate(linkPhoneDto), userController.linkPhone);
     router.post("/link-google", authRequired, validate(linkGoogleDto), userController.linkGoogle);
     router.post(

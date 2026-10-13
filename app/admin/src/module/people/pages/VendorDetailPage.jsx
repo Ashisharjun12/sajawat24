@@ -169,6 +169,11 @@ export function VendorDetailPage() {
         <div className="mt-3 flex flex-wrap items-center gap-3">
           <h1 className="font-heading text-2xl font-medium tracking-tight">{vendor.name}</h1>
           <VendorStatusBadge status={vendor.onboardingStatus} />
+          {vendor.userAccountStatus === "deleted" ? (
+            <Badge className="border-transparent bg-destructive/15 text-destructive">
+              User account deleted
+            </Badge>
+          ) : null}
           {vendor.onboardingStatus === "ACTIVE" ? (
             <Badge
               className={

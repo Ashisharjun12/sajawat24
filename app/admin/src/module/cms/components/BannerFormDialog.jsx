@@ -13,11 +13,15 @@ import { Textarea } from "@/components/ui/textarea"
 import { Spinner } from "@/components/ui/spinner"
 import { CmsFormDialogShell } from "@/module/cms/components/CmsFormDialogShell"
 import { PlatformCheckboxes } from "@/module/cms/components/PlatformCheckboxes"
+import { toast } from "@/components/ui/toast"
 import {
+  CMS_BANNER_PLATFORMS,
   CMS_PLACEMENTS,
   CMS_STATUSES,
+  DEFAULT_BANNER_PLATFORMS,
   PLACEMENT_LABELS,
-  websitePlatformsOnly,
+  bannerPlatformsForEdit,
+  bannerPlatformsForSave,
 } from "@/module/cms/lib/cms-constants"
 import {
   CMS_BANNER_DESKTOP_SIZE_HINT,
@@ -60,7 +64,7 @@ export function BannerFormDialog({
   const [secondaryHref, setSecondaryHref] = useState("")
   const [status, setStatus] = useState("draft")
   const [cityId, setCityId] = useState("global")
-  const [platforms, setPlatforms] = useState(["web", "mobile"])
+  const [platforms, setPlatforms] = useState(DEFAULT_BANNER_PLATFORMS)
   const [imageUploadId, setImageUploadId] = useState(null)
   const [mobileImageUploadId, setMobileImageUploadId] = useState(null)
   const [mobileImageUrl, setMobileImageUrl] = useState("")
@@ -82,7 +86,7 @@ export function BannerFormDialog({
     setSecondaryHref(item?.secondaryHref ?? "")
     setStatus(item?.status ?? "draft")
     setCityId(item?.cityId ?? "global")
-    setPlatforms(websitePlatformsOnly(item?.platforms))
+    setPlatforms(bannerPlatformsForEdit(item?.platforms))
     setImageUploadId(pickedDesktopUploadId ?? item?.imageUploadId ?? null)
     setMobileImageUploadId(pickedMobileUploadId ?? item?.mobileImageUploadId ?? null)
     setMobileImageCleared(false)
@@ -91,6 +95,11 @@ export function BannerFormDialog({
 
   function handleSubmit(event) {
     event.preventDefault()
+    const savedPlatforms = bannerPlatformsForSave(platforms)
+    if (!savedPlatforms.length) {
+      toast.add({ title: "Select at least one platform", type: "error" })
+      return
+    }
     const resolvedUploadId = imageUploadId ?? pickedDesktopUploadId ?? item?.imageUploadId ?? null
     const resolvedMobileUploadId = mobileImageCleared
       ? null
@@ -119,7 +128,7 @@ export function BannerFormDialog({
       sortIndex: item?.sortIndex ?? 0,
       cityId: city,
       cityName,
-      platforms,
+      platforms: savedPlatforms,
       priority: 0,
     })
   }
@@ -252,8 +261,17 @@ export function BannerFormDialog({
           </Select>
         </div>
         <div className="grid gap-2">
-          <Label>Platforms</Label>
-          <PlatformCheckboxes value={platforms} onChange={setPlatforms} />
+          <Label>Show on</Label>
+          <PlatformCheckboxes
+            value={platforms}
+            onChange={setPlatforms}
+            options={CMS_BANNER_PLATFORMS}
+            allowEmpty
+          />
+          <p className="text-xs text-muted-foreground">
+            All channels selected by default. Uncheck to hide on that surface. Android app uses the
+            mobile image when set, otherwise the desktop image.
+          </p>
         </div>
         <div className="grid gap-2">
           <Label>Status</Label>

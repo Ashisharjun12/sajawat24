@@ -1,5 +1,6 @@
 import { ApiError } from "@/shared/errors/apiError.js";
 import { normalizePhone } from "@/modules/identity/auth/phone.js";
+import { userForAuthLookup } from "@/modules/identity/auth/consumer-auth-user.js";
 import type { IUserRepository } from "@/modules/identity/users/user.repository.js";
 import type { User } from "@/modules/identity/users/user.schema.js";
 
@@ -23,7 +24,7 @@ export class CustomerProvisioner {
         const name = input.name.trim();
         const email = input.email?.trim().toLowerCase() || undefined;
 
-        const existing = await this.users.findByPhone(phone);
+        const existing = userForAuthLookup(await this.users.findByPhone(phone));
         if (existing) {
             if (existing.role !== "user") {
                 throw ApiError.conflict("phone already registered");
@@ -35,7 +36,7 @@ export class CustomerProvisioner {
                 await this.users.updateName(existing.id, name);
             }
             if (email && !existing.email) {
-                const byEmail = await this.users.findByEmail(email);
+                const byEmail = userForAuthLookup(await this.users.findByEmail(email));
                 if (byEmail && byEmail.id !== existing.id) {
                     throw ApiError.conflict("email already registered");
                 }
@@ -45,7 +46,7 @@ export class CustomerProvisioner {
         }
 
         if (email) {
-            const byEmail = await this.users.findByEmail(email);
+            const byEmail = userForAuthLookup(await this.users.findByEmail(email));
             if (byEmail) {
                 throw ApiError.conflict("email already registered");
             }

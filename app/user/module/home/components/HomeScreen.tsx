@@ -4,7 +4,9 @@ import { HomeDiscoveryFeed } from '@/module/home/components/HomeDiscoveryFeed';
 import { HomeFeedSkeleton } from '@/module/home/components/HomeFeedSkeleton';
 import { HomeSelectCityBanner } from '@/module/home/components/HomeSelectCityBanner';
 import { useActiveOrderScrollPaddingBottom } from '@/module/home/hooks/use-tab-active-order-bar';
+import { HomeLaunchAnnouncementSheet } from '@/module/home/components/HomeLaunchAnnouncementSheet';
 import { HomeStickyHeader } from '@/module/home/components/HomeStickyHeader';
+import { useLaunchAnnouncementSheet } from '@/module/home/hooks/use-launch-announcement-sheet';
 import { useHomeCategories } from '@/module/home/hooks/use-home-categories';
 import { useHomeCms } from '@/module/home/hooks/use-home-cms';
 import { useHomeDeliveryBootstrap } from '@/module/home/hooks/use-home-delivery-bootstrap';
@@ -74,6 +76,10 @@ export function HomeScreen() {
 
   const scrollBottomPadding = useActiveOrderScrollPaddingBottom(32);
 
+  const launchSheet = useLaunchAnnouncementSheet({
+    enabled: locationChosen && !cityPickerOpen && !showSkeleton,
+  });
+
   const refreshing =
     locationStatus === 'ready' &&
     (cmsRefetching || (!useCmsLayout && discoveryRefetching)) &&
@@ -130,6 +136,12 @@ export function HomeScreen() {
           </>
         )}
       </SmoothScrollView>
+      <HomeLaunchAnnouncementSheet
+        visible={launchSheet.visible}
+        announcement={launchSheet.announcement}
+        onDismiss={() => void launchSheet.dismiss()}
+        onPrimaryClose={launchSheet.onPrimaryClose}
+      />
     </Screen>
   );
 }

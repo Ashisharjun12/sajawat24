@@ -10,7 +10,7 @@ import {
 } from "drizzle-orm/pg-core";
 
 export const userRoleEnum = pgEnum("user_role", ["user", "vendor", "vendor_staff", "admin"]);
-export const userStatusEnum = pgEnum("user_status", ["active", "blocked"]);
+export const userStatusEnum = pgEnum("user_status", ["active", "blocked", "deleted"]);
 
 export const users = pgTable(
     "users",
@@ -24,6 +24,7 @@ export const users = pgTable(
         avatar: text("avatar"),
         role: userRoleEnum("role").notNull().default("user"),
         status: userStatusEnum("status").notNull().default("active"),
+        deletedAt: timestamp("deleted_at", { withTimezone: true }),
         phoneVerifiedAt: timestamp("phone_verified_at", { withTimezone: true }),
         mustChangePassword: boolean("must_change_password").notNull().default(false),
         createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),

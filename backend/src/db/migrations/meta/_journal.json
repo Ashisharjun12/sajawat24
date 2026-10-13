@@ -15,6 +15,20 @@
       "when": 1791237451665,
       "tag": "0001_sweet_green_goblin",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791300000000,
+      "tag": "0002_user_account_deleted",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791474568123,
+      "tag": "0003_fearless_gargoyle",
+      "breakpoints": true
     }
   ]
 }

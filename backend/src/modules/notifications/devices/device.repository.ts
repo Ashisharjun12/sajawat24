@@ -13,6 +13,7 @@ export interface IPushDeviceRepository {
     }): Promise<UserPushDevice>;
     listByUserId(userId: string): Promise<UserPushDevice[]>;
     deleteByToken(expoPushToken: string): Promise<void>;
+    deleteAllForUser(userId: string): Promise<void>;
 }
 
 export class PushDeviceRepository implements IPushDeviceRepository {
@@ -49,5 +50,9 @@ export class PushDeviceRepository implements IPushDeviceRepository {
 
     async deleteByToken(expoPushToken: string): Promise<void> {
         await db.delete(userPushDevices).where(eq(userPushDevices.expoPushToken, expoPushToken));
+    }
+
+    async deleteAllForUser(userId: string): Promise<void> {
+        await db.delete(userPushDevices).where(eq(userPushDevices.userId, userId));
     }
 }

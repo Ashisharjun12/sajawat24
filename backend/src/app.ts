@@ -4,6 +4,7 @@ import helmet from "helmet";
 import cookieParser from "cookie-parser";
 import { MastraServer } from "@mastra/express";
 import { errorHandler } from "@/shared/errors/apiHandler.js";
+import { apiRateLimitMiddleware } from "@/shared/middlewares/api-rate-limit.middleware.js";
 import { httpLogger } from "@/shared/middlewares/logger.middleware.js";
 import { getMastra, isAiInfrastructureEnabled } from "@/mastra/index.js";
 import { _config } from "@/config/config.js";
@@ -83,6 +84,8 @@ class App {
     this.app.get("/health", (_req, res) => {
       res.status(200).json({ message: "Decorbuddys is Live" });
     });
+
+    this.app.use("/api/v1", apiRateLimitMiddleware);
 
     this.app.use("/api/v1/auth", authRouter);
     this.app.use("/api/v1/vendor/chat", vendorChatRouter);

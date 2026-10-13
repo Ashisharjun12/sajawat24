@@ -1,21 +1,15 @@
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { MobilePhonePreview } from "@/module/cms/components/MobilePhonePreview"
 import { APP_TABS } from "@/module/cms/lib/content-channels"
+import { AppAnnouncementsPanel } from "@/module/cms/pages/AppAnnouncementsPanel"
 import { AppBannersPanel } from "@/module/cms/pages/AppBannersPanel"
 import { AppHomeLayoutPanel } from "@/module/cms/pages/AppHomeLayoutPanel"
 
-function DemoPanel({ title, description }) {
-  return (
-    <div className="rounded-lg border border-dashed border-border bg-muted/30 p-6">
-      <h3 className="text-sm font-medium">{title}</h3>
-      <p className="mt-2 max-w-xl text-sm text-muted-foreground">{description}</p>
-      <p className="mt-4 text-xs text-muted-foreground">Coming in a later slice.</p>
-    </div>
-  )
-}
-
 function AndroidTabBody({ atab, cities }) {
+  if (atab === "announcements") {
+    return <AppAnnouncementsPanel cities={cities} />
+  }
+
   if (atab === "banners") {
     return <AppBannersPanel cities={cities} />
   }
@@ -24,23 +18,7 @@ function AndroidTabBody({ atab, cities }) {
     return <AppHomeLayoutPanel cities={cities} />
   }
 
-  const copy = {
-    announcements: {
-      title: "App announcement bar",
-      description:
-        "Short promo line above the home feed on the customer app (not the website header).",
-    },
-  }
-  const panel = copy[atab] ?? copy.announcements
-
-  return (
-    <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
-      <div className="min-w-0 flex-1">
-        <DemoPanel title={panel.title} description={panel.description} />
-      </div>
-      <MobilePhonePreview className="lg:sticky lg:top-4" />
-    </div>
-  )
+  return null
 }
 
 export function AppContentSection({ channel, atab, onAppTabChange, disabled, cities = [] }) {
@@ -61,11 +39,8 @@ export function AppContentSection({ channel, atab, onAppTabChange, disabled, cit
               </TabsTrigger>
             ))}
           </TabsList>
-          <div className="mt-4 flex flex-col gap-6 lg:flex-row">
-            <div className="min-w-0 flex-1 rounded-lg border border-dashed p-6 text-sm text-muted-foreground">
-              Preview only — not editable yet.
-            </div>
-            <MobilePhonePreview dimmed />
+          <div className="mt-4 rounded-lg border border-dashed p-6 text-sm text-muted-foreground">
+            Preview only — not editable yet.
           </div>
         </Tabs>
       </div>

@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react"
-import { EyeIcon, PencilIcon } from "lucide-react"
+import { EyeIcon, PencilIcon, SparklesIcon } from "lucide-react"
+import { suggestCmsBrandPage } from "@/api/ai.api"
+import { useAiPolicy } from "@/providers/ai-policy-provider"
 import { Link, useNavigate, useParams } from "react-router-dom"
 import { MarkdownContent } from "@/components/MarkdownContent"
 import { getApiError } from "@/api/api"
@@ -21,11 +23,27 @@ import { toast } from "@/components/ui/toast"
 import { PlatformCheckboxes } from "@/module/cms/components/PlatformCheckboxes"
 import { CMS_STATUSES, websitePlatformsOnly } from "@/module/cms/lib/cms-constants"
 import { slugifyPageTitle } from "@/module/brand/lib/page-slug"
+import { getBrandPageAiGenerateBlockReason } from "@/module/brand/lib/brand-page-ai-gate"
+
+function aiErrorMessage(err) {
+  const message = getApiError(err)
+  if (message.includes("504") || message.toLowerCase().includes("timed out")) {
+    return "AI request timed out. Try a shorter brief or try again."
+  }
+  if (message.includes("503") || message.toLowerCase().includes("unavailable")) {
+    return "AI service is temporarily unavailable."
+  }
+  if (message.includes("429") || message.toLowerCase().includes("rate limit")) {
+    return "AI rate limit reached. Try again later."
+  }
+  return message
+}
 
 export function BrandPageFormPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const isNew = id === "new"
+  const { policy: aiPolicy } = useAiPolicy()
 
   const [loading, setLoading] = useState(!isNew)
   const [error, setError] = useState("")
@@ -37,6 +55,9 @@ export function BrandPageFormPage() {
   const [status, setStatus] = useState("draft")
   const [platforms, setPlatforms] = useState(["web", "mobile"])
   const [showPreview, setShowPreview] = useState(false)
+  const [aiBrief, setAiBrief] = useState("")
+  const [aiTone, setAiTone] = useState("professional")
+  const [aiLoading, setAiLoading] = useState(false)
 
   useEffect(() => {
     if (isNew) return
@@ -76,6 +97,36 @@ export function BrandPageFormPage() {
   }, [isNew, navigate])
 
   const canPublish = Boolean(title.trim() && body.trim())
+
+  const aiBlockReason = getBrandPageAiGenerateBlockReason(aiPolicy, {
+    brief: aiBrief,
+    title,
+  })
+
+  async function handleSuggestAi() {
+    if (aiBlockReason) {
+      toast.add({ title: aiBlockReason, type: "error" })
+      return
+    }
+    const briefValue =
+      aiBrief.trim() ||
+      `Write a customer-facing page titled "${title.trim()}" for our decoration booking marketplace.`
+    setAiLoading(true)
+    setShowPreview(false)
+    try {
+      const data = await suggestCmsBrandPage({
+        brief: briefValue,
+        title: title.trim() || undefined,
+        tone: aiTone,
+      })
+      if (data?.body) setBody(data.body)
+      toast.add({ title: "Page draft ready — review before publishing", type: "success" })
+    } catch (err) {
+      toast.add({ title: aiErrorMessage(err), type: "error" })
+    } finally {
+      setAiLoading(false)
+    }
+  }
 
   async function save(nextStatus) {
     setSubmitting(true)
@@ -154,7 +205,7 @@ export function BrandPageFormPage() {
             <Button
               type="button"
               variant="secondary"
-              disabled={submitting}
+              disabled={submitting || aiLoading}
               onClick={() => void save()}
             >
               {submitting ? <Spinner className="size-4" /> : null}
@@ -162,7 +213,7 @@ export function BrandPageFormPage() {
             </Button>
             <Button
               type="button"
-              disabled={submitting || !canPublish}
+              disabled={submitting || aiLoading || !canPublish}
               onClick={() => void save("published")}
             >
               Publish
@@ -209,6 +260,48 @@ export function BrandPageFormPage() {
           </div>
         </details>
 
+        <div className="flex flex-col gap-2 rounded-lg border border-dashed border-border/80 bg-muted/30 p-3">
+          <div className="flex flex-wrap items-end justify-between gap-2">
+            <div className="min-w-0 flex-1 space-y-2">
+              <Label htmlFor="page-ai-brief">AI brief (optional)</Label>
+              <Input
+                id="page-ai-brief"
+                value={aiBrief}
+                onChange={(e) => setAiBrief(e.target.value)}
+                maxLength={500}
+                placeholder="e.g. privacy policy — what data we collect for bookings"
+                disabled={aiLoading || showPreview}
+              />
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={Boolean(aiBlockReason) || aiLoading || submitting || showPreview}
+              onClick={() => void handleSuggestAi()}
+              className="shrink-0"
+            >
+              {aiLoading ? <Spinner className="size-4" /> : <SparklesIcon className="size-4" />}
+              Draft with AI
+            </Button>
+          </div>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <Label className="text-muted-foreground text-xs sm:w-24">AI tone</Label>
+            <Select value={aiTone} onValueChange={setAiTone} disabled={aiLoading || showPreview}>
+              <SelectTrigger className="sm:max-w-[200px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="professional">Professional</SelectItem>
+                <SelectItem value="friendly">Friendly</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          {aiBlockReason ? (
+            <p className="text-muted-foreground text-xs">{aiBlockReason}</p>
+          ) : null}
+        </div>
+
         <div className="flex w-full flex-col gap-2">
           <Label htmlFor="page-body">
             {showPreview ? "Preview" : "Content (Markdown)"}
@@ -236,6 +329,7 @@ export function BrandPageFormPage() {
               rows={22}
               className="min-h-[min(70vh,560px)] w-full resize-y text-base leading-relaxed"
               placeholder="Start writing…"
+              disabled={aiLoading}
             />
           )}
         </div>

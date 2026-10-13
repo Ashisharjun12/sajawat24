@@ -11,6 +11,11 @@ export function getApiError(err) {
   return err?.response?.data?.message || "Something went wrong";
 }
 
+export function getApiErrorDetails(err) {
+  const errors = err?.response?.data?.errors;
+  return Array.isArray(errors) ? errors : [];
+}
+
 export function unwrap(response) {
   return response.data?.data;
 }

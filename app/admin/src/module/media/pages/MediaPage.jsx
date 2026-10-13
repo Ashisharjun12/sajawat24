@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { useSearchParams } from "react-router-dom"
+import { Link, useSearchParams } from "react-router-dom"
 import {
   FolderPlusIcon,
   LayoutGridIcon,
@@ -12,12 +12,13 @@ import {
 import { createFolder, deleteFolder, listFolders, patchFolder } from "@/api/folders.api"
 import {
   deleteUpload,
+  getUploadReferences,
   listUploads,
   patchUpload,
   uploadMediaFile,
   waitForOptimize,
 } from "@/api/uploads.api"
-import { getApiError } from "@/api/api"
+import { getApiError, getApiErrorDetails } from "@/api/api"
 import { toast } from "@/components/ui/toast"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -77,6 +78,11 @@ function findFolder(tree, id) {
   return (tree || []).find((folder) => folder.id === id)
 }
 
+function referenceLabel(row) {
+  const field = row.field ? ` (${row.field})` : ""
+  return `${row.label || row.type}${field}`
+}
+
 export function MediaPage() {
   const [params, setParams] = useSearchParams()
   const folderId = params.get("folder") || ""
@@ -102,6 +108,8 @@ export function MediaPage() {
   const [folderSubmitting, setFolderSubmitting] = useState(false)
   const [folderError, setFolderError] = useState("")
   const [deleteTarget, setDeleteTarget] = useState(null)
+  const [deleteReferences, setDeleteReferences] = useState([])
+  const [deleteReferencesLoading, setDeleteReferencesLoading] = useState(false)
   const [cropItem, setCropItem] = useState(null)
   const [cropSubmitting, setCropSubmitting] = useState(false)
   const [renameItem, setRenameItem] = useState(null)
@@ -118,6 +126,14 @@ export function MediaPage() {
     const start = (folderPage - 1) * FOLDER_LIMIT
     return tree.slice(start, start + FOLDER_LIMIT)
   }, [tree, folderPage])
+
+  const deleteBlocked = useMemo(
+    () =>
+      deleteTarget?.type === "file" &&
+      !deleteReferencesLoading &&
+      deleteReferences.some((row) => row.blocksDelete),
+    [deleteTarget, deleteReferencesLoading, deleteReferences],
+  )
 
   const loadTree = useCallback(async () => {
     const data = await listFolders(inFolder ? {} : { q: folderQ.trim() || undefined })
@@ -163,6 +179,29 @@ export function MediaPage() {
   useEffect(() => {
     loadFiles()
   }, [loadFiles])
+
+  useEffect(() => {
+    if (!deleteTarget || deleteTarget.type !== "file") {
+      setDeleteReferences([])
+      setDeleteReferencesLoading(false)
+      return
+    }
+    let cancelled = false
+    setDeleteReferencesLoading(true)
+    getUploadReferences(deleteTarget.id)
+      .then((data) => {
+        if (!cancelled) setDeleteReferences(data?.references ?? [])
+      })
+      .catch(() => {
+        if (!cancelled) setDeleteReferences([])
+      })
+      .finally(() => {
+        if (!cancelled) setDeleteReferencesLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [deleteTarget])
 
   useEffect(() => {
     setFolderPage(1)
@@ -259,9 +298,16 @@ export function MediaPage() {
         toast.add({ title: "File deleted", type: "success" })
         await loadFiles()
       }
+      setDeleteTarget(null)
     } catch (err) {
+      const refs = getApiErrorDetails(err)
+      if (refs.length > 0) {
+        const lines = refs.map((row) => referenceLabel(row)).join("; ")
+        toast.add({ title: `${getApiError(err)}: ${lines}`, type: "error" })
+        setDeleteReferences(refs)
+        return
+      }
       toast.add({ title: getApiError(err), type: "error" })
-    } finally {
       setDeleteTarget(null)
     }
   }
@@ -568,15 +614,64 @@ export function MediaPage() {
             <AlertDialogTitle>
               {deleteTarget?.type === "folder" ? "Delete folder?" : "Delete file?"}
             </AlertDialogTitle>
-            <AlertDialogDescription>
-              {deleteTarget?.type === "folder"
-                ? `Are you sure you want to delete "${deleteTarget.name}"? The folder must be empty.`
-                : `Are you sure you want to delete "${deleteTarget?.name}"? This cannot be undone.`}
+            <AlertDialogDescription asChild>
+              <div className="space-y-3 text-sm text-muted-foreground">
+                {deleteTarget?.type === "folder" ? (
+                  <p>
+                    Are you sure you want to delete &quot;{deleteTarget.name}&quot;? The folder must be
+                    empty.
+                  </p>
+                ) : (
+                  <p>
+                    Are you sure you want to delete &quot;{deleteTarget?.name}&quot;? This cannot be
+                    undone.
+                  </p>
+                )}
+                {deleteTarget?.type === "file" ? (
+                  <div className="space-y-2">
+                    {deleteReferencesLoading ? (
+                      <p className="text-xs">Checking where this file is used…</p>
+                    ) : deleteReferences.length === 0 ? (
+                      <p className="text-xs">Not referenced by catalog, CMS, or brand settings.</p>
+                    ) : (
+                      <>
+                        <p className="text-xs font-medium text-foreground">Used in:</p>
+                        <ul className="max-h-40 space-y-1 overflow-y-auto text-xs">
+                          {deleteReferences.map((row) => (
+                            <li key={`${row.type}-${row.id}-${row.field}`}>
+                              {row.adminPath ? (
+                                <Link
+                                  to={row.adminPath}
+                                  className="text-primary underline-offset-2 hover:underline"
+                                  onClick={() => setDeleteTarget(null)}
+                                >
+                                  {referenceLabel(row)}
+                                </Link>
+                              ) : (
+                                referenceLabel(row)
+                              )}
+                              {row.blocksDelete ? (
+                                <span className="text-destructive"> — remove link before delete</span>
+                              ) : (
+                                <span> — field will clear on delete</span>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      </>
+                    )}
+                  </div>
+                ) : null}
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction variant="destructive" onClick={confirmDelete}>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={deleteBlocked}
+            >
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>

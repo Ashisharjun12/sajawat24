@@ -19,11 +19,11 @@ Living brief for the customer mobile app (`app/user`). Update this file when eac
 
 | Field | Value |
 |-------|--------|
-| Name | Brand retheme — web tokens (teal / orange CTA / crimson Instant) + Poppins |
-| Status | shipped — tokens + component layer, palette cleanup, CTA triage, splash/notification colors; layouts unchanged. Icon/splash artwork (`sajawat24-icon-light.svg`) deferred |
+| Name | Consumer account deletion |
+| Status | shipped — `POST /user/account/delete` tombstone + session revoke; Manage account delete confirm sheet; admin Customers/Vendors Deleted tabs |
 | Theme | Light default + Dark via Profile → Appearance; dark uses `#0B1514` bg (no pure black) |
 | Home UI | Browse feed without city + compact “Please select city” banner; auto city sheet; CMS/discovery rails match web View all + badge colors |
-| Bag / checkout | No My bag screen — bag icon / add-to-bag → `/(app)/checkout` (Confirm booking → Payment); offers + address sub-routes |
+| Bag / checkout | Bag icon → `/(app)/checkout`; empty bag shows **My bag** + View packages; with items → Confirm booking → Payment; offers + address sub-routes |
 | APIs | Cart, coupons, orders (create/cancel/resume, `GET /orders?bucket&page`, `GET /orders/:id`), `POST /payments/verify`; Cashfree UPI Intent Android |
 | Payment QA | Online cancel/fail → cancel pending order, reset idempotency, alert “Order not placed” (bag unchanged); backend Cashfree 409 → reuse session; COD → confirmed only if `CONFIRMED`; success gates status |
 | Location | Tab bootstrap + `useCatalogLocationGate` on PDP/home catalog |
@@ -35,7 +35,7 @@ Living brief for the customer mobile app (`app/user`). Update this file when eac
 | Path | Owns |
 |------|------|
 | `module/onboarding/` | Welcome UI, phone + OTP, `otp.service`, SMS autofill hook |
-| `module/home/` | `HomeTopBar` → `select-location` route; `HomeSearchBar` + city picker; CMS feed; `MerchSectionsSync`, `use-catalog-sections-query` |
+| `module/home/` | `HomeTopBar` → `select-location` route; `HomeSearchBar` + city picker; CMS feed; `HomeLaunchAnnouncementSheet`, `use-launch-announcement-sheet`, `lib/announcement.ts`; `MerchSectionsSync`, `use-catalog-sections-query` |
 | `module/catalog/components/CatalogProductCard.tsx` | Single browse product card (`layout` grid/rail); `use-product-merch-badge` |
 | `store/merch-sections.store.ts` | City-scoped product → section badge index for cards |
 | `module/location/` | `SelectLocationScreen`, `AddAddressScreen`, `ConfirmAddressMapScreen` (web-style form → Ola map + pin) |
@@ -44,18 +44,18 @@ Living brief for the customer mobile app (`app/user`). Update this file when eac
 | `module/booking/` | `checkout/*`, `abandon-incomplete-online-payment.ts`, `CashfreePaymentGatewayHost`, `cashfree-payment-bridge.ts`, `online-checkout-native.ts`, `place-order.ts` |
 | `module/catalog/` | PLP + `ProductPdpScreen` (gallery Share + Home, `ProductShareSheet`, web `/p/{id}` share URL, breadcrumb, price, location, schedule/instant, coupon ticket rail, `ProductPdpAddonsSection`, About accordion, details tabs, rails, reviews, `ProductPdpMobileBookingBar`); hooks `use-product-detail-query`, `use-product-reviews-preview-query`, `use-similar-products-query`, `use-other-category-products-query`, `use-available-coupons` |
 | `module/promotions/` | `CouponTicketCard` (rail/stack), `CouponOffersRail`, `CouponDetailSheet`, `CouponOffersFilterSheet`, `OffersScreen`; PDP horizontal coupons + `app/(app)/offers` (stacked tickets, filter, load more) |
-| `module/account/` | `ProfileTabScreen`, `AccountScreen` (Personal info), `RefundsScreen`, `HelpScreen`, `WishlistScreen`, link phone/Google sheets; orders list/detail; `order-detail/*`; `account-nav`, `profile-menu` |
+| `module/account/` | `ProfileTabScreen`, `ManageAccountScreen`, `DeleteAccountConfirmSheet`, `FaqScreen`, `AboutUsScreen`, `LogoutConfirmSheet`, `use-profile-sign-out`; `AccountScreen` (Personal info), `RefundsScreen`, `HelpScreen`, …; `profile-menu` |
 | `store/wishlist.store.ts` | Guest SecureStore + logged-in `GET/POST/DELETE /wishlist`; merge on login via `apply-consumer-session` |
 | `api/wishlist.api.ts` | Wishlist REST client (city-scoped hydration) |
-| `module/settings/` | `ThemeBootstrap`, `AppThemeOptions`, `use-app-theme`; light/dark preference (default light, not system) |
+| `module/settings/` | `ThemeBootstrap`, `AppearanceSheet`, `AppThemeOptions`, `use-app-theme`; light/dark preference (default light, not system) |
 | `module/chat/` | `BookingChatScreen` (empty state + `ChatQuickReplyChips`), `SupportTopicChatScreen`, `use-booking-chat-thread`, `use-support-topic-chat-thread`, `help-topics`, `booking-chat-quick-replies`; order + support chat routes |
 | `module/geo/` | `OlaTrackingMapView`, trip pins, `map-bounds` |
-| `module/notifications/` | Inbox list (`use-user-notifications`, `NotificationRow`), tap routing (`resolve-notification-target`), query invalidation on push |
-| `module/permissions/` | Post-login `enable-location` → `enable-notifications`; `use-permissions-setup-prompt` |
+| `module/notifications/` | Inbox (`NotificationInboxCard`, All/Offers/Updates filters, `notification-inbox-filter`), push list (`use-user-notifications`), tap routing (`resolve-notification-target`), query invalidation on push |
+| `module/permissions/` | Post-login `enable-location` → `enable-notifications`; `PermissionStepScreen` + `permission-step-assets`; `use-permissions-setup-prompt` |
 | `lib/notifications.ts`, `lib/push-registration.ts`, `lib/location.ts`, `lib/camera.ts`, `hooks/use-push-registration.ts`, `hooks/use-notification-listeners.ts` | Permissions, Expo push token sync, foreground handler + tap/receive listeners, location/camera helpers |
 | `api/notifications.api.ts` | `POST/DELETE /user/devices`, `GET/PATCH /user/notifications` |
 | `components/shell/SmoothScrollView.tsx` | Native smooth scroll defaults; web uses `lib/lenis-web` |
-| `api/` | `client.ts` (401 → refresh + retry), `auth.api.ts`, `cms.api.ts` (`getSiteShell`), `refunds.api.ts`, `chat.api.ts` (`openCustomerSupport`), `addresses.api.ts`, `notifications.api.ts`, … |
+| `api/` | `client.ts` (401 → refresh + retry), `auth.api.ts`, `account.api.ts` (`POST /user/account/delete`), `cms.api.ts` (`getSiteShell`), `refunds.api.ts`, `chat.api.ts` (`openCustomerSupport`), `addresses.api.ts`, `notifications.api.ts`, … |
 | `module/auth/` | `consumer-session`, `AuthSessionBridge`, `NotificationListenersHost` (push register + listeners), `google-auth.service`, `link-google.service` |
 | `lib/auth-session-refresh.ts` | JWT exp check, single-flight `POST /auth/refresh` for mobile |
 | `module/onboarding/lib/otp-verify-errors.ts` | OTP_EXPIRED / INVALID / ATTEMPTS mapping |
@@ -67,6 +67,7 @@ Living brief for the customer mobile app (`app/user`). Update this file when eac
 | `store/delivery-location.store.ts` | Selected delivery address + header subtitle; applies to location store |
 | `store/cart.store.ts` | Cart item count from `GET /cart` when authenticated |
 | `store/checkout.store.ts` | Customer + delivery snapshot for confirm/pay |
+| `lib/launch-announcement-storage.ts` | Dismissed Android launch announcement ids (SecureStore) |
 | `lib/site-brand-contact.ts`, `lib/support-actions.ts` | `GET /catalog/cms/site-shell?platform=app` for WhatsApp/tel; alert if brand contact unset |
 | `components/shell/` | `Screen`, `ScreenBackButton`, `TabScreenTitle`, `AppTabBar`, `LoadingPlaceholder`, `ScalePressable` (0.98 / 100ms) |
 | `components/ui/` | Shared primitives — change rarely. `Button` variants `cta` (default) / `primary` / `secondary` / `instant` / `text`, sizes 48/40/32, `loading`; `Text` brand type variants + `maxFontSizeMultiplier` 1.3 |
@@ -91,12 +92,15 @@ Living brief for the customer mobile app (`app/user`). Update this file when eac
 - [x] `app/(app)/explore` — web `/explore` parity: category rail + city-wide or filtered product grid (sort/price, load more)
 - [x] `whatsapp` (FAB action)
 - [x] `app/(app)/profile` tab — web `AccountNav` labels; push toggle + Notifications row; Personal info / orders / addresses / refunds / help stack
-- [x] `app/(app)/profile/appearance` — Light / Dark theme (vendor parity); default light on boot
+- [x] Profile → Appearance — bottom sheet (light/dark + Save preference); default light on boot
+- [x] Profile → More — Manage account (delete account sheet → API + sign out, logout confirm sheet), FAQ (static accordion), About us (placeholder + version)
+- [x] Preferences — Appearance + push toggle only (notifications inbox via home bell)
 - [x] `app/(app)/profile/account` — Personal info, avatar initials, link phone (sheet) + link Google (sheet)
 - [x] `app/(app)/profile/returns` — refunds list + summary (`GET /user/refunds`)
 - [x] `app/(app)/profile/settings` — redirect to profile (placeholder Settings removed)
 - [x] `app/(app)/profile/help` + `help/[topic]` — help topics accordion + in-app support chat
-- [x] `app/(app)/notifications` — inbox (hidden tab route); back → home or profile by `from`; bottom tabs stay visible; re-tap tab → tab root (`lib/tab-roots.ts`)
+- [x] `app/(app)/notifications` — inbox with All / Offers / Updates filters + card rows; Offers merges push `category: offer`, CMS announcements, city coupons; Mark all read in header; back → home or profile by `from`
+- [x] Home launch promo — first eligible Android CMS announcement opens `HomeLaunchAnnouncementSheet` after city chosen (image or accent hero, CTA via `openCmsLink`, Maybe later persists dismiss)
 - [x] `app/(app)/profile/orders` — All / Upcoming / Completed / Cancelled (horizontal pills), infinite scroll + load more, `OrderListCard` CTAs (payment, view, review)
 - [x] `app/(app)/profile/orders/[id]` — map tracking layout only `EN_ROUTE`; `ON_SITE` / assigned / completed → classic detail + contact + timeline
 - [x] `app/(app)/profile/orders/[id]/chat` — decorator chat; empty-state icon + tap-to-send quick replies above composer
@@ -129,6 +133,10 @@ Living brief for the customer mobile app (`app/user`). Update this file when eac
 ## History (newest first)
 
 ```text
+2026-10-08 — Checkout offers apply UX — optimistic cart coupon + per-card spinner; return delay 1.6s → 280ms
+2026-10-08 — Empty bag + wishlist — `PackagesEmptyState`; bag icon opens checkout empty state (no alert); wishlist empty copy + View packages
+2026-10-08 — Delete account data hygiene — backend purges inbox/cart/wishlist/addresses/refunds on delete; auth ignores tombstones; app clears React Query on logout/delete; admin hides refunds panel for deleted customers
+2026-10-08 — Consumer account deletion — `account.api.ts` + `DeleteAccountConfirmSheet`; backend soft-delete tombstone (phone/google released, all sessions revoked)
 2026-10-07 — Booking chat UX — empty thread state (MessageCircle + copy); always-on quick-reply chips (location/ETA) above composer — `BookingChatScreen`, `ChatQuickReplyChips`, `booking-chat-quick-replies`
 2026-10-06 — Server wishlist — backend `wishlist_items` + `/api/v1/wishlist`; app sync on login (cart merge + wishlist merge); PDP/card hearts; unavailable rows on wishlist screen
 2026-10-06 — Home header glass actions — wishlist, cart, notifications use `HomeHeaderGlassIconButton` (BlurView + light border/highlight on teal header)
@@ -157,6 +165,7 @@ Living brief for the customer mobile app (`app/user`). Update this file when eac
 2026-10-01 — User trip map parity — trimRouteAhead + route refetch (75m/15s); stale GPS keeps last pin/line; location.png + blue live dot on tracking map
 2026-10-01 — Tab + inbox nav — notifications off profile stack; tab re-tap pops to root; back from inbox respects `from=home|profile`
 2026-10-01 — Customer assign alerts — `BOOKING_ASSIGNED` push/inbox on vendor accept + field worker/self-assign; payload includes `orderId` for deep link
+2026-10-07 — Launch announcement sheet + notifications offers — Android CMS announcements on home API; admin Content → Android → Announcements CRUD; inbox filter chips + promo/coupon cards
 2026-10-01 — Push + inbox — `module/notifications`, `profile/notifications`, listeners host; order lifecycle push + in_app; completion code SMS/WhatsApp/email only (vendor sends, not inbox)
 2026-10-01 — My Orders UI — backend `bucket` on GET /orders; mobile horizontal filter tabs + paginated list + order detail route; web BookingsPage server-side buckets + load more
 2026-10-01 — Expo push — google-services.json + EAS projectId; token sync via POST /user/devices; FCM upload on expo.dev still manual
@@ -237,4 +246,6 @@ Living brief for the customer mobile app (`app/user`). Update this file when eac
 2026-10-03 — Search screen category chips — `SearchCategoryBadges` + web-aligned limits/copy on `SearchScreen`
 2026-10-03 — PDP similar packages — gallery “Similar” pill + `ProductPdpSimilarPackages` bottom sheet (web mobile parity)
 2026-10-03 — Profile web parity — Personal info linking, refunds/settings/help screens, support topic chat — module/account, module/chat, api/refunds
-```
+2026-10-08 — Post-login permissions — ImageKit map + notification illustrations on enable screens; decoration/delivery copy — `module/permissions/lib/permission-step-assets.ts`
+2026-10-08 — Profile appearance — bottom sheet + Save preference; deleted `profile/appearance` screen — `AppearanceSheet`, `ProfileTabScreen`
+2026-10-08 — Profile More — manage-account/faq/about routes; logout confirm sheet; removed profile-tab logout — `profile-menu`, `ManageAccountScreen`

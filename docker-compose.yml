@@ -2,7 +2,7 @@
 services:
   valkey-queue:
     image: valkey/valkey:8-alpine
-    container_name: decory-valkey-queue
+    container_name: sajawat-valkey-queue
     restart: unless-stopped
     ports:
       - "127.0.0.1:6379:6379"
@@ -27,7 +27,7 @@ services:
 
   valkey-cache:
     image: valkey/valkey:8-alpine
-    container_name: decory-valkey-cache
+    container_name: sajawat-valkey-cache
     restart: unless-stopped
     ports:
       - "127.0.0.1:6380:6379"

@@ -126,7 +126,7 @@ export function CustomersTable({ items, loading, onView, onToggleBlock }) {
                         <EyeIcon />
                         View
                       </DropdownMenuItem>
-                      {customer.status === "blocked" ? (
+                      {customer.status === "deleted" ? null : customer.status === "blocked" ? (
                         <DropdownMenuItem onClick={() => onToggleBlock?.(customer, "active")}>
                           <ShieldCheckIcon />
                           Unblock

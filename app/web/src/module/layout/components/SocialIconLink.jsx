@@ -4,6 +4,7 @@ import {
   PlayIcon,
   Share2Icon,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const PRESET_ICONS = {
   instagram: CameraIcon,
@@ -14,13 +15,13 @@ const PRESET_ICONS = {
   linkedin: Share2Icon,
 };
 
-export function SocialIconLink({ link }) {
+export function SocialIconLink({ link, className }) {
   const PresetIcon = link.iconPreset ? PRESET_ICONS[link.iconPreset] : null;
 
   return (
     <a
       href={link.href}
-      className="text-foreground/80 transition-colors hover:text-foreground"
+      className={cn("text-foreground/80 transition-colors hover:text-foreground", className)}
       aria-label={link.label}
       target={link.href.startsWith("http") ? "_blank" : undefined}
       rel={link.href.startsWith("http") ? "noreferrer" : undefined}

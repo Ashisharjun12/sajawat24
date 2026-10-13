@@ -26,6 +26,7 @@ import {
     tripEventToVariant,
 } from "@/modules/notifications/templates/email/trip-status.render.js";
 import { renderDispatchExhaustedEmailHtml } from "@/modules/notifications/templates/email/dispatch-exhausted.render.js";
+import { renderPayoutStatusEmailHtml } from "@/modules/notifications/templates/email/payout-status.render.js";
 import type { NotificationChannel } from "@/modules/notifications/schema.js";
 import { normalizePhoneForSms } from "@/modules/identity/auth/phone.js";
 import { logger } from "@/utils/logger.js";
@@ -306,6 +307,22 @@ export class NotificationService implements INotificationService {
                 city: input.data.city ?? "",
                 address: input.data.address ?? "",
                 adminUrl: input.data.adminUrl ?? "",
+            });
+        }
+        if (
+            (input.event === "PAYOUT_PAID" || input.event === "PAYOUT_FAILED") &&
+            channelPolicy.channel === "email"
+        ) {
+            body = await renderPayoutStatusEmailHtml({
+                variant: input.event === "PAYOUT_PAID" ? "paid" : "failed",
+                intro: body,
+                amountFormatted: input.data.amountFormatted ?? "",
+                payoutDestination: input.data.payoutDestination ?? "",
+                payoutMethodType: input.data.payoutMethodType,
+                processedAt: input.data.processedAt,
+                payoutRequestId: input.data.payoutRequestId,
+                failureReason: input.data.failureReason,
+                accountHolderName: input.data.accountHolderName,
             });
         }
         const tripVariant = tripEventToVariant(input.event);

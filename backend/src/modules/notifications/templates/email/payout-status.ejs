@@ -1,0 +1,65 @@
+<%- include('partials/email-layout-start', { theme, pageTitle, headline, badge }) %>
+            <tr>
+              <td style="padding:12px 28px 8px;font-size:16px;line-height:1.6;color:<%= theme.text %>;">
+                <%= intro %>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding:8px 20px 16px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:<%= variant === 'paid' ? theme.tint : '#fef2f2' %>;border-radius:16px;border:1px solid <%= variant === 'paid' ? theme.border : '#fecaca' %>;">
+                  <tr>
+                    <td align="center" style="padding:22px 16px;">
+                      <p style="margin:0 0 8px;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:<%= variant === 'paid' ? theme.textMuted : '#991b1b' %>;"><%= amountLabel %></p>
+                      <p style="margin:0;font-size:28px;line-height:1.2;font-weight:700;color:<%= variant === 'paid' ? theme.green : '#991b1b' %>;"><%= amountFormatted %></p>
+                      <% if (payoutDestination) { %>
+                      <p style="margin:10px 0 0;font-size:14px;line-height:1.5;color:<%= variant === 'paid' ? theme.textMuted : '#7f1d1d' %>;"><%= destinationPrefix %> <%= payoutDestination %></p>
+                      <% } %>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <% if (variant === 'failed' && failureReason) { %>
+            <tr>
+              <td style="padding:0 20px 16px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #fecaca;border-radius:14px;background:#fff7f7;">
+                  <tr>
+                    <td style="padding:16px 18px;">
+                      <p style="margin:0 0 6px;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#991b1b;">Why it failed</p>
+                      <p style="margin:0;font-size:14px;line-height:1.55;color:#7f1d1d;"><%= failureReason %></p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <% } %>
+
+            <% if (details && details.length) { %>
+            <tr>
+              <td style="padding:0 20px 12px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid <%= theme.border %>;border-radius:16px;overflow:hidden;background:<%= theme.card %>;">
+                  <% details.forEach(function (row, index) { %>
+                  <tr>
+                    <td style="padding:14px 16px;<%= index > 0 ? 'border-top:1px solid ' + theme.border + ';' : '' %>">
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                        <tr>
+                          <td style="font-size:13px;color:<%= theme.textMuted %>;"><%= row.label %></td>
+                          <td align="right" style="font-size:14px;font-weight:600;color:<%= theme.text %>;padding-left:12px;word-break:break-word;"><%= row.value %></td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <% }) %>
+                </table>
+              </td>
+            </tr>
+            <% } %>
+
+            <tr>
+              <td style="padding:4px 28px 24px;font-size:13px;line-height:1.55;color:<%= theme.textMuted %>;">
+                Open the vendor app and go to Payouts to see this in your wallet activity.
+              </td>
+            </tr>
+<%- include('partials/email-layout-end', { theme, viewUrl: '', ctaLabel: '' }) %>

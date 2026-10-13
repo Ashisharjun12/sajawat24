@@ -1,3 +1,5 @@
+import { normalizeHomeAnnouncements, type HomeAnnouncement } from '@/module/home/lib/announcement';
+
 export type HomeProductInstant = {
   enabled: boolean;
   showBadge: boolean;
@@ -300,26 +302,37 @@ export type NormalizedHomeCms = {
   layoutBlocks: HomeCmsLayoutBlock[];
   midSlide: HomeBannerSlide | null;
   endSlide: HomeBannerSlide | null;
+  announcements: HomeAnnouncement[];
 };
 
 export function normalizeHomeCms(remote: unknown): NormalizedHomeCms {
+  const empty: NormalizedHomeCms = {
+    heroSlides: [],
+    layoutBlocks: [],
+    midSlide: null,
+    endSlide: null,
+    announcements: [],
+  };
   if (!remote || typeof remote !== 'object') {
-    return { heroSlides: [], layoutBlocks: [], midSlide: null, endSlide: null };
+    return empty;
   }
   const payload = remote as {
     hero?: HeroRow[];
     layoutBlocks?: HomeCmsLayoutBlock[];
     mid?: HeroRow[];
     end?: HeroRow[];
+    announcements?: unknown[];
   };
   const layoutBlocks = Array.isArray(payload.layoutBlocks)
     ? payload.layoutBlocks.filter((b) => b?.id && b?.type)
     : [];
+  const announcements = normalizeHomeAnnouncements(payload.announcements);
   return {
     heroSlides: normalizeHomeCmsHero(remote),
     layoutBlocks,
     midSlide: normalizePromoSlide(payload.mid?.[0]),
     endSlide: normalizePromoSlide(payload.end?.[0]),
+    announcements,
   };
 }
 

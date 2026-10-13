@@ -18,8 +18,8 @@ export function WebsiteContentTabs({ tab, onTabChange, cities, channel }) {
       </TabsList>
       {channel === "mobile" ? (
         <p className="text-xs text-muted-foreground">
-          Editing the same CMS records as Web. Use platform checkboxes and mobile
-          banner images for mobile browser visibility.
+          Same records as Web. Use <span className="font-medium">Show on</span> when editing an
+          announcement to pick Website, Mobile web, and/or Android app.
         </p>
       ) : null}
       <TabsContent value="announcements">

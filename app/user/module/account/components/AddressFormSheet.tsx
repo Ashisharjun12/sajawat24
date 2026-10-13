@@ -168,6 +168,7 @@ export function AddressFormSheet({
           submitLabel={submitting ? 'Saving…' : 'Save address'}
           onSubmit={() => void handleSave()}
           submitDisabled={submitting}
+          onCancel={onClose}
         />
       </ScrollView>
     </HomeBottomSheetModal>

@@ -41,6 +41,7 @@ function CityChip({
   className,
   labelClassName,
   chevronClassName,
+  pinClassName,
   ...props
 }) {
   return (
@@ -52,7 +53,11 @@ function CityChip({
       )}
       {...props}
     >
-      <MapsPinIcon size={14} className="size-3.5 text-primary" strokeWidth={2.25} />
+      <MapsPinIcon
+        size={14}
+        className={cn("size-3.5", pinClassName ?? "text-primary")}
+        strokeWidth={2.25}
+      />
       <span className={cn("min-w-0 truncate font-bold", labelClassName)}>
         {formatLocationLabel(city, pincode, source)}
       </span>
@@ -319,6 +324,13 @@ export function LocationPicker({ variant = "default", className }) {
             ? "text-primary-foreground/70"
             : variant === "onHero"
               ? "text-background/70"
+              : undefined
+        }
+        pinClassName={
+          variant === "onBrand"
+            ? "text-primary-foreground"
+            : variant === "onHero"
+              ? "text-background"
               : undefined
         }
       />

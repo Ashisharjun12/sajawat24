@@ -1,4 +1,4 @@
-import { and, count, desc, eq, gte, ilike, lte, or, sql } from "drizzle-orm";
+import { and, count, desc, eq, gte, ilike, lte, ne, or, sql } from "drizzle-orm";
 import { db } from "@/db/postgres-client.js";
 import { cities } from "@/modules/geo/cities/city.schema.js";
 import { uploads } from "@/modules/upload/media/media.schema.js";
@@ -53,6 +53,7 @@ export interface IVendorRepository {
         page: number;
         limit: number;
         status?: VendorOnboardingStatus;
+        userAccountStatus?: "deleted";
         search?: string;
         cityId?: string;
         isOnDuty?: boolean;
@@ -173,6 +174,7 @@ export class VendorRepository implements IVendorRepository {
         page: number;
         limit: number;
         status?: VendorOnboardingStatus;
+        userAccountStatus?: "deleted";
         search?: string;
         cityId?: string;
         isOnDuty?: boolean;
@@ -181,6 +183,12 @@ export class VendorRepository implements IVendorRepository {
     }): Promise<{ items: AdminVendorListItem[]; total: number }> {
         const offset = (input.page - 1) * input.limit;
         const filters = [];
+
+        if (input.userAccountStatus === "deleted") {
+            filters.push(eq(users.status, "deleted"));
+        } else {
+            filters.push(ne(users.status, "deleted"));
+        }
 
         if (input.status) {
             filters.push(eq(vendors.onboardingStatus, input.status));
@@ -232,6 +240,7 @@ export class VendorRepository implements IVendorRepository {
                 cityName: cities.name,
                 state: cities.state,
                 onboardingStatus: vendors.onboardingStatus,
+                userAccountStatus: users.status,
                 isOnDuty: vendors.isOnDuty,
                 dutyChangedAt: vendors.dutyChangedAt,
                 createdAt: vendors.createdAt,
@@ -335,6 +344,7 @@ export class VendorRepository implements IVendorRepository {
                 shopAddress: vendors.shopAddress,
                 pincode: vendors.pincode,
                 onboardingStatus: vendors.onboardingStatus,
+                userAccountStatus: users.status,
                 isOnDuty: vendors.isOnDuty,
                 dutyChangedAt: vendors.dutyChangedAt,
                 createdAt: vendors.createdAt,
@@ -362,6 +372,7 @@ export class VendorRepository implements IVendorRepository {
             pincode: row.pincode,
             shopImageUrl: shopImageUrl(row.upload),
             onboardingStatus: row.onboardingStatus,
+            userAccountStatus: row.userAccountStatus,
             isOnDuty: row.isOnDuty,
             dutyChangedAt: row.dutyChangedAt,
             createdAt: row.createdAt,

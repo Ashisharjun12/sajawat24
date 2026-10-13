@@ -3,15 +3,23 @@ import { AppSpinner } from '@/components/ui/app-spinner';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
+import { openCmsLink } from '@/lib/open-cms-link';
 import { useGoBack } from '@/lib/use-go-back';
+import { useHomeCms } from '@/module/home/hooks/use-home-cms';
 import { NotificationEmpty } from '@/module/notifications/components/NotificationEmpty';
+import { NotificationInboxCard } from '@/module/notifications/components/NotificationInboxCard';
+import { NotificationInboxFilterChips } from '@/module/notifications/components/NotificationInboxFilterChips';
 import { NotificationListSkeleton } from '@/module/notifications/components/NotificationListSkeleton';
-import { NotificationRow } from '@/module/notifications/components/NotificationRow';
 import { useNotificationNavigation } from '@/module/notifications/hooks/use-notification-navigation';
 import { useUserNotifications } from '@/module/notifications/hooks/use-user-notifications';
-import { groupNotificationsByDate } from '@/module/notifications/lib/group-notifications-by-date';
-import type { UserInboxNotification } from '@/module/notifications/lib/notification-types';
-import { type Href, useLocalSearchParams } from 'expo-router';
+import { groupInboxByDate } from '@/module/notifications/lib/group-inbox-by-date';
+import {
+  buildNotificationInboxItems,
+  type NotificationInboxFilter,
+  type NotificationInboxItem,
+} from '@/module/notifications/lib/notification-inbox-filter';
+import { useAvailableCoupons } from '@/module/promotions/hooks/use-available-coupons';
+import { type Href, router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { Pressable, RefreshControl, SectionList, View } from 'react-native';
 
@@ -24,6 +32,7 @@ export function NotificationsScreen() {
     from === 'profile' ? ('/(app)/profile' as Href) : ('/(app)/' as Href);
   const onBack = useGoBack({ fallbackHref: backFallback });
 
+  const [filter, setFilter] = useState<NotificationInboxFilter>('all');
   const [pullRefreshing, setPullRefreshing] = useState(false);
   const {
     notifications,
@@ -38,9 +47,22 @@ export function NotificationsScreen() {
     markAllRead,
     isMarkingAllRead,
   } = useUserNotifications();
-  const handlePress = useNotificationNavigation({ markRead });
+  const { announcements } = useHomeCms();
+  const { coupons } = useAvailableCoupons({ scope: 'city' });
+  const handlePushPress = useNotificationNavigation({ markRead });
 
-  const sections = useMemo(() => groupNotificationsByDate(notifications), [notifications]);
+  const inboxItems = useMemo(
+    () =>
+      buildNotificationInboxItems({
+        filter,
+        notifications,
+        announcements,
+        coupons,
+      }),
+    [filter, notifications, announcements, coupons],
+  );
+
+  const sections = useMemo(() => groupInboxByDate(inboxItems), [inboxItems]);
 
   const onRefresh = useCallback(async () => {
     setPullRefreshing(true);
@@ -52,27 +74,63 @@ export function NotificationsScreen() {
   }, [refetch]);
 
   const handleEndReached = useCallback(() => {
-    if (hasMore && !isLoadingMore) {
+    if (filter === 'all' && hasMore && !isLoadingMore) {
       void loadMore();
     }
-  }, [hasMore, isLoadingMore, loadMore]);
+  }, [filter, hasMore, isLoadingMore, loadMore]);
+
+  const handleInboxPress = useCallback(
+    (item: NotificationInboxItem) => {
+      if (item.kind === 'push' && item.push) {
+        handlePushPress(item.push);
+        return;
+      }
+      if (item.kind === 'cms' && item.cms?.href) {
+        openCmsLink(item.cms.href);
+        return;
+      }
+      if (item.kind === 'coupon') {
+        router.push('/(app)/offers' as Href);
+      }
+    },
+    [handlePushPress],
+  );
 
   const renderItem = useCallback(
-    ({ item }: { item: UserInboxNotification }) => (
-      <NotificationRow item={item} onPress={handlePress} />
+    ({ item }: { item: NotificationInboxItem }) => (
+      <NotificationInboxCard item={item} onPress={handleInboxPress} />
     ),
-    [handlePress],
+    [handleInboxPress],
   );
 
   const renderSectionHeader = useCallback(
     ({ section }: { section: { title: string } }) => (
-      <Text className="text-foreground pb-1 pt-5 text-base font-bold">{section.title}</Text>
+      <Text className="text-foreground pb-2 pt-4 text-base font-bold">{section.title}</Text>
     ),
     [],
   );
 
   const showMarkAllRead = !isLoading && !isError;
   const canMarkAllRead = unreadCount > 0 && !isMarkingAllRead;
+
+  const markAllTrailing = showMarkAllRead ? (
+    <Pressable
+      onPress={() => void markAllRead()}
+      disabled={!canMarkAllRead}
+      className="active:opacity-80"
+      accessibilityRole="button"
+      accessibilityLabel="Mark all read">
+      <Text
+        className={cn(
+          'text-xs font-semibold',
+          canMarkAllRead ? 'text-primary' : 'text-muted-foreground',
+        )}>
+        {isMarkingAllRead ? 'Updating…' : 'Mark all read'}
+      </Text>
+    </Pressable>
+  ) : (
+    <View className="size-10" />
+  );
 
   const listFooter = useMemo(() => {
     if (!isLoadingMore) return <View className="h-4" />;
@@ -83,31 +141,19 @@ export function NotificationsScreen() {
     );
   }, [isLoadingMore]);
 
+  const emptyOffers = filter === 'offers' && inboxItems.length === 0;
+
   return (
     <Screen scroll={false} edges={['top', 'left', 'right']} gutter contentClassName="flex-1 pb-0">
-      <TabScreenTitle title="Notifications" showBack onBack={onBack} insetFromParentGutter />
-      {showMarkAllRead ? (
-        <View className="mb-3 flex-row justify-end">
-          <Pressable
-            onPress={() => void markAllRead()}
-            disabled={!canMarkAllRead}
-            className="active:opacity-80">
-            <View
-              className={cn(
-                'rounded-full border px-3.5 py-2',
-                canMarkAllRead ? 'border-primary/30 bg-primary/5' : 'border-border bg-muted/40',
-              )}>
-              <Text
-                className={cn(
-                  'text-xs font-semibold',
-                  canMarkAllRead ? 'text-primary' : 'text-muted-foreground',
-                )}>
-                {isMarkingAllRead ? 'Updating…' : 'Mark all read'}
-              </Text>
-            </View>
-          </Pressable>
-        </View>
-      ) : null}
+      <TabScreenTitle
+        title="Notifications"
+        showBack
+        onBack={onBack}
+        insetFromParentGutter
+        trailing={markAllTrailing}
+      />
+
+      <NotificationInboxFilterChips value={filter} onChange={setFilter} />
 
       {isLoading ? (
         <NotificationListSkeleton />
@@ -120,20 +166,29 @@ export function NotificationsScreen() {
             <Text>Retry</Text>
           </Button>
         </View>
-      ) : notifications.length === 0 ? (
-        <NotificationEmpty />
+      ) : inboxItems.length === 0 ? (
+        <View className="flex-1 gap-3">
+          <NotificationEmpty />
+          {emptyOffers ? (
+            <Button variant="secondary" onPress={() => router.push('/(app)/offers' as Href)}>
+              <Text>Browse all offers</Text>
+            </Button>
+          ) : null}
+        </View>
       ) : (
         <SectionList
           className="flex-1"
-          refreshControl={<RefreshControl refreshing={pullRefreshing} onRefresh={() => void onRefresh()} />}
+          refreshControl={
+            <RefreshControl refreshing={pullRefreshing} onRefresh={() => void onRefresh()} />
+          }
           sections={sections}
           keyExtractor={(item) => item.id}
           renderItem={renderItem}
           renderSectionHeader={renderSectionHeader}
           stickySectionHeadersEnabled={false}
           showsVerticalScrollIndicator={false}
-          contentContainerClassName="pb-8"
-          ItemSeparatorComponent={() => <View className="h-px bg-border/40" />}
+          contentContainerClassName="pb-8 gap-3"
+          ItemSeparatorComponent={() => <View className="h-3" />}
           onEndReached={handleEndReached}
           onEndReachedThreshold={0.35}
           ListFooterComponent={listFooter}

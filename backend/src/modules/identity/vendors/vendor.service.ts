@@ -173,6 +173,7 @@ export class VendorService implements IVendorService {
             page: pagination.page,
             limit: pagination.limit,
             status: query.status,
+            userAccountStatus: query.userAccountStatus,
             search: query.search,
             cityId: query.cityId,
             isOnDuty: query.isOnDuty,

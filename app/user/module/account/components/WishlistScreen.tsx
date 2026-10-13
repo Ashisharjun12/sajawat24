@@ -3,10 +3,12 @@ import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { useGoBack } from '@/lib/use-go-back';
 import { CatalogProductCard } from '@/module/catalog/components/CatalogProductCard';
+import { PackagesEmptyState } from '@/module/catalog/components/PackagesEmptyState';
 import { useWishlistStore } from '@/store/wishlist.store';
 import { useLocationStore } from '@/store/location.store';
 import { useAuthStore } from '@/store/auth.store';
 import { useCallback, useEffect, useState } from 'react';
+import { cn } from '@/lib/utils';
 import { RefreshControl, View } from 'react-native';
 
 function unavailableLabel(reason?: string) {
@@ -51,18 +53,19 @@ export function WishlistScreen() {
       <TabScreenTitle title="Wishlist" tone="primary" showBack onBack={onBack} />
       <SmoothScrollView
         className="flex-1 bg-bg"
-        contentContainerClassName="gap-4 p-4"
+        contentContainerClassName={cn(
+          'p-4',
+          rows.length === 0 && status !== 'loading' ? 'flex-grow' : 'gap-4',
+        )}
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => void onRefresh()} />}>
         {rows.length === 0 && status !== 'loading' ? (
-          <View className="items-center px-6 py-16">
-            <Text className="text-foreground text-center text-base font-semibold">
-              No saved setups yet
-            </Text>
-            <Text className="text-muted-foreground mt-2 text-center text-sm leading-relaxed">
-              Tap the heart on any package to save it here.
-            </Text>
-          </View>
+          <PackagesEmptyState
+            icon="wishlist"
+            title="No saved packages"
+            description="Tap the heart on any package to save it here for later."
+            buttonLabel="View packages"
+          />
         ) : (
           <View className="flex-row flex-wrap justify-between gap-y-3">
             {rows.map((row) => {

@@ -193,4 +193,8 @@ export class RefundRequestRepository {
             .returning();
         return row;
     }
+
+    async deleteAllForUser(userId: string): Promise<void> {
+        await db.delete(refundRequests).where(eq(refundRequests.userId, userId));
+    }
 }

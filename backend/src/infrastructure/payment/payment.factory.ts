@@ -6,6 +6,7 @@ import type { OnlinePaymentProvider } from "@/modules/ops/settings/payment-metho
 const providers: Record<OnlinePaymentProvider, IPaymentProvider> = {
     razorpay: new RazorpayProvider(),
     cashfree: new CashfreeProvider(),
+    
 };
 
 export class PaymentFactory {

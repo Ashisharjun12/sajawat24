@@ -2,6 +2,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { _config } from "@/config/config.js";
 import DbFactory from "@/infrastructure/database/db.factory.js";
 import { ApiError } from "@/shared/errors/apiError.js";
+import { isRateLimitEnabled } from "@/shared/rate-limit/is-rate-limit-enabled.js";
 
 export const OTP_TTL_SECONDS = 300;
 
@@ -88,7 +89,7 @@ async function bumpRateLimit(key: string): Promise<number> {
 }
 
 export async function assertOtpRateLimit(phone: string, ip?: string): Promise<void> {
-    if (_config.NODE_ENV === "development") return;
+    if (!isRateLimitEnabled()) return;
 
     const phoneCount = await bumpRateLimit(rateKeyPhone(phone));
     if (phoneCount > MAX_SENDS_PER_HOUR) {

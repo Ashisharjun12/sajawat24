@@ -32,11 +32,14 @@ export const notificationTemplateAdminRouter =
 export const userNotificationPreferenceRouter = createUserPreferenceRouter(preferenceController);
 
 export {
+    notificationRepository,
     notificationService,
+    preferenceService,
+    pushDeviceRepository,
     pushDeviceService,
     userNotificationController,
     vendorNotificationController,
-};
+} from "@/modules/notifications/container.js";
 export type { INotificationService, NotifyInput } from "@/modules/notifications/notification.service.js";
 
 export {

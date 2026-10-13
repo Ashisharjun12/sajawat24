@@ -150,9 +150,9 @@ export class CmsBannerService {
     }
 
     private async toAdmin(row: CmsBanner & { cityName?: string | null }) {
-        const image = row.imageUploadId ? await this.mediaUrl(row.imageUploadId) : null;
+        const image = row.imageUploadId ? await this.mediaObject(row.imageUploadId) : null;
         const mobileImage = row.mobileImageUploadId
-            ? await this.mediaUrl(row.mobileImageUploadId)
+            ? await this.mediaObject(row.mobileImageUploadId)
             : null;
         return {
             ...row,
@@ -164,9 +164,13 @@ export class CmsBannerService {
         };
     }
 
-    private async mediaUrl(uploadId: string) {
-        const upload = await getCompletedUpload(uploadId);
-        const media = toPublicMedia(upload);
-        return { ...media, url: media.optimizedUrl ?? media.publicUrl };
+    private async mediaObject(uploadId: string) {
+        try {
+            const upload = await getCompletedUpload(uploadId);
+            const media = toPublicMedia(upload);
+            return { ...media, url: media.optimizedUrl ?? media.publicUrl };
+        } catch {
+            return null;
+        }
     }
 }

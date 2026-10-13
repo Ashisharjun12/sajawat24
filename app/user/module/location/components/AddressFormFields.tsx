@@ -20,6 +20,7 @@ type AddressFormFieldsProps = {
   submitLabel: string;
   onSubmit: () => void;
   submitDisabled?: boolean;
+  onCancel?: () => void;
 };
 
 function FormSection({ children }: { children: ReactNode }) {
@@ -38,25 +39,14 @@ export function AddressFormFields({
   fieldErrors,
   pinStatus,
   pinMessage,
-  context,
+  context: _context,
   submitLabel,
   onSubmit,
   submitDisabled,
+  onCancel,
 }: AddressFormFieldsProps) {
-  const { contextCityPinHint, contextCityName } = context;
-
   return (
     <View className="gap-4">
-      {contextCityPinHint && contextCityName ? (
-        <View className="rounded-2xl border border-primary/20 bg-primary-tint px-4 py-3">
-          <Text className="text-foreground text-sm leading-5">
-            Delivering in{' '}
-            <Text className="font-semibold text-foreground">{contextCityName}</Text>
-            . PIN must be in this city.
-          </Text>
-        </View>
-      ) : null}
-
       <FormSection>
         <View className="gap-1.5">
           <FieldLabel>Label</FieldLabel>
@@ -151,13 +141,28 @@ export function AddressFormFields({
         </View>
       </FormSection>
 
-      <Button
-        variant="primary"
-        className={PRIMARY_CTA_BUTTON_CLASS}
-        disabled={submitDisabled || pinStatus === 'loading'}
-        onPress={onSubmit}>
-        <Text>{submitLabel}</Text>
-      </Button>
+      {onCancel ? (
+        <View className="gap-3 pt-1">
+          <Button
+            variant="primary"
+            className={PRIMARY_CTA_BUTTON_CLASS}
+            disabled={submitDisabled || pinStatus === 'loading'}
+            onPress={onSubmit}>
+            <Text>{submitLabel}</Text>
+          </Button>
+          <Button variant="outline" size="md" className="w-full" onPress={onCancel}>
+            <Text>Cancel</Text>
+          </Button>
+        </View>
+      ) : (
+        <Button
+          variant="primary"
+          className={PRIMARY_CTA_BUTTON_CLASS}
+          disabled={submitDisabled || pinStatus === 'loading'}
+          onPress={onSubmit}>
+          <Text>{submitLabel}</Text>
+        </Button>
+      )}
     </View>
   );
 }

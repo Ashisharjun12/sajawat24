@@ -88,7 +88,7 @@ nano .env
 Fill at minimum:
 
 - `POSTGRES_DATABASE_URL` (Supabase **pooler**)
-- `AI_ENABLED=false` (no `AI_DATABASE_URL` needed)
+- **AI (optional):** leave `AI_ENABLED=false` if unused. To enable admin catalog AI: `AI_ENABLED=true`, `AI_DATABASE_URL` (often same pooler URL as main DB; Mastra uses schema `mastra`), Cloudflare `LLM_BASE_URL` (`https://api.cloudflare.com/client/v4/accounts/<account_id>/ai/v1`), `LLM_API_KEY` (Cloudflare API token), `LLM_MODEL` (e.g. `@cf/zai-org/glm-4.7-flash`). Redis required for catalog AI rate limits. Set `AI_LLM_TIMEOUT_MS` (e.g. `120000`) if catalog generate hits 504. In admin **Settings → AI**, turn on **Enable AI** and **Admin panel**.
 - Redis URLs above
 - `API_PUBLIC_URL`, `WEB_APP_ORIGIN`, `ADMIN_APP_ORIGIN` (`.com` hosts)
 - `JWT_SECRET`, `OTP_PEPPER`, payment/SMS/R2 keys

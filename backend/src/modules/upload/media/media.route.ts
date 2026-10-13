@@ -22,6 +22,7 @@ export function createMediaAdminRouter(mediaController: MediaController) {
         validate(optimizeUploadDto),
         mediaController.optimize,
     );
+    router.get("/:id/references", validate(uploadIdParamsDto, "params"), mediaController.references);
     router.get("/:id", validate(uploadIdParamsDto, "params"), mediaController.get);
     router.patch("/:id", validate(uploadIdParamsDto, "params"), validate(patchUploadDto), mediaController.patch);
     router.delete("/:id", validate(uploadIdParamsDto, "params"), mediaController.remove);

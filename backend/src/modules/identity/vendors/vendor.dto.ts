@@ -61,6 +61,7 @@ export const adminVendorListQueryDto = z.object({
     ),
     joinedFrom: z.coerce.date().optional(),
     joinedTo: z.coerce.date().optional(),
+    userAccountStatus: z.enum(["deleted"]).optional(),
 });
 
 export const adminVendorIdParamsDto = z.object({

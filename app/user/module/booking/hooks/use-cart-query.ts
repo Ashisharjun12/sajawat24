@@ -6,7 +6,8 @@ import {
   removeCartItem,
 } from '@/api/cart.api';
 import { queryKeys } from '@/lib/query-keys';
-import { emptyCart } from '@/module/booking/lib/cart-types';
+import { emptyCart, type CartSnapshot } from '@/module/booking/lib/cart-types';
+import type { CouponLike } from '@/module/booking/lib/coupon-preview';
 import { useCartStore } from '@/store/cart.store';
 import type { QueryClient } from '@tanstack/react-query';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -36,6 +37,17 @@ export function useCartQuery(enabled = true) {
   });
 }
 
+export type ApplyCouponInput = {
+  code: string;
+  /** Listed coupon row — used for optimistic applied state before API returns. */
+  coupon?: CouponLike | null;
+};
+
+function resolveCouponCodeInput(input: ApplyCouponInput | string): string {
+  const raw = typeof input === 'string' ? input : input.code;
+  return raw.trim();
+}
+
 export function useCartMutations() {
   const queryClient = useQueryClient();
 
@@ -56,7 +68,28 @@ export function useCartMutations() {
   });
 
   const applyCoupon = useMutation({
-    mutationFn: (code: string) => applyCartCoupon(code),
+    mutationFn: (input: ApplyCouponInput | string) => applyCartCoupon(resolveCouponCodeInput(input)),
+    onMutate: async (input) => {
+      const code = resolveCouponCodeInput(input);
+      if (!code) return { previous: undefined as CartSnapshot | undefined };
+      const hint = typeof input === 'string' ? null : input.coupon;
+      await queryClient.cancelQueries({ queryKey: queryKeys.cart() });
+      const previous = queryClient.getQueryData<CartSnapshot>(queryKeys.cart());
+      if (previous) {
+        queryClient.setQueryData<CartSnapshot>(queryKeys.cart(), {
+          ...previous,
+          appliedCoupon: hint
+            ? { ...hint, code: hint.code?.trim() || code }
+            : { code },
+        });
+      }
+      return { previous };
+    },
+    onError: (_err, _input, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(queryKeys.cart(), context.previous);
+      }
+    },
     onSuccess: invalidate,
   });
 

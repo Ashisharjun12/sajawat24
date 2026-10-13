@@ -15,8 +15,6 @@ import { AppBannerFormDialog } from "@/module/cms/components/AppBannerFormDialog
 import { BannersTable } from "@/module/cms/components/BannersTable"
 import { CmsDeleteDialog } from "@/module/cms/components/CmsDeleteDialog"
 import { CmsEmptyState } from "@/module/cms/components/CmsEmptyState"
-import { MobilePhonePreview } from "@/module/cms/components/MobilePhonePreview"
-import { linkPreviewLabel } from "@/module/cms/lib/app-banner-link"
 import { ProductMediaPickerDialog } from "@/module/catalog/components/ProductMediaPickerDialog"
 import { toGalleryItem } from "@/module/catalog/components/ProductMediaGallery"
 
@@ -36,7 +34,6 @@ export function AppBannersPanel({ cities = [] }) {
   const [submitting, setSubmitting] = useState(false)
   const [deleting, setDeleting] = useState(null)
   const [deletingBusy, setDeletingBusy] = useState(false)
-  const [livePreview, setLivePreview] = useState(null)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -46,7 +43,7 @@ export function AppBannersPanel({ cities = [] }) {
         page: 1,
         limit: SORTABLE_LIMIT,
         placement: PLACEMENT,
-        platform: "android",
+        platform: "android_only",
       })
       setItems(data.items ?? [])
     } catch (err) {
@@ -134,24 +131,10 @@ export function AppBannersPanel({ cities = [] }) {
   }
 
   const empty = !loading && !error && items.length === 0
-  const previewHero =
-    livePreview?.imageUrl
-      ? {
-          imageUrl: livePreview.imageUrl,
-          href: livePreview.href || "",
-          linkLabel: livePreview.linkLabel || linkPreviewLabel(livePreview.href),
-        }
-      : items[0]
-        ? {
-            imageUrl: items[0].mobileImageUrl || items[0].imageUrl || "",
-            href: items[0].href || "",
-            linkLabel: linkPreviewLabel(items[0].href),
-          }
-        : null
 
   return (
-    <div className="flex flex-col gap-4 pt-4 lg:flex-row lg:items-start">
-      <div className="min-w-0 flex-1 flex flex-col gap-4">
+    <div className="flex flex-col gap-4 pt-4">
+      <div className="min-w-0 flex flex-col gap-4">
         {error ? (
           <Alert variant="destructive">
             <AlertDescription>{error}</AlertDescription>
@@ -198,7 +181,6 @@ export function AppBannersPanel({ cities = [] }) {
           imagePreview={imagePreview}
           imageUploadId={imageUploadId}
           onPickImage={() => setPickerOpen(true)}
-          onPreviewChange={setLivePreview}
           submitting={submitting}
           onSubmit={handleSave}
         />
@@ -210,13 +192,7 @@ export function AppBannersPanel({ cities = [] }) {
           kinds={["image"]}
           onAdd={(picked) => {
             const row = picked[0] ? toGalleryItem(picked[0]) : null
-            if (row?.url) {
-              setImagePreview(row.url)
-              setLivePreview((prev) => ({
-                ...prev,
-                imageUrl: row.url,
-              }))
-            }
+            if (row?.url) setImagePreview(row.url)
             if (row?.uploadId) setImageUploadId(row.uploadId)
           }}
         />
@@ -230,8 +206,6 @@ export function AppBannersPanel({ cities = [] }) {
           onConfirm={confirmDelete}
         />
       </div>
-
-      <MobilePhonePreview hero={previewHero} className="lg:sticky lg:top-4" />
     </div>
   )
 }

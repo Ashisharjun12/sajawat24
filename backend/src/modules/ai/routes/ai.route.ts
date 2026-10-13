@@ -1,6 +1,14 @@
 import { Router } from "express";
 import type { CatalogCopilotController } from "@/modules/ai/catalog/catalog-copilot.controller.js";
 import { generateProductCopyDto } from "@/modules/ai/catalog/catalog-copilot.dto.js";
+import type { CmsFaqCopilotController } from "@/modules/ai/cms/faq/cms-faq-copilot.controller.js";
+import { suggestCmsFaqDto } from "@/modules/ai/cms/faq/cms-faq-copilot.dto.js";
+import type { CmsTestimonialCopilotController } from "@/modules/ai/cms/testimonial/cms-testimonial-copilot.controller.js";
+import { suggestCmsTestimonialDto } from "@/modules/ai/cms/testimonial/cms-testimonial-copilot.dto.js";
+import type { CmsAnnouncementCopilotController } from "@/modules/ai/cms/announcement/cms-announcement-copilot.controller.js";
+import { suggestCmsAnnouncementDto } from "@/modules/ai/cms/announcement/cms-announcement-copilot.dto.js";
+import type { CmsBrandPageCopilotController } from "@/modules/ai/cms/brand-page/cms-brand-page-copilot.controller.js";
+import { suggestCmsBrandPageDto } from "@/modules/ai/cms/brand-page/cms-brand-page-copilot.dto.js";
 import type { AiPolicyController } from "@/modules/ai/policy/ai-policy.controller.js";
 import { patchAiPolicyDto } from "@/modules/ai/policy/ai-policy.dto.js";
 import { validate } from "@/shared/middlewares/validate.middleware.js";
@@ -18,12 +26,38 @@ export function createAiPublicRouter(controller: AiPolicyController) {
     return router;
 }
 
-export function createAiAdminRouter(controller: CatalogCopilotController) {
+export function createAiAdminRouter(
+    catalogController: CatalogCopilotController,
+    cmsFaqController: CmsFaqCopilotController,
+    cmsTestimonialController: CmsTestimonialCopilotController,
+    cmsAnnouncementController: CmsAnnouncementCopilotController,
+    cmsBrandPageController: CmsBrandPageCopilotController,
+) {
     const router = Router();
     router.post(
         "/catalog/generate-product-copy",
         validate(generateProductCopyDto),
-        controller.generateProductCopy,
+        catalogController.generateProductCopy,
+    );
+    router.post(
+        "/cms/suggest-faq",
+        validate(suggestCmsFaqDto),
+        cmsFaqController.suggestFaq,
+    );
+    router.post(
+        "/cms/suggest-testimonial",
+        validate(suggestCmsTestimonialDto),
+        cmsTestimonialController.suggestTestimonial,
+    );
+    router.post(
+        "/cms/suggest-announcement",
+        validate(suggestCmsAnnouncementDto),
+        cmsAnnouncementController.suggestAnnouncement,
+    );
+    router.post(
+        "/cms/suggest-brand-page",
+        validate(suggestCmsBrandPageDto),
+        cmsBrandPageController.suggestBrandPage,
     );
     return router;
 }

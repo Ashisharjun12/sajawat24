@@ -33,6 +33,7 @@ export const VENDOR_STATUS_TABS = [
   { value: "active", label: "Active" },
   { value: "rejected", label: "Rejected" },
   { value: "blocked", label: "Blocked" },
+  { value: "deleted_account", label: "Deleted account" },
   { value: "all", label: "All" },
 ]
 
@@ -46,7 +47,13 @@ export function vendorTabToStatus(tab) {
       return "REJECTED"
     case "blocked":
       return "BLOCKED"
+    case "deleted_account":
+      return null
     default:
       return null
   }
+}
+
+export function vendorTabToUserAccountStatus(tab) {
+  return tab === "deleted_account" ? "deleted" : undefined
 }

@@ -8,6 +8,13 @@ import { createAuthRouter } from "@/modules/identity/auth/auth.route.js";
 import { SessionRepository } from "@/modules/identity/sessions/session.repository.js";
 import { sessions } from "@/modules/identity/sessions/session.schema.js";
 import { SessionService } from "@/modules/identity/sessions/session.service.js";
+import { AccountController } from "@/modules/identity/account/account.controller.js";
+import { AccountDeletionService } from "@/modules/identity/account/account-deletion.service.js";
+import { ConsumerAccountPurgeService } from "@/modules/identity/account/consumer-account-purge.service.js";
+import { CustomerAddressRepository } from "@/modules/identity/addresses/customer-address.repository.js";
+import { CartRepository } from "@/modules/booking/carts/cart.repository.js";
+import { RefundRequestRepository } from "@/modules/booking/refunds/refund-request.repository.js";
+import { WishlistRepository } from "@/modules/catalog/wishlist/wishlist.repository.js";
 import { UserController } from "@/modules/identity/users/user.controller.js";
 import { UserRepository } from "@/modules/identity/users/user.repository.js";
 import { createUserRouter } from "@/modules/identity/users/user.route.js";
@@ -44,7 +51,10 @@ import {
 import { OrderRepository } from "@/modules/booking/orders/order.repository.js";
 import { OrderService } from "@/modules/booking/orders/order.service.js";
 import {
+    notificationRepository,
     notificationService,
+    preferenceService,
+    pushDeviceRepository,
     userNotificationController,
     vendorNotificationController,
 } from "@/modules/notifications/index.js";
@@ -83,6 +93,22 @@ const adminAccountService = new AdminAccountService(userRepository, new AdminEma
 const adminAccountController = new AdminAccountController(adminAccountService);
 const authController = new AuthController(authService);
 const userController = new UserController(authService);
+const consumerAccountPurgeService = new ConsumerAccountPurgeService(
+    notificationRepository,
+    preferenceService,
+    pushDeviceRepository,
+    new CartRepository(),
+    new WishlistRepository(),
+    new CustomerAddressRepository(),
+    new RefundRequestRepository(),
+);
+const accountDeletionService = new AccountDeletionService(
+    userRepository,
+    vendorRepository,
+    sessionService,
+    consumerAccountPurgeService,
+);
+const accountController = new AccountController(accountDeletionService);
 const vendorController = new VendorController(authService, vendorService);
 const vendorAdminController = new VendorAdminController(vendorService);
 const customerRepository = new CustomerRepository();
@@ -143,6 +169,7 @@ export const adminAccountAdminRouter = createAdminAccountRouter(adminAccountCont
 export const userRouter = createUserRouter(
     authController,
     userController,
+    accountController,
     userNotificationController,
     customerAddressController,
     refundRequestController,

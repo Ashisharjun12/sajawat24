@@ -58,12 +58,11 @@ export function ServiceCitiesPage() {
       ) : filtered.length === 0 ? (
         <p className="text-sm text-muted-foreground">No cities match your search.</p>
       ) : (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-          {filtered.map((city, index) => (
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4">
+          {filtered.map((city) => (
             <HomeCityCard
               key={city.id}
               city={city}
-              index={index}
               onSelect={selectCity}
             />
           ))}

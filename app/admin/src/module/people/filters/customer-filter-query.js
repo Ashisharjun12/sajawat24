@@ -40,6 +40,8 @@ export function customerTabToStatus(tab) {
       return "active"
     case "blocked":
       return "blocked"
+    case "deleted":
+      return "deleted"
     default:
       return null
   }

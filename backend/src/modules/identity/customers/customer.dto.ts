@@ -3,7 +3,7 @@ import { z } from "zod";
 export const adminCustomerListQueryDto = z.object({
     page: z.coerce.number().int().min(1).optional(),
     limit: z.coerce.number().int().min(1).max(100).optional(),
-    status: z.enum(["active", "blocked"]).optional(),
+    status: z.enum(["active", "blocked", "deleted"]).optional(),
     search: z.string().trim().optional(),
     cityId: z.string().uuid().optional(),
     hasBookings: z.preprocess(

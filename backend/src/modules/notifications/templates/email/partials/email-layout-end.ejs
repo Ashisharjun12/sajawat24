@@ -1,3 +1,4 @@
+            <% if (typeof ctaLabel === 'string' && ctaLabel && typeof viewUrl === 'string' && viewUrl) { %>
             <tr>
               <td align="center" style="padding:4px 24px 28px;">
                 <a
@@ -6,6 +7,11 @@
                 ><%= ctaLabel %></a>
               </td>
             </tr>
+            <% } else { %>
+            <tr>
+              <td style="padding:0 0 16px;font-size:0;line-height:0;">&nbsp;</td>
+            </tr>
+            <% } %>
           </table>
           <p style="margin:16px 0 0;font-size:12px;line-height:1.5;color:<%= theme.textMuted %>;text-align:center;">
             <%= theme.brandName %> · <%= theme.footerTagline %>

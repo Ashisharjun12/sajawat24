@@ -247,8 +247,16 @@
 .announcement-marquee-track {
   display: inline-flex;
   align-items: center;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   font-weight: 500;
+  line-height: 1.25;
+}
+
+@media (min-width: 768px) {
+  .announcement-marquee-track {
+    font-size: 0.875rem;
+    line-height: 1.375;
+  }
 }
 
 @layer base {

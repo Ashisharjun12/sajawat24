@@ -24,8 +24,6 @@ import { HomeLayoutFormDialog } from "@/module/cms/components/HomeLayoutFormDial
 import { HomeLayoutTable } from "@/module/cms/components/HomeLayoutTable"
 import { CmsDeleteDialog } from "@/module/cms/components/CmsDeleteDialog"
 import { CmsEmptyState } from "@/module/cms/components/CmsEmptyState"
-import { MobilePhonePreview } from "@/module/cms/components/MobilePhonePreview"
-
 const GLOBAL = "global"
 const ANDROID_PLATFORM = "android"
 
@@ -182,8 +180,8 @@ export function AppHomeLayoutPanel({ cities = [] }) {
       : cities.find((city) => city.id === scopeCityId)?.name ?? "City"
 
   return (
-    <div className="flex flex-col gap-4 pt-4 lg:flex-row lg:items-start">
-      <div className="min-w-0 flex-1 flex flex-col gap-4">
+    <div className="flex flex-col gap-4 pt-4">
+      <div className="min-w-0 flex flex-col gap-4">
         <p className="text-sm text-muted-foreground">
           Ordered blocks below the hero on the Android app: category row (horizontal square tiles)
           and package rails. City-specific layouts override global when published. Hero slides stay
@@ -264,8 +262,6 @@ export function AppHomeLayoutPanel({ cities = [] }) {
           confirming={deletingBusy}
         />
       </div>
-
-      <MobilePhonePreview className="lg:sticky lg:top-4" />
     </div>
   )
 }

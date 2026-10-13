@@ -1,6 +1,11 @@
 import type { GenerateProductCopyInput } from "@/modules/ai/catalog/catalog-copilot.dto.js";
+import {
+    buildSeoKeywordHints,
+    CATALOG_COPY_RULES,
+} from "@/modules/ai/catalog/catalog-copilot-guidelines.js";
 
 export function buildCatalogCopilotPrompt(input: GenerateProductCopyInput): string {
+    const seo = buildSeoKeywordHints(input);
     const lines = [
         `Product name: ${input.name}`,
         `Category: ${input.categoryName}`,
@@ -18,10 +23,16 @@ export function buildCatalogCopilotPrompt(input: GenerateProductCopyInput): stri
 
     lines.push(
         "",
-        "Generate SEO-friendly product listing copy for this decoration package.",
-        "Optimize for search: natural keywords in the description, searchable item names, and FAQ questions people type into Google.",
-        "Use your tools for guidelines, SEO keyword hints, slug, and bullet sanitization.",
-        "Return structured JSON matching the required schema.",
+        "## Copy rules",
+        ...CATALOG_COPY_RULES.map((rule) => `- ${rule}`),
+        "",
+        "## SEO hints (use naturally in description and FAQs)",
+        `Primary keyword: ${seo.primaryKeyword}`,
+        `Secondary keywords: ${seo.secondaryKeywords.join(", ")}`,
+        `Example search phrases: ${seo.searchPhrases.join("; ")}`,
+        "",
+        "Generate all fields in one response: description, slug, includes, deliverySetup, careInstructions, faqs.",
+        "Return JSON matching the required schema only.",
     );
 
     return lines.join("\n");

@@ -1,5 +1,4 @@
 import { Screen } from '@/components/shell';
-import { Text } from '@/components/ui/text';
 import { CONFIRM_ADDRESS_MAP_HREF } from '@/lib/select-location-route';
 import { useAddressPinValidation } from '@/module/account/hooks/use-address-pin-validation';
 import {
@@ -128,11 +127,6 @@ export function AddAddressScreen() {
         keyboardShouldPersistTaps="always"
         nestedScrollEnabled
         keyboardDismissMode="on-drag">
-        <View className="px-1">
-          <Text className="text-muted-foreground text-sm leading-5">
-            Enter your delivery details. Next you will review them on the map.
-          </Text>
-        </View>
         <AddressFormFields
           form={form}
           onChange={patchForm}
@@ -142,6 +136,7 @@ export function AddAddressScreen() {
           context={deliveryContext}
           submitLabel="Review address on map"
           onSubmit={openReviewMap}
+          onCancel={cancelLocationFlowStep}
         />
       </ScrollView>
     </Screen>

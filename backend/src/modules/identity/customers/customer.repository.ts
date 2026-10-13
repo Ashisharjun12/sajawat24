@@ -7,6 +7,7 @@ import {
     gte,
     ilike,
     lte,
+    ne,
     or,
     sql,
 } from "drizzle-orm";
@@ -51,6 +52,8 @@ export class CustomerRepository implements ICustomerRepository {
 
         if (input.status) {
             filters.push(eq(users.status, input.status));
+        } else {
+            filters.push(ne(users.status, "deleted"));
         }
 
         if (input.search) {
@@ -105,6 +108,7 @@ export class CustomerRepository implements ICustomerRepository {
                 phone: users.phone,
                 email: users.email,
                 status: users.status,
+                deletedAt: users.deletedAt,
                 createdAt: users.createdAt,
                 bookingCount: bookingCountExpr(),
             })
@@ -131,6 +135,7 @@ export class CustomerRepository implements ICustomerRepository {
                 phone: users.phone,
                 email: users.email,
                 status: users.status,
+                deletedAt: users.deletedAt,
                 avatar: users.avatar,
                 createdAt: users.createdAt,
                 bookingCount: bookingCountExpr(),
@@ -193,6 +198,7 @@ export class CustomerRepository implements ICustomerRepository {
             phone: user.phone,
             email: user.email,
             status: user.status,
+            deletedAt: user.deletedAt,
             avatar: user.avatar,
             createdAt: user.createdAt,
             bookingCount: Number(user.bookingCount ?? 0),
@@ -215,6 +221,7 @@ export class CustomerRepository implements ICustomerRepository {
                 phone: users.phone,
                 email: users.email,
                 status: users.status,
+                deletedAt: users.deletedAt,
                 createdAt: users.createdAt,
             });
 

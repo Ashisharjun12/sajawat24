@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/breadcrumb"
 import { Button } from "@/components/ui/button"
 import { ModeToggle } from "@/components/ui/mode-toggle"
+import { AdminFloatingMascot } from "@/module/layout/components/AdminFloatingMascot"
 import { Separator } from "@/components/ui/separator"
 import { useSidebar } from "@/components/ui/sidebar"
 import { PanelLeftIcon } from "lucide-react"
@@ -43,7 +44,8 @@ export function SiteHeader() {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center gap-1 sm:gap-2">
+          <AdminFloatingMascot />
           <ModeToggle />
         </div>
       </div>

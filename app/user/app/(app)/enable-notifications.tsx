@@ -1,10 +1,10 @@
 import { requestNotificationPermission } from '@/lib/notifications';
 import { syncPushRegistration } from '@/lib/push-registration';
 import { PermissionStepScreen } from '@/module/permissions/components/PermissionStepScreen';
+import { NOTIFICATION_PERMISSION_ILLUSTRATION } from '@/module/permissions/lib/permission-step-assets';
 import { usePermissionsSetupStore } from '@/store/permissions-setup.store';
 import { useAuthStore } from '@/store/auth.store';
 import { Href, router } from 'expo-router';
-import { Bell } from 'lucide-react-native';
 import { useState } from 'react';
 
 export default function EnableNotificationsScreen() {
@@ -31,11 +31,12 @@ export default function EnableNotificationsScreen() {
 
   return (
     <PermissionStepScreen
-      icon={Bell}
-      title="Turn on notifications"
-      description="Get order updates, booking reminders, and offers for your area."
-      accentClassName="bg-primary/20"
+      illustrationUri={NOTIFICATION_PERMISSION_ILLUSTRATION}
+      illustrationLabel="Phone showing order notifications"
+      title="Allow notifications"
+      description="See decoration and delivery options for your area, plus order updates and offers."
       loading={loading}
+      allowLabel="Allow notifications"
       onAllow={() => void handleAllow()}
       onSkip={() => void finish()}
     />

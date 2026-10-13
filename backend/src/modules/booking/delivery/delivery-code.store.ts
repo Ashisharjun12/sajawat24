@@ -2,6 +2,7 @@ import { createHmac, randomInt, timingSafeEqual } from "node:crypto";
 import { _config } from "@/config/config.js";
 import DbFactory from "@/infrastructure/database/db.factory.js";
 import { ApiError } from "@/shared/errors/apiError.js";
+import { isRateLimitEnabled } from "@/shared/rate-limit/is-rate-limit-enabled.js";
 
 export const DELIVERY_CODE_TTL_SECONDS = 1800;
 const RATE_TTL_SECONDS = 3600;
@@ -60,6 +61,8 @@ export function generateDeliveryCode(): string {
 }
 
 export async function assertDeliveryCodeSendRateLimit(orderId: string): Promise<void> {
+    if (!isRateLimitEnabled()) return;
+
     const count = await bumpRateLimit(sendRateKey(orderId));
     if (count > MAX_SENDS_PER_HOUR) {
         throw ApiError.badRequest("too many delivery code requests, try later");

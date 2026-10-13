@@ -31,7 +31,7 @@ export function channelSubtitle(channel) {
     case "web":
       return "Manage announcements, banners, homepage layout, testimonials, and FAQs for the website."
     case "mobile":
-      return "Same website content as Web — how it appears in the mobile browser (mweb)."
+      return "Same CMS records as Web — mobile browser (mweb). Announcements with Mobile checked also appear in the Android customer app."
     case "android":
       return "Customer Android app home — announcements, banners, and homepage layout."
     case "ios":

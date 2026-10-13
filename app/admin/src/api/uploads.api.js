@@ -43,8 +43,12 @@ export function deleteUpload(id) {
   return api.delete(`/admin/uploads/${id}`).then(unwrap);
 }
 
+export function getUploadReferences(id) {
+  return api.get(`/admin/uploads/${id}/references`).then(unwrap);
+}
+
 export function mediaDisplayUrl(item) {
-  return item?.publicUrl || "";
+  return item?.optimizedUrl || item?.publicUrl || item?.url || "";
 }
 
 export function ingestUpload(file, { folderId, crop, filename } = {}) {

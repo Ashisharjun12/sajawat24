@@ -4,7 +4,6 @@ import { requestNotificationPermission } from '@/lib/notifications';
 import { syncPushRegistration } from '@/lib/push-registration';
 import { openWhatsAppSupport } from '@/lib/support-actions';
 import { ProfileHeaderCard } from '@/module/account/components/ProfileHeaderCard';
-import { ProfileLogoutButton } from '@/module/account/components/ProfileLogoutButton';
 import { ProfileMenuRow } from '@/module/account/components/ProfileMenuRow';
 import { ProfileSettingsGroup } from '@/module/account/components/ProfileSettingsGroup';
 import { ProfileToggleRow } from '@/module/account/components/ProfileToggleRow';
@@ -13,6 +12,7 @@ import {
   type ProfileMenuItem,
 } from '@/module/account/lib/profile-menu';
 import { useCurrentUserQuery } from '@/module/account/hooks/use-current-user-query';
+import { AppearanceSheet } from '@/module/settings/components/AppearanceSheet';
 import { useAppTheme } from '@/module/settings/hooks/use-app-theme';
 import { useNotificationPermissionStatus } from '@/module/permissions/hooks/use-notification-permission-status';
 import { useAuthStore } from '@/store/auth.store';
@@ -24,22 +24,35 @@ function renderMenuItem(
   item: ProfileMenuItem,
   isLast: boolean,
   itemKey: string,
-  appearanceSubtitle?: string,
+  options: {
+    appearanceSubtitle?: string;
+    onAppearancePress?: () => void;
+  },
 ) {
   if (item.type === 'notification-toggle') {
     return null;
   }
   if (item.type === 'route') {
-    const subtitle =
-      item.id === 'appearance' ? appearanceSubtitle ?? item.subtitle : item.subtitle;
     return (
       <ProfileMenuRow
         key={itemKey}
         label={item.label}
-        subtitle={subtitle}
+        subtitle={item.subtitle}
         icon={item.icon}
         isLast={isLast}
         onPress={() => router.push(item.href)}
+      />
+    );
+  }
+  if (item.id === 'appearance') {
+    return (
+      <ProfileMenuRow
+        key={itemKey}
+        label={item.label}
+        subtitle={options.appearanceSubtitle}
+        icon={item.icon}
+        isLast={isLast}
+        onPress={() => options.onAppearancePress?.()}
       />
     );
   }
@@ -57,24 +70,12 @@ function renderMenuItem(
 
 export function ProfileTabScreen() {
   useCurrentUserQuery();
-  const signOut = useAuthStore((s) => s.signOut);
   const accessToken = useAuthStore((s) => s.accessToken);
   const userId = useAuthStore((s) => s.user?.id ?? null);
   const { notificationStatus, refresh } = useNotificationPermissionStatus();
   const notificationsOn = notificationStatus === 'granted';
   const { themeLabel } = useAppTheme();
-  const [loggingOut, setLoggingOut] = useState(false);
-
-  async function handleSignOut() {
-    if (loggingOut) return;
-    setLoggingOut(true);
-    try {
-      await signOut();
-      router.replace('/(onboarding)/login' as Href);
-    } finally {
-      setLoggingOut(false);
-    }
-  }
+  const [appearanceOpen, setAppearanceOpen] = useState(false);
 
   const onNotificationToggle = useCallback(
     async (next: boolean) => {
@@ -125,14 +126,17 @@ export function ProfileTabScreen() {
                     />
                   );
                 }
-                return renderMenuItem(item, isLast, itemKey, themeLabel);
+                return renderMenuItem(item, isLast, itemKey, {
+                  appearanceSubtitle: themeLabel,
+                  onAppearancePress: () => setAppearanceOpen(true),
+                });
               })}
             </ProfileSettingsGroup>
           ))}
         </View>
 
-        <ProfileLogoutButton loading={loggingOut} onPress={() => void handleSignOut()} />
       </ScrollView>
+      <AppearanceSheet visible={appearanceOpen} onClose={() => setAppearanceOpen(false)} />
     </Screen>
   );
 }

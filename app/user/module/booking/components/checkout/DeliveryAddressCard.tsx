@@ -30,8 +30,8 @@ export function DeliveryAddressCard({
         accessibilityRole="button"
         accessibilityLabel="Add delivery address"
         className={cn('flex-row items-center gap-3 p-4', shell)}>
-        <View className="size-10 items-center justify-center rounded-full bg-muted">
-          <Icon as={MapPin} className="text-foreground size-5" />
+        <View className="size-10 items-center justify-center rounded-full bg-primary/10">
+          <Icon as={MapPin} className="text-primary size-5" strokeWidth={2.25} />
         </View>
         <View className="min-w-0 flex-1">
           <Text className="text-foreground text-base font-semibold">Add delivery address</Text>

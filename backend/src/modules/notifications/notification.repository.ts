@@ -359,4 +359,12 @@ export class NotificationRepository {
             .returning({ id: notificationInbox.id });
         return rows.length;
     }
+
+    async deleteInboxForUser(userId: string): Promise<void> {
+        await db.delete(notificationInbox).where(eq(notificationInbox.userId, userId));
+    }
+
+    async deletePreferenceForUser(userId: string): Promise<void> {
+        await db.delete(userNotificationPreferences).where(eq(userNotificationPreferences.userId, userId));
+    }
 }
