@@ -31,6 +31,7 @@ import { SearchProductRow } from "@/module/layout/components/SearchProductRow";
 import { SearchProductRowSkeleton } from "@/module/layout/components/SearchProductRowSkeleton";
 import { useCatalogStore } from "@/store/catalog.store";
 import { isBackendCityId, useLocationStore } from "@/store/location.store";
+import { SearchTypingHint } from "@/module/layout/components/SearchTypingHint";
 import { useSearchDialogStore } from "@/store/search-dialog.store";
 
 const MODAL_CATEGORY_LIMIT = 8;
@@ -176,7 +177,7 @@ export function SearchCommand({ variant = "bar", className, fullScreen = false }
       open={open}
       onOpenChange={setOpen}
       title="Search"
-      description="Search decorations and occasions"
+      description="Search catalog"
       showCloseButton={effectiveFullScreen}
       className={cn(
         effectiveFullScreen
@@ -203,7 +204,7 @@ export function SearchCommand({ variant = "bar", className, fullScreen = false }
         >
           <CommandInput
             iconPosition="start"
-            placeholder="Search birthday, haldi, themes…"
+            placeholder="Search themes, setups…"
             value={query}
             onValueChange={setQuery}
             wrapperClassName="pb-1.5"
@@ -212,9 +213,6 @@ export function SearchCommand({ variant = "bar", className, fullScreen = false }
               effectiveFullScreen ? "h-12 rounded-2xl" : "h-11 rounded-2xl",
             )}
           />
-          <p className="px-1 text-xs text-muted-foreground">
-            Search by occasion, theme or decoration
-          </p>
         </div>
         <CommandList
           className={cn(
@@ -356,9 +354,7 @@ export function SearchCommand({ variant = "bar", className, fullScreen = false }
           )}
         >
           <SearchIcon className="size-4 shrink-0 text-primary" />
-          <span className="min-w-0 flex-1 truncate">
-            Search decorations, occasions…
-          </span>
+          <SearchTypingHint className="min-w-0 flex-1" active={!open} />
         </button>
         {renderDialog ? dialog : null}
       </>
@@ -398,7 +394,7 @@ export function SearchCommand({ variant = "bar", className, fullScreen = false }
         )}
       >
         <SearchIcon className="size-4 shrink-0" />
-        <span className="min-w-0 flex-1 truncate">Search decorations, occasions…</span>
+        <SearchTypingHint className="min-w-0 flex-1" active={!open} />
         <Kbd className="hidden sm:inline-flex">{shortcut}</Kbd>
       </button>
       {renderDialog ? dialog : null}

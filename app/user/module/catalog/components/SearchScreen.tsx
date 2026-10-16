@@ -118,7 +118,7 @@ export function SearchScreen() {
             <Input
               value={query}
               onChangeText={setQuery}
-              placeholder="Search birthday, haldi, themes…"
+              placeholder="Search themes, setups…"
               className="h-11 flex-1 rounded-2xl border-border/60 bg-muted/40 pl-10 pr-3"
               autoFocus
               returnKeyType="search"
@@ -127,9 +127,6 @@ export function SearchScreen() {
             />
           </View>
         </View>
-        <Text className="text-muted-foreground mt-1 px-1 text-xs">
-          Search by occasion, theme or decoration
-        </Text>
       </View>
 
       {!hasLocation ? (

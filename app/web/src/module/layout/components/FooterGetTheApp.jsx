@@ -1,12 +1,12 @@
 import { cn } from "@/lib/utils";
 import { PLAY_STORE_URL } from "@/lib/env";
 
-export function FooterGetTheApp({ onBrand = false }) {
+export function FooterGetTheApp({ onBrand = false, className, compact = false }) {
   return (
-    <div className="flex flex-col items-end gap-1.5">
+    <div className={cn("flex flex-col items-end gap-1.5", compact && "gap-1", className)}>
       <span
         className={cn(
-          "text-sm font-semibold",
+          compact ? "text-[11px] font-semibold leading-tight" : "text-sm font-semibold",
           onBrand ? "text-primary-foreground" : "text-foreground",
         )}
       >
@@ -21,7 +21,7 @@ export function FooterGetTheApp({ onBrand = false }) {
         <img
           src="/google-play-badge.svg"
           alt="Get it on Google Play"
-          className="h-10 w-auto sm:h-11"
+          className={cn("w-auto", compact ? "h-8 max-w-[7.5rem]" : "h-10 sm:h-11")}
           width={338}
           height={100}
           loading="lazy"

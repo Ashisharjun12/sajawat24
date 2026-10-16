@@ -12,6 +12,7 @@ import { ThemeBootstrap } from '@/module/settings/components/ThemeBootstrap';
 import { QueryProvider } from '@/providers/query-provider';
 import { SocketProvider } from '@/providers/socket-provider';
 import { PlatformAccessPausedHost } from '@/module/auth/components/PlatformAccessPausedHost';
+import { BrandIntroSplash } from '@/module/brand/components/BrandIntroSplash';
 import { useAuthStore } from '@/store/auth.store';
 import { usePartnerModeStore } from '@/store/partner-mode.store';
 import { PortalHost } from '@rn-primitives/portal';
@@ -26,9 +27,9 @@ import {
   useFonts,
 } from '@expo-google-fonts/poppins';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { LoadingPlaceholder } from '@/components/shell';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 void SplashScreen.preventAutoHideAsync();
@@ -55,6 +56,8 @@ export default function RootLayout() {
     Poppins_600SemiBold,
   });
   const ready = hydrated && (fontsLoaded || !!fontError);
+  const [introDone, setIntroDone] = useState(Platform.OS === 'web');
+  const finishIntro = useCallback(() => setIntroDone(true), []);
 
   useEffect(() => {
     if (ready) {
@@ -70,27 +73,27 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <QueryProvider>
-        <SocketProvider>
-          <PlatformAccessPausedHost />
-          {!ready ? (
-            <View className="flex-1 items-center justify-center bg-background">
-              <LoadingPlaceholder className="py-0" />
-            </View>
-          ) : (
-            <>
-              <AuthSessionBridge />
-              <ThemeBootstrap />
-              <NotificationListenersHost />
-              <ThemeProvider value={NAV_THEME[colorScheme ?? 'light']}>
-                <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-                <Stack screenOptions={{ headerShown: false }} />
-                <PortalHost />
-              </ThemeProvider>
-            </>
-          )}
-        </SocketProvider>
-      </QueryProvider>
+      {!ready ? (
+        <View className="flex-1 items-center justify-center bg-primary">
+          <LoadingPlaceholder className="py-0" />
+        </View>
+      ) : !introDone ? (
+        <BrandIntroSplash onFinish={finishIntro} />
+      ) : (
+        <QueryProvider>
+          <SocketProvider>
+            <PlatformAccessPausedHost />
+            <AuthSessionBridge />
+            <ThemeBootstrap />
+            <NotificationListenersHost />
+            <ThemeProvider value={NAV_THEME[colorScheme ?? 'light']}>
+              <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+              <Stack screenOptions={{ headerShown: false }} />
+              <PortalHost />
+            </ThemeProvider>
+          </SocketProvider>
+        </QueryProvider>
+      )}
     </GestureHandlerRootView>
   );
 }

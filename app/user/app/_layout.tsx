@@ -11,7 +11,7 @@ import { NotificationListenersHost } from '@/module/auth/components/Notification
 import { SocketProvider } from '@/providers/socket-provider';
 import { CashfreeCheckoutHost } from '@/module/booking/components/checkout/CashfreeCheckoutHost';
 import { CashfreePaymentGatewayHost } from '@/module/booking/components/checkout/CashfreePaymentGatewayHost';
-import { LoadingPlaceholder } from '@/components/shell';
+import { BrandIntroSplash } from '@/module/brand/components/BrandIntroSplash';
 import { GOOGLE_WEB_CLIENT_ID } from '@/lib/env';
 import { queryClient } from '@/lib/query-client';
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -33,7 +33,7 @@ import {
   useFonts,
 } from '@expo-google-fonts/poppins';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Platform, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
@@ -54,6 +54,8 @@ export default function RootLayout() {
     Poppins_600SemiBold,
   });
   const ready = hydrated && (fontsLoaded || !!fontError);
+  const [introDone, setIntroDone] = useState(Platform.OS === 'web');
+  const finishIntro = useCallback(() => setIntroDone(true), []);
 
   useEffect(() => {
     if (ready) {
@@ -88,14 +90,18 @@ export default function RootLayout() {
     </QueryClientProvider>
   );
 
+  function renderApp() {
+    return Platform.OS === 'web' ? <LenisProvider>{appTree}</LenisProvider> : appTree;
+  }
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       {!ready ? (
-        <View className="flex-1 items-center justify-center bg-background">
-          <LoadingPlaceholder className="py-0" />
-        </View>
+        <View className="flex-1 bg-primary" />
+      ) : !introDone ? (
+        <BrandIntroSplash onFinish={finishIntro} />
       ) : (
-        Platform.OS === 'web' ? <LenisProvider>{appTree}</LenisProvider> : appTree
+        renderApp()
       )}
     </GestureHandlerRootView>
   );

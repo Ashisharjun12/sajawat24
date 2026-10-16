@@ -91,14 +91,17 @@ export function SiteFooter() {
   const socials = socialLinks.length > 0 ? socialLinks : [];
 
   return (
-    <footer className="mt-auto border-t border-primary-foreground/15 bg-primary text-primary-foreground">
+    <footer
+      className="mt-auto border-t border-primary-foreground/15 bg-primary text-primary-foreground max-md:pb-[calc(var(--mobile-bottom-nav-offset,4.75rem)+env(safe-area-inset-bottom,0px)+1rem)]"
+    >
       <FooterTrustBar />
-      <div className="mx-auto grid max-w-[1240px] grid-cols-1 gap-10 px-4 pt-14 pb-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:px-8">
-        <div>
+      <div className="mx-auto max-w-[1240px] px-4 pt-14 pb-10 md:px-8 md:pb-12">
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0 max-w-[320px] flex-1">
           <Link to="/" className="inline-flex shrink-0" aria-label={`${companyName} home`}>
             <DecoryLogo variant="wordmark" className="h-9 sm:h-10" alt={companyName} />
           </Link>
-          <p className="mt-3.5 mb-5 max-w-[280px] text-sm leading-relaxed text-primary-foreground/75">
+          <p className="mt-3.5 mb-5 text-sm leading-relaxed text-primary-foreground/75">
             {brand.footerDescription}
           </p>
           {(brand.contactPhone || brand.contactEmail || brand.whatsappUrl) ? (
@@ -139,29 +142,39 @@ export function SiteFooter() {
               ))}
             </div>
           ) : null}
+          </div>
+          <div className="shrink-0 pt-0.5 md:hidden">
+            <FooterGetTheApp onBrand compact className="items-end" />
+          </div>
         </div>
-        {columns.map((column) => (
-          <FooterLinks
-            key={column.id ?? column.title}
-            title={column.title}
-            items={column.links ?? []}
-            onBrand
-          />
-        ))}
+        <div
+          className="mt-10 grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+        >
+          {columns.map((column) => (
+            <FooterLinks
+              key={column.id ?? column.title}
+              title={column.title}
+              items={column.links ?? []}
+              onBrand
+            />
+          ))}
+        </div>
       </div>
-      <div className="relative overflow-hidden border-t border-primary-foreground/15">
+      <div className="relative overflow-hidden border-t border-primary-foreground/15 max-md:min-h-[5.25rem] md:min-h-0">
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 text-center font-heading text-[clamp(4.5rem,18vw,9rem)] leading-none font-extrabold tracking-tight text-primary-foreground/10 select-none [-webkit-text-stroke:1.5px_rgb(255_255_255_/_0.45)]"
+          className="pointer-events-none absolute inset-x-0 bottom-2 top-auto translate-y-0 text-center font-heading text-[clamp(3rem,15vw,9rem)] leading-none font-extrabold tracking-tight text-primary-foreground/10 select-none [-webkit-text-stroke:1.5px_rgb(255_255_255_/_0.45)] max-md:pb-0 md:bottom-auto md:top-1/2 md:-translate-y-1/2"
         >
           {companyName}
         </span>
-        <div className="relative z-10 mx-auto flex max-w-[1240px] min-h-[5.5rem] flex-col gap-6 px-4 py-8 text-sm text-primary-foreground/75 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between md:min-h-[7rem] md:px-8">
-          <div className="flex flex-col gap-1 sm:gap-0">
+        <div className="relative z-10 mx-auto flex max-w-[1240px] flex-col gap-4 px-4 py-5 text-sm text-primary-foreground/75 max-md:min-h-[5.25rem] max-md:py-0 md:min-h-[7rem] md:flex-row md:flex-wrap md:items-end md:justify-between md:gap-6 md:py-8 md:px-8">
+          <div className="hidden flex-col gap-1 md:flex">
             <span>© {new Date().getFullYear()} {companyName}</span>
             <span className="text-xs sm:text-sm">All rights reserved.</span>
           </div>
-          <FooterGetTheApp onBrand />
+          <div className="hidden md:block">
+            <FooterGetTheApp onBrand className="items-end" />
+          </div>
         </div>
       </div>
     </footer>

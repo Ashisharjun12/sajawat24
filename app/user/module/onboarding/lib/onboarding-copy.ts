@@ -11,7 +11,7 @@ export const BRAND_LOGO_DARK_URL =
   'https://ik.imagekit.io/aevhlnk0h/sajawat24/sajawat24-icon-dark.png';
 
 export const LOGIN_ILLUSTRATION_URL =
-  'https://ik.imagekit.io/aevhlnk0h/sajawat24/Friendly%20Mobile%20Login%20Illustration.png';
+  'https://ik.imagekit.io/aevhlnk0h/sajawat24/Modern%20Smartphone%20App%20Concept%20-%20Copy.png?updatedAt=1791365915971';
 
 /** Three-step story: discover → book → we deliver & set up. */
 export const ONBOARDING_SLIDES = [
