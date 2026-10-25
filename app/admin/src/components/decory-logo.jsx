@@ -1,9 +1,5 @@
 import { cn } from "@/lib/utils"
-
-const LIGHT_SRC =
-  "https://ik.imagekit.io/aevhlnk0h/sajawat24/sajawat24-icon-light.png"
-const DARK_SRC =
-  "https://ik.imagekit.io/aevhlnk0h/sajawat24/sajawat24-icon-dark.png"
+import iconSrc from "@/assets/icon.png"
 
 export function DecoryLogo({ className }) {
   return (
@@ -12,8 +8,7 @@ export function DecoryLogo({ className }) {
       role="img"
       aria-label="sajawat24"
     >
-      <img src={LIGHT_SRC} alt="" className="size-full object-contain dark:hidden" />
-      <img src={DARK_SRC} alt="" className="hidden size-full object-contain dark:block" />
+      <img src={iconSrc} alt="" className="size-full object-contain" />
     </span>
   )
 }

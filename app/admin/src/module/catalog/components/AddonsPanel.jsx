@@ -23,6 +23,8 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { AddonsTable } from "@/module/catalog/components/AddonsTable"
+import { CatalogOverviewCards } from "@/module/catalog/components/CatalogOverviewCards"
+import { fetchCatalogStatusCounts } from "@/module/catalog/lib/catalog-status-counts"
 import { ListPagination } from "@/module/geo/components/ListPagination"
 
 const LIMIT = 20
@@ -34,10 +36,19 @@ export function AddonsPanel() {
   const [isActive, setIsActive] = useState("")
   const [items, setItems] = useState([])
   const [total, setTotal] = useState(0)
+  const [counts, setCounts] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
 
   const filtered = Boolean(q.trim()) || isActive !== ""
+
+  const loadCounts = useCallback(async () => {
+    try {
+      setCounts(await fetchCatalogStatusCounts(listAddons))
+    } catch {
+      /* list errors surface from load() */
+    }
+  }, [])
 
   const load = useCallback(async ({ silent = false } = {}) => {
     if (!silent) setLoading(true)
@@ -62,6 +73,10 @@ export function AddonsPanel() {
     load()
   }, [load])
 
+  useEffect(() => {
+    loadCounts()
+  }, [loadCounts])
+
   async function onToggleVisible(addon, nextActive) {
     const previous = items
     setItems((rows) =>
@@ -73,7 +88,7 @@ export function AddonsPanel() {
         title: nextActive ? "Add-on visible" : "Add-on hidden",
         type: "success",
       })
-      await load({ silent: true })
+      await Promise.all([load({ silent: true }), loadCounts()])
     } catch (err) {
       setItems(previous)
       toast.add({ title: getApiError(err), type: "error" })
@@ -82,8 +97,15 @@ export function AddonsPanel() {
 
   const empty = !loading && items.length === 0
 
+  const overviewCards = [
+    { title: "Add-ons", value: counts?.total, sub: "All extras in the catalog" },
+    { title: "Visible", value: counts?.published, sub: "Shown on products" },
+    { title: "Hidden", value: counts?.unpublished, sub: "Not offered to shoppers" },
+  ]
+
   return (
     <div className="flex flex-col gap-4 pt-4">
+      <CatalogOverviewCards cards={overviewCards} loading={loading && !counts} />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-3">
           <Input

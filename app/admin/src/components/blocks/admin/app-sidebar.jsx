@@ -2,7 +2,7 @@ import { NavLink, useLocation } from "react-router-dom"
 import { useEffect } from "react"
 import { ADMIN_ACCOUNT_SETUP_PATH, adminNeedsSetup } from "@/module/auth/admin-setup"
 import { useAuthStore } from "@/store/auth.store"
-import { LayoutDashboardIcon, MapPinIcon, ImagesIcon, TagsIcon, TicketPercentIcon, StarIcon, CalendarClockIcon, UsersIcon, Settings, MessageSquareIcon, WalletIcon, LayoutTemplateIcon, PaletteIcon, RotateCcwIcon } from "lucide-react"
+import { LayoutDashboardIcon, MapPinIcon, ImagesIcon, TagsIcon, TicketPercentIcon, StarIcon, CalendarClockIcon, UsersIcon, Settings, MessageSquareIcon, WalletIcon, LayoutTemplateIcon, PaletteIcon, RotateCcwIcon, BotIcon } from "lucide-react"
 import { getUnreadCount } from "@/api/chat.api"
 import { useChatStore } from "@/store/chat.store"
 import { NavMain } from "@/components/blocks/admin/nav-main"
@@ -68,6 +68,11 @@ const navItems = [
     title: "Inbox",
     url: "/inbox",
     icon: <MessageSquareIcon />,
+  },
+  {
+    title: "Agent chat",
+    url: "/agent",
+    icon: <BotIcon />,
   },
   {
     title: "People",

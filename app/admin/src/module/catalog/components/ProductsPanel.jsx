@@ -31,6 +31,8 @@ import { buildProductFilterFields } from "@/module/catalog/filters/product-filte
 import { productFiltersActive, queryToProductListParams } from "@/module/catalog/filters/product-filter-query"
 import { createFilterQuery } from "@/components/reui/filters/filters-query"
 import { ProductsTable } from "@/module/catalog/components/ProductsTable"
+import { CatalogOverviewCards } from "@/module/catalog/components/CatalogOverviewCards"
+import { fetchCatalogStatusCounts } from "@/module/catalog/lib/catalog-status-counts"
 import { ListPagination } from "@/module/geo/components/ListPagination"
 
 const LIMIT = 20
@@ -43,6 +45,7 @@ export function ProductsPanel() {
   const [cities, setCities] = useState([])
   const [items, setItems] = useState([])
   const [total, setTotal] = useState(0)
+  const [counts, setCounts] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [deleting, setDeleting] = useState(null)
@@ -65,15 +68,23 @@ export function ProductsPanel() {
     setLeaves(nested.flat())
   }, [])
 
+  const loadCounts = useCallback(async () => {
+    try {
+      setCounts(await fetchCatalogStatusCounts(listProducts))
+    } catch {
+      /* list errors surface from load() */
+    }
+  }, [])
+
   const load = useCallback(async ({ silent = false } = {}) => {
     if (!silent) setLoading(true)
     setError("")
     try {
-        const data = await listProducts({
-          page,
-          limit: LIMIT,
-          ...listParams,
-        })
+      const data = await listProducts({
+        page,
+        limit: LIMIT,
+        ...listParams,
+      })
       setItems(data.items ?? [])
       setTotal(data.total ?? 0)
     } catch (err) {
@@ -94,6 +105,10 @@ export function ProductsPanel() {
     load()
   }, [load])
 
+  useEffect(() => {
+    loadCounts()
+  }, [loadCounts])
+
   async function onTogglePublished(product, nextActive) {
     const previous = items
     setItems((rows) =>
@@ -105,7 +120,7 @@ export function ProductsPanel() {
         title: nextActive ? "Product published" : "Product moved to draft",
         type: "success",
       })
-      await load({ silent: true })
+      await Promise.all([load({ silent: true }), loadCounts()])
     } catch (err) {
       setItems(previous)
       toast.add({ title: getApiError(err), type: "error" })
@@ -122,7 +137,7 @@ export function ProductsPanel() {
         setPage(page - 1)
         return
       }
-      await load({ silent: true })
+      await Promise.all([load({ silent: true }), loadCounts()])
     } catch (err) {
       toast.add({ title: getApiError(err), type: "error" })
     }
@@ -130,8 +145,15 @@ export function ProductsPanel() {
 
   const empty = !loading && items.length === 0
 
+  const overviewCards = [
+    { title: "Products", value: counts?.total, sub: "All in the catalog" },
+    { title: "Published", value: counts?.published, sub: "Visible on the store" },
+    { title: "Unpublished", value: counts?.unpublished, sub: "Drafts hidden from shoppers" },
+  ]
+
   return (
     <div className="flex flex-col gap-4 pt-4">
+      <CatalogOverviewCards cards={overviewCards} loading={loading && !counts} />
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <ProductFilters

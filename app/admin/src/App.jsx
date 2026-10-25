@@ -30,6 +30,7 @@ import { ReviewsPage } from "@/module/reviews/pages/ReviewsPage"
 import { ProductReviewsAdminPage } from "@/module/reviews/pages/ProductReviewsAdminPage"
 import { AdminShell } from "@/module/layout/AdminShell"
 import { InboxPage } from "@/module/inbox/pages/InboxPage"
+import { AgentChatPage } from "@/module/agent/pages/AgentChatPage"
 import { ContentPage } from "@/module/cms/pages/ContentPage"
 import { BrandSettingsPage } from "@/module/brand/pages/BrandSettingsPage"
 import { BrandPageFormPage } from "@/module/brand/pages/BrandPageFormPage"
@@ -77,6 +78,7 @@ export default function App() {
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/inbox" element={<InboxPage />} />
               <Route path="/inbox/:conversationId" element={<InboxPage />} />
+              <Route path="/agent" element={<AgentChatPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Route>
             </Route>

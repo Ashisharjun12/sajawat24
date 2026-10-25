@@ -99,7 +99,14 @@ export function SiteFooter() {
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0 max-w-[320px] flex-1">
           <Link to="/" className="inline-flex shrink-0" aria-label={`${companyName} home`}>
-            <DecoryLogo variant="wordmark" className="h-9 sm:h-10" alt={companyName} />
+            <DecoryLogo
+              variant="wordmark"
+              className="h-9 sm:h-10"
+              alt={companyName}
+              lightSrc={brand.logoLightUrl}
+              darkSrc={brand.logoDarkUrl}
+              onBrandSurface
+            />
           </Link>
           <p className="mt-3.5 mb-5 text-sm leading-relaxed text-primary-foreground/75">
             {brand.footerDescription}

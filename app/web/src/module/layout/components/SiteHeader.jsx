@@ -81,6 +81,9 @@ export function SiteHeader() {
             variant="wordmark"
             className="h-8 sm:h-9"
             alt={brand.companyName}
+            lightSrc={brand.logoLightUrl}
+            darkSrc={brand.logoDarkUrl}
+            onBrandSurface
           />
         </Link>
         <div className="min-w-0 flex-1 md:hidden">

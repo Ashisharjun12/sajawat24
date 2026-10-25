@@ -1,0 +1,405 @@
+{
+  "root": "Panel",
+  "components": {
+    "Panel": {
+      "signature": "Panel(children: (Metric | DataTable | Callout | BarChart | ProductGrid | ProductCard | AddonGrid | AddonCard | MediaGrid | MediaCard)[])",
+      "description": "Root vertical stack for every analytics answer."
+    },
+    "Metric": {
+      "signature": "Metric(label: string, value: string, hint?: string)",
+      "description": "A KPI. value is preformatted text such as \"128\" or \"₹12,400\"."
+    },
+    "DataTable": {
+      "signature": "DataTable(columns: string[], rows: string[][])",
+      "description": "A compact table. columns is header labels. rows is an array of string arrays aligned to columns."
+    },
+    "Callout": {
+      "signature": "Callout(title: string, body: string, tone?: \"info\" | \"warning\")",
+      "description": "A note. tone info for empty results or explanations, warning for refusals or clamp notices."
+    },
+    "BarChart": {
+      "signature": "BarChart(title: string, labels: string[], values: number[])",
+      "description": "Horizontal bars. labels and values are parallel arrays of the same length."
+    },
+    "ProductGrid": {
+      "signature": "ProductGrid(title: string, children: ProductCard[])",
+      "description": "A wrap of ProductCard items. Use for top sold products or catalog lists. Never use when the tool returned empty: true. Never use for addons."
+    },
+    "ProductCard": {
+      "signature": "ProductCard(name: string, imageUrl: string, gmvLabel?: string, quantity?: number, priceLabel?: string, compareAtLabel?: string, percentOff?: number, instantLabel?: string, badgeLabel?: string)",
+      "description": "Storefront-style product card. Copy imageUrl, priceLabel, compareAtLabel, percentOff, instantLabel, badgeLabel from the tool. gmvLabel and quantity are optional sales extras. Empty strings hide those chips."
+    },
+    "AddonGrid": {
+      "signature": "AddonGrid(title: string, children: AddonCard[])",
+      "description": "A wrap of AddonCard items for list-addons answers. Never use ProductCard here. Never use when empty: true."
+    },
+    "AddonCard": {
+      "signature": "AddonCard(name: string, imageUrl: string, priceLabel?: string, compareAtLabel?: string, percentOff?: number, colorName?: string, colorHex?: string)",
+      "description": "Storefront-style add-on card (image, name, price). Copy imageUrl, priceLabel, compareAtLabel, percentOff, colorName, colorHex from catalog_addons. Never use for products."
+    },
+    "MediaGrid": {
+      "signature": "MediaGrid(title: string, children: MediaCard[])",
+      "description": "A wrap of MediaCard items for list-media answers. Never use when empty: true."
+    },
+    "MediaCard": {
+      "signature": "MediaCard(name: string, imageUrl: string, kind?: string, sizeLabel?: string, dimensions?: string)",
+      "description": "Media-library file. Copy name, imageUrl, kind, sizeLabel, dimensions from catalog_media. Never use for products or addons."
+    }
+  },
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "Panel": {
+        "$ref": "#/$defs/Panel"
+      },
+      "Metric": {
+        "$ref": "#/$defs/Metric"
+      },
+      "DataTable": {
+        "$ref": "#/$defs/DataTable"
+      },
+      "Callout": {
+        "$ref": "#/$defs/Callout"
+      },
+      "BarChart": {
+        "$ref": "#/$defs/BarChart"
+      },
+      "ProductGrid": {
+        "$ref": "#/$defs/ProductGrid"
+      },
+      "ProductCard": {
+        "$ref": "#/$defs/ProductCard"
+      },
+      "AddonGrid": {
+        "$ref": "#/$defs/AddonGrid"
+      },
+      "AddonCard": {
+        "$ref": "#/$defs/AddonCard"
+      },
+      "MediaGrid": {
+        "$ref": "#/$defs/MediaGrid"
+      },
+      "MediaCard": {
+        "$ref": "#/$defs/MediaCard"
+      }
+    },
+    "required": [
+      "Panel",
+      "Metric",
+      "DataTable",
+      "Callout",
+      "BarChart",
+      "ProductGrid",
+      "ProductCard",
+      "AddonGrid",
+      "AddonCard",
+      "MediaGrid",
+      "MediaCard"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "Panel": {
+        "type": "object",
+        "properties": {
+          "children": {
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Metric"
+                },
+                {
+                  "$ref": "#/$defs/DataTable"
+                },
+                {
+                  "$ref": "#/$defs/Callout"
+                },
+                {
+                  "$ref": "#/$defs/BarChart"
+                },
+                {
+                  "$ref": "#/$defs/ProductGrid"
+                },
+                {
+                  "$ref": "#/$defs/ProductCard"
+                },
+                {
+                  "$ref": "#/$defs/AddonGrid"
+                },
+                {
+                  "$ref": "#/$defs/AddonCard"
+                },
+                {
+                  "$ref": "#/$defs/MediaGrid"
+                },
+                {
+                  "$ref": "#/$defs/MediaCard"
+                }
+              ]
+            }
+          }
+        },
+        "required": [
+          "children"
+        ],
+        "additionalProperties": false,
+        "description": "Root vertical stack for every analytics answer."
+      },
+      "Metric": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          },
+          "hint": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "value"
+        ],
+        "additionalProperties": false,
+        "description": "A KPI. value is preformatted text such as \"128\" or \"₹12,400\"."
+      },
+      "DataTable": {
+        "type": "object",
+        "properties": {
+          "columns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": [
+          "columns",
+          "rows"
+        ],
+        "additionalProperties": false,
+        "description": "A compact table. columns is header labels. rows is an array of string arrays aligned to columns."
+      },
+      "Callout": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          },
+          "tone": {
+            "type": "string",
+            "enum": [
+              "info",
+              "warning"
+            ]
+          }
+        },
+        "required": [
+          "title",
+          "body"
+        ],
+        "additionalProperties": false,
+        "description": "A note. tone info for empty results or explanations, warning for refusals or clamp notices."
+      },
+      "BarChart": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "labels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "required": [
+          "title",
+          "labels",
+          "values"
+        ],
+        "additionalProperties": false,
+        "description": "Horizontal bars. labels and values are parallel arrays of the same length."
+      },
+      "ProductGrid": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/ProductCard"
+            }
+          }
+        },
+        "required": [
+          "title",
+          "children"
+        ],
+        "additionalProperties": false,
+        "description": "A wrap of ProductCard items. Use for top sold products or catalog lists. Never use when the tool returned empty: true. Never use for addons."
+      },
+      "ProductCard": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "imageUrl": {
+            "type": "string"
+          },
+          "gmvLabel": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "priceLabel": {
+            "type": "string"
+          },
+          "compareAtLabel": {
+            "type": "string"
+          },
+          "percentOff": {
+            "type": "number"
+          },
+          "instantLabel": {
+            "type": "string"
+          },
+          "badgeLabel": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "imageUrl"
+        ],
+        "additionalProperties": false,
+        "description": "Storefront-style product card. Copy imageUrl, priceLabel, compareAtLabel, percentOff, instantLabel, badgeLabel from the tool. gmvLabel and quantity are optional sales extras. Empty strings hide those chips."
+      },
+      "AddonGrid": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/AddonCard"
+            }
+          }
+        },
+        "required": [
+          "title",
+          "children"
+        ],
+        "additionalProperties": false,
+        "description": "A wrap of AddonCard items for list-addons answers. Never use ProductCard here. Never use when empty: true."
+      },
+      "AddonCard": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "imageUrl": {
+            "type": "string"
+          },
+          "priceLabel": {
+            "type": "string"
+          },
+          "compareAtLabel": {
+            "type": "string"
+          },
+          "percentOff": {
+            "type": "number"
+          },
+          "colorName": {
+            "type": "string"
+          },
+          "colorHex": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "imageUrl"
+        ],
+        "additionalProperties": false,
+        "description": "Storefront-style add-on card (image, name, price). Copy imageUrl, priceLabel, compareAtLabel, percentOff, colorName, colorHex from catalog_addons. Never use for products."
+      },
+      "MediaGrid": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/MediaCard"
+            }
+          }
+        },
+        "required": [
+          "title",
+          "children"
+        ],
+        "additionalProperties": false,
+        "description": "A wrap of MediaCard items for list-media answers. Never use when empty: true."
+      },
+      "MediaCard": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "imageUrl": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "sizeLabel": {
+            "type": "string"
+          },
+          "dimensions": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "imageUrl"
+        ],
+        "additionalProperties": false,
+        "description": "Media-library file. Copy name, imageUrl, kind, sizeLabel, dimensions from catalog_media. Never use for products or addons."
+      }
+    }
+  },
+  "id": "sajawat-analytics"
+}

@@ -9,6 +9,8 @@ import type { CmsAnnouncementCopilotController } from "@/modules/ai/cms/announce
 import { suggestCmsAnnouncementDto } from "@/modules/ai/cms/announcement/cms-announcement-copilot.dto.js";
 import type { CmsBrandPageCopilotController } from "@/modules/ai/cms/brand-page/cms-brand-page-copilot.controller.js";
 import { suggestCmsBrandPageDto } from "@/modules/ai/cms/brand-page/cms-brand-page-copilot.dto.js";
+import type { AnalyticsChatController } from "@/modules/ai/analytics/analytics-chat.controller.js";
+import { analyticsChatDto } from "@/modules/ai/analytics/analytics-chat.dto.js";
 import type { AiPolicyController } from "@/modules/ai/policy/ai-policy.controller.js";
 import { patchAiPolicyDto } from "@/modules/ai/policy/ai-policy.dto.js";
 import { validate } from "@/shared/middlewares/validate.middleware.js";
@@ -32,6 +34,7 @@ export function createAiAdminRouter(
     cmsTestimonialController: CmsTestimonialCopilotController,
     cmsAnnouncementController: CmsAnnouncementCopilotController,
     cmsBrandPageController: CmsBrandPageCopilotController,
+    analyticsController: AnalyticsChatController,
 ) {
     const router = Router();
     router.post(
@@ -58,6 +61,11 @@ export function createAiAdminRouter(
         "/cms/suggest-brand-page",
         validate(suggestCmsBrandPageDto),
         cmsBrandPageController.suggestBrandPage,
+    );
+    router.post(
+        "/analytics/chat",
+        validate(analyticsChatDto),
+        analyticsController.streamChat,
     );
     return router;
 }

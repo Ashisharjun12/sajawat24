@@ -16,17 +16,29 @@ export function DecoryLogo({
   onBrandSurface = false,
 }) {
   if (variant === "wordmark") {
-    const src = wordmarkSrc || BRAND_LOGO_WORDMARK_URL;
-    return (
-      <img
-        src={src}
-        alt={alt}
-        className={cn(
-          "h-9 w-auto max-w-[min(220px,52vw)] shrink-0 object-contain object-left",
-          className,
-        )}
-      />
+    const light = lightSrc || null;
+    const dark = darkSrc || null;
+    const fallback = wordmarkSrc || BRAND_LOGO_WORDMARK_URL;
+    const imgClass = cn(
+      "h-9 w-auto max-w-[min(220px,52vw)] shrink-0 object-contain object-left",
+      className,
     );
+
+    // Header/footer sit on the brand colour, so prefer the dark-surface logo.
+    if (onBrandSurface) {
+      return <img src={dark || light || fallback} alt={alt} className={imgClass} />;
+    }
+
+    if (light && dark && light !== dark) {
+      return (
+        <>
+          <img src={light} alt={alt} className={cn(imgClass, "dark:hidden")} />
+          <img src={dark} alt="" className={cn(imgClass, "hidden dark:block")} />
+        </>
+      );
+    }
+
+    return <img src={light || dark || fallback} alt={alt} className={imgClass} />;
   }
 
   const light = lightSrc || BRAND_LOGO_LIGHT_URL;

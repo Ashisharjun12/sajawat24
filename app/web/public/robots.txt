@@ -4,4 +4,4 @@ Disallow: /account/
 Disallow: /bag
 Disallow: /login
 Disallow: /checkout
-Sitemap: https://www.deccorbuddys.com/sitemap.xml
+Sitemap: https://www.sajawat24.com/sitemap.xml

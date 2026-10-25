@@ -1,4 +1,5 @@
 import { Mastra } from "@mastra/core";
+import { analyticsAgent } from "./agents/analytics-agent.js";
 import { catalogCopilotAgent } from "./agents/catalog-copilot.agent.js";
 import { cmsFaqAgent } from "./agents/cms-faq-agent.js";
 import { cmsTestimonialAgent } from "./agents/cms-testimonial-agent.js";
@@ -21,6 +22,7 @@ export function getMastra(): Mastra {
             gateways: { universalGateway },
             storage: getAiStorage(),
             agents: {
+                analyticsAgent,
                 catalogCopilotAgent,
                 cmsFaqAgent,
                 cmsTestimonialAgent,

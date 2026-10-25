@@ -7,5 +7,6 @@ packageExtensions:
     peerDependencies:
       drizzle-orm: "*"
 allowBuilds:
+  '@openuidev/lang-core': false
   esbuild: true
   msgpackr-extract: true

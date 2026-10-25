@@ -55,9 +55,11 @@ import {
 } from "@/components/ui/table"
 import { Skeleton } from "@/components/ui/skeleton"
 import { MoreHorizontalIcon, PencilIcon, Trash2Icon } from "lucide-react"
+import { CatalogOverviewCards } from "@/module/catalog/components/CatalogOverviewCards"
 import { SectionFormDialog } from "@/module/catalog/components/SectionFormDialog"
 import { SectionProductsEditor } from "@/module/catalog/components/SectionProductsEditor"
 import { SectionFilters } from "@/module/catalog/filters/SectionFilters"
+import { countByActive } from "@/module/catalog/lib/catalog-status-counts"
 import { AdminInfoTip } from "@/components/admin-info-tip"
 
 const GLOBAL = "global"
@@ -205,6 +207,12 @@ export function SectionsPanel() {
     return true
   })
   const empty = !loading && visible.length === 0
+  const sectionCounts = countByActive(items)
+  const overviewCards = [
+    { title: "Sections", value: loading ? null : sectionCounts.total, sub: "Home catalog rails" },
+    { title: "Active", value: loading ? null : sectionCounts.published, sub: "Shown on the storefront" },
+    { title: "Inactive", value: loading ? null : sectionCounts.unpublished, sub: "Hidden from shoppers" },
+  ]
 
   if (selected) {
     const cityLabel =
@@ -272,6 +280,7 @@ export function SectionsPanel() {
 
   return (
     <div className="flex flex-col gap-4 pt-4">
+      <CatalogOverviewCards cards={overviewCards} loading={loading} />
       <p className="flex items-center gap-0.5 text-sm font-medium text-foreground">
         Home sections
         <AdminInfoTip content={SECTIONS_PANEL_INFO} />

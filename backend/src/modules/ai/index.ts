@@ -10,6 +10,7 @@ import { CmsBrandPageCopilotController } from "@/modules/ai/cms/brand-page/cms-b
 import { cmsBrandPageCopilotService } from "@/modules/ai/cms/brand-page/cms-brand-page-copilot.service.js";
 import { AiPolicyController } from "@/modules/ai/policy/ai-policy.controller.js";
 import { aiPolicyService } from "@/modules/ai/policy/ai-policy.runtime.js";
+import { analyticsChatController } from "@/modules/ai/analytics/analytics-chat.controller.js";
 import { createAiAdminRouter, createAiPublicRouter, createAiSettingsRouter } from "@/modules/ai/routes/ai.route.js";
 import { requireAiEnabled } from "@/modules/ai/guard/require-ai-enabled.js";
 import type { AiSurface } from "@/modules/ai/policy/ai-policy.js";
@@ -35,6 +36,7 @@ export const aiAdminRouter = createAiAdminRouter(
     cmsTestimonialCopilotController,
     cmsAnnouncementCopilotController,
     cmsBrandPageCopilotController,
+    analyticsChatController,
 );
 
 export { aiPolicyService };

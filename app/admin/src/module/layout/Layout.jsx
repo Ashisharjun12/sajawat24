@@ -9,18 +9,18 @@ export function Layout() {
   const { pathname } = useLocation()
   const reduceMotion = useReducedMotion()
   const duration = reduceMotion ? 0 : 0.18
-  const isInbox = pathname.startsWith("/inbox")
+  const isChatSurface = pathname.startsWith("/inbox") || pathname.startsWith("/agent")
 
   return (
     <AiPolicyProvider>
       <div className="[--header-height:--spacing(14)]">
-        <SidebarProvider className="flex flex-col">
+        <SidebarProvider className="flex h-svh min-h-0 flex-col overflow-hidden">
           <SiteHeader />
-          <div className="flex flex-1">
+          <div className="flex min-h-0 flex-1">
             <AppSidebar />
-            <SidebarInset>
-              {isInbox ? (
-                <div className="flex h-[calc(100dvh-var(--header-height))] min-h-0 flex-col overflow-hidden">
+            <SidebarInset className="min-h-0 overflow-hidden">
+              {isChatSurface ? (
+                <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
                   <Outlet />
                 </div>
               ) : (

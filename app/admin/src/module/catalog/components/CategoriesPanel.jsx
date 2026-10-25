@@ -22,7 +22,9 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { CategoriesTable } from "@/module/catalog/components/CategoriesTable"
+import { CatalogOverviewCards } from "@/module/catalog/components/CatalogOverviewCards"
 import { CategoryFormDialog } from "@/module/catalog/components/CategoryFormDialog"
+import { fetchCatalogStatusCounts } from "@/module/catalog/lib/catalog-status-counts"
 import { ListPagination } from "@/module/geo/components/ListPagination"
 
 const LIMIT = 20
@@ -93,6 +95,8 @@ function useCategoryList({ parentId, enabled = true }) {
 
 export function CategoriesPanel() {
   const [selected, setSelected] = useState(null)
+  const [counts, setCounts] = useState(null)
+  const [countsLoading, setCountsLoading] = useState(true)
   const parents = useCategoryList({ parentId: null })
   const children = useCategoryList({
     parentId: selected?.id,
@@ -100,6 +104,21 @@ export function CategoriesPanel() {
   })
   const list = selected ? children : parents
   const kind = selected ? "subcategory" : "category"
+
+  const loadCounts = useCallback(async () => {
+    setCountsLoading(true)
+    try {
+      setCounts(await fetchCatalogStatusCounts(listAdmin))
+    } catch {
+      /* list errors already shown on the table */
+    } finally {
+      setCountsLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    loadCounts()
+  }, [loadCounts])
 
   const [dialogOpen, setDialogOpen] = useState(false)
   const [dialogKind, setDialogKind] = useState("category")
@@ -133,7 +152,7 @@ export function CategoriesPanel() {
     try {
       await patchCategory(row.id, { isActive: nextActive })
       toast.add({ title: "Category updated", type: "success" })
-      await list.load()
+      await Promise.all([list.load(), loadCounts()])
     } catch (err) {
       toast.add({ title: getApiError(err), type: "error" })
     }
@@ -162,7 +181,7 @@ export function CategoriesPanel() {
         await patchCategory(editing.id, body)
         toast.add({ title: "Category updated", type: "success" })
         setDialogOpen(false)
-        await list.load()
+        await Promise.all([list.load(), loadCounts()])
         return
       }
       const created = await createCategory(body)
@@ -173,9 +192,9 @@ export function CategoriesPanel() {
       setDialogOpen(false)
       if (dialogKind === "category") {
         setSelected(created)
-        await parents.load()
+        await Promise.all([parents.load(), loadCounts()])
       } else {
-        await children.load()
+        await Promise.all([children.load(), loadCounts()])
       }
     } catch (err) {
       setFormError(getApiError(err))
@@ -199,8 +218,15 @@ export function CategoriesPanel() {
       ? `Add the first subcategory under ${selected.name}.`
       : "Add Birthday Decor, Anniversary, and similar groups."
 
+  const overviewCards = [
+    { title: "Categories", value: counts?.total, sub: "Groups and subcategories" },
+    { title: "Active", value: counts?.published, sub: "Visible in the catalog" },
+    { title: "Inactive", value: counts?.unpublished, sub: "Hidden from shoppers" },
+  ]
+
   return (
     <div className="flex flex-col gap-4 pt-4">
+      <CatalogOverviewCards cards={overviewCards} loading={countsLoading && !counts} />
       {selected ? (
         <div className="flex flex-wrap items-center gap-2">
           <Button type="button" variant="ghost" size="sm" onClick={() => setSelected(null)}>

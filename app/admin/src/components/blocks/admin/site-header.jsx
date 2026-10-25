@@ -20,6 +20,7 @@ function pageLabel(pathname) {
   if (pathname.startsWith("/people")) return "People"
   if (pathname.startsWith("/settings")) return "Settings"
   if (pathname.startsWith("/inbox")) return "Inbox"
+  if (pathname.startsWith("/agent")) return "Agent chat"
   return "Dashboard"
 }
 
