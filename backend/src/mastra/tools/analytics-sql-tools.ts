@@ -48,7 +48,7 @@ export const getSchemaContextTool = createTool({
                 "Never select phone, email, address, or password fields.",
                 "Prefer get-known-metric for order volume, GMV, top products, catalog, addons, media, and recent_edits (last platform changes).",
                 "Product images: catalog_products or top_products. Addon images: catalog_addons. Media library: catalog_media. Last edit on the platform: recent_edits. Never SELECT uploads or product_images.",
-                "If empty is true, always answer with note = Callout(\"No data\", emptyMessage, \"info\") then root = Panel([note]). Never a blank message.",
+                "Only a successful query with zero rows is empty data. A rejected or failed query is an error, not an empty result. Never report it as 'No data'.",
             ],
         };
     },
@@ -72,25 +72,12 @@ export const executeValidatedSqlTool = createTool({
         sqlPreview: z.string(),
     }),
     execute: async (input) => {
-        try {
-            const result = await executeValidatedSql(input.sql);
-            const empty = result.rowCount === 0;
-            return {
-                ...result,
-                empty,
-                emptyMessage: empty ? "No rows matched this query." : null,
-            };
-        } catch (error) {
-            const message = error instanceof Error ? error.message : "Query failed";
-            return {
-                columns: [],
-                rows: [],
-                rowCount: 0,
-                truncated: false,
-                sqlPreview: input.sql.trim().slice(0, 500),
-                empty: true,
-                emptyMessage: message,
-            };
-        }
+        const result = await executeValidatedSql(input.sql);
+        const empty = result.rowCount === 0;
+        return {
+            ...result,
+            empty,
+            emptyMessage: empty ? "No rows matched this query." : null,
+        };
     },
 });

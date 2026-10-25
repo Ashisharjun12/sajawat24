@@ -3,10 +3,14 @@ import { z } from "zod";
 import { ORDER_STATUSES } from "@/modules/booking/domain/order-status.js";
 import {
     queryCatalogAddons,
+    queryCatalogCategories,
     queryCatalogCities,
     queryCatalogMedia,
     queryCatalogProducts,
+    queryDailyCounts,
+    queryEntityTotals,
     queryOrderStats,
+    queryProductDetails,
     queryRecentEdits,
     queryTopProducts,
 } from "./analytics-queries.js";
@@ -43,32 +47,56 @@ export const getOrderStatsTool = createTool({
 export const getKnownMetricTool = createTool({
     id: "get-known-metric",
     description:
-        "Run an approved metric. order_stats = booking counts and GMV. top_products = sold packages with imageUrl. catalog_products = product cards. catalog_addons = addon cards. catalog_media = media-library images. recent_edits = last admin changes on the platform. Prefer this over SQL. If empty is true, always render Callout using emptyMessage — never a blank answer.",
-    inputSchema: z.object({
-        metric: z.enum([
-            "order_stats",
-            "top_products",
-            "catalog_products",
-            "catalog_addons",
-            "catalog_media",
-            "recent_edits",
-            "catalog_cities",
-        ]),
-        from: z.string().describe("Range start (ISO-8601)"),
-        to: z.string().describe("Range end (ISO-8601)"),
-        status: z.enum(ORDER_STATUSES).optional(),
-        limit: z.number().int().min(1).max(40).optional(),
-        kind: z
-            .enum(["image", "video", "file", "all"])
-            .optional()
-            .describe("Only for catalog_media. Default image."),
-    }),
+        "Run an approved metric. order_stats = booking counts and GMV. top_products = sold packages with imageUrl. catalog_products = product cards. product_details = full details for the exact productId supplied. catalog_categories = active categories and subcategories, each with its own imageUrl when available. catalog_addons = addon cards. catalog_media = media-library images. recent_edits = last admin changes on the platform. Prefer this over SQL. If empty is true, always render Callout using emptyMessage — never a blank answer.",
+    inputSchema: z
+        .object({
+            metric: z.enum([
+                "order_stats",
+                "top_products",
+                "catalog_products",
+                "product_details",
+                "catalog_categories",
+                "catalog_addons",
+                "catalog_media",
+                "recent_edits",
+                "catalog_cities",
+                "daily_counts",
+                "entity_totals",
+            ]),
+            from: z.string().describe("Range start (ISO-8601)"),
+            to: z.string().describe("Range end (ISO-8601)"),
+            productId: z.string().uuid().optional().describe("Required for product_details; exact product UUID from a product card."),
+            status: z.enum(ORDER_STATUSES).optional(),
+            limit: z.number().int().min(1).max(40).optional(),
+            kind: z
+                .enum(["image", "video", "file", "all"])
+                .optional()
+                .describe("Only for catalog_media. Default image."),
+        })
+        .superRefine((input, context) => {
+            if (input.metric === "product_details" && !input.productId) {
+                context.addIssue({
+                    code: "custom",
+                    path: ["productId"],
+                    message: "productId is required for product_details.",
+                });
+            }
+        }),
     execute: async (input) => {
         if (input.metric === "top_products") {
             return { metric: input.metric, ...(await queryTopProducts(input)) };
         }
         if (input.metric === "catalog_products") {
             return { metric: input.metric, ...(await queryCatalogProducts(input)) };
+        }
+        if (input.metric === "product_details") {
+            if (!input.productId) {
+                throw new Error("productId is required for product_details.");
+            }
+            return { metric: input.metric, ...(await queryProductDetails(input.productId)) };
+        }
+        if (input.metric === "catalog_categories") {
+            return { metric: input.metric, ...(await queryCatalogCategories()) };
         }
         if (input.metric === "catalog_addons") {
             return { metric: input.metric, ...(await queryCatalogAddons(input)) };
@@ -81,6 +109,12 @@ export const getKnownMetricTool = createTool({
         }
         if (input.metric === "catalog_cities") {
             return { metric: input.metric, ...(await queryCatalogCities()) };
+        }
+        if (input.metric === "daily_counts") {
+            return { metric: input.metric, ...(await queryDailyCounts(input)) };
+        }
+        if (input.metric === "entity_totals") {
+            return { metric: input.metric, ...(await queryEntityTotals()) };
         }
         return { metric: input.metric, ...(await queryOrderStats(input)) };
     },

@@ -21,6 +21,13 @@ test("rejects select star", () => {
     assert.throws(() => validateAnalyticsSql("SELECT * FROM orders"), /SELECT \*/);
 });
 
+test("accepts count star aggregates", () => {
+    const { sql } = validateAnalyticsSql(
+        "SELECT 'Users' AS label, count(*)::int AS value FROM users",
+    );
+    assert.match(sql, /FROM users/i);
+});
+
 test("rejects PII columns", () => {
     assert.throws(
         () => validateAnalyticsSql("SELECT customer_phone FROM orders"),

@@ -8,6 +8,7 @@ import {
   RequireAdminSetupComplete,
 } from "@/module/auth/guards"
 import { hydrateAuth } from "@/module/auth/hydrate"
+import { SessionRefresher } from "@/module/auth/SessionRefresher"
 import { LoginPage } from "@/module/auth/pages/LoginPage"
 import { VerifyEmailChangePage } from "@/module/auth/pages/VerifyEmailChangePage"
 import { Layout } from "@/module/layout/Layout"
@@ -43,6 +44,7 @@ export default function App() {
 
   return (
     <Toaster>
+      <SessionRefresher />
       <BrowserRouter>
         <Routes>
           <Route element={<GuestOnly />}>

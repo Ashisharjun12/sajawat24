@@ -55,6 +55,14 @@ const starters = [
     displayText: "Media images",
     prompt: "Show all media library images with filenames in a list.",
   },
+  {
+    displayText: "Users vs products",
+    prompt: "Compare new users and new products by date for the last 30 days as a colored line chart.",
+  },
+  {
+    displayText: "Catalog totals",
+    prompt: "Compare total users, products, categories, and addons as a bar chart and a pie chart, and list the numbers.",
+  },
 ]
 
 const openUiTheme = {

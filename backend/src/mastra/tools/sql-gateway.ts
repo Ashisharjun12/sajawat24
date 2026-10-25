@@ -72,7 +72,8 @@ export function validateAnalyticsSql(raw: string): { sql: string } {
     if (!/^\s*(with|select)\b/i.test(stripped)) {
         throw new Error("Only SELECT or WITH (CTE) queries are allowed.");
     }
-    if (/\bselect\s+\*|[\w"]\.\s*\*/i.test(stripped)) {
+    const withoutCountStar = stripped.replace(/\bcount\s*\(\s*\*\s*\)/gi, "count(1)");
+    if (/\bselect\s+\*|[\w"]\.\s*\*/i.test(withoutCountStar)) {
         throw new Error("SELECT * is not allowed. List allowed columns explicitly.");
     }
     for (const pattern of FORBIDDEN) {

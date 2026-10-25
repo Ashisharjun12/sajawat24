@@ -2,7 +2,7 @@
   "root": "Panel",
   "components": {
     "Panel": {
-      "signature": "Panel(children: (Metric | DataTable | Callout | BarChart | ProductGrid | ProductCard | AddonGrid | AddonCard | MediaGrid | MediaCard)[])",
+      "signature": "Panel(children: (Metric | DataTable | Callout | BarChart | LineChart | AreaChart | PieChart | ProductGrid | ProductCard | AddonGrid | AddonCard | MediaGrid | MediaCard | CityMap)[])",
       "description": "Root vertical stack for every analytics answer."
     },
     "Metric": {
@@ -18,16 +18,28 @@
       "description": "A note. tone info for empty results or explanations, warning for refusals or clamp notices."
     },
     "BarChart": {
-      "signature": "BarChart(title: string, labels: string[], values: number[])",
-      "description": "Horizontal bars. labels and values are parallel arrays of the same length."
+      "signature": "BarChart(title: string, labels: string[], values: number[], seriesNames?: string[], seriesValues?: number[][])",
+      "description": "Colored vertical bars. Single series: labels + values, each bar a chart color. Compare groups: also pass seriesNames and seriesValues (number[][] aligned to seriesNames, each inner array aligned to labels)."
+    },
+    "LineChart": {
+      "signature": "LineChart(title: string, labels: string[], seriesNames: string[], seriesValues: number[][])",
+      "description": "Colored line chart for trends and compares over dates. seriesNames like [\"Users\",\"Products\"]. seriesValues is number[][] — one array per series, same length as labels."
+    },
+    "AreaChart": {
+      "signature": "AreaChart(title: string, labels: string[], seriesNames: string[], seriesValues: number[][])",
+      "description": "Colored filled area chart for volume over time. Same seriesNames + seriesValues shape as LineChart."
+    },
+    "PieChart": {
+      "signature": "PieChart(title: string, labels: string[], values: number[])",
+      "description": "Colored pie / donut for mix and share (status mix, city share). labels and values are parallel arrays."
     },
     "ProductGrid": {
       "signature": "ProductGrid(title: string, children: ProductCard[])",
       "description": "A wrap of ProductCard items. Use for top sold products or catalog lists. Never use when the tool returned empty: true. Never use for addons."
     },
     "ProductCard": {
-      "signature": "ProductCard(name: string, imageUrl: string, gmvLabel?: string, quantity?: number, priceLabel?: string, compareAtLabel?: string, percentOff?: number, instantLabel?: string, badgeLabel?: string)",
-      "description": "Storefront-style product card. Copy imageUrl, priceLabel, compareAtLabel, percentOff, instantLabel, badgeLabel from the tool. gmvLabel and quantity are optional sales extras. Empty strings hide those chips."
+      "signature": "ProductCard(name: string, imageUrl: string, productId: string, priceLabel?: string, compareAtLabel?: string, percentOff?: number, instantLabel?: string, badgeLabel?: string, gmvLabel?: string, quantity?: number)",
+      "description": "Clickable storefront-style product card. The required productId is the exact product UUID from the tool and must be the third argument, after name and imageUrl. Copy all fields from the product tool. gmvLabel and quantity are optional sales extras."
     },
     "AddonGrid": {
       "signature": "AddonGrid(title: string, children: AddonCard[])",
@@ -44,6 +56,14 @@
     "MediaCard": {
       "signature": "MediaCard(name: string, imageUrl: string, kind?: string, sizeLabel?: string, dimensions?: string)",
       "description": "Media-library file. Copy name, imageUrl, kind, sizeLabel, dimensions from catalog_media. Never use for products or addons."
+    },
+    "CityMap": {
+      "signature": "CityMap(title: string, children: CityMarker[])",
+      "description": "Interactive map with pins for catalog cities. Pass CityMarker items for each city. Never use when empty: true."
+    },
+    "CityMarker": {
+      "signature": "CityMarker(name: string, state: string, imageUrl?: string, latitude?: number, longitude?: number)",
+      "description": "Marker on the city map. Copy name, state, and imageUrl from catalog_cities. latitude and longitude are optional coordinates."
     }
   },
   "schema": {
@@ -65,6 +85,15 @@
       "BarChart": {
         "$ref": "#/$defs/BarChart"
       },
+      "LineChart": {
+        "$ref": "#/$defs/LineChart"
+      },
+      "AreaChart": {
+        "$ref": "#/$defs/AreaChart"
+      },
+      "PieChart": {
+        "$ref": "#/$defs/PieChart"
+      },
       "ProductGrid": {
         "$ref": "#/$defs/ProductGrid"
       },
@@ -82,6 +111,12 @@
       },
       "MediaCard": {
         "$ref": "#/$defs/MediaCard"
+      },
+      "CityMap": {
+        "$ref": "#/$defs/CityMap"
+      },
+      "CityMarker": {
+        "$ref": "#/$defs/CityMarker"
       }
     },
     "required": [
@@ -90,12 +125,17 @@
       "DataTable",
       "Callout",
       "BarChart",
+      "LineChart",
+      "AreaChart",
+      "PieChart",
       "ProductGrid",
       "ProductCard",
       "AddonGrid",
       "AddonCard",
       "MediaGrid",
-      "MediaCard"
+      "MediaCard",
+      "CityMap",
+      "CityMarker"
     ],
     "additionalProperties": false,
     "$defs": {
@@ -119,6 +159,15 @@
                   "$ref": "#/$defs/BarChart"
                 },
                 {
+                  "$ref": "#/$defs/LineChart"
+                },
+                {
+                  "$ref": "#/$defs/AreaChart"
+                },
+                {
+                  "$ref": "#/$defs/PieChart"
+                },
+                {
                   "$ref": "#/$defs/ProductGrid"
                 },
                 {
@@ -135,6 +184,9 @@
                 },
                 {
                   "$ref": "#/$defs/MediaCard"
+                },
+                {
+                  "$ref": "#/$defs/CityMap"
                 }
               ]
             }
@@ -233,6 +285,21 @@
             "items": {
               "type": "number"
             }
+          },
+          "seriesNames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "seriesValues": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            }
           }
         },
         "required": [
@@ -241,7 +308,108 @@
           "values"
         ],
         "additionalProperties": false,
-        "description": "Horizontal bars. labels and values are parallel arrays of the same length."
+        "description": "Colored vertical bars. Single series: labels + values, each bar a chart color. Compare groups: also pass seriesNames and seriesValues (number[][] aligned to seriesNames, each inner array aligned to labels)."
+      },
+      "LineChart": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "labels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "seriesNames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "seriesValues": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "required": [
+          "title",
+          "labels",
+          "seriesNames",
+          "seriesValues"
+        ],
+        "additionalProperties": false,
+        "description": "Colored line chart for trends and compares over dates. seriesNames like [\"Users\",\"Products\"]. seriesValues is number[][] — one array per series, same length as labels."
+      },
+      "AreaChart": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "labels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "seriesNames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "seriesValues": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "required": [
+          "title",
+          "labels",
+          "seriesNames",
+          "seriesValues"
+        ],
+        "additionalProperties": false,
+        "description": "Colored filled area chart for volume over time. Same seriesNames + seriesValues shape as LineChart."
+      },
+      "PieChart": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "labels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "required": [
+          "title",
+          "labels",
+          "values"
+        ],
+        "additionalProperties": false,
+        "description": "Colored pie / donut for mix and share (status mix, city share). labels and values are parallel arrays."
       },
       "ProductGrid": {
         "type": "object",
@@ -292,14 +460,18 @@
           },
           "badgeLabel": {
             "type": "string"
+          },
+          "productId": {
+            "type": "string"
           }
         },
         "required": [
           "name",
-          "imageUrl"
+          "imageUrl",
+          "productId"
         ],
         "additionalProperties": false,
-        "description": "Storefront-style product card. Copy imageUrl, priceLabel, compareAtLabel, percentOff, instantLabel, badgeLabel from the tool. gmvLabel and quantity are optional sales extras. Empty strings hide those chips."
+        "description": "Clickable storefront-style product card. The required productId is the exact product UUID from the tool and must be the third argument, after name and imageUrl. Copy all fields from the product tool. gmvLabel and quantity are optional sales extras."
       },
       "AddonGrid": {
         "type": "object",
@@ -398,6 +570,52 @@
         ],
         "additionalProperties": false,
         "description": "Media-library file. Copy name, imageUrl, kind, sizeLabel, dimensions from catalog_media. Never use for products or addons."
+      },
+      "CityMap": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/CityMarker"
+            }
+          }
+        },
+        "required": [
+          "title",
+          "children"
+        ],
+        "additionalProperties": false,
+        "description": "Interactive map with pins for catalog cities. Pass CityMarker items for each city. Never use when empty: true."
+      },
+      "CityMarker": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "imageUrl": {
+            "type": "string"
+          },
+          "latitude": {
+            "type": "number"
+          },
+          "longitude": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "name",
+          "state"
+        ],
+        "additionalProperties": false,
+        "description": "Marker on the city map. Copy name, state, and imageUrl from catalog_cities. latitude and longitude are optional coordinates."
       }
     }
   },

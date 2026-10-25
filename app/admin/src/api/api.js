@@ -30,14 +30,55 @@ function skipRefresh(url = "") {
 }
 
 api.interceptors.request.use((config) => {
-  const token = useAuthStore.getState().accessToken;
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  const url = config.url || "";
+  if (!skipRefresh(url)) {
+    const token = useAuthStore.getState().accessToken;
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  } else if (config.headers?.Authorization && url.includes("/auth/refresh")) {
+    delete config.headers.Authorization;
   }
   return config;
 });
 
 let refreshPromise = null;
+
+export function isAuthSessionError(error) {
+  return (
+    error?.isAuthError === true ||
+    error?.response?.status === 401 ||
+    error?.response?.status === 403
+  );
+}
+
+export function refreshSession() {
+  if (!refreshPromise) {
+    const currentRefreshToken = useAuthStore.getState().refreshToken;
+    const body = {
+      clientType: "web",
+      ...(currentRefreshToken ? { refreshToken: currentRefreshToken } : {}),
+    };
+
+    refreshPromise = api
+      .post("/auth/refresh", body)
+      .then((res) => {
+        const payload = unwrap(res);
+        if (!payload?.user || payload.user.role !== "admin") {
+          const authError = new Error("Admin session could not be refreshed");
+          authError.isAuthError = true;
+          throw authError;
+        }
+        useAuthStore.getState().setSession(payload);
+        return payload;
+      })
+      .finally(() => {
+        refreshPromise = null;
+      });
+  }
+
+  return refreshPromise;
+}
 
 api.interceptors.response.use(
   (response) => response,
@@ -53,29 +94,16 @@ api.interceptors.response.use(
     original._retry = true;
 
     try {
-      if (!refreshPromise) {
-        refreshPromise = api
-          .post("/auth/refresh", { clientType: "web" })
-          .then((res) => {
-            const payload = unwrap(res);
-            if (!payload?.user || payload.user.role !== "admin") {
-              throw error;
-            }
-            useAuthStore.getState().setSession(payload);
-            return payload.accessToken;
-          })
-          .finally(() => {
-            refreshPromise = null;
-          });
-      }
-
-      const token = await refreshPromise;
+      const payload = await refreshSession();
+      const token = payload.accessToken;
       original.headers.Authorization = `Bearer ${token}`;
       return api(original);
     } catch (refreshError) {
-      useAuthStore.getState().clear();
-      if (window.location.pathname !== "/login") {
-        window.location.assign("/login");
+      if (isAuthSessionError(refreshError)) {
+        useAuthStore.getState().clear();
+        if (window.location.pathname !== "/login") {
+          window.location.assign("/login");
+        }
       }
       return Promise.reject(refreshError);
     }

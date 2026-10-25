@@ -279,8 +279,8 @@ export function LoginCard({ embedded = false }) {
         <div className="mb-1 flex items-center gap-2">
           <DecoryLogo
             className="size-9"
-            lightSrc={brand.logoLightUrl}
-            darkSrc={brand.logoDarkUrl}
+            lightSrc="/brand/icon.png"
+            darkSrc="/brand/icon.png"
             alt={companyName}
           />
           <span className="font-heading text-xl font-extrabold tracking-tight">

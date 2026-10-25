@@ -1,4 +1,5 @@
-import { api, unwrap } from "@/api/api";
+import { api, refreshSession, unwrap } from "@/api/api";
+import { useAuthStore } from "@/store/auth.store";
 
 export function login({ email, password }) {
   return api
@@ -7,13 +8,19 @@ export function login({ email, password }) {
 }
 
 export function refresh() {
-  return api.post("/auth/refresh", { clientType: "web" }).then(unwrap);
+  return refreshSession();
 }
 
 export function logout() {
-  return api.post("/auth/logout").then(unwrap);
+  const refreshToken = useAuthStore.getState().refreshToken;
+  return api
+    .post("/auth/logout", {
+      ...(refreshToken ? { refreshToken } : {}),
+    })
+    .then(unwrap);
 }
 
 export function me() {
   return api.get("/auth/me").then(unwrap);
 }
+

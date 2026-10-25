@@ -91,6 +91,20 @@ export class SessionService implements ISessionService {
         if (!stored) {
             const reused = await this.sessions.findByHash(hash);
             if (reused) {
+                // Grace window (60s) for concurrent rotations, multi-tab sync, or network retries
+                const isWithinGracePeriod =
+                    reused.revokedAt &&
+                    Date.now() - new Date(reused.revokedAt).getTime() < 60_000 &&
+                    new Date(reused.expiresAt).getTime() > Date.now();
+
+                if (isWithinGracePeriod) {
+                    const user = await this.users.findById(reused.userId);
+                    if (user && user.status !== "blocked" && user.status !== "deleted") {
+                        const tokens = await this.issue(user, device, reused.familyId);
+                        return { user, tokens };
+                    }
+                }
+
                 await this.sessions.revokeAllForFamily(reused.familyId);
             }
             throw ApiError.unauthorized("invalid or expired refresh token");
@@ -99,6 +113,9 @@ export class SessionService implements ISessionService {
         const user = await this.users.findById(stored.userId);
         if (!user) {
             throw ApiError.unauthorized("invalid refresh token");
+        }
+        if (user.status === "blocked") {
+            throw ApiError.forbidden("account blocked");
         }
         if (user.status === "deleted") {
             throw ApiError.unauthorized("invalid refresh token");

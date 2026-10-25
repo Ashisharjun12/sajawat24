@@ -189,6 +189,14 @@ export const KNOWN_METRICS = [
         description: "Active catalog packages with imageUrl and priceLabel. Dates are ignored. Use for 'show products' questions, not sales rank.",
     },
     {
+        id: "product_details",
+        description: "Full catalog details for one exact product. Requires its productId UUID from a product card; never search by name for this metric.",
+    },
+    {
+        id: "catalog_categories",
+        description: "Active categories and subcategories, each with its own imageUrl when available. Use for 'list categories' / 'show categories'. Display an image only when the category or subcategory has one.",
+    },
+    {
         id: "catalog_addons",
         description: "Active catalog add-ons with imageUrl, priceLabel, color. Dates ignored. Use for 'list addons' / 'show addons'. Never ProductCard.",
     },
@@ -203,6 +211,14 @@ export const KNOWN_METRICS = [
     {
         id: "catalog_cities",
         description: "Active service cities with name, slug, state, and imageUrl (circle thumbnail). Dates ignored. Use for 'list cities' / 'show cities' / 'cities with images'. If empty, Callout.",
+    },
+    {
+        id: "daily_counts",
+        description: "Users, products, and orders created per UTC day in the range. Use LineChart (or AreaChart) with labels + seriesNames + seriesValues. For 'compare users and products by date'.",
+    },
+    {
+        id: "entity_totals",
+        description: "Total counts of users, products, categories, and addons. Dates ignored. Use BarChart and PieChart plus a DataTable. For 'compare total users products categories addons'.",
     },
 ] as const;
 

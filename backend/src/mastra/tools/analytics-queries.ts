@@ -2,14 +2,17 @@ import { and, asc, desc, eq, gte, inArray, lte, sql, type SQL } from "drizzle-or
 import { db } from "@/db/postgres-client.js";
 import { ORDER_STATUSES, type OrderStatus } from "@/modules/booking/domain/order-status.js";
 import { orderItems, orders } from "@/modules/booking/orders/order.schema.js";
-import { addonColors, addons } from "@/modules/catalog/addons/addon.schema.js";
+import { addonColors, addons, productAddons } from "@/modules/catalog/addons/addon.schema.js";
+import { categories } from "@/modules/catalog/categories/category.schema.js";
 import { cities } from "@/modules/geo/cities/city.schema.js";
+import { cityPrices } from "@/modules/catalog/pricing/city-price.schema.js";
 import { productImages, products } from "@/modules/catalog/products/product.schema.js";
 import { users } from "@/modules/identity/users/user.schema.js";
 import { auditLogs } from "@/modules/ops/audit/audit-log.schema.js";
 import { resolveCompletedDisplayUrls } from "@/modules/upload/index.js";
 import { uploads, type MediaKind } from "@/modules/upload/media/media.schema.js";
 import { formatInrFromPaise, resolveAnalyticsWindow, type DateWindow } from "./analytics-date.js";
+import { resolveCityCoordinates } from "./geo-coords.js";
 
 const GM_EXCLUDED: OrderStatus[] = ["DRAFT", "CANCELLED"];
 
@@ -61,6 +64,9 @@ export async function queryOrderStats(input: {
 
     const gmvPaise = Number(totals?.gmvPaise ?? 0);
     const orderCount = Number(totals?.orderCount ?? 0);
+    const emptyOrderLabel = status === "PENDING_PAYMENT"
+        ? "pending"
+        : status?.toLowerCase().replaceAll("_", " ");
 
     return {
         from: window.fromIso,
@@ -72,7 +78,11 @@ export async function queryOrderStats(input: {
         gmvLabel: formatInrFromPaise(gmvPaise),
         byStatus,
         empty: orderCount === 0,
-        emptyMessage: orderCount === 0 ? "No orders in this date range." : null,
+        emptyMessage: orderCount === 0
+            ? emptyOrderLabel
+                ? `No ${emptyOrderLabel} orders in this date range.`
+                : "No orders in this date range."
+            : null,
         gmvExcludedStatuses: GM_EXCLUDED,
     };
 }
@@ -118,11 +128,15 @@ function instantLine(row: {
 }): string {
     if (!row.instantEnabled) return "";
     const parts: string[] = [];
-    if (row.instantShowBadge) {
-        parts.push((row.instantBadgeLabel || "Instant").trim() || "Instant");
+    const label = (row.instantBadgeLabel || "").trim() || "Instant";
+    if (row.instantShowBadge !== false) {
+        parts.push(label);
     }
     if (row.instantEtaMinutes != null) {
         parts.push(`~${row.instantEtaMinutes} min`);
+    }
+    if (parts.length === 0) {
+        parts.push("Instant");
     }
     return parts.join(" · ");
 }
@@ -181,6 +195,28 @@ async function loadCatalogByIds(productIds: string[]): Promise<Map<string, Catal
         })
         .from(products)
         .where(inArray(products.id, unique));
+
+    const nullPriceIds = rows.filter((r) => r.pricePaise == null).map((r) => r.id);
+    if (nullPriceIds.length > 0) {
+        const cityRows = await db
+            .select({
+                productId: cityPrices.productId,
+                minPrice: sql<number>`min(${cityPrices.pricePaise})`,
+                compareAt: sql<number>`min(${cityPrices.compareAtPaise})`,
+            })
+            .from(cityPrices)
+            .where(inArray(cityPrices.productId, nullPriceIds))
+            .groupBy(cityPrices.productId);
+        const cityMap = new Map(cityRows.map((c) => [c.productId, c]));
+        for (const row of rows) {
+            if (row.pricePaise == null && cityMap.has(row.id)) {
+                const c = cityMap.get(row.id)!;
+                row.pricePaise = c.minPrice;
+                row.compareAtPaise = c.compareAt;
+            }
+        }
+    }
+
     for (const row of rows) {
         map.set(row.id, row);
     }
@@ -272,6 +308,27 @@ export async function queryCatalogProducts(input: { limit?: number }) {
         .orderBy(asc(products.name))
         .limit(limit);
 
+    const nullPriceIds = rows.filter((r) => r.pricePaise == null).map((r) => r.id);
+    if (nullPriceIds.length > 0) {
+        const cityRows = await db
+            .select({
+                productId: cityPrices.productId,
+                minPrice: sql<number>`min(${cityPrices.pricePaise})`,
+                compareAt: sql<number>`min(${cityPrices.compareAtPaise})`,
+            })
+            .from(cityPrices)
+            .where(inArray(cityPrices.productId, nullPriceIds))
+            .groupBy(cityPrices.productId);
+        const cityMap = new Map(cityRows.map((c) => [c.productId, c]));
+        for (const row of rows) {
+            if (row.pricePaise == null && cityMap.has(row.id)) {
+                const c = cityMap.get(row.id)!;
+                row.pricePaise = c.minPrice;
+                row.compareAtPaise = c.compareAt;
+            }
+        }
+    }
+
     const imageUrls = await imageUrlsByProductId(rows.map((row) => row.id));
     const items = rows.map((row) => toProductCardFields(row, imageUrls.get(row.id) ?? ""));
 
@@ -281,6 +338,251 @@ export async function queryCatalogProducts(input: { limit?: number }) {
         items,
         empty,
         emptyMessage: empty ? "No products in the catalog." : null,
+    };
+}
+
+export async function queryProductDetails(productId: string) {
+    const [row] = await db
+        .select({
+            id: products.id,
+            name: products.name,
+            slug: products.slug,
+            description: products.description,
+            categoryName: categories.name,
+            isActive: products.isActive,
+            scheduledEnabled: products.scheduledEnabled,
+            instantEnabled: products.instantEnabled,
+            instantShowBadge: products.instantShowBadge,
+            instantBadgeLabel: products.instantBadgeLabel,
+            instantPdpNote: products.instantPdpNote,
+            instantEtaMinutes: products.instantEtaMinutes,
+            paymentCod: products.paymentCod,
+            paymentOnline: products.paymentOnline,
+            pricePaise: products.pricePaise,
+            compareAtPaise: products.compareAtPaise,
+            includes: products.includes,
+            deliverySetup: products.deliverySetup,
+            careInstructions: products.careInstructions,
+            faqs: products.faqs,
+            ratingAvg: products.ratingAvg,
+            reviewCount: products.reviewCount,
+        })
+        .from(products)
+        .leftJoin(categories, eq(products.categoryId, categories.id))
+        .where(eq(products.id, productId))
+        .limit(1);
+
+    if (!row) {
+        return {
+            items: [],
+            columns: ["Field", "Details"],
+            rows: [],
+            empty: true,
+            emptyMessage: "That product could not be found. It may have been removed.",
+        };
+    }
+
+    const [imageRows, addonRows, cityPriceRows] = await Promise.all([
+        db
+            .select({
+                uploadId: productImages.uploadId,
+                sortIndex: productImages.sortIndex,
+            })
+            .from(productImages)
+            .where(eq(productImages.productId, row.id))
+            .orderBy(asc(productImages.sortIndex)),
+        db
+            .select({
+                id: addons.id,
+                name: addons.name,
+                slug: addons.slug,
+                description: addons.description,
+                imageUploadId: addons.imageUploadId,
+                colorName: addonColors.name,
+                colorHex: addonColors.hex,
+                pricePaise: addons.pricePaise,
+                compareAtPaise: addons.compareAtPaise,
+                maxQuantity: addons.maxQuantity,
+            })
+            .from(productAddons)
+            .innerJoin(addons, eq(productAddons.addonId, addons.id))
+            .leftJoin(addonColors, eq(addons.colorId, addonColors.id))
+            .where(and(eq(productAddons.productId, row.id), eq(addons.isActive, true)))
+            .orderBy(asc(addons.name)),
+        db
+            .select({
+                cityId: cities.id,
+                cityName: cities.name,
+                citySlug: cities.slug,
+                state: cities.state,
+                pricePaise: cityPrices.pricePaise,
+                compareAtPaise: cityPrices.compareAtPaise,
+            })
+            .from(cityPrices)
+            .innerJoin(cities, eq(cityPrices.cityId, cities.id))
+            .where(eq(cityPrices.productId, row.id))
+            .orderBy(asc(cities.name)),
+    ]);
+
+    const imageUploadIds = imageRows.map((r) => r.uploadId);
+    const addonUploadIds = addonRows
+        .map((r) => r.imageUploadId)
+        .filter((id): id is string => Boolean(id));
+    const allUploadIds = [...new Set([...imageUploadIds, ...addonUploadIds])];
+    const resolvedUrls = await resolveCompletedDisplayUrls(allUploadIds);
+
+    const images: string[] = imageRows
+        .map((r) => resolvedUrls.get(r.uploadId))
+        .filter((url): url is string => Boolean(url));
+
+    const addonItems = addonRows.map((addon) => {
+        const pricePaise = addon.pricePaise == null ? null : Number(addon.pricePaise);
+        const compareAtPaise = addon.compareAtPaise == null ? null : Number(addon.compareAtPaise);
+        const imageUrl = addon.imageUploadId ? (resolvedUrls.get(addon.imageUploadId) ?? "") : "";
+        return {
+            id: addon.id,
+            name: addon.name,
+            slug: addon.slug,
+            description: addon.description ?? "",
+            imageUrl,
+            colorName: addon.colorName ?? "",
+            colorHex: addon.colorHex ?? "",
+            pricePaise,
+            priceLabel: pricePaise == null ? "" : formatInrFromPaise(pricePaise),
+            compareAtPaise,
+            compareAtLabel:
+                pricePaise != null && compareAtPaise != null && compareAtPaise > pricePaise
+                    ? formatInrFromPaise(compareAtPaise)
+                    : "",
+            percentOff: pricePaise == null ? 0 : discountPercent(pricePaise, compareAtPaise),
+            maxQuantity: addon.maxQuantity,
+        };
+    });
+
+    const cityPriceItems = cityPriceRows.map((price) => {
+        const amount = Number(price.pricePaise);
+        const compare = price.compareAtPaise == null ? null : Number(price.compareAtPaise);
+        return {
+            cityId: price.cityId,
+            cityName: price.cityName,
+            citySlug: price.citySlug,
+            state: price.state,
+            pricePaise: amount,
+            priceLabel: formatInrFromPaise(amount),
+            compareAtPaise: compare,
+            compareAtLabel: compare != null && compare > amount ? formatInrFromPaise(compare) : "",
+            percentOff: discountPercent(amount, compare),
+        };
+    });
+
+    let pricePaise = row.pricePaise == null ? null : Number(row.pricePaise);
+    let compareAtPaise = row.compareAtPaise == null ? null : Number(row.compareAtPaise);
+    if (pricePaise == null && cityPriceItems.length > 0) {
+        pricePaise = cityPriceItems[0].pricePaise;
+        compareAtPaise = cityPriceItems[0].compareAtPaise;
+    }
+
+    const instantLabel = instantLine({
+        instantEnabled: row.instantEnabled,
+        instantShowBadge: row.instantShowBadge,
+        instantBadgeLabel: row.instantBadgeLabel,
+        instantEtaMinutes: row.instantEtaMinutes,
+    });
+
+    const includes = Array.isArray(row.includes) ? row.includes : [];
+    const deliverySetup = Array.isArray(row.deliverySetup) ? row.deliverySetup : [];
+    const careInstructions = Array.isArray(row.careInstructions) ? row.careInstructions : [];
+    const faqs = Array.isArray(row.faqs) ? row.faqs : [];
+
+    const detail = {
+        id: row.id,
+        productId: row.id,
+        name: row.name,
+        slug: row.slug,
+        description: row.description ?? "",
+        categoryName: row.categoryName ?? "",
+        isActive: row.isActive,
+        pricePaise,
+        priceLabel: pricePaise == null ? "" : formatInrFromPaise(pricePaise),
+        compareAtPaise,
+        compareAtLabel:
+            pricePaise != null && compareAtPaise != null && compareAtPaise > pricePaise
+                ? formatInrFromPaise(compareAtPaise)
+                : "",
+        percentOff: pricePaise == null ? 0 : discountPercent(pricePaise, compareAtPaise),
+        imageUrl: images[0] ?? "",
+        images,
+        instant: {
+            enabled: Boolean(row.instantEnabled),
+            showBadge: Boolean(row.instantShowBadge),
+            badgeLabel: (row.instantBadgeLabel || "Instant").trim() || "Instant",
+            etaMinutes: row.instantEtaMinutes,
+            pdpNote: row.instantPdpNote ?? "",
+            instantLine: instantLabel,
+        },
+        scheduled: {
+            enabled: Boolean(row.scheduledEnabled),
+            label: row.scheduledEnabled ? "Available" : "Disabled",
+            slots: [
+                "Morning (9:00 AM - 12:00 PM)",
+                "Afternoon (12:00 PM - 3:00 PM)",
+                "Evening (3:00 PM - 6:00 PM)",
+                "Night (6:00 PM - 9:00 PM)",
+            ],
+        },
+        payments: {
+            cod: Boolean(row.paymentCod),
+            online: Boolean(row.paymentOnline),
+        },
+        ratingAvg: row.ratingAvg == null ? null : Number(row.ratingAvg),
+        reviewCount: row.reviewCount ?? 0,
+        includes,
+        deliverySetup,
+        careInstructions,
+        faqs,
+        addons: addonItems,
+        cityPrices: cityPriceItems,
+    };
+
+    const rows: string[][] = [
+        ["Product ID", row.id],
+        ["Slug", row.slug],
+        ["Description", row.description ?? ""],
+        ["Category", row.categoryName ?? ""],
+        ["Status", row.isActive ? "Active" : "Inactive"],
+        ["Base price", detail.priceLabel],
+        ["Compare-at price", detail.compareAtLabel],
+        ["Scheduled booking", row.scheduledEnabled ? "Enabled" : "Disabled"],
+        ["Instant booking", instantLabel || (row.instantEnabled ? "Enabled" : "Disabled")],
+        ["Instant booking note", row.instantPdpNote ?? ""],
+        ["Payment methods", [
+            row.paymentCod ? "Cash on delivery" : "",
+            row.paymentOnline ? "Online payment" : "",
+        ].filter(Boolean).join(", ")],
+        ["Includes", includes.join(", ")],
+        ["Delivery/setup", deliverySetup.join(", ")],
+        ["Care instructions", careInstructions.join(", ")],
+        ["Rating", row.ratingAvg == null ? "" : `${row.ratingAvg} (${row.reviewCount} reviews)`],
+        ["Addons", addonItems.map((a) => `${a.name} (${a.priceLabel})`).join(", ")],
+        ["City prices", cityPriceItems.map((p) => `${p.cityName}: ${p.priceLabel}${p.compareAtLabel ? ` (compare at ${p.compareAtLabel})` : ""}`).join("; ")],
+    ];
+    for (const [index, faq] of faqs.entries()) {
+        rows.push([`FAQ ${index + 1}`, `${faq.question}: ${faq.answer}`]);
+    }
+
+    return {
+        detail,
+        items: [{
+            productId: row.id,
+            name: row.name,
+            imageUrl: images[0] ?? "",
+            images,
+            ...detail,
+        }],
+        columns: ["Field", "Details"],
+        rows: rows.filter(([, value]) => value !== ""),
+        empty: false,
+        emptyMessage: null,
     };
 }
 
@@ -483,12 +785,17 @@ export async function queryCatalogCities() {
         rows.map((row) => row.imageUploadId).filter((id): id is string => Boolean(id)),
     );
 
-    const items = rows.map((row) => ({
-        name: row.name,
-        slug: row.slug,
-        state: row.state,
-        imageUrl: row.imageUploadId ? (urls.get(row.imageUploadId) ?? "") : "",
-    }));
+    const items = rows.map((row) => {
+        const coords = resolveCityCoordinates(row.name, row.state);
+        return {
+            name: row.name,
+            slug: row.slug,
+            state: row.state,
+            imageUrl: row.imageUploadId ? (urls.get(row.imageUploadId) ?? "") : "",
+            latitude: coords[0],
+            longitude: coords[1],
+        };
+    });
     const empty = items.length === 0;
     return {
         columns: ["image", "name", "slug", "state"],
@@ -496,5 +803,133 @@ export async function queryCatalogCities() {
         items,
         empty,
         emptyMessage: empty ? "No active service cities." : null,
+    };
+}
+
+export async function queryCatalogCategories() {
+    const rows = await db
+        .select({
+            id: categories.id,
+            name: categories.name,
+            parentId: categories.parentId,
+            imageUploadId: categories.imageUploadId,
+        })
+        .from(categories)
+        .where(eq(categories.isActive, true))
+        .orderBy(asc(categories.name));
+
+    const urls = await resolveCompletedDisplayUrls(
+        rows.map((row) => row.imageUploadId).filter((id): id is string => Boolean(id)),
+    );
+    const categoriesById = new Map(rows.map((row) => [row.id, row]));
+    const items = rows.map((row) => ({
+        id: row.id,
+        name: row.name,
+        parentCategory: row.parentId ? (categoriesById.get(row.parentId)?.name ?? "") : "",
+        imageUrl: row.imageUploadId ? (urls.get(row.imageUploadId) ?? "") : "",
+    }));
+    return {
+        columns: ["category / subcategory", "parent category"],
+        rows: items.map((item) => [item.name, item.parentCategory]),
+        items,
+        empty: items.length === 0,
+        emptyMessage: items.length === 0 ? "No active categories or subcategories." : null,
+    };
+}
+
+export async function queryEntityTotals() {
+    const [userRow] = await db.select({ n: sql<number>`count(${users.id})::int` }).from(users);
+    const [productRow] = await db.select({ n: sql<number>`count(${products.id})::int` }).from(products);
+    const [categoryRow] = await db.select({ n: sql<number>`count(${categories.id})::int` }).from(categories);
+    const [addonRow] = await db.select({ n: sql<number>`count(${addons.id})::int` }).from(addons);
+    const labels = ["Users", "Products", "Categories", "Addons"];
+    const values = [
+        Number(userRow?.n ?? 0),
+        Number(productRow?.n ?? 0),
+        Number(categoryRow?.n ?? 0),
+        Number(addonRow?.n ?? 0),
+    ];
+    const items = labels.map((label, index) => ({ label, value: values[index] }));
+    return {
+        labels,
+        values,
+        items,
+        columns: ["label", "value"],
+        rows: items.map((item) => [item.label, String(item.value)]),
+    };
+}
+
+function utcDayKey(value: Date | string): string {
+    if (value instanceof Date) return value.toISOString().slice(0, 10);
+    return String(value).slice(0, 10);
+}
+
+function enumerateUtcDays(from: Date, to: Date): string[] {
+    const days: string[] = [];
+    const cursor = new Date(Date.UTC(from.getUTCFullYear(), from.getUTCMonth(), from.getUTCDate()));
+    const last = new Date(Date.UTC(to.getUTCFullYear(), to.getUTCMonth(), to.getUTCDate()));
+    while (cursor.getTime() <= last.getTime() && days.length < 90) {
+        days.push(cursor.toISOString().slice(0, 10));
+        cursor.setUTCDate(cursor.getUTCDate() + 1);
+    }
+    return days;
+}
+
+async function fillDayCounts(
+    rows: Array<{ day: string; n: number }>,
+    days: string[],
+): Promise<number[]> {
+    const map = new Map<string, number>();
+    for (const row of rows) {
+        map.set(utcDayKey(row.day), Number(row.n ?? 0));
+    }
+    return days.map((day) => map.get(day) ?? 0);
+}
+
+export async function queryDailyCounts(input: { from: string; to: string }) {
+    const window = resolveAnalyticsWindow(input.from, input.to);
+    const labels = enumerateUtcDays(window.from, window.to);
+    const [userRows, productRows, orderRows] = await Promise.all([
+        db
+            .select({
+                day: sql<string>`to_char(date_trunc('day', ${users.createdAt}), 'YYYY-MM-DD')`,
+                n: sql<number>`count(*)::int`,
+            })
+            .from(users)
+            .where(and(gte(users.createdAt, window.from), lte(users.createdAt, window.to)))
+            .groupBy(sql`date_trunc('day', ${users.createdAt})`),
+        db
+            .select({
+                day: sql<string>`to_char(date_trunc('day', ${products.createdAt}), 'YYYY-MM-DD')`,
+                n: sql<number>`count(*)::int`,
+            })
+            .from(products)
+            .where(and(gte(products.createdAt, window.from), lte(products.createdAt, window.to)))
+            .groupBy(sql`date_trunc('day', ${products.createdAt})`),
+        db
+            .select({
+                day: sql<string>`to_char(date_trunc('day', ${orders.createdAt}), 'YYYY-MM-DD')`,
+                n: sql<number>`count(*)::int`,
+            })
+            .from(orders)
+            .where(and(gte(orders.createdAt, window.from), lte(orders.createdAt, window.to)))
+            .groupBy(sql`date_trunc('day', ${orders.createdAt})`),
+    ]);
+    const [userCounts, productCounts, orderCounts] = await Promise.all([
+        fillDayCounts(userRows, labels),
+        fillDayCounts(productRows, labels),
+        fillDayCounts(orderRows, labels),
+    ]);
+    const seriesValues = [userCounts, productCounts, orderCounts];
+    const empty = seriesValues.every((series) => series.every((value) => value === 0));
+    return {
+        from: window.fromIso,
+        to: window.toIso,
+        clamped: window.clamped,
+        labels,
+        seriesNames: ["Users", "Products", "Orders"],
+        seriesValues,
+        empty,
+        emptyMessage: empty ? "No users, products, or orders created in this date range." : null,
     };
 }

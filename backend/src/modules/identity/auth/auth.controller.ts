@@ -27,11 +27,9 @@ function sendAuth(
     res.cookie(REFRESH_COOKIE, payload.tokens.refreshToken, refreshCookieOptions());
     const data: Record<string, unknown> = {
         accessToken: payload.tokens.accessToken,
+        refreshToken: payload.tokens.refreshToken,
         user: payload.user,
     };
-    if (clientType === "mobile") {
-        data.refreshToken = payload.tokens.refreshToken;
-    }
     res.status(200).json(new ApiResponse(200, data, message));
 }
 
@@ -89,10 +87,9 @@ export class AuthController {
 
     logout = asyncHandler(async (req, res) => {
         const refreshToken = incomingRefresh(req);
-        if (!refreshToken) {
-            throw ApiError.unauthorized("No refresh token");
+        if (refreshToken) {
+            await this.authService.logout(refreshToken);
         }
-        await this.authService.logout(refreshToken);
         res.clearCookie(REFRESH_COOKIE, { ...refreshCookieOptions(), maxAge: 0 });
         res.status(200).json(new ApiResponse(200, null, "logged out"));
     });
