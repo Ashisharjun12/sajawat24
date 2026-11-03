@@ -82,7 +82,7 @@ class App {
 
   private setupRoutes() {
     this.app.get("/health", (_req, res) => {
-      res.status(200).json({ message: "Decorbuddys is Live" });
+      res.status(200).json({ message: "Sajawat24 is Live" });
     });
 
     this.app.use("/api/v1", apiRateLimitMiddleware);
