@@ -6,7 +6,7 @@ const {
   NATIVE_TREE_EXCLUSIONS,
 } = require('../scripts/metro-native-exclusions');
 
-const METRO_PORT = 8080;
+const METRO_PORT = 8082;
 
 const config = getDefaultConfig(__dirname);
 

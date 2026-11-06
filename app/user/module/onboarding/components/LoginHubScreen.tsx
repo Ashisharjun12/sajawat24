@@ -6,7 +6,6 @@ import { AuthOrDivider } from '@/module/onboarding/components/AuthOrDivider';
 import { GoogleMark } from '@/module/onboarding/components/GoogleMark';
 import {
   BRAND_NAME,
-  LOGIN_HEADER_ICON_URL,
   LOGIN_ILLUSTRATION_URL,
 } from '@/module/onboarding/lib/onboarding-copy';
 import {
@@ -63,7 +62,7 @@ export function LoginHubScreen() {
       <View className="flex-1 px-6 pb-10 pt-6">
         <View className="flex-row items-center justify-center gap-3">
           <Image
-            source={{ uri: LOGIN_HEADER_ICON_URL }}
+            source={require('../../../assets/images/icon.png')}
             style={{ width: 40, height: 40, borderRadius: 10 }}
             contentFit="contain"
             accessibilityLabel={BRAND_NAME}

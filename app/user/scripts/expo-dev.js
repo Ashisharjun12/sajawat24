@@ -1,14 +1,4 @@
-/**
- * Consistent Metro port + Windows-friendly defaults when starting Expo.
- * User app: 8081 (vendor app uses 8080).
- *
- * Default EXPO_NO_CACHE=1 avoids @expo/cli disk fetch cache races when user +
- * vendor start together ("Body has already been read" in dependency validation).
- * Override with EXPO_NO_CACHE=0 if you want API caching.
- *
- * Windows `run:android` / `run:ios`: start Metro in a detached process (if needed)
- * and pass `--no-bundler` so the CLI can exit after install without killing Metro.
- */
+
 const { spawn } = require("child_process");
 const path = require("path");
 const {

@@ -19,8 +19,8 @@ Living brief for the customer mobile app (`app/user`). Update this file when eac
 
 | Field | Value |
 |-------|--------|
-| Name | Consumer account deletion |
-| Status | shipped — `POST /user/account/delete` tombstone + session revoke; Manage account delete confirm sheet; admin Customers/Vendors Deleted tabs |
+| Name | Login hub branding |
+| Status | shipped — login header uses the local app icon asset |
 | Theme | Light default + Dark via Profile → Appearance; dark uses `#0B1514` bg (no pure black) |
 | Home UI | Browse feed without city + compact “Please select city” banner; auto city sheet; CMS/discovery rails match web View all + badge colors |
 | Bag / checkout | Bag icon → `/(app)/checkout`; empty bag shows **My bag** + View packages; with items → Confirm booking → Payment; offers + address sub-routes |
@@ -34,7 +34,7 @@ Living brief for the customer mobile app (`app/user`). Update this file when eac
 
 | Path | Owns |
 |------|------|
-| `module/onboarding/` | Welcome UI, phone + OTP, `otp.service`, SMS autofill hook |
+| `module/onboarding/` | Welcome UI, phone + OTP, `otp.service`, SMS autofill hook; login hub header uses `assets/images/icon.png` |
 | `module/home/` | `HomeTopBar` → `select-location` route; `HomeSearchBar` + city picker; CMS feed; `HomeLaunchAnnouncementSheet`, `use-launch-announcement-sheet`, `lib/announcement.ts`; `MerchSectionsSync`, `use-catalog-sections-query` |
 | `module/catalog/components/CatalogProductCard.tsx` | Single browse product card (`layout` grid/rail); `use-product-merch-badge` |
 | `store/merch-sections.store.ts` | City-scoped product → section badge index for cards |
@@ -80,6 +80,7 @@ Living brief for the customer mobile app (`app/user`). Update this file when eac
 ### Done
 
 - [x] Onboarding: welcome → login hub (Google / phone) → sign-in → verify OTP
+- [x] Login hub header uses the local app icon (`assets/images/icon.png`)
 - [x] Login hub Google — native sign-in, backend session; mock Google removed
 - [x] Phone OTP — real API, SMS autofill, dev OTP hint when API returns `otp`
 - [x] Account linking — add phone + link Google on profile/account (no duplicate-account merge)
@@ -249,3 +250,4 @@ Living brief for the customer mobile app (`app/user`). Update this file when eac
 2026-10-08 — Post-login permissions — ImageKit map + notification illustrations on enable screens; decoration/delivery copy — `module/permissions/lib/permission-step-assets.ts`
 2026-10-08 — Profile appearance — bottom sheet + Save preference; deleted `profile/appearance` screen — `AppearanceSheet`, `ProfileTabScreen`
 2026-10-08 — Profile More — manage-account/faq/about routes; logout confirm sheet; removed profile-tab logout — `profile-menu`, `ManageAccountScreen`
+2026-11-06 — Login hub branding — use local app icon in login header — `module/onboarding/components/LoginHubScreen`
