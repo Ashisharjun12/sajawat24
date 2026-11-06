@@ -43,11 +43,6 @@ Refresh and logout read `cookie.refreshToken` **or** `body.refreshToken` (cookie
 
 Cookie `refreshToken` is set. It is **not** in JSON.
 
-The admin web app silently rotates its refresh cookie before the 15-minute access
-token expires. Refresh tokens use a 30-day sliding expiration; refreshing while
-the app remains in use keeps the admin session active. Logging out or revoking
-the refresh session still ends the session.
-
 ### Mobile login `data`
 
 Same as web **plus** `"refreshToken": "<hex>"`.
