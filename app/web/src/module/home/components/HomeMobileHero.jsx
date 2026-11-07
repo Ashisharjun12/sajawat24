@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { UserRoundIcon } from "lucide-react";
+import { BellIcon, UserRoundIcon } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { BannerSlider } from "@/module/home/components/BannerSlider";
@@ -17,6 +17,9 @@ import { useAuthStore } from "@/store/auth.store";
 // Same look as the user app header buttons: translucent white circle with a thin border.
 const onPrimaryIconClass =
   "size-9 shrink-0 rounded-full border border-primary-foreground/30 bg-primary-foreground/15 text-primary-foreground hover:bg-primary-foreground/25 hover:text-primary-foreground";
+
+// Bell next to the pinned search bar: 40px circle, like the app's header buttons.
+const pinnedBellClass = cn(onPrimaryIconClass, "size-10");
 
 // Location shown as a pill, like the user app.
 const locationPillClass =
@@ -134,7 +137,26 @@ export function HomeMobileHero({ slides = [] }) {
         aria-hidden={!pinned}
         inert={!pinned ? true : undefined}
       >
-        <SearchCommand variant="pill" fullScreen className={SEARCH_BAR_CLASS} />
+        {/* Same as the user app: pinned search bar with the bell at its right end. */}
+        <div className="flex items-center gap-2">
+          <div className="min-w-0 flex-1">
+            <SearchCommand variant="pill" fullScreen className={SEARCH_BAR_CLASS} />
+          </div>
+          {isLoggedIn ? (
+            <NotificationBell className={pinnedBellClass} />
+          ) : (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className={pinnedBellClass}
+              onClick={() => setLoginOpen(true)}
+              aria-label="Notifications"
+            >
+              <BellIcon className="size-5" />
+            </Button>
+          )}
+        </div>
       </div>
     </section>
   );
