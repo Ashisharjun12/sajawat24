@@ -2,9 +2,14 @@ const { getDefaultConfig } = require('expo/metro-config');
 const { withNativeWind } = require('nativewind/metro');
 const exclusionList =
   require('metro-config/private/defaults/exclusionList').default;
-const {
-  NATIVE_TREE_EXCLUSIONS,
-} = require('../scripts/metro-native-exclusions');
+// Kept inline (not ../scripts) so the config works when EAS uploads only this app folder.
+// Each pattern must match the FULL path (exclusionList appends `$`).
+const NATIVE_TREE_EXCLUSIONS = [
+  /.*[/\\]android([/\\].*)?/,
+  /.*[/\\]ios([/\\].*)?/,
+  /.*[/\\]\.gradle([/\\].*)?/,
+  /.*[/\\]\.cxx([/\\].*)?/,
+];
 
 const METRO_PORT = 8081;
 

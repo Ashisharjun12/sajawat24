@@ -121,6 +121,13 @@ dist
 # Firebase cache directory
 .firebase/
 
+# EAS signing credentials (keystore + passwords). Never commit.
+credentials.json
+credentials/
+*.jks
+*.keystore
+!**/debug.keystore
+
 # Firebase — do not commit (use *.example + Firebase Console download)
 **/*firebase-adminsdk*.json
 **/google-services.json

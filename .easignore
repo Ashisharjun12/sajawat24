@@ -1,0 +1,50 @@
+# EAS Build upload rules. Must live at the git root (EAS ignores .easignore anywhere else).
+# When this file exists, EAS does NOT read any .gitignore, so everything to skip is listed here.
+#
+# Uploaded on purpose (the build needs them, .gitignore hides them):
+#   app/*/.env                    EXPO_PUBLIC_* values, they end up inside the app anyway
+#   app/*/google-services.json    Firebase client config for Android
+#
+# Note: "name/" matches a folder with that name at ANY depth.
+
+# Git / editor / tooling
+.git/
+.vscode/
+.agents/
+.github/
+.idea/
+
+# Not part of the mobile apps
+backend/
+docs/
+app/admin/
+app/web/
+docker-compose.yml
+setup.md
+skills-lock.json
+
+# Installed on the EAS server, never upload
+node_modules/
+
+# Native folders: EAS regenerates them from app.json (so expo-build-properties applies)
+android/
+ios/
+
+# Build output and caches
+.expo/
+.expo-tmp-export/
+dist/
+web-build/
+*.log
+*.tsbuildinfo
+.DS_Store
+
+# Design source files (not used by the app code)
+Design/
+
+# SERVER SECRETS: never ship inside an app
+*firebase-adminsdk*.json
+*.keystore
+*.jks
+credentials.json
+credentials/
