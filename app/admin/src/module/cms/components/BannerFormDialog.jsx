@@ -170,7 +170,8 @@ export function BannerFormDialog({
         <div className="grid gap-2">
           <Label>Mobile image</Label>
           <p className="text-xs text-muted-foreground">
-            Optional. Recommended: {CMS_BANNER_MOBILE_SIZE_HINT}. Storefront uses desktop image if empty.
+            Used in the mobile app home banner. Recommended: {CMS_BANNER_MOBILE_SIZE_HINT}. If empty,
+            the desktop image is used and may not fit the app banner.
           </p>
           <div className="flex flex-wrap gap-2">
             {onPickMobileImage ? (
@@ -194,10 +195,11 @@ export function BannerFormDialog({
             ) : null}
           </div>
           {mobilePreview || mobileImageUrl ? (
+            /* Same 2:1 frame as the app home banner, so admins see what users will see. */
             <img
               src={mobilePreview || mobileImageUrl}
               alt=""
-              className="mx-auto h-40 max-w-[10rem] rounded-lg object-cover"
+              className="aspect-[2/1] w-full rounded-lg bg-muted object-contain"
             />
           ) : null}
         </div>

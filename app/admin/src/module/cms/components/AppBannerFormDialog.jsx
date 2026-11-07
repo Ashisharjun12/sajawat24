@@ -168,10 +168,11 @@ export function AppBannerFormDialog({
             </Button>
           ) : null}
           {imagePreview || imageUrl ? (
+            /* Same 2:1 frame as the app home banner, so admins see what users will see. */
             <img
               src={imagePreview || imageUrl}
               alt=""
-              className="mx-auto h-48 max-w-[12rem] rounded-lg object-cover"
+              className="aspect-[2/1] w-full rounded-lg bg-muted object-contain"
             />
           ) : (
             <p className="text-xs text-muted-foreground">Hero image is required.</p>
