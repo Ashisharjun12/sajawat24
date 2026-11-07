@@ -27,7 +27,9 @@ export function HomeCityCard({ city, onSelect, className }) {
         className,
       )}
     >
-      <div className="relative z-10 flex h-full max-w-[54%] flex-col justify-center py-2.5 pl-3 pr-0.5 md:max-w-[48%] md:py-3 md:pl-4 md:pr-1">
+      {/* Mobile: text sits in the top band above the skyline so it never overlaps the image.
+          Desktop: text is vertically centered beside the image as before. */}
+      <div className="relative z-10 flex h-full max-w-[85%] flex-col justify-start pt-2 pb-2.5 pl-3 pr-0.5 md:max-w-[48%] md:justify-center md:py-3 md:pl-4 md:pr-1">
         <div className="flex min-w-0 items-center gap-0.5">
           <h4 className="truncate font-heading text-[15px] font-bold tracking-tight text-foreground md:text-[17px]">
             {city.name}
@@ -51,7 +53,7 @@ export function HomeCityCard({ city, onSelect, className }) {
             alt=""
             width={400}
             height={240}
-            className="max-h-full w-full max-w-none object-contain object-bottom-right"
+            className="max-h-[58%] w-full max-w-none object-contain object-bottom-right md:max-h-full"
             decoding="async"
           />
         </div>
