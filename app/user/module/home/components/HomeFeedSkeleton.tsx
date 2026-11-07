@@ -1,17 +1,30 @@
 import { Skeleton } from '@/components/ui/skeleton';
+import { HOME_BANNER_ASPECT } from '@/module/home/components/HomeBannerCarousel';
 import { Dimensions, ScrollView, View } from 'react-native';
 
-const HORIZONTAL_PADDING = 16;
-const CARD_WIDTH = Dimensions.get('window').width - HORIZONTAL_PADDING * 2;
-const BANNER_HEIGHT = Math.round((CARD_WIDTH * 9) / 16);
 const COLS = 4;
 
-export function HomeFeedSkeleton() {
+const FULL_WIDTH = Dimensions.get('window').width;
+
+/** Full-bleed placeholder matching HomeBannerCarousel's size. */
+export function HomeBannerSkeleton() {
+  return (
+    <Skeleton
+      className="rounded-none"
+      style={{ width: FULL_WIDTH, height: Math.round(FULL_WIDTH / HOME_BANNER_ASPECT) }}
+    />
+  );
+}
+
+type HomeFeedSkeletonProps = {
+  /** Skip the banner placeholder when the screen renders it separately. */
+  hideBanner?: boolean;
+};
+
+export function HomeFeedSkeleton({ hideBanner = false }: HomeFeedSkeletonProps) {
   return (
     <View className="gap-10 pt-2">
-      <View className="px-4">
-        <Skeleton className="rounded-2xl" style={{ width: CARD_WIDTH, height: BANNER_HEIGHT }} />
-      </View>
+      {hideBanner ? null : <HomeBannerSkeleton />}
 
       <View className="gap-4 px-4">
         <Skeleton className="h-5 w-48 rounded-md" />

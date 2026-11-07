@@ -1,0 +1,11 @@
+{
+  "name": "sajawat-apps",
+  "private": true,
+  "scripts": {
+    "doctor": "node scripts/doctor.js user vendor",
+    "user": "node scripts/run-app.js user start",
+    "user:android": "node scripts/run-app.js user android",
+    "vendor": "node scripts/run-app.js vendor start",
+    "vendor:android": "node scripts/run-app.js vendor android"
+  }
+}

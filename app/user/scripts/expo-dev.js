@@ -7,7 +7,7 @@ const {
   getLanIPv4,
 } = require("../../scripts/win-native-run-helpers");
 
-const METRO_PORT = "8081";
+const METRO_PORT = "8081";                   
 const projectRoot = path.join(__dirname, "..");
 
 const expoSubcommand = process.argv[2];

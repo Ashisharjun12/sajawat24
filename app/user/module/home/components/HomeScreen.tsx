@@ -1,11 +1,19 @@
 import { Screen, SmoothScrollView } from '@/components/shell';
 import { HomeBannerCarousel } from '@/module/home/components/HomeBannerCarousel';
 import { HomeDiscoveryFeed } from '@/module/home/components/HomeDiscoveryFeed';
-import { HomeFeedSkeleton } from '@/module/home/components/HomeFeedSkeleton';
+import { HomeBannerSkeleton, HomeFeedSkeleton } from '@/module/home/components/HomeFeedSkeleton';
 import { HomeSelectCityBanner } from '@/module/home/components/HomeSelectCityBanner';
 import { useActiveOrderScrollPaddingBottom } from '@/module/home/hooks/use-tab-active-order-bar';
 import { HomeLaunchAnnouncementSheet } from '@/module/home/components/HomeLaunchAnnouncementSheet';
-import { HomeStickyHeader } from '@/module/home/components/HomeStickyHeader';
+import {
+  HOME_BANNER_DOTS_BOTTOM,
+  HOME_SEARCH_BANNER_OVERLAP,
+  HomeCityPicker,
+  HomeHeaderSearchRow,
+  HomeHeaderStatusSpacer,
+  HomeHeaderTopRow,
+  HomePinnedSearchBar,
+} from '@/module/home/components/HomeStickyHeader';
 import { useLaunchAnnouncementSheet } from '@/module/home/hooks/use-launch-announcement-sheet';
 import { useHomeCategories } from '@/module/home/hooks/use-home-categories';
 import { useHomeCms } from '@/module/home/hooks/use-home-cms';
@@ -15,8 +23,14 @@ import { useAuthStore } from '@/store/auth.store';
 import { useCartStore } from '@/store/cart.store';
 import { useLocationStore } from '@/store/location.store';
 import { useFocusEffect } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
-import { RefreshControl } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  type LayoutChangeEvent,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+  RefreshControl,
+  View,
+} from 'react-native';
 
 export function HomeScreen() {
   const locationStatus = useLocationStore((s) => s.status);
@@ -76,6 +90,25 @@ export function HomeScreen() {
 
   const scrollBottomPadding = useActiveOrderScrollPaddingBottom(32);
 
+  // The pinned search bar (with bell) shows once the in-feed bar's top reaches the screen top.
+  // State only changes when crossing that point, not on every scroll event.
+  const [pinned, setPinned] = useState(false);
+  const pinnedRef = useRef(false);
+  // Scroll offset where the in-feed search row touches the top. Read from its real layout.
+  const pinAtRef = useRef(Number.POSITIVE_INFINITY);
+  const onSearchRowLayout = useCallback((e: LayoutChangeEvent) => {
+    pinAtRef.current = e.nativeEvent.layout.y;
+  }, []);
+  const onScroll = useCallback((e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const next = e.nativeEvent.contentOffset.y >= pinAtRef.current;
+    if (next === pinnedRef.current) return;
+    pinnedRef.current = next;
+    setPinned(next);
+  }, []);
+
+  // The search bar floats over the banner's bottom edge only when there is a banner.
+  const bannerVisible = showSkeleton || heroSlides.length > 0;
+
   const launchSheet = useLaunchAnnouncementSheet({
     enabled: locationChosen && !cityPickerOpen && !showSkeleton,
   });
@@ -105,37 +138,56 @@ export function HomeScreen() {
 
   return (
     <Screen scroll={false} edges={['left', 'right']} contentClassName="flex-1">
-      <HomeStickyHeader
-        cityPickerOpen={cityPickerOpen}
-        onCityPickerOpenChange={setCityPickerOpen}
-      />
-      <SmoothScrollView
-        contentContainerClassName="gap-4 pt-2"
-        contentContainerStyle={{ paddingBottom: scrollBottomPadding }}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={() => void onRefresh()} />
-        }>
-        {showSkeleton ? (
-          <HomeFeedSkeleton />
-        ) : (
-          <>
-            {!locationChosen ? (
-              <HomeSelectCityBanner onPress={() => setCityPickerOpen(true)} />
-            ) : null}
-            <HomeBannerCarousel slides={heroSlides} />
-            <HomeDiscoveryFeed
-              useCmsLayout={useCmsLayout}
-              layoutBlocks={layoutBlocks}
-              midSlide={midSlide}
-              endSlide={endSlide}
-              categories={categories}
-              sections={sections}
-              discoveryLoading={discoveryLoading}
-              cmsLoading={cmsPending}
-            />
-          </>
-        )}
-      </SmoothScrollView>
+      <HomeHeaderStatusSpacer />
+      {/* Pinned bar is absolutely positioned over the top of this area. */}
+      <View className="flex-1">
+        <SmoothScrollView
+          contentContainerStyle={{ paddingBottom: scrollBottomPadding }}
+          scrollEventThrottle={16}
+          onScroll={onScroll}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={() => void onRefresh()} />
+          }>
+          <HomeHeaderTopRow onCityPress={() => setCityPickerOpen(true)} />
+          {showSkeleton ? (
+            <HomeBannerSkeleton />
+          ) : (
+            <HomeBannerCarousel slides={heroSlides} dotsOverlayBottom={HOME_BANNER_DOTS_BOTTOM} />
+          )}
+          {/* zIndex keeps the bar above the banner it overlaps. */}
+          <View
+            style={{
+              zIndex: 1,
+              marginTop: bannerVisible ? -HOME_SEARCH_BANNER_OVERLAP : 0,
+            }}
+            onLayout={onSearchRowLayout}>
+            <HomeHeaderSearchRow solid={!bannerVisible} />
+          </View>
+          <View className="gap-4 pt-2">
+            {showSkeleton ? (
+              <HomeFeedSkeleton hideBanner />
+            ) : (
+              <>
+                {!locationChosen ? (
+                  <HomeSelectCityBanner onPress={() => setCityPickerOpen(true)} />
+                ) : null}
+                <HomeDiscoveryFeed
+                  useCmsLayout={useCmsLayout}
+                  layoutBlocks={layoutBlocks}
+                  midSlide={midSlide}
+                  endSlide={endSlide}
+                  categories={categories}
+                  sections={sections}
+                  discoveryLoading={discoveryLoading}
+                  cmsLoading={cmsPending}
+                />
+              </>
+            )}
+          </View>
+        </SmoothScrollView>
+        <HomePinnedSearchBar visible={pinned} />
+      </View>
+      <HomeCityPicker open={cityPickerOpen} onOpenChange={setCityPickerOpen} />
       <HomeLaunchAnnouncementSheet
         visible={launchSheet.visible}
         announcement={launchSheet.announcement}

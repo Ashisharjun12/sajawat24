@@ -5,7 +5,10 @@
         "destination": "/index.html"
       },
       {
-        "headers": [{ "key": "Cross-Origin-Opener-Policy", "value": "same-origin-allow-popups" }]
+        "headers": [{ "key": "Cross-Origin-Opener-Policy", 
+        "value": "same-origin-allow-popups" }]
       }
+      
     ]
+    
   }

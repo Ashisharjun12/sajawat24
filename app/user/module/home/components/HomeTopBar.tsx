@@ -19,6 +19,21 @@ type HomeTopBarProps = {
 const headerActionClass =
   'size-10 items-center justify-center rounded-full border border-primary-foreground/30 bg-primary-foreground/15';
 
+export function HomeNotificationButton({ unreadCount }: { unreadCount: number }) {
+  return (
+    <ScalePressable
+      onPress={() => router.push('/(app)/notifications?from=home' as Href)}
+      haptic
+      hitSlop={8}
+      accessibilityRole="button"
+      accessibilityLabel="Notifications"
+      className={`relative ${headerActionClass}`}>
+      <Icon as={Bell} className="size-5 text-primary-foreground" strokeWidth={2.25} />
+      <HomeHeaderIconBadge count={unreadCount} />
+    </ScalePressable>
+  );
+}
+
 export function HomeTopBar({ onCityPress }: HomeTopBarProps) {
   const user = useAuthStore((s) => s.user);
   const itemCount = useCartStore((s) => s.itemCount);
@@ -54,16 +69,7 @@ export function HomeTopBar({ onCityPress }: HomeTopBarProps) {
           <Icon as={ShoppingBag} className="size-5 text-primary-foreground" strokeWidth={2.25} />
           <HomeHeaderIconBadge count={itemCount} />
         </ScalePressable>
-        <ScalePressable
-          onPress={() => router.push('/(app)/notifications?from=home' as Href)}
-          haptic
-          hitSlop={8}
-          accessibilityRole="button"
-          accessibilityLabel="Notifications"
-          className={`relative ${headerActionClass}`}>
-          <Icon as={Bell} className="size-5 text-primary-foreground" strokeWidth={2.25} />
-          <HomeHeaderIconBadge count={unreadCount} />
-        </ScalePressable>
+        <HomeNotificationButton unreadCount={unreadCount} />
       </View>
     </View>
   );
