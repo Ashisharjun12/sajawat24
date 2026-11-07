@@ -2,12 +2,14 @@ import type { Href } from 'expo-router';
 import {
   Bell,
   CircleHelp,
+  Heart,
   Info,
   LifeBuoy,
   MapPin,
   Package,
   Palette,
   RotateCcw,
+  ShoppingBag,
   UserCog,
   UserRound,
 } from 'lucide-react-native';
@@ -72,6 +74,20 @@ export const PROFILE_MENU_SECTIONS: ProfileMenuSection[] = [
         label: 'My orders',
         href: '/(app)/profile/orders',
         icon: Package,
+      },
+      {
+        type: 'route',
+        id: 'cart',
+        label: 'My cart',
+        href: '/(app)/checkout',
+        icon: ShoppingBag,
+      },
+      {
+        type: 'route',
+        id: 'wishlist',
+        label: 'Wishlist',
+        href: '/(app)/wishlist',
+        icon: Heart,
       },
       {
         type: 'route',
