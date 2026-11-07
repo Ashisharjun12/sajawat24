@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { ChevronDownIcon, SearchIcon } from "lucide-react";
 import { MapsPinIcon } from "@/components/maps-pin-icon";
 import { getLenis } from "@/lib/lenis-instance";
@@ -243,6 +243,9 @@ export function LocationPicker({ variant = "default", className }) {
   const setCartLocation = useCartStore((s) => s.setLocation);
   const [query, setQuery] = useState("");
   const isMdDown = useIsMdDown();
+  // Mobile: focus the sheet itself on open, not the search input, so the keyboard
+  // only opens when the user taps the search field.
+  const sheetRef = useRef(null);
 
   function syncCartLocation(nextCity, nextPincode) {
     if (!nextCity?.id || !isBackendCityId(nextCity.id)) return;
@@ -337,7 +340,13 @@ export function LocationPicker({ variant = "default", className }) {
 
       {isMdDown ? (
         <Sheet open={pickerOpen} onOpenChange={closePicker}>
-          <SheetContent side="bottom" showCloseButton className={cn(shellClass, "border-t")}>
+          <SheetContent
+            ref={sheetRef}
+            initialFocus={sheetRef}
+            side="bottom"
+            showCloseButton
+            className={cn(shellClass, "border-t")}
+          >
             <div className="flex min-h-0 flex-1 flex-col overflow-hidden pt-3">{panel}</div>
           </SheetContent>
         </Sheet>
