@@ -1,4 +1,6 @@
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { cn } from "@/lib/utils";
 import { UserRoundIcon } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -12,29 +14,57 @@ import { WishlistButton } from "@/module/layout/components/WishlistButton";
 import { NotificationBell } from "@/module/notifications/components/NotificationBell";
 import { useAuthStore } from "@/store/auth.store";
 
+// Same look as the user app header buttons: translucent white circle with a thin border.
 const onPrimaryIconClass =
-  "size-9 shrink-0 rounded-full text-primary-foreground hover:bg-primary-foreground/15 hover:text-primary-foreground";
+  "size-9 shrink-0 rounded-full border border-primary-foreground/30 bg-primary-foreground/15 text-primary-foreground hover:bg-primary-foreground/25 hover:text-primary-foreground";
+
+// Location shown as a pill, like the user app.
+const locationPillClass =
+  "h-auto w-auto max-w-full rounded-full border border-primary-foreground/25 bg-black/15 px-3 py-2 hover:border-primary-foreground/25 hover:bg-black/25";
+
+// Search bar is pulled up this far, so its middle sits on the banner's bottom edge
+// (row pt-2 = 8px + half of the 48px bar = 32px). Matches HOME_SEARCH_BANNER_OVERLAP in the app.
+const SEARCH_BANNER_OVERLAP = 32;
+// Banner dots sit just above the part of the bar that covers the banner.
+const BANNER_DOTS_BOTTOM = SEARCH_BANNER_OVERLAP - 8 + 10;
+
+const SEARCH_ROW_CLASS = "px-4 pt-2 pb-2.5";
+const SEARCH_BAR_CLASS =
+  "h-12 w-full gap-2.5 rounded-[12px] border border-black/10 bg-card px-3.5 text-sm shadow-[0_4px_12px_rgba(15,23,42,0.05)] [&>svg]:size-5";
 
 export function HomeMobileHero({ slides = [] }) {
   const user = useAuthStore((s) => s.user);
   const accessToken = useAuthStore((s) => s.accessToken);
   const setLoginOpen = useAuthStore((s) => s.setLoginOpen);
   const isLoggedIn = Boolean(user || accessToken);
+  const hasBanner = Boolean(slides?.length);
+
+  // Pin a copy of the search bar to the top once the in-page bar scrolls past it.
+  const searchRowRef = useRef(null);
+  const [pinned, setPinned] = useState(false);
+  useEffect(() => {
+    const el = searchRowRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return undefined;
+    const observer = new IntersectionObserver(
+      ([entry]) => setPinned(!entry.isIntersecting && entry.boundingClientRect.top < 0),
+      { threshold: 0 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <section className="w-full md:hidden" aria-label="Home hero">
-      <div className="sticky top-0 z-40 bg-primary text-primary-foreground shadow-sm">
-        <div
-          className="flex flex-col gap-2.5 px-3 pb-3 pt-[max(0.5rem,env(safe-area-inset-top))]"
-        >
+      <div className="bg-primary text-primary-foreground">
+        <div className="px-3 pb-3.5 pt-[max(0.5rem,env(safe-area-inset-top))]">
           <div className="flex items-center gap-2 pt-2">
             <MobileNav
               triggerClassName="shrink-0 text-primary-foreground hover:bg-primary-foreground/15"
             />
-            <div className="min-w-0 flex-1">
-              <LocationPicker variant="onBrand" className="!max-w-none w-full" />
+            <div className="flex min-w-0 flex-1">
+              <LocationPicker variant="onBrand" className={locationPillClass} />
             </div>
-            <div className="flex shrink-0 items-center gap-0.5">
+            <div className="flex shrink-0 items-center gap-1.5">
               <WishlistButton className={onPrimaryIconClass} />
               {isLoggedIn ? (
                 <NotificationBell className={onPrimaryIconClass} />
@@ -74,19 +104,38 @@ export function HomeMobileHero({ slides = [] }) {
             </div>
           </div>
 
-          <SearchCommand
-            variant="pill"
-            fullScreen
-            className="h-11 w-full rounded-[var(--r-btn)] border border-black/10 bg-card shadow-sm"
-          />
         </div>
       </div>
 
-      {slides?.length ? (
-        <div className="bg-background px-4 pt-2 pb-3">
-          <BannerSlider slides={slides} variant="mobileHeroFull" />
-        </div>
+      {hasBanner ? (
+        <BannerSlider
+          slides={slides}
+          variant="mobileHeroFull"
+          dotsBottom={BANNER_DOTS_BOTTOM}
+        />
       ) : null}
+
+      {/* Floats over the banner's bottom edge; solid green when there is no banner. */}
+      <div
+        ref={searchRowRef}
+        className={cn("relative z-10", SEARCH_ROW_CLASS, !hasBanner && "bg-primary")}
+        style={hasBanner ? { marginTop: -SEARCH_BANNER_OVERLAP } : undefined}
+      >
+        <SearchCommand variant="pill" fullScreen className={SEARCH_BAR_CLASS} />
+      </div>
+
+      <div
+        className={cn(
+          "fixed inset-x-0 top-0 z-40 bg-primary shadow-md transition-opacity duration-150",
+          SEARCH_ROW_CLASS,
+          "pt-[max(0.5rem,env(safe-area-inset-top))]",
+          pinned ? "opacity-100" : "pointer-events-none opacity-0",
+        )}
+        aria-hidden={!pinned}
+        inert={!pinned ? true : undefined}
+      >
+        <SearchCommand variant="pill" fullScreen className={SEARCH_BAR_CLASS} />
+      </div>
     </section>
   );
 }

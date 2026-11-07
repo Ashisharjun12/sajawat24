@@ -72,7 +72,7 @@ export function HomeCategorySection({
             className="shrink-0 self-center pt-0.5"
             accessibilityRole="button"
             accessibilityLabel="View all categories">
-            <Text className="text-muted-foreground text-xs font-medium">View all →</Text>
+            <Text className="text-primary text-[13px] font-bold">View all →</Text>
           </ScalePressable>
         ) : null}
       </View>

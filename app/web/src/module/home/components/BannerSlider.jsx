@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useReducedMotion } from "framer-motion";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
@@ -98,7 +98,8 @@ function ImageOnlySlide({ item, mobileHero, mobileHeroContain }) {
 
 function slideShellClass(variant) {
   if (variant === "mobileHeroFull") {
-    return "relative aspect-[16/9] w-full max-w-none overflow-hidden rounded-[var(--r-card)] bg-muted/50";
+    // Same as the user app: full-bleed 2:1, square corners, edge to edge.
+    return "relative aspect-[2/1] w-full max-w-none touch-pan-y overflow-hidden bg-muted/50";
   }
   if (variant === "mobileHero") {
     return "relative h-[160px] w-full max-w-none overflow-hidden rounded-[var(--r-card)] bg-background shadow-md ring-1 ring-background/80";
@@ -132,10 +133,15 @@ function SlideFrame({ item, children, variant }) {
   );
 }
 
-export function BannerSlider({ slides = [], variant }) {
+/**
+ * `dotsBottom` (px, mobileHeroFull only): lifts the centered dots off the banner's
+ * bottom edge, for when the search bar overlaps it.
+ */
+export function BannerSlider({ slides = [], variant, dotsBottom = 12 }) {
   const reduceMotion = useReducedMotion();
   const [current, setCurrent] = useState(0);
   const [paused, setPaused] = useState(false);
+  const touchStartX = useRef(null);
   const total = slides?.length ?? 0;
 
   useEffect(() => {
@@ -171,12 +177,34 @@ export function BannerSlider({ slides = [], variant }) {
   const mobileHero =
     variant === "mobileHero" || variant === "mobileHeroFull";
   const mobileHeroContain = variant === "mobileHeroFull";
+  const appDots = variant === "mobileHeroFull";
+
+  function onTouchStart(e) {
+    touchStartX.current = e.touches[0]?.clientX ?? null;
+    setPaused(true);
+  }
+
+  function onTouchEnd(e) {
+    const startX = touchStartX.current;
+    touchStartX.current = null;
+    setPaused(false);
+    if (startX == null) return;
+    const dx = (e.changedTouches[0]?.clientX ?? startX) - startX;
+    if (Math.abs(dx) < 40) return;
+    go(dx < 0 ? current + 1 : current - 1);
+  }
 
   return (
     <div
       className={slideShellClass(variant)}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+      onTouchCancel={() => {
+        touchStartX.current = null;
+        setPaused(false);
+      }}
     >
       {slides.map((item, index) => (
         <div
@@ -223,6 +251,26 @@ export function BannerSlider({ slides = [], variant }) {
           >
             <ChevronRightIcon className="size-4" />
           </button>
+          {appDots ? (
+            <div
+              className="absolute inset-x-0 z-30 flex justify-center gap-1.5"
+              style={{ bottom: dotsBottom }}
+            >
+              {slides.map((item, index) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  aria-label={`Go to slide ${index + 1}`}
+                  aria-current={index === current}
+                  className={cn(
+                    "h-1.5 rounded-full transition-all duration-300",
+                    index === current ? "w-4 bg-white" : "w-1.5 bg-white/50",
+                  )}
+                  onClick={() => go(index)}
+                />
+              ))}
+            </div>
+          ) : (
           <div className="absolute bottom-3 left-4 z-30 flex gap-2 md:bottom-7 md:left-16">
             {slides.map((item, index) => (
               <button
@@ -249,6 +297,7 @@ export function BannerSlider({ slides = [], variant }) {
               </button>
             ))}
           </div>
+          )}
         </>
       ) : null}
     </div>

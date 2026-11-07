@@ -132,7 +132,7 @@ export function CategoryTileGrid({
             to={scrollViewAll.to}
             className={cn(
               "flex min-h-[5.5rem] w-[4.5rem] shrink-0 snap-end flex-col items-center justify-center gap-1 self-center py-2 pl-1 text-center sm:min-h-[6rem] sm:w-[5rem]",
-              "text-xs font-semibold text-foreground/80 transition-colors hover:text-foreground sm:text-sm",
+              "text-[13px] font-extrabold text-primary transition-colors hover:text-primary/80 sm:text-sm",
             )}
           >
             <span className="leading-tight">{scrollViewAll.label ?? "View all"}</span>

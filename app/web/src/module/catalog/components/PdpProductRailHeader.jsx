@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 
 /** Matches homepage category row “View all →” link styling. */
 export const VIEW_ALL_LINK_CLASS =
-  "shrink-0 self-center whitespace-nowrap pt-0.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground sm:text-sm";
+  "shrink-0 self-center whitespace-nowrap pt-0.5 text-[13px] font-extrabold text-primary transition-colors hover:text-primary/80 sm:text-sm";
 
 export function PdpProductRailHeader({
   title,

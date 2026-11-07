@@ -24,6 +24,7 @@
     },
     "android": {
       "package": "com.sajawat24.partner",
+      "versionCode": 1,
       "googleServicesFile": "./google-services.json",
       "permissions": [
         "android.permission.INTERNET",
@@ -88,7 +89,19 @@
       ],
       "expo-secure-store",
       "@react-native-community/datetimepicker",
-      "@maplibre/maplibre-react-native"
+      "@maplibre/maplibre-react-native",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "buildArchs": ["arm64-v8a"],
+            "enableMinifyInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true,
+            "networkInspector": false,
+            "extraProguardRules": "-keep class org.maplibre.** { *; }\n-dontwarn org.maplibre.**\n-keep class com.swmansion.reanimated.** { *; }\n-keep class com.facebook.react.turbomodule.** { *; }\n-keep class expo.modules.location.** { *; }\n-keep class expo.modules.taskmanager.** { *; }\n-keep class expo.modules.notifications.** { *; }"
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

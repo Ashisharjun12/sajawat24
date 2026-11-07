@@ -46,7 +46,7 @@ export function ProductRailHeader({
           className="shrink-0 self-center pt-0.5"
           accessibilityRole="button"
           accessibilityLabel={viewAllLabel}>
-          <Text className="text-muted-foreground text-xs font-medium">{viewAllLabel} →</Text>
+          <Text className="text-primary text-[13px] font-bold">{viewAllLabel} →</Text>
         </ScalePressable>
       ) : null}
     </View>
