@@ -1,5 +1,7 @@
 export const CHAT_MESSAGE_EVENT = 'chat:message';
 export const CHAT_READ_EVENT = 'chat:read';
+/** Conversation closed/reopened by support — payload `{ conversationId, status }`. */
+export const CHAT_STATUS_EVENT = 'chat:status';
 export const CHAT_TYPING_EVENT = 'chat:typing';
 export const CHAT_FOCUS_EVENT = 'chat:focus';
 export const CHAT_BLUR_EVENT = 'chat:blur';

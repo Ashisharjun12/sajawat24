@@ -7,6 +7,7 @@ import {
     inArray,
     isNull,
     lte,
+    ne,
     or,
     sql,
 } from "drizzle-orm";
@@ -128,9 +129,12 @@ export class ConversationRepository implements IConversationRepository {
                     eq(conversations.contextType, "none"),
                     eq(conversations.contextId, userId),
                     topicMatch,
+                    // A closed support chat is finished: the next visit starts a new one
+                    // (old history is not shown again).
+                    ne(conversations.status, "closed"),
                 ),
             )
-            .orderBy(desc(conversations.lastMessageAt))
+            .orderBy(sql`${conversations.lastMessageAt} desc nulls last`)
             .limit(1);
         if (row) return row;
 
@@ -146,13 +150,14 @@ export class ConversationRepository implements IConversationRepository {
                     eq(conversations.contextType, "none"),
                     eq(conversations.contextId, userId),
                     isNull(conversations.topicKey),
+                    ne(conversations.status, "closed"),
                     or(
                         eq(conversations.subject, trimmedSubject),
                         ilike(conversations.subject, `%${trimmedSubject}%`),
                     ),
                 ),
             )
-            .orderBy(desc(conversations.lastMessageAt))
+            .orderBy(sql`${conversations.lastMessageAt} desc nulls last`)
             .limit(1);
         return legacy;
     }

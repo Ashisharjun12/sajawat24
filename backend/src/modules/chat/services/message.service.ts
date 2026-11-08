@@ -153,6 +153,17 @@ export class MessageService implements IMessageService {
             await this.conversationService.ensureAdminParticipant(userId, conversationId);
         }
 
+        // A customer support chat closed by admin stays closed: the customer starts a new
+        // chat (POST /user/chat/support) instead of reviving the old ticket. Admins can still
+        // write into it (e.g. a follow-up) — that reopens it.
+        if (
+            conversation.status === "closed" &&
+            conversation.type === "customer_support" &&
+            role !== "admin"
+        ) {
+            throw ApiError.conflict("This chat was closed. Start a new chat to continue.");
+        }
+
         const reopenableTypes = new Set<Conversation["type"]>([
             "customer_support",
             "vendor_support",

@@ -73,6 +73,14 @@
         }
       ],
       "expo-secure-store",
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "Sajawat24 uses the camera so you can take a photo and send it to support or your decorator.",
+          "photosPermission": "Sajawat24 uses your photos so you can send a picture to support or your decorator.",
+          "microphonePermission": false
+        }
+      ],
       "@react-native-community/datetimepicker",
       "@react-native-google-signin/google-signin",
       [

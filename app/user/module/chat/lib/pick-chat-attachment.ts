@@ -1,6 +1,6 @@
 import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
-import { Alert, Linking } from 'react-native';
+import { ensureChatMediaPermission } from '@/module/chat/lib/pick-chat-attachment-permission';
 
 export type ChatAttachmentSource = 'camera' | 'image' | 'file';
 
@@ -11,28 +11,6 @@ export type PickedChatAttachment = {
   kind: 'image' | 'file';
 };
 
-async function ensurePermission(
-  request: () => Promise<ImagePicker.PermissionResponse>,
-  label: string,
-): Promise<boolean> {
-  const result = await request();
-  if (result.granted) return true;
-
-  if (!result.canAskAgain) {
-    Alert.alert(
-      'Permission needed',
-      `Allow ${label} access in settings to send attachments.`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Open settings', onPress: () => void Linking.openSettings() },
-      ],
-    );
-    return false;
-  }
-
-  Alert.alert('Permission needed', `Allow ${label} access to send attachments.`);
-  return false;
-}
 
 function guessImageMime(fileName: string): string {
   const lower = fileName.toLowerCase();
@@ -46,10 +24,8 @@ export async function pickChatAttachment(
   source: ChatAttachmentSource,
 ): Promise<PickedChatAttachment | null> {
   if (source === 'camera') {
-    const allowed = await ensurePermission(
-      ImagePicker.requestCameraPermissionsAsync,
-      'camera',
-    );
+    // Camera permission is asked only now, when the user taps "Take a photo".
+    const allowed = await ensureChatMediaPermission('camera');
     if (!allowed) return null;
 
     const result = await ImagePicker.launchCameraAsync({
@@ -68,10 +44,8 @@ export async function pickChatAttachment(
   }
 
   if (source === 'image') {
-    const allowed = await ensurePermission(
-      ImagePicker.requestMediaLibraryPermissionsAsync,
-      'photos',
-    );
+    // Photo permission is asked only now, when the user taps "Choose from gallery".
+    const allowed = await ensureChatMediaPermission('photos');
     if (!allowed) return null;
 
     const result = await ImagePicker.launchImageLibraryAsync({

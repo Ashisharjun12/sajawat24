@@ -6,7 +6,8 @@ import { useSocket } from '@/providers/socket-provider';
 import { useAuthStore } from '@/store/auth.store';
 import { useChatStore } from '@/store/chat.store';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useMemo } from 'react';
+import axios from 'axios';
+import { useCallback, useEffect, useMemo } from 'react';
 
 function useChatFocus(conversationId: string | undefined) {
   const { socket } = useSocket();
@@ -32,6 +33,10 @@ export function useSupportTopicChatThread(
   const setActiveConversation = useChatStore((s) => s.setActiveConversation);
   const pendingMessages = useChatStore((s) => s.pendingMessages);
 
+  // Opening a topic POSTs /user/chat/support: it returns the open chat for this topic, or
+  // creates a new one when the last chat was closed. It is NOT polled — polling a POST
+  // used to silently reopen chats right after support closed them. Status changes arrive
+  // over the socket (`chat:status`, see SocketProvider).
   const conversationQuery = useQuery({
     queryKey: queryKeys.chatSupport(topicKey),
     queryFn: () =>
@@ -40,10 +45,21 @@ export function useSupportTopicChatThread(
         subject: subject ?? topicKey,
       }),
     enabled,
-    refetchInterval: 15_000,
+    staleTime: Infinity,
+    // Every visit asks again, so coming back after a close lands in a fresh chat.
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
 
   const conversationId = conversationQuery.data?.id;
+  const isClosed = conversationQuery.data?.status === 'closed';
+  const { refetch: refetchConversation } = conversationQuery;
+
+  /** After support closed the chat: open a fresh one (old messages are left behind). */
+  const startNewChat = useCallback(async () => {
+    await refetchConversation();
+  }, [refetchConversation]);
 
   useChatFocus(conversationId);
   useEffect(() => {
@@ -80,6 +96,17 @@ export function useSupportTopicChatThread(
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.chatMessages(conversationId!) });
+    },
+    onError: (err) => {
+      // 409 = support closed this chat (socket event may have been missed): show it closed.
+      if (axios.isAxiosError(err) && err.response?.status === 409) {
+        queryClient.setQueryData<chatApi.ChatConversation>(queryKeys.chatSupport(topicKey), (old) =>
+          old ? { ...old, status: 'closed' } : old,
+        );
+        if (conversationId) {
+          void queryClient.invalidateQueries({ queryKey: queryKeys.chatMessages(conversationId) });
+        }
+      }
     },
   });
 
@@ -120,5 +147,9 @@ export function useSupportTopicChatThread(
     error: conversationQuery.error ?? messagesQuery.error,
     sendMessage: sendMutation.mutateAsync,
     isSending: sendMutation.isPending,
+    /** Support closed this chat — hide the composer, offer "Start a new chat". */
+    isClosed,
+    startNewChat,
+    isStartingNewChat: conversationQuery.isFetching && isClosed,
   };
 }

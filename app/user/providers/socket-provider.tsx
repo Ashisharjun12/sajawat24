@@ -1,7 +1,11 @@
-import type { ChatMessage } from '@/api/chat.api';
+import type { ChatConversation, ChatMessage } from '@/api/chat.api';
 import { getSocketUrl } from '@/lib/socket-url';
 import { queryKeys } from '@/lib/query-keys';
-import { CHAT_MESSAGE_EVENT, CHAT_READ_EVENT } from '@/module/chat/lib/chat-events';
+import {
+  CHAT_MESSAGE_EVENT,
+  CHAT_READ_EVENT,
+  CHAT_STATUS_EVENT,
+} from '@/module/chat/lib/chat-events';
 import { patchReadStatus } from '@/module/chat/lib/chat-utils';
 import { notificationQueryKeys } from '@/module/notifications/lib/notification-query-keys';
 import { useAuthStore } from '@/store/auth.store';
@@ -59,8 +63,29 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
           void queryClient.invalidateQueries({ queryKey: notificationQueryKeys.all });
         }
       }
-      void queryClient.invalidateQueries({ queryKey: ['chat'] });
+      // Refresh chat data — except the support "open" query: refetching it POSTs
+      // /user/chat/support, which would replace a just-closed chat with a new one.
+      void queryClient.invalidateQueries({
+        queryKey: ['chat'],
+        predicate: (query) => query.queryKey[1] !== 'support',
+      });
     });
+
+    // Support closed/reopened the chat: flip its status in place so the open screen
+    // shows "closed" at once, and reload its messages (includes "Ticket closed by admin").
+    instance.on(
+      CHAT_STATUS_EVENT,
+      (payload: { conversationId?: string; status?: ChatConversation['status'] }) => {
+        const { conversationId, status } = payload ?? {};
+        if (!conversationId || !status) return;
+        queryClient.setQueriesData<ChatConversation>({ queryKey: ['chat'] }, (old) =>
+          old && typeof old === 'object' && 'id' in old && old.id === conversationId
+            ? { ...old, status }
+            : old,
+        );
+        void queryClient.invalidateQueries({ queryKey: queryKeys.chatMessages(conversationId) });
+      },
+    );
 
     instance.on(
       CHAT_READ_EVENT,

@@ -16,6 +16,8 @@ import type { IChatAclService } from "@/modules/chat/services/chat-acl.service.j
 import type { UserRole } from "@/modules/identity/users/user.schema.js";
 import type { IMessageRepository } from "@/modules/chat/messages/message.repository.js";
 import { presenceStore } from "@/infrastructure/realtime/presence.store.js";
+import type { RealtimePort } from "@/infrastructure/realtime/realtime.port.js";
+import { CHAT_STATUS_EVENT } from "@/modules/chat/lib/chat.events.js";
 import { resolveServiceContact } from "@/modules/booking/lib/resolve-service-contact.js";
 
 export type ChatPeerView = {
@@ -90,7 +92,27 @@ export class ConversationService implements IConversationService {
         private readonly orders: IOrderRepository,
         private readonly assignments: IAssignmentRepository,
         private readonly fieldAssignments: IOrderFieldAssignmentRepository,
+        /** Optional so tests/other callers can omit it; used to tell clients a chat closed/reopened. */
+        private readonly realtime?: RealtimePort,
     ) {}
+
+    /** Tell every participant except the actor that the conversation's status changed. */
+    private async publishStatus(conversation: Conversation, actorUserId: string): Promise<void> {
+        if (!this.realtime) return;
+        const parts = await this.participants.listByConversation(conversation.id);
+        for (const p of parts) {
+            if (p.userId === actorUserId) continue;
+            try {
+                await this.realtime.publish({
+                    userId: p.userId,
+                    event: CHAT_STATUS_EVENT,
+                    payload: { conversationId: conversation.id, status: conversation.status },
+                });
+            } catch {
+                // Realtime is best-effort; the client also sees the status on next fetch.
+            }
+        }
+    }
 
     async getForActor(userId: string, role: UserRole, conversationId: string): Promise<ConversationView> {
         const conversation = await this.conversations.findById(conversationId);
@@ -379,10 +401,19 @@ export class ConversationService implements IConversationService {
                 seq,
                 tx,
             );
+            // Keep inbox previews in sync with the closing note.
+            await this.conversations.updateAfterMessage(
+                conversationId,
+                "Ticket closed by admin",
+                new Date(),
+                tx,
+            );
             return closed;
         });
 
         if (!updated) throw ApiError.conflict("could not close conversation");
+        // The user's open chat screen switches to "closed" straight away.
+        await this.publishStatus(updated, adminUserId);
         return this.toView(updated, adminUserId, "admin");
     }
 
@@ -393,6 +424,7 @@ export class ConversationService implements IConversationService {
 
         const updated = await this.conversations.reopen(conversationId);
         if (!updated) throw ApiError.conflict("could not reopen conversation");
+        await this.publishStatus(updated, adminUserId);
         return this.toView(updated, adminUserId, "admin");
     }
 

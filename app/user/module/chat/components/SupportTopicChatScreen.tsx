@@ -1,6 +1,7 @@
 import { getApiError } from '@/api/client';
 import type { ChatMessage } from '@/api/chat.api';
 import { LoadingPlaceholder, ScalePressable } from '@/components/shell';
+import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { lightImpact } from '@/lib/light-haptic';
@@ -14,7 +15,7 @@ import { useConversationTyping } from '@/module/chat/hooks/use-conversation-typi
 import { useSupportTopicChatThread } from '@/module/chat/hooks/use-support-topic-chat-thread';
 import { formatMessageTime } from '@/module/chat/lib/chat-utils';
 import { router } from 'expo-router';
-import { ArrowLeft, Plus, Send } from 'lucide-react-native';
+import { ArrowLeft, CircleCheck, Plus, Send } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
 import {
   Alert,
@@ -52,6 +53,9 @@ export function SupportTopicChatScreen({
     sendMessage,
     isSending,
     error,
+    isClosed,
+    startNewChat,
+    isStartingNewChat,
   } = useSupportTopicChatThread(topicKey, title);
   const insets = useSafeAreaInsets();
   const theme = useThemeColors();
@@ -214,6 +218,32 @@ export function SupportTopicChatScreen({
           />
         )}
 
+        {isClosed ? (
+          // Support closed this chat: no composer; offer a fresh chat instead.
+          <View
+            className="gap-3 border-t border-border bg-background px-4 pt-3"
+            style={{ paddingBottom: Math.max(insets.bottom, 12) }}
+            accessibilityLiveRegion="polite">
+            <View className="flex-row items-center gap-2.5 rounded-btn bg-muted px-3.5 py-3">
+              <Icon as={CircleCheck} className="size-5 shrink-0 text-success" />
+              <View className="min-w-0 flex-1">
+                <Text className="text-foreground text-sm font-semibold">This chat was closed</Text>
+                <Text className="text-muted-foreground text-xs">
+                  Need more help? Start a new chat and we&apos;ll pick it up.
+                </Text>
+              </View>
+            </View>
+            <Button
+              className="w-full"
+              loading={isStartingNewChat}
+              onPress={() => {
+                lightImpact();
+                void startNewChat();
+              }}>
+              <Text>Start a new chat</Text>
+            </Button>
+          </View>
+        ) : (
         <View
           className="border-t border-border bg-background px-4 pt-3"
           style={{ paddingBottom: keyboardHeight > 0 ? 8 : Math.max(insets.bottom, 12) }}>
@@ -259,6 +289,7 @@ export function SupportTopicChatScreen({
             ) : null}
           </View>
         </View>
+        )}
       </View>
 
       <ChatAttachmentSheet

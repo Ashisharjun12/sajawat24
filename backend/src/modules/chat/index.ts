@@ -54,6 +54,7 @@ const conversationService = new ConversationService(
     orderRepository,
     assignmentRepository,
     orderFieldAssignmentRepository,
+    realtime,
 );
 
 const mediaRepository = new MediaRepository();
