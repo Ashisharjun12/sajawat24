@@ -2,14 +2,11 @@ import type { Href } from 'expo-router';
 import {
   Bell,
   CircleHelp,
-  Heart,
   Info,
   LifeBuoy,
-  MapPin,
-  Package,
   Palette,
   RotateCcw,
-  ShoppingBag,
+  ShoppingCart,
   UserCog,
   UserRound,
 } from 'lucide-react-native';
@@ -50,6 +47,10 @@ export type ProfileMenuSection = {
   items: ProfileMenuItem[];
 };
 
+/**
+ * Account tab list. My orders, Wishlist, Chat with us and Saved addresses are the
+ * 2 × 2 shortcut tiles (`ProfileQuickActions`), so they are not repeated here.
+ */
 export const PROFILE_MENU_SECTIONS: ProfileMenuSection[] = [
   {
     id: 'your-account',
@@ -62,39 +63,12 @@ export const PROFILE_MENU_SECTIONS: ProfileMenuSection[] = [
         href: '/(app)/profile/account',
         icon: UserRound,
       },
-    ],
-  },
-  {
-    id: 'orders-delivery',
-    title: 'Orders & delivery',
-    items: [
-      {
-        type: 'route',
-        id: 'orders',
-        label: 'My orders',
-        href: '/(app)/profile/orders',
-        icon: Package,
-      },
       {
         type: 'route',
         id: 'cart',
         label: 'My cart',
         href: '/(app)/checkout',
-        icon: ShoppingBag,
-      },
-      {
-        type: 'route',
-        id: 'wishlist',
-        label: 'Wishlist',
-        href: '/(app)/wishlist',
-        icon: Heart,
-      },
-      {
-        type: 'route',
-        id: 'addresses',
-        label: 'Addresses',
-        href: '/(app)/profile/addresses',
-        icon: MapPin,
+        icon: ShoppingCart,
       },
       {
         type: 'route',
@@ -135,10 +109,11 @@ export const PROFILE_MENU_SECTIONS: ProfileMenuSection[] = [
         icon: LifeBuoy,
       },
       {
-        type: 'action',
-        id: 'whatsapp',
-        label: 'WhatsApp support',
-        subtitle: 'Chat with us',
+        type: 'route',
+        id: 'faq',
+        label: "FAQ's",
+        href: '/(app)/profile/faq',
+        icon: CircleHelp,
       },
     ],
   },
@@ -148,24 +123,17 @@ export const PROFILE_MENU_SECTIONS: ProfileMenuSection[] = [
     items: [
       {
         type: 'route',
-        id: 'manage-account',
-        label: 'Manage account',
-        href: '/(app)/profile/manage-account',
-        icon: UserCog,
-      },
-      {
-        type: 'route',
-        id: 'faq',
-        label: 'FAQ',
-        href: '/(app)/profile/faq',
-        icon: CircleHelp,
-      },
-      {
-        type: 'route',
         id: 'about',
         label: 'About us',
         href: '/(app)/profile/about',
         icon: Info,
+      },
+      {
+        type: 'route',
+        id: 'manage-account',
+        label: 'Manage account',
+        href: '/(app)/profile/manage-account',
+        icon: UserCog,
       },
     ],
   },

@@ -43,7 +43,7 @@ export async function openRazorpayNative(
     key: checkout.keyId,
     amount: checkout.amountPaise,
     currency: checkout.currency || 'INR',
-    name: checkout.name || 'DeccorBuddys',
+    name: checkout.name || 'Sajawat24',
     description: checkout.description,
     order_id: checkout.orderId,
     prefill: {

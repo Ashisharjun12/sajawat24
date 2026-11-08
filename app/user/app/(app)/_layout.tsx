@@ -44,7 +44,7 @@ export default function AppLayout() {
       <Tabs.Screen name="category" options={{ title: 'Category' }} />
       <Tabs.Screen name="explore" options={{ title: 'Explore' }} />
       <Tabs.Screen name="instant" options={{ title: 'Instant' }} />
-      <Tabs.Screen name="profile" options={{ title: 'Profile' }} />
+      <Tabs.Screen name="profile" options={{ title: 'Account' }} />
       <Tabs.Screen name="account" options={{ href: null }} />
       <Tabs.Screen name="search" options={{ href: null }} />
       <Tabs.Screen name="product" options={{ href: null, tabBarStyle: { display: 'none' } }} />

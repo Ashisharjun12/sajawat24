@@ -71,7 +71,11 @@ export function ProductReviewsPreview({
   const subtitleCount = `${reviewCount.toLocaleString('en-IN')} review${reviewCount === 1 ? '' : 's'}`;
 
   return (
-    <Accordion type="single" collapsible className="rounded-3xl border border-border bg-card px-4">
+    // Full width: cancel the PDP's 20px side padding (same panel as "Make it yours").
+    <Accordion
+      type="single"
+      collapsible
+      className="-mx-5 border-y border-border/80 bg-card px-5">
       <AccordionItem value="reviews">
         <AccordionTrigger className="py-3">
           <View className="flex-1 flex-row items-center gap-3 pr-2">

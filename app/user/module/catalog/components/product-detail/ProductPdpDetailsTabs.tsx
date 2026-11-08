@@ -63,7 +63,8 @@ export function ProductPdpDetailsTabs({
   const countLabel = pdpDetailCountLabel(activeTab, itemCounts[activeTab]);
 
   return (
-    <View className="rounded-3xl border border-border/80 bg-card px-4 py-4 shadow-sm">
+    // Full width: cancel the PDP's 20px side padding (same panel as "Make it yours").
+    <View className="-mx-5 border-y border-border/80 bg-card px-5 py-4">
       <View className="flex-row items-center gap-2.5">
         <View
           className="size-10 shrink-0 items-center justify-center rounded-full bg-primary/15"
@@ -76,8 +77,9 @@ export function ProductPdpDetailsTabs({
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        className="mt-4"
-        contentContainerClassName="flex-row gap-2 pb-1">
+        // Chips scroll edge to edge, first chip still lines up with the heading.
+        className="-mx-5 mt-4"
+        contentContainerClassName="flex-row gap-2 px-5 pb-1">
         {PDP_PACKAGE_DETAIL_TABS.map((tab) => {
           const isActive = activeTab === tab.id;
           const TabIcon = TAB_ICONS[tab.id];

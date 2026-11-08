@@ -17,6 +17,20 @@ export function getSiteShell({ platform = 'mobile' }: { platform?: string } = {}
     .then(unwrap) as Promise<SiteShellResponse>;
 }
 
+/** Published CMS content page (admin → Brand → Pages). `body` is Markdown. */
+export type CmsPage = {
+  slug: string;
+  title: string;
+  body: string;
+  updatedAt: string | null;
+};
+
+export function getCmsPage(slug: string, { platform = 'mobile' }: { platform?: string } = {}) {
+  return api
+    .get(`/catalog/cms/pages/${encodeURIComponent(slug)}`, { params: { platform } })
+    .then(unwrap) as Promise<CmsPage>;
+}
+
 export type HomeCmsResponse = {
   hero?: unknown[];
   mid?: unknown[];

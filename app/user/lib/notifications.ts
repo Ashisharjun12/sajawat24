@@ -19,7 +19,7 @@ export async function ensureAndroidNotificationChannels() {
   if (Platform.OS !== 'android') return;
 
   await Notifications.setNotificationChannelAsync(ANDROID_CHANNEL_DEFAULT, {
-    name: 'DeccorBuddys',
+    name: 'Sajawat24',
     importance: Notifications.AndroidImportance.DEFAULT,
     sound: 'default',
   });

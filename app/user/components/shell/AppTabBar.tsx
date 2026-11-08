@@ -25,7 +25,7 @@ const TAB_LABELS: Record<string, string> = {
   category: 'Category',
   explore: 'Explore',
   instant: 'Instant',
-  profile: 'Profile',
+  profile: 'Account',
 };
 
 function TabIcon({

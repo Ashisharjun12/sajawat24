@@ -29,14 +29,15 @@ export function ExploreCategoryRail({
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
-      contentContainerClassName="gap-2 px-5 pb-3 pt-1"
+      contentContainerClassName="items-center gap-2 px-5 pb-3 pt-1"
       accessibilityLabel="Browse by category">
+      {/* Same fixed height as the icon chips (44px) so "All" is a pill with centred text, not a stretched circle. */}
       <ScalePressable
         onPress={onSelectAll}
         haptic
         pressScale={0.96}
         className={cn(
-          'rounded-full px-3.5 py-2',
+          'h-11 min-w-16 items-center justify-center rounded-full px-5',
           allActive ? 'bg-primary' : 'bg-muted',
         )}
         accessibilityRole="button"
@@ -44,7 +45,7 @@ export function ExploreCategoryRail({
         accessibilityLabel="All categories">
         <Text
           className={cn(
-            'text-xs font-semibold',
+            'text-center text-xs font-semibold',
             allActive ? 'text-primary-foreground' : 'text-foreground',
           )}>
           All
@@ -64,7 +65,7 @@ export function ExploreCategoryRail({
             haptic
             pressScale={0.96}
             className={cn(
-              'flex-row items-center gap-1.5 rounded-full py-2 pl-2 pr-3.5',
+              'h-11 flex-row items-center gap-1.5 rounded-full pl-2 pr-3.5',
               active ? 'bg-primary' : 'bg-muted',
             )}
             accessibilityRole="button"

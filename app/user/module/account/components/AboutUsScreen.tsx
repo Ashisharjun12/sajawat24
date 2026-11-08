@@ -9,7 +9,7 @@ export function AboutUsScreen() {
   return (
     <AccountSubScreen title="About us">
       <View className="gap-4">
-        <Text className="text-foreground text-h2 font-semibold">DeccorBuddys</Text>
+        <Text className="text-foreground text-h2 font-semibold">Sajawat24</Text>
         <Text className="text-muted-foreground text-body leading-6">
           City-priced decoration setups — balloons, backdrops, and lights, dressed for the room you
           have. Book online, track your order, and chat with support when you need help.

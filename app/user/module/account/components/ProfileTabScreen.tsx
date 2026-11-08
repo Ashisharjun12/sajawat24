@@ -1,16 +1,17 @@
 import { Screen, TabScreenTitle } from '@/components/shell';
-import { WhatsAppIcon } from '@/components/shell/WhatsAppIcon';
 import { requestNotificationPermission } from '@/lib/notifications';
 import { syncPushRegistration } from '@/lib/push-registration';
-import { openWhatsAppSupport } from '@/lib/support-actions';
 import { ProfileHeaderCard } from '@/module/account/components/ProfileHeaderCard';
-import { ProfileMenuRow } from '@/module/account/components/ProfileMenuRow';
-import { ProfileSettingsGroup } from '@/module/account/components/ProfileSettingsGroup';
-import { ProfileToggleRow } from '@/module/account/components/ProfileToggleRow';
 import {
-  PROFILE_MENU_SECTIONS,
-  type ProfileMenuItem,
-} from '@/module/account/lib/profile-menu';
+  ProfileMenuCard,
+  ProfileMenuCardRow,
+  ProfileMenuCardToggleRow,
+} from '@/module/account/components/ProfileMenuCard';
+import { ProfileQuickActions } from '@/module/account/components/ProfileQuickActions';
+import { PROFILE_MENU_SECTIONS } from '@/module/account/lib/profile-menu';
+import { LEGAL_PAGES, legalPageHref } from '@/module/account/lib/legal-pages';
+import { Text } from '@/components/ui/text';
+import Constants from 'expo-constants';
 import { useCurrentUserQuery } from '@/module/account/hooks/use-current-user-query';
 import { AppearanceSheet } from '@/module/settings/components/AppearanceSheet';
 import { useAppTheme } from '@/module/settings/hooks/use-app-theme';
@@ -18,56 +19,14 @@ import { useNotificationPermissionStatus } from '@/module/permissions/hooks/use-
 import { useAuthStore } from '@/store/auth.store';
 import { Href, router } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Linking, ScrollView, View } from 'react-native';
+import { Linking, Pressable, ScrollView, View } from 'react-native';
 
-function renderMenuItem(
-  item: ProfileMenuItem,
-  isLast: boolean,
-  itemKey: string,
-  options: {
-    appearanceSubtitle?: string;
-    onAppearancePress?: () => void;
-  },
-) {
-  if (item.type === 'notification-toggle') {
-    return null;
-  }
-  if (item.type === 'route') {
-    return (
-      <ProfileMenuRow
-        key={itemKey}
-        label={item.label}
-        subtitle={item.subtitle}
-        icon={item.icon}
-        isLast={isLast}
-        onPress={() => router.push(item.href)}
-      />
-    );
-  }
-  if (item.id === 'appearance') {
-    return (
-      <ProfileMenuRow
-        key={itemKey}
-        label={item.label}
-        subtitle={options.appearanceSubtitle}
-        icon={item.icon}
-        isLast={isLast}
-        onPress={() => options.onAppearancePress?.()}
-      />
-    );
-  }
-  return (
-    <ProfileMenuRow
-      key={itemKey}
-      label={item.label}
-      subtitle={item.subtitle}
-      isLast={isLast}
-      iconSlot={<WhatsAppIcon size={18} color="#25D366" />}
-      onPress={() => void openWhatsAppSupport()}
-    />
-  );
-}
+const APP_VERSION = Constants.expoConfig?.version ?? '1.0.0';
 
+/**
+ * Account tab: account card → 2 × 2 shortcuts (orders, wishlist, chat, addresses)
+ * → grouped white cards (your account, preferences, support, more).
+ */
 export function ProfileTabScreen() {
   useCurrentUserQuery();
   const accessToken = useAuthStore((s) => s.accessToken);
@@ -96,7 +55,7 @@ export function ProfileTabScreen() {
   return (
     <Screen scroll={false} edges={['top', 'left', 'right']} gutter contentClassName="flex-1">
       <TabScreenTitle
-        title="Profile"
+        title="My Account"
         showBack
         onBack={() => router.navigate('/(app)/' as Href)}
         backAccessibilityLabel="Back to home"
@@ -104,37 +63,84 @@ export function ProfileTabScreen() {
       />
       <ScrollView
         className="flex-1"
-        contentContainerClassName="pb-28 pt-3"
+        contentContainerClassName="gap-6 pb-28 pt-4"
         showsVerticalScrollIndicator={false}>
-        <ProfileHeaderCard />
-
-        <View className="mt-8 gap-7">
-          {PROFILE_MENU_SECTIONS.map((section) => (
-            <ProfileSettingsGroup key={section.id} title={section.title}>
-              {section.items.map((item, index) => {
-                const isLast = index === section.items.length - 1;
-                const itemKey = `${section.id}-${item.id}`;
-                if (item.type === 'notification-toggle') {
-                  return (
-                    <ProfileToggleRow
-                      key={itemKey}
-                      label={item.label}
-                      icon={item.icon}
-                      value={notificationsOn}
-                      onValueChange={(next) => void onNotificationToggle(next)}
-                      isLast={isLast}
-                    />
-                  );
-                }
-                return renderMenuItem(item, isLast, itemKey, {
-                  appearanceSubtitle: themeLabel,
-                  onAppearancePress: () => setAppearanceOpen(true),
-                });
-              })}
-            </ProfileSettingsGroup>
-          ))}
+        <View className="gap-3">
+          <ProfileHeaderCard />
+          <ProfileQuickActions />
         </View>
 
+        {PROFILE_MENU_SECTIONS.map((section) => (
+          <ProfileMenuCard key={section.id} title={section.title}>
+            {section.items.map((item, index) => {
+              const isLast = index === section.items.length - 1;
+              const key = `${section.id}-${item.id}`;
+
+              if (item.type === 'notification-toggle') {
+                return (
+                  <ProfileMenuCardToggleRow
+                    key={key}
+                    label={item.label}
+                    icon={item.icon}
+                    value={notificationsOn}
+                    onValueChange={(next) => void onNotificationToggle(next)}
+                    isLast={isLast}
+                  />
+                );
+              }
+              if (item.type === 'route') {
+                return (
+                  <ProfileMenuCardRow
+                    key={key}
+                    label={item.label}
+                    subtitle={item.subtitle}
+                    icon={item.icon}
+                    isLast={isLast}
+                    onPress={() => router.push(item.href)}
+                  />
+                );
+              }
+              if (item.id === 'appearance') {
+                return (
+                  <ProfileMenuCardRow
+                    key={key}
+                    label={item.label}
+                    subtitle={themeLabel}
+                    icon={item.icon}
+                    isLast={isLast}
+                    onPress={() => setAppearanceOpen(true)}
+                  />
+                );
+              }
+              return null;
+            })}
+          </ProfileMenuCard>
+        ))}
+
+        {/* Legal links (CMS pages) + app version, at the very bottom. */}
+        <View className="items-center gap-2 pt-2">
+          <View className="flex-row flex-wrap items-center justify-center gap-x-1 gap-y-1">
+            {LEGAL_PAGES.map((page, index) => (
+              <View key={page.id} className="flex-row items-center gap-x-1">
+                {index > 0 ? (
+                  <Text className="text-muted-foreground/60 text-xs" accessibilityElementsHidden>
+                    ·
+                  </Text>
+                ) : null}
+                <Pressable
+                  onPress={() => router.push(legalPageHref(page.id))}
+                  hitSlop={8}
+                  accessibilityRole="link"
+                  accessibilityLabel={page.label}>
+                  <Text className="text-muted-foreground text-xs font-medium underline">
+                    {page.label}
+                  </Text>
+                </Pressable>
+              </View>
+            ))}
+          </View>
+          <Text className="text-muted-foreground/70 text-[11px]">Version {APP_VERSION}</Text>
+        </View>
       </ScrollView>
       <AppearanceSheet visible={appearanceOpen} onClose={() => setAppearanceOpen(false)} />
     </Screen>

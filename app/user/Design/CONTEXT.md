@@ -135,6 +135,9 @@ Living brief for the customer mobile app (`app/user`). Update this file when eac
 ## History (newest first)
 
 ```text
+2026-11-08 — Account tab footer: "Privacy policy" link only (terms/refund removed) + app version → `/(app)/profile/legal/[doc]` (`LegalPageScreen`) loads the published CMS page (`GET /catalog/cms/pages/:slug`, tries slugs like privacy-policy/privacy, platform mobile then web), rendered with `components/ui/markdown-text.tsx`
+2026-11-08 — Profile tab renamed "Account" (tab label + "My Account" title). New layout: account card (avatar, name, email/phone, edit → Personal info; guest = Sign in card) → 2×2 shortcut tiles `ProfileQuickActions` (My orders, Wishlist, Chat with us/WhatsApp, Saved addresses) → grouped white cards `ProfileMenuCard` with divided rows (Your account: Personal info, My cart, Refunds · Preferences · Support: Help, FAQ's · More: About us, Manage account)
+2026-11-08 — PDP About this package, Package details and Ratings & reviews are full-width white panels (cancel 20px gutter, border top/bottom, no rounded card, like "Make it yours"); detail chips scroll edge to edge
 2026-11-08 — PDP chip rotation adds an Instant face: FREE DELIVERY → section badge → crimson "INSTANT" + white zap (only when `product.instant.enabled`), 2.8s each, missing faces skipped
 2026-11-08 — Product card (`CatalogProductCard`) rating star is golden yellow #F5B301 (was success green), matching the PDP rating pill
 2026-11-08 — Search results (`SearchProductRow`): discount is now plain green "N% OFF" text next to the price (removed the rounded tinted pill)

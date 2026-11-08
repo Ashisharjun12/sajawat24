@@ -1,7 +1,7 @@
 const API_URL = process.env.EXPO_PUBLIC_API_URL?.replace(/\/$/, '') ?? '';
 const GOOGLE_WEB_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID ?? '';
 const WEB_URL = (
-  process.env.EXPO_PUBLIC_WEB_URL || 'https://www.deccorbuddys.com'
+  process.env.EXPO_PUBLIC_WEB_URL || 'https://www.sajawat24.com'
 ).replace(/\/$/, '');
 
 if (__DEV__ && !GOOGLE_WEB_CLIENT_ID) {
