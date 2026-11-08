@@ -6,10 +6,11 @@ export function ProductPdpAboutPackage({ description }) {
 
   return (
     <section
-      className="overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm"
+      // Phones: full-width panel (no side gap, border top/bottom only), like "Make it yours".
+      className="overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm max-md:-mx-5 max-md:rounded-none max-md:border-x-0 max-md:shadow-none"
       aria-labelledby="pdp-about-title"
     >
-      <div className="flex items-start gap-3 bg-sky-50 px-4 py-3.5 dark:bg-sky-950/25">
+      <div className="flex items-start gap-3 bg-sky-50 px-4 py-3.5 max-md:px-5 dark:bg-sky-950/25">
         <span
           className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-600 ring-1 ring-sky-200/80 dark:bg-sky-900/50 dark:text-sky-400 dark:ring-sky-700/50"
           aria-hidden
@@ -26,7 +27,7 @@ export function ProductPdpAboutPackage({ description }) {
           <p className="text-sm text-muted-foreground">Décor, styling &amp; finishing touches</p>
         </div>
       </div>
-      <div className="px-4 py-4">
+      <div className="px-4 py-4 max-md:px-5">
         <p className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">{text}</p>
       </div>
     </section>

@@ -27,7 +27,6 @@ import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DecoryImageFallback } from "@/components/decory-image-fallback";
-import { MapsPinIcon } from "@/components/maps-pin-icon";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ProductPdpAboutPackage } from "@/module/catalog/components/ProductPdpAboutPackage";
 import { ProductPdpAddonsSection } from "@/module/catalog/components/ProductPdpAddonsSection";
@@ -40,7 +39,6 @@ import {
 import { WishlistHeartButton } from "@/module/catalog/components/WishlistHeartButton";
 import { ProductPdpOffers } from "@/module/catalog/components/ProductPdpOffers";
 import { ProductPdpDetailsTabs } from "@/module/catalog/components/ProductPdpDetailsTabs";
-import { FulfillmentModeSwitch } from "@/module/catalog/components/FulfillmentModeTabs";
 import { ProductReviewsPreview } from "@/module/catalog/components/reviews/ProductReviewsPreview";
 import { proceedToCheckout } from "@/module/booking/lib/proceed-to-checkout";
 import { useAuthStore } from "@/store/auth.store";
@@ -77,7 +75,9 @@ function useIsLgUp() {
   return useSyncExternalStore(subscribeLgMedia, getLgMediaSnapshot, () => true);
 }
 
-const PDP_REVIEWS_PREVIEW_CLASS = "";
+/** Phones: reviews card goes full width (no side gap, border top/bottom), like "Make it yours". */
+const PDP_REVIEWS_PREVIEW_CLASS =
+  "max-md:-mx-5 max-md:rounded-none max-md:border-x-0 max-md:px-5";
 
 const TIME_SLOTS = [
   { id: "9-12", label: "9 AM – 12 PM" },
@@ -311,43 +311,6 @@ function ProductOnSiteSetupBadge({ label = "On-site setup in 1-1.5 hrs" }) {
       <TimerIcon className="size-4 shrink-0" aria-hidden />
       {label}
     </span>
-  );
-}
-
-function ProductLocationCard({ cityLabel, onChangeLocation }) {
-  return (
-    <div
-      className="flex min-w-0 items-center gap-3 rounded-2xl border border-emerald-600/20 bg-emerald-50/90 px-3 py-3 sm:px-4 dark:border-emerald-500/25 dark:bg-emerald-950/35"
-    >
-      <span
-        className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-emerald-600/10 bg-white shadow-sm dark:bg-background"
-        aria-hidden
-      >
-        <MapsPinIcon size={24} className="size-6 text-emerald-600 dark:text-emerald-400" strokeWidth={2.25} />
-      </span>
-      <div className="min-w-0 flex-1">
-        <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
-          <span className="truncate text-base font-bold text-foreground">{cityLabel}</span>
-          <span
-            className="inline-flex shrink-0 items-center gap-1 rounded-[3px] bg-emerald-600 px-1.5 py-0.5 text-[10px] font-bold tracking-wide text-white uppercase"
-          >
-            <CheckIcon className="size-3" strokeWidth={3} aria-hidden />
-            Available
-          </span>
-        </div>
-        <p className="text-xs font-medium text-emerald-700 dark:text-emerald-400 sm:text-sm">
-          We set up within 30 km across the city
-        </p>
-      </div>
-      <button
-        type="button"
-        onClick={onChangeLocation}
-        className="inline-flex shrink-0 items-center gap-0.5 text-sm font-semibold text-emerald-700 transition-colors hover:text-emerald-800 dark:text-emerald-400 dark:hover:text-emerald-300"
-      >
-        Change
-        <ChevronRightIcon className="size-4" aria-hidden />
-      </button>
-    </div>
   );
 }
 
@@ -811,7 +774,6 @@ export function ProductPdp({ product, onChangeLocation }) {
   const images = useMemo(() => galleryImages(product?.images), [product?.images]);
   const title = (product?.name ?? "").trim() || "Product";
   const copy = (product?.description ?? "").trim();
-  const cityLabel = (product?.city?.name ?? "").trim() || "Select city";
   const [scheduledAt, setScheduledAt] = useState(null);
   const canInstant = Boolean(product?.instant?.enabled);
   const canScheduled = product?.scheduledEnabled !== false;
@@ -974,40 +936,24 @@ export function ProductPdp({ product, onChangeLocation }) {
           />
         </div>
 
-        <div className="hidden flex-col gap-3 md:flex">
+        <div className="hidden md:flex">
           <ProductOnSiteSetupBadge />
-          <ProductLocationCard cityLabel={cityLabel} onChangeLocation={onChangeLocation} />
         </div>
 
         {/* Phones: full-width pale green band (app primary-tint #D9F0ED). */}
         <div
           className="flex flex-col gap-4 max-md:-mx-5 max-md:bg-[#d9f0ed] max-md:px-5 max-md:py-4 max-md:dark:bg-primary/15 md:gap-4"
         >
-          <div className="md:hidden">
-            <PdpMobileDeliveryPreference
-              canInstant={canInstant}
-              canScheduled={canScheduled}
-              isInstantBooking={isInstantBooking}
-              onFulfillmentChange={setFulfillment}
-              instantLabel={product?.instant?.badgeLabel}
-              instantEtaMinutes={product?.instant?.etaMinutes}
-            />
-          </div>
-
-          <div className="max-md:hidden">
-            {canInstant && canScheduled ? (
-              <FulfillmentModeSwitch
-                value={fulfillment}
-                onChange={setFulfillment}
-                instantLabel={product.instant?.badgeLabel}
-              />
-            ) : canInstant && !canScheduled ? (
-              <div className="flex items-center gap-2 border-b border-border pb-3 text-sm font-semibold text-instant">
-                <ZapIcon className="size-5 shrink-0 fill-current" aria-hidden />
-                {product.instant?.badgeLabel || "Instant booking"}
-              </div>
-            ) : null}
-          </div>
+          {/* Same block on phone and desktop: location field + Schedule / Instant cards. */}
+          <PdpMobileDeliveryPreference
+            canInstant={canInstant}
+            canScheduled={canScheduled}
+            isInstantBooking={isInstantBooking}
+            onFulfillmentChange={setFulfillment}
+            onChangeLocation={onChangeLocation}
+            instantLabel={product?.instant?.badgeLabel}
+            instantEtaMinutes={product?.instant?.etaMinutes}
+          />
 
           {isInstantBooking ? (
             <InstantBookingDetails

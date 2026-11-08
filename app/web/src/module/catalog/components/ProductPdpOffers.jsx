@@ -1,20 +1,11 @@
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { TicketPercentIcon } from "lucide-react";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-} from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
-import { ProductPdpSectionTrigger } from "@/module/catalog/components/ProductPdpSectionTrigger";
+import { ChevronLeftIcon, ChevronRightIcon, TicketPercentIcon } from "lucide-react";
 import { buildCouponPreviewFromApplied } from "@/module/booking/lib/coupon-preview";
 import { CouponDetailSheet } from "@/module/promotions/components/CouponDetailSheet";
-import { CouponOffersList } from "@/module/promotions/components/CouponOffersList";
 import { useAvailableCoupons } from "@/module/promotions/lib/use-available-coupons";
 
-const PDP_OFFER_PREVIEW_LIMIT = 4;
-/** Phone rail shows up to 8 coupons (app parity). */
+/** Rail shows up to 8 coupons (app parity). */
 const PDP_OFFER_RAIL_LIMIT = 8;
 
 function offersPageHref(productId, categoryId) {
@@ -100,12 +91,48 @@ function CouponTicketCardMinimal({ coupon, onOpen }) {
   );
 }
 
-/** Phones: "Available offers" header + horizontal coupon rail (app parity). */
+/**
+ * "Available offers" header + horizontal coupon rail, on every screen size (app parity).
+ * md+: prev/next arrow buttons over the rail and a scroll progress bar under it.
+ */
 function ProductPdpOffersRail({ coupons, viewAllHref }) {
   const [selected, setSelected] = useState(null);
+  const railRef = useRef(null);
+  const [scroll, setScroll] = useState({ progress: 0, thumb: 1, atStart: true, atEnd: true });
+
+  const measure = useCallback(() => {
+    const el = railRef.current;
+    if (!el) return;
+    const max = el.scrollWidth - el.clientWidth;
+    setScroll({
+      progress: max > 0 ? el.scrollLeft / max : 0,
+      thumb: el.scrollWidth > 0 ? Math.min(1, el.clientWidth / el.scrollWidth) : 1,
+      atStart: el.scrollLeft <= 2,
+      atEnd: el.scrollLeft >= max - 2,
+    });
+  }, []);
+
+  useEffect(() => {
+    const el = railRef.current;
+    if (!el) return undefined;
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [measure, coupons.length]);
+
+  function step(direction) {
+    const el = railRef.current;
+    if (!el) return;
+    // One card (240px) + gap (12px) per click.
+    el.scrollBy({ left: direction * 252, behavior: "smooth" });
+  }
+
+  const scrollable = scroll.thumb < 1;
+  const arrowClass =
+    "absolute top-1/2 z-10 hidden size-9 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-card text-foreground shadow-md transition-opacity hover:bg-muted md:flex";
 
   return (
-    <section className="flex flex-col gap-3 md:hidden" aria-labelledby="pdp-offers-title">
+    <section className="flex flex-col gap-3" aria-labelledby="pdp-offers-title">
       <div className="flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2.5">
           <span
@@ -125,11 +152,49 @@ function ProductPdpOffersRail({ coupons, viewAllHref }) {
           View all
         </Link>
       </div>
-      <div className="-mx-5 flex snap-x gap-3 overflow-x-auto overscroll-x-contain px-5 pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {coupons.slice(0, PDP_OFFER_RAIL_LIMIT).map((coupon) => (
-          <CouponTicketCardMinimal key={coupon.code} coupon={coupon} onOpen={setSelected} />
-        ))}
+      <div className="relative">
+        <div
+          ref={railRef}
+          onScroll={measure}
+          className="flex snap-x gap-3 overflow-x-auto overscroll-x-contain pb-1 max-md:-mx-5 max-md:px-5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          {coupons.slice(0, PDP_OFFER_RAIL_LIMIT).map((coupon) => (
+            <CouponTicketCardMinimal key={coupon.code} coupon={coupon} onOpen={setSelected} />
+          ))}
+        </div>
+        {scrollable && !scroll.atStart ? (
+          <button
+            type="button"
+            onClick={() => step(-1)}
+            className={`${arrowClass} -left-3`}
+            aria-label="Previous offers"
+          >
+            <ChevronLeftIcon className="size-5" aria-hidden />
+          </button>
+        ) : null}
+        {scrollable && !scroll.atEnd ? (
+          <button
+            type="button"
+            onClick={() => step(1)}
+            className={`${arrowClass} -right-3`}
+            aria-label="More offers"
+          >
+            <ChevronRightIcon className="size-5" aria-hidden />
+          </button>
+        ) : null}
       </div>
+      {/* md+: scroll progress bar (thumb width = visible share of the rail). */}
+      {scrollable ? (
+        <div className="mx-auto hidden h-1 w-60 overflow-hidden rounded-full bg-border md:block" aria-hidden>
+          <div
+            className="h-full rounded-full bg-primary transition-[margin] duration-150"
+            style={{
+              width: `${scroll.thumb * 100}%`,
+              marginLeft: `${scroll.progress * (1 - scroll.thumb) * 100}%`,
+            }}
+          />
+        </div>
+      ) : null}
       <CouponDetailSheet
         coupon={selected}
         open={selected != null}
@@ -150,43 +215,7 @@ export function ProductPdpOffers({ productId, categoryId }) {
 
   if (loading || coupons.length === 0) return null;
 
-  const hasMore = coupons.length > PDP_OFFER_PREVIEW_LIMIT;
-  const viewMoreHref = offersPageHref(productId, categoryId);
-
   return (
-    <>
-      <ProductPdpOffersRail coupons={coupons} viewAllHref={viewMoreHref} />
-
-      {/* md+: collapsible list */}
-      <Accordion type="single" collapsible className="rounded-4xl border bg-card max-md:hidden">
-        <AccordionItem value="offers" className="border-none data-open:bg-transparent">
-          <ProductPdpSectionTrigger
-            icon={<TicketPercentIcon className="size-4" />}
-            iconClassName="bg-primary/15 text-foreground"
-            title="Available offers"
-            subtitle={`${coupons.length} coupon${coupons.length === 1 ? "" : "s"} for this setup`}
-          />
-          <AccordionContent>
-            <CouponOffersList
-              coupons={coupons}
-              limit={PDP_OFFER_PREVIEW_LIMIT}
-              className="flex flex-col"
-            />
-            {hasMore ? (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="mt-3 w-full rounded-full"
-                nativeButton={false}
-                render={<Link to={viewMoreHref} />}
-              >
-                View more offers
-              </Button>
-            ) : null}
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
-    </>
+    <ProductPdpOffersRail coupons={coupons} viewAllHref={offersPageHref(productId, categoryId)} />
   );
 }

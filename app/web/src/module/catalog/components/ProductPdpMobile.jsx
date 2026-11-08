@@ -436,12 +436,15 @@ export function PdpMobileDeliveryPreference({
   canScheduled,
   isInstantBooking,
   onFulfillmentChange,
+  onChangeLocation,
   instantLabel,
   instantEtaMinutes,
 }) {
   const city = useLocationStore((s) => s.city);
   const pincode = useLocationStore((s) => s.pincode);
-  const setPickerOpen = useLocationStore((s) => s.setPickerOpen);
+  const storeSetPickerOpen = useLocationStore((s) => s.setPickerOpen);
+  const setPickerOpen = (open) =>
+    onChangeLocation ? onChangeLocation() : storeSetPickerOpen(open);
   const line = deliveryLocationLine(city, pincode);
   const eta = instantEtaMinutes ?? 15;
 

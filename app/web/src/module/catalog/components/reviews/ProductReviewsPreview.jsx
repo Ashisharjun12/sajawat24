@@ -119,7 +119,8 @@ export function ProductReviewsPreview({
           ) : null}
 
           <div
-            className="-mx-4 flex gap-3 overflow-x-auto overscroll-x-contain scroll-smooth px-4 pb-1 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] max-md:flex-row md:mx-0 md:flex-col md:gap-0 md:overflow-visible md:px-0 md:pb-0 md:snap-none [&::-webkit-scrollbar]:hidden"
+            // Phones: rail scrolls edge to edge (matches the section's 20px phone padding).
+            className="-mx-4 flex gap-3 overflow-x-auto overscroll-x-contain scroll-smooth px-4 pb-1 max-md:-mx-5 max-md:px-5 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] max-md:flex-row md:mx-0 md:flex-col md:gap-0 md:overflow-visible md:px-0 md:pb-0 md:snap-none [&::-webkit-scrollbar]:hidden"
             aria-label="Recent customer reviews"
           >
             {items.map((review) => (

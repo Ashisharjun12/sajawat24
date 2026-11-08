@@ -84,7 +84,8 @@ export function ProductPdpDetailsTabs({
 
   return (
     <section
-      className="rounded-[var(--r-card)] border border-border/80 bg-card px-4 py-4 shadow-sm"
+      // Phones: full-width panel (no side gap, border top/bottom only), like "Make it yours".
+      className="rounded-[var(--r-card)] border border-border/80 bg-card px-4 py-4 shadow-sm max-md:-mx-5 max-md:rounded-none max-md:border-x-0 max-md:px-5 max-md:shadow-none"
       aria-labelledby="pdp-package-details-title"
     >
       <div className="flex items-center gap-2.5">
