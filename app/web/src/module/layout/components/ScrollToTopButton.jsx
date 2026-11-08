@@ -7,7 +7,7 @@ import { scrollToTop } from "@/lib/scroll-to-top";
 
 const SHOW_AFTER_PX = 320;
 
-export function ScrollToTopButton() {
+export function ScrollToTopButton({ className }) {
   const { scrollY } = useScroll();
   const [visible, setVisible] = useState(false);
 
@@ -27,6 +27,7 @@ export function ScrollToTopButton() {
         visible
           ? "pointer-events-auto translate-y-0 opacity-100"
           : "pointer-events-none translate-y-2 opacity-0",
+        className,
       )}
     >
       <ArrowUp className="size-5 stroke-[2.5]" aria-hidden />

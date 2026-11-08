@@ -93,7 +93,10 @@ function ProductCardRatingReviews({
         .join(', ')}>
       {ratingLabel != null ? (
         <>
-          <Text className={cn('font-bold leading-none text-success', textSize)}>★</Text>
+          {/* Golden yellow star, same as the PDP rating pill (#F5B301). */}
+          <Text className={cn('font-bold leading-none', textSize)} style={{ color: '#F5B301' }}>
+            ★
+          </Text>
           <Text className={cn('font-semibold leading-none text-foreground tabular-nums', textSize)}>
             {ratingLabel}
           </Text>

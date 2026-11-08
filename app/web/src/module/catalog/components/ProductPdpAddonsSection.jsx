@@ -43,7 +43,7 @@ function AddonCardPrice({ pricePaise, compareAtPaise, available }) {
 
 function AddonQtyStepper({ value, max, disabled, onChange }) {
   return (
-    <div className="flex w-full items-center justify-between gap-1 rounded-[var(--r-btn)] border border-border bg-muted/50 px-1 py-0.5">
+    <div className="flex w-full items-center justify-between gap-1 rounded-[var(--r-btn)] border border-border bg-muted/50 px-1 py-0.5 max-md:rounded-md max-md:border-primary/35 max-md:bg-[#d9f0ed] max-md:text-primary max-md:dark:bg-primary/15">
       <Button
         type="button"
         size="icon-sm"
@@ -82,7 +82,7 @@ function AddonCard({ addon, qty, disabled, layout, onSetQty, onToggle, onIncreme
     <article
       className={cn(
         layout === "grid" ? "min-w-0 w-full" : CARD_WIDTH,
-        "flex shrink-0 flex-col overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm",
+        "flex shrink-0 snap-start flex-col overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm max-md:rounded-[var(--r-btn)] max-md:shadow-none",
         !available && "opacity-60",
       )}
     >
@@ -117,6 +117,10 @@ function AddonCard({ addon, qty, disabled, layout, onSetQty, onToggle, onIncreme
             className={cn(
               "mt-auto h-8 w-full text-xs font-bold",
               available && !isOn && "border-primary text-primary hover:bg-primary/10",
+              // Phones: solid teal "+ Add" (app parity).
+              available &&
+                !isOn &&
+                "max-md:border-primary max-md:bg-primary max-md:text-primary-foreground max-md:hover:bg-primary/90 max-md:hover:text-primary-foreground",
             )}
             disabled={disabled || !available}
             onClick={() => (multiQty ? onIncrement(addon) : onToggle(addon))}
@@ -169,17 +173,19 @@ export function ProductPdpAddonsSection({
 
   const listClass = expanded
     ? "grid grid-cols-2 gap-3 sm:grid-cols-3"
-    : SCROLL_X;
+    : // Phones: rail scrolls edge to edge with a 20px start inset (app parity).
+      cn(SCROLL_X, "snap-x max-md:-mx-5 max-md:w-auto max-md:px-5");
 
   return (
+    // Phones (app parity): full-width white panel, border top/bottom only, no rounded card.
     <section
-      className="rounded-3xl border border-border/80 bg-card px-4 py-4 shadow-sm"
+      className="rounded-3xl border border-border/80 bg-card px-4 py-4 shadow-sm max-md:-mx-5 max-md:rounded-none max-md:border-x-0 max-md:px-5 max-md:shadow-none"
       aria-labelledby="pdp-addons-title"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-start gap-2.5">
           <span
-            className="flex size-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-sky-100 to-rose-100 text-rose-500 ring-1 ring-rose-200/60 dark:from-sky-950/50 dark:to-rose-950/40 dark:text-rose-400 dark:ring-rose-500/20"
+            className="flex size-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-sky-100 to-rose-100 text-rose-500 ring-1 ring-rose-200/60 max-md:bg-none max-md:bg-rose-100 dark:from-sky-950/50 dark:to-rose-950/40 dark:text-rose-400 dark:ring-rose-500/20"
             aria-hidden
           >
             <GiftIcon className="size-4" strokeWidth={2} />
@@ -191,7 +197,7 @@ export function ProductPdpAddonsSection({
             >
               Make it yours
             </h2>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground max-md:hidden">
               Optional extras. Add only what you love.
             </p>
           </div>

@@ -25,6 +25,8 @@ type ProductPdpPriceProps = {
   reviewCount?: number | null;
   /** Lets the Free delivery chip alternate with the product's section badge. */
   productId?: string | null;
+  /** Adds an "Instant" face to the chip rotation when the product offers Instant. */
+  instant?: { enabled?: boolean; badgeLabel?: string | null } | null;
 };
 
 function VerifiedChip() {
@@ -74,6 +76,7 @@ export function ProductPdpPrice({
   ratingAvg,
   reviewCount,
   productId,
+  instant,
 }: ProductPdpPriceProps) {
   if (pricePaise == null) {
     return <Text className="text-muted-foreground text-sm">Price unavailable</Text>;
@@ -94,7 +97,7 @@ export function ProductPdpPrice({
       {/* Free delivery chip on the left; Verified + rating pill on the right. */}
       <View className="flex-row items-center justify-between gap-2">
         <View className="min-w-0 shrink flex-row items-center">
-          <ProductPdpDeliveryChip productId={productId} />
+          <ProductPdpDeliveryChip productId={productId} instant={instant} />
         </View>
         {/* Verified sits just left of the rating pill. */}
         <View className="shrink-0 flex-row items-center gap-2">

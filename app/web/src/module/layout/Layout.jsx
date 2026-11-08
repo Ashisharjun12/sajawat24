@@ -51,7 +51,10 @@ export function Layout() {
             <MobileCategorySheet />
             <LoginDialog />
             <CartDrawer />
-            {showFooter ? <ScrollToTopButton /> : null}
+            {showFooter ? (
+              // Phone PDP has a fixed booking bar at the bottom; the button would cover it.
+              <ScrollToTopButton className={isProductPdp ? "max-md:hidden" : undefined} />
+            ) : null}
           </div>
         </Toaster>
         </SiteShellProvider>

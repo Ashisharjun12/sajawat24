@@ -1,0 +1,51 @@
+npm warn Unknown project config "ignore-workspace". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "minimum-release-age". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[33m(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - `__dirname` (vite.config.js:21:25). Use `import.meta.dirname` instead
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.[39m
+[36mvite v8.2.2 [32mbuilding client environment for production...[36m[39m
+transforming...
+✓ 4386 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                                          2.08 kB │ gzip:   0.71 kB
+dist/assets/poppins-latin-ext-700-normal-cby-RkWa.woff2                  5.43 kB
+dist/assets/poppins-latin-ext-600-normal-CAhIAdZj.woff2                  5.52 kB
+dist/assets/poppins-latin-ext-700-normal-DctTR6Tg.woff                   7.32 kB
+dist/assets/poppins-latin-ext-600-normal-Df5ffKXP.woff                   7.43 kB
+dist/assets/poppins-latin-700-normal-Qrb0O0WB.woff2                      7.81 kB
+dist/assets/poppins-latin-600-normal-zEkxB9Mr.woff2                      8.00 kB
+dist/assets/plus-jakarta-sans-vietnamese-wght-normal-qRpaaN48.woff2      8.35 kB
+dist/assets/world-B8uLpZiv.webp                                          8.36 kB
+dist/assets/plus-jakarta-sans-vietnamese-wght-italic-CPBsCcxN.woff2      9.11 kB
+dist/assets/poppins-latin-700-normal-BVuQR_eA.woff                      10.43 kB
+dist/assets/poppins-latin-600-normal-BJdTmd5m.woff                      10.60 kB
+dist/assets/plus-jakarta-sans-latin-ext-wght-normal-DmpS2jIq.woff2      21.72 kB
+dist/assets/plus-jakarta-sans-latin-ext-wght-italic-DJWiFoht.woff2      23.22 kB
+dist/assets/plus-jakarta-sans-latin-wght-normal-eXO_dkmS.woff2          27.34 kB
+dist/assets/plus-jakarta-sans-latin-wght-italic-DnD1KgkH.woff2          29.60 kB
+dist/assets/poppins-devanagari-700-normal-O-jipLrW.woff2                39.25 kB
+dist/assets/poppins-devanagari-600-normal-STEjXBNN.woff2                39.29 kB
+dist/assets/poppins-devanagari-700-normal-fHs-vx92.woff                 52.24 kB
+dist/assets/poppins-devanagari-600-normal-ClASKHrr.woff                 52.56 kB
+dist/assets/index-B5UvTfv8.css                                         331.46 kB │ gzip:  53.04 kB
+dist/assets/OlaMaps-C83wz36C-ClJec8Og.js                               761.78 kB │ gzip: 223.66 kB
+dist/assets/maplibre-gl-BIFSxk4Y-DruE6FmM.js                           992.01 kB │ gzip: 263.58 kB
+dist/assets/index-CKTINVZj.js                                        2,023.08 kB │ gzip: 636.09 kB
+
+[32m✓ built in 42.26s[39m
+[33m[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+[33m[33m[PLUGIN_TIMINGS] [0mYour build spent 96% of 42.2s inside plugin hooks (40.6s).
+Measured inside the callback, so queue time is excluded and time the callback itself awaited is not:
+  - @rolldown/plugin-babel transform (89%, 37.7s, 304 calls)
+  - @tailwindcss/vite:generate:build transform (4%, 1.6s, 1 call)
+Those rows are 93% of the build; the rest of the 96% is below.
+Not measurable — 1 hook whose calls overlap, so elapsed time covers work other calls were doing. Profile with `node --cpu-prof`:
+  - vite:css-post renderChunk (3 calls)
+See https://rolldown.rs/reference/InputOptions.checks#plugintimings for more details.
+[39m
+BUILD_EXIT=0 

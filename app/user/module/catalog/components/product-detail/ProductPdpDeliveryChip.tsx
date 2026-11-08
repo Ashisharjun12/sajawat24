@@ -3,6 +3,7 @@ import { Text } from '@/components/ui/text';
 import { resolveSectionBadgeBackground } from '@/lib/section-badge-color';
 import { useProductMerchBadge } from '@/module/catalog/hooks/use-product-merch-badge';
 import { useEffect, useState } from 'react';
+import { Zap } from 'lucide-react-native';
 import { View } from 'react-native';
 import Animated, { FadeInDown, FadeOutUp, LinearTransition } from 'react-native-reanimated';
 
@@ -17,7 +18,10 @@ const CHIP_HEIGHT = PDP_CHIP_HEIGHT;
 /** Time each face stays before switching (scooter ride fits inside the Free delivery face). */
 const FACE_MS = 2800;
 
-type Face = 'delivery' | 'section';
+type Face = 'delivery' | 'section' | 'instant';
+
+/** Crimson Instant face (crimson is reserved for Instant surfaces). */
+const INSTANT_HEX = '#E11D48';
 
 function FreeDeliveryFace() {
   return (
@@ -46,41 +50,69 @@ function SectionFace({ label, color }: { label: string; color: string }) {
   );
 }
 
+function InstantFace({ label }: { label: string }) {
+  return (
+    <View
+      className="flex-row items-center gap-1 px-2"
+      style={{ height: CHIP_HEIGHT, backgroundColor: INSTANT_HEX }}>
+      <Zap size={11} color="#FFFFFF" fill="#FFFFFF" strokeWidth={2.5} />
+      <Text className="text-[10px] font-semibold uppercase tracking-wide text-white" numberOfLines={1}>
+        {label}
+      </Text>
+    </View>
+  );
+}
+
+type ProductPdpDeliveryChipProps = {
+  productId?: string | null;
+  /** When enabled, an "Instant" face joins the rotation. */
+  instant?: { enabled?: boolean; badgeLabel?: string | null } | null;
+};
+
 /**
- * Square-corner chip under the PDP title. Shows "FREE DELIVERY" + moving scooter; if the
- * product is in a merch section (Trending, Popular, …) it alternates with that section's
- * badge in a loop — old face slides up and out, new face slides in from below.
+ * Square-corner chip under the PDP title. Faces, each shown 2.8s, in a loop:
+ * "FREE DELIVERY" + moving scooter → merch section badge (Trending, Popular, …) → Instant.
+ * Faces that don't apply are skipped. Old face slides up and out, new one slides in from below.
  */
-export function ProductPdpDeliveryChip({ productId }: { productId?: string | null }) {
+export function ProductPdpDeliveryChip({ productId, instant }: ProductPdpDeliveryChipProps) {
   const { badgeLabel, badgeColor } = useProductMerchBadge(productId);
   const sectionLabel = badgeLabel?.trim();
-  const [face, setFace] = useState<Face>('delivery');
+  const instantLabel = instant?.enabled
+    ? (instant.badgeLabel || 'Instant').trim() || 'Instant'
+    : null;
+
+  const faces: Face[] = ['delivery'];
+  if (sectionLabel) faces.push('section');
+  if (instantLabel) faces.push('instant');
+  const faceCount = faces.length;
+
+  const [tick, setTick] = useState(0);
 
   useEffect(() => {
-    if (!sectionLabel) {
-      setFace('delivery');
-      return;
-    }
-    const id = setInterval(() => {
-      setFace((f) => (f === 'delivery' ? 'section' : 'delivery'));
-    }, FACE_MS);
+    if (faceCount < 2) return;
+    const id = setInterval(() => setTick((t) => t + 1), FACE_MS);
     return () => clearInterval(id);
-  }, [sectionLabel]);
+  }, [faceCount]);
 
-  const showSection = face === 'section' && Boolean(sectionLabel);
+  // Modulo at render time so a change in face count never points past the list.
+  const face = faces[tick % faceCount];
+
+  const a11y = ['Free delivery', sectionLabel, instantLabel].filter(Boolean).join('. ');
 
   return (
     <Animated.View
       layout={LinearTransition.duration(220)}
       className="overflow-hidden"
       style={{ height: CHIP_HEIGHT, borderRadius: PDP_CHIP_RADIUS }}
-      accessibilityLabel={sectionLabel ? `Free delivery. ${sectionLabel}` : 'Free delivery'}>
+      accessibilityLabel={a11y}>
       <Animated.View
-        key={showSection ? 'section' : 'delivery'}
+        key={face}
         entering={FadeInDown.duration(260)}
         exiting={FadeOutUp.duration(220)}>
-        {showSection ? (
-          <SectionFace label={sectionLabel!} color={resolveSectionBadgeBackground(badgeColor)} />
+        {face === 'section' && sectionLabel ? (
+          <SectionFace label={sectionLabel} color={resolveSectionBadgeBackground(badgeColor)} />
+        ) : face === 'instant' && instantLabel ? (
+          <InstantFace label={instantLabel} />
         ) : (
           <FreeDeliveryFace />
         )}

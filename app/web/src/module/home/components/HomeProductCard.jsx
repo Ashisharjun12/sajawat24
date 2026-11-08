@@ -33,7 +33,7 @@ const CARD_FRAME_CLASS =
 
 /** Photo: rounded on its own on phones; top corners only inside the md+ card. */
 const CARD_PHOTO_CLASS =
-  "size-full overflow-hidden rounded-xl bg-muted md:rounded-none md:rounded-t-(--radius-card)";
+  "size-full overflow-hidden rounded-[var(--r-btn)] bg-muted md:rounded-none md:rounded-t-(--radius-card)";
 
 /** Card body padding: none on phones (app style), inset on md+. */
 const CARD_BODY_CLASS = "flex flex-1 shrink-0 flex-col pt-2 md:px-3 md:pb-3 md:pt-3";
@@ -132,7 +132,8 @@ function ProductCardMetaMobile({ ratingLabel, reviewCount, instant }) {
         <div className="flex min-w-0 shrink items-center gap-1 overflow-hidden text-xs leading-none">
           {ratingLabel != null ? (
             <>
-              <span className="font-bold text-success" aria-hidden>
+              {/* Golden yellow star, same as the PDP rating pill. */}
+              <span className="font-bold text-[#f5b301]" aria-hidden>
                 ★
               </span>
               <span className="font-semibold text-foreground tabular-nums">
@@ -364,7 +365,7 @@ export function HomeProductCardRail({ product, badgeLabel, badgeColor }) {
 export function HomeProductCardRailSkeleton() {
   return (
     <div className="h-full min-w-0 md:overflow-hidden md:rounded-[var(--r-card)] md:border md:border-border/80 md:bg-card md:shadow-sm">
-      <Skeleton className="aspect-square w-full rounded-xl md:rounded-none" />
+      <Skeleton className="aspect-square w-full rounded-[var(--r-btn)] md:rounded-none" />
       <div className="flex flex-col pt-2 md:px-2.5 md:pb-2.5">
         <Skeleton className="min-h-[2.75em] w-[88%] rounded-md" />
         <div className="mt-1.5 flex h-5 items-center gap-1.5">

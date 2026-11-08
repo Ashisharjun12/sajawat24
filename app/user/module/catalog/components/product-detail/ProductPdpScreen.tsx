@@ -263,6 +263,7 @@ export function ProductPdpScreen({ productId }: ProductPdpScreenProps) {
             pricePaise={detail.pricePaise}
             compareAtPaise={detail.compareAtPaise}
             productId={detail.id}
+            instant={detail.instant}
             ratingAvg={rating}
             reviewCount={detail.reviewCount != null ? Number(detail.reviewCount) : null}
           />

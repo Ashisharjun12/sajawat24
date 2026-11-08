@@ -135,6 +135,8 @@ Living brief for the customer mobile app (`app/user`). Update this file when eac
 ## History (newest first)
 
 ```text
+2026-11-08 — PDP chip rotation adds an Instant face: FREE DELIVERY → section badge → crimson "INSTANT" + white zap (only when `product.instant.enabled`), 2.8s each, missing faces skipped
+2026-11-08 — Product card (`CatalogProductCard`) rating star is golden yellow #F5B301 (was success green), matching the PDP rating pill
 2026-11-08 — Search results (`SearchProductRow`): discount is now plain green "N% OFF" text next to the price (removed the rounded tinted pill)
 2026-11-08 — PDP delivery location → saved-address bottom sheet (reuses `CheckoutAddressPickerSheet`: pick address, Add address button); signed-out still opens city picker. Add-address flow returns to the product page via new `beginLocationFlowReturningTo(href)` / `returnHref` in `location-flow.store` (checkout return unchanged)
 2026-11-08 — PDP "Make it yours" — full-width white panel (cancels 20px PDP gutter, border top/bottom, no rounded card); addon rail scrolls edge to edge with 20px start inset; grid width = screen − 40

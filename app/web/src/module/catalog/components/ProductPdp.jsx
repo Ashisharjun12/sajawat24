@@ -3,11 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { addDays, format, isSameDay, startOfToday } from "date-fns";
 import {
   CalendarDaysIcon,
-  BadgeCheckIcon,
   CheckIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  HomeIcon,
   TimerIcon,
   ClockIcon,
   FlameIcon,
@@ -30,7 +28,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DecoryImageFallback } from "@/components/decory-image-fallback";
 import { MapsPinIcon } from "@/components/maps-pin-icon";
-import { SectionMerchBadge } from "@/components/section-merch-badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ProductPdpAboutPackage } from "@/module/catalog/components/ProductPdpAboutPackage";
 import { ProductPdpAddonsSection } from "@/module/catalog/components/ProductPdpAddonsSection";
@@ -46,7 +43,6 @@ import { ProductPdpDetailsTabs } from "@/module/catalog/components/ProductPdpDet
 import { FulfillmentModeSwitch } from "@/module/catalog/components/FulfillmentModeTabs";
 import { ProductReviewsPreview } from "@/module/catalog/components/reviews/ProductReviewsPreview";
 import { proceedToCheckout } from "@/module/booking/lib/proceed-to-checkout";
-import { useProductMerchBadge } from "@/module/home/hooks/use-product-merch-badge";
 import { useAuthStore } from "@/store/auth.store";
 import { ProductOtherCategoriesRail } from "@/module/catalog/components/ProductOtherCategoriesRail";
 import { ProductPdpSubcategoryRails } from "@/module/catalog/components/ProductPdpSubcategoryRails";
@@ -55,6 +51,15 @@ import {
   ProductPdpSimilarPackages,
 } from "@/module/catalog/components/ProductPdpSimilarPackages";
 import { useSiteShell } from "@/module/site/hooks/use-site-shell.jsx";
+import { useMediaMdDown } from "@/module/catalog/hooks/use-media-md-down";
+import {
+  PdpMobileBookingBar,
+  PdpMobileDeliveryPreference,
+  PdpMobilePriceBlock,
+  PdpMobileTopBar,
+  PdpPriceChipRow,
+  PdpScheduleSheet,
+} from "@/module/catalog/components/ProductPdpMobile";
 
 const LG_MEDIA_QUERY = "(min-width: 1024px)";
 
@@ -135,12 +140,6 @@ function resolveProductCategory(categoryId, categories) {
   return { label: cat.name, href: categoryPath(cat) };
 }
 
-function formatRating(value) {
-  if (value == null || Number.isNaN(Number(value))) return null;
-  const n = Number(value);
-  return n % 1 === 0 ? String(n) : n.toFixed(1);
-}
-
 function openBrandWhatsApp(brand) {
   if (brand?.whatsappUrl) {
     window.open(brand.whatsappUrl, "_blank", "noopener,noreferrer");
@@ -191,57 +190,6 @@ function ProductPdpBookingActions({
           <ChevronRightIcon className="size-5 shrink-0" aria-hidden />
         ) : null}
       </Button>
-    </div>
-  );
-}
-
-function ProductPdpMobileBookingBar({
-  pricePaise,
-  booking,
-  isInstantBooking,
-  onWhatsApp,
-  onBookNow,
-}) {
-  return (
-    <div className="flex items-end gap-2.5">
-      <div className="min-w-0 flex-1 pb-0.5">
-        <p className="text-[11px] leading-tight text-muted-foreground">All-inclusive price</p>
-        <p className="text-[1.35rem] font-extrabold leading-tight tracking-tight text-foreground tabular-nums">
-          {pricePaise != null ? formatPaise(pricePaise) : "—"}
-        </p>
-        <p className="mt-0.5 flex items-center gap-1 text-[10px] font-medium leading-tight text-emerald-600 dark:text-emerald-500">
-          <CheckIcon className="size-3 shrink-0" strokeWidth={2.5} aria-hidden />
-          Setup, delivery &amp; materials included
-        </p>
-      </div>
-
-      <div className="flex shrink-0 items-center gap-2.5">
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="size-[3.25rem] shrink-0 bg-emerald-50 text-[#00A859] hover:bg-emerald-100 hover:text-[#009650] [&_svg]:size-6 dark:bg-emerald-950/40 dark:text-emerald-400"
-          onClick={onWhatsApp}
-          aria-label="Chat on WhatsApp"
-        >
-          <WhatsAppIcon />
-        </Button>
-
-        <Button
-          type="button"
-          size="cta"
-          variant={isInstantBooking ? "instant" : "cta"}
-          className="min-w-[9.5rem] max-w-[11.5rem] gap-1 px-3.5 text-sm font-bold"
-          disabled={booking}
-          onClick={onBookNow}
-        >
-          {isInstantBooking ? <ZapIcon className="size-4 fill-current" aria-hidden /> : null}
-          <span className="truncate">
-            {booking ? "Adding…" : isInstantBooking ? "Book instant" : "Book your setup"}
-          </span>
-          {!booking ? <ChevronRightIcon className="size-4 shrink-0" aria-hidden /> : null}
-        </Button>
-      </div>
     </div>
   );
 }
@@ -305,7 +253,7 @@ function WhatsAppIcon() {
   );
 }
 
-function ProductPrice({ pricePaise, compareAtPaise, ratingAvg, reviewCount }) {
+function ProductPrice({ productId, instant, pricePaise, compareAtPaise, ratingAvg, reviewCount }) {
   if (pricePaise == null) {
     return <p className="text-muted-foreground">Price unavailable</p>;
   }
@@ -316,36 +264,16 @@ function ProductPrice({ pricePaise, compareAtPaise, ratingAvg, reviewCount }) {
     compareAtPaise != null && compareAtPaise > pricePaise
       ? Math.round((1 - pricePaise / compareAtPaise) * 100)
       : 0;
-  const ratingLabel = formatRating(ratingAvg);
-  const reviews =
-    reviewCount != null && Number(reviewCount) > 0
-      ? Number(reviewCount).toLocaleString()
-      : null;
 
   return (
     <div className="flex flex-col gap-2.5 border-b border-border/60 pb-5">
-      {ratingLabel != null || reviews ? (
-        <div className="flex flex-wrap items-center gap-2 text-sm">
-          {ratingLabel != null ? (
-            <span className="inline-flex items-center gap-1 rounded-md bg-emerald-600 px-2 py-0.5 text-xs font-bold text-white">
-              <span aria-hidden>★</span>
-              {ratingLabel}
-            </span>
-          ) : null}
-          {reviews ? (
-            <span className="text-muted-foreground">{reviews} reviews</span>
-          ) : null}
-          {ratingLabel != null ? (
-            <span className="inline-flex items-center gap-1 rounded-[var(--r-btn)] border border-sky-200/90 bg-sky-50 px-2 py-0.5 text-xs font-semibold text-sky-900 dark:border-sky-700/40 dark:bg-sky-950/50 dark:text-sky-200">
-              <BadgeCheckIcon
-                className="size-3.5 shrink-0 text-sky-600 dark:text-sky-400"
-                aria-hidden
-              />
-              Verified
-            </span>
-          ) : null}
-        </div>
-      ) : null}
+      {/* Same chip row as phones: animated FREE DELIVERY / section badge · Verified · ★ pill. */}
+      <PdpPriceChipRow
+        productId={productId}
+        instant={instant}
+        ratingAvg={ratingAvg}
+        reviewCount={reviewCount}
+      />
       <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
         <span className="text-3xl font-extrabold tracking-tight tabular-nums text-foreground">
           {formatPaise(pricePaise)}
@@ -378,7 +306,7 @@ function ProductPrice({ pricePaise, compareAtPaise, ratingAvg, reviewCount }) {
 function ProductOnSiteSetupBadge({ label = "On-site setup in 1-1.5 hrs" }) {
   return (
     <span
-      className="inline-flex w-fit max-w-full items-center gap-2 rounded-full bg-primary/10 px-3.5 py-2 text-sm font-semibold text-primary"
+      className="inline-flex w-fit max-w-full items-center gap-2 rounded-[6px] bg-primary/10 px-3 py-1.5 text-sm font-semibold text-primary"
     >
       <TimerIcon className="size-4 shrink-0" aria-hidden />
       {label}
@@ -401,7 +329,7 @@ function ProductLocationCard({ cityLabel, onChangeLocation }) {
         <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
           <span className="truncate text-base font-bold text-foreground">{cityLabel}</span>
           <span
-            className="inline-flex shrink-0 items-center gap-1 rounded-md bg-emerald-600 px-1.5 py-0.5 text-[10px] font-bold tracking-wide text-white uppercase"
+            className="inline-flex shrink-0 items-center gap-1 rounded-[3px] bg-emerald-600 px-1.5 py-0.5 text-[10px] font-bold tracking-wide text-white uppercase"
           >
             <CheckIcon className="size-3" strokeWidth={3} aria-hidden />
             Available
@@ -450,8 +378,7 @@ function ProductBreadcrumb({ title, categoryId }) {
   );
 }
 
-function ProductGallery({ images, title, product, onShare, onSimilar, showSimilar }) {
-  const navigate = useNavigate();
+function ProductGallery({ images, title, onShare, onSimilar, showSimilar }) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const selected = images[selectedIndex] ?? images[0] ?? null;
@@ -504,9 +431,6 @@ function ProductGallery({ images, title, product, onShare, onSimilar, showSimila
           );
         })
       : null;
-
-  const mobileChromeTop =
-    "pointer-events-none absolute inset-x-0 top-0 z-20 flex items-start justify-between p-3 pt-[max(0.75rem,env(safe-area-inset-top))] md:hidden";
 
   return (
     <div className="flex w-full min-w-0 flex-col gap-3 md:flex-row md:items-start md:gap-3">
@@ -595,45 +519,7 @@ function ProductGallery({ images, title, product, onShare, onSimilar, showSimila
             <Maximize2Icon className="size-[1.15rem]" aria-hidden />
           </button>
         ) : null}
-        <div className={mobileChromeTop}>
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            className="pointer-events-auto flex size-10 items-center justify-center rounded-full bg-white/95 text-foreground shadow-md ring-1 ring-black/5 dark:bg-background/95"
-            aria-label="Go back"
-          >
-            <ChevronLeftIcon className="size-5" aria-hidden />
-          </button>
-          <div className="pointer-events-auto flex items-center gap-2">
-            {product ? (
-              <WishlistHeartButton product={product} size="md" className="bg-white/95 shadow-md" />
-            ) : null}
-            {onShare ? <ProductShareGalleryTrigger onClick={onShare} /> : null}
-            <Link
-              to="/"
-              className="flex size-10 items-center justify-center rounded-full bg-white/95 text-foreground shadow-md ring-1 ring-black/5 dark:bg-background/95"
-              aria-label="Home"
-            >
-              <HomeIcon className="size-5" aria-hidden />
-            </Link>
-          </div>
-        </div>
-        {images.length > 1 ? (
-          <div
-            className="pointer-events-none absolute inset-x-0 bottom-3 z-20 flex justify-center gap-1.5 md:hidden"
-            aria-hidden
-          >
-            {images.map((item, index) => (
-              <span
-                key={item.uploadId || item.url || `dot-${index}`}
-                className={cn(
-                  "h-2 rounded-full transition-[width]",
-                  index === selectedIndex ? "w-5 bg-primary" : "w-2 bg-white/70",
-                )}
-              />
-            ))}
-          </div>
-        ) : null}
+
         {images.length > 1 ? (
           <>
             <button
@@ -660,17 +546,35 @@ function ProductGallery({ images, title, product, onShare, onSimilar, showSimila
             </button>
           </>
         ) : null}
-        {showSimilar && onSimilar ? (
-          <div
-            className={cn(
-              "pointer-events-none absolute inset-x-0 z-20 flex justify-end px-3 md:bottom-4 md:px-4",
-              images.length > 1 ? "bottom-10 md:bottom-4" : "bottom-3",
+        {/* Phones: Similar bottom-left, Share bottom-right (app parity). md+: Similar bottom-right. */}
+        {(showSimilar && onSimilar) || onShare ? (
+          <div className="pointer-events-none absolute inset-x-0 bottom-3 z-20 flex items-end justify-between gap-2 px-3 md:bottom-4 md:justify-end md:px-4">
+            {showSimilar && onSimilar ? (
+              <ProductPdpSimilarGalleryButton
+                onClick={onSimilar}
+                className="max-md:rounded-full max-md:px-3 max-md:py-1.5"
+              />
+            ) : (
+              <span />
             )}
-          >
-            <ProductPdpSimilarGalleryButton onClick={onSimilar} />
+            {onShare ? <ProductShareGalleryTrigger onClick={onShare} className="md:hidden" /> : null}
           </div>
         ) : null}
       </div>
+      {/* Phones: dots sit below the photo (app parity). */}
+      {images.length > 1 ? (
+        <div className="flex justify-center gap-1.5 md:hidden" aria-hidden>
+          {images.map((item, index) => (
+            <span
+              key={item.uploadId || item.url || `dot-${index}`}
+              className={cn(
+                "size-2 rounded-full transition-colors",
+                index === selectedIndex ? "bg-primary" : "bg-border",
+              )}
+            />
+          ))}
+        </div>
+      ) : null}
       <ProductGalleryLightbox
         open={lightboxOpen}
         onOpenChange={setLightboxOpen}
@@ -683,7 +587,11 @@ function ProductGallery({ images, title, product, onShare, onSimilar, showSimila
   );
 }
 
-function ProductSchedule({ onChange }) {
+/**
+ * Date + time slot picker. Inline card on desktop; inside the phone schedule sheet it
+ * gets `onDone` (called with the ISO time) and `doneLabel` ("Continue to checkout").
+ */
+function ProductSchedule({ onChange, onDone, doneLabel = "Done", busy = false }) {
   const today = useMemo(() => startOfToday(), []);
   const dates = useMemo(() => Array.from({ length: 7 }, (_, i) => addDays(today, i)), [today]);
   const [selectedDate, setSelectedDate] = useState(null);
@@ -697,7 +605,13 @@ function ProductSchedule({ onChange }) {
     if (!selectedDate) return;
     const scheduled = new Date(selectedDate);
     scheduled.setHours(slotHour(slot), 0, 0, 0);
-    onChange?.(scheduled.toISOString());
+    const iso = scheduled.toISOString();
+    onChange?.(iso);
+    if (onDone) {
+      // Sheet flow: hand the time back and go straight on (no "Set" summary state).
+      onDone(iso);
+      return;
+    }
     setConfirmed(true);
   }
 
@@ -879,12 +793,13 @@ function ProductSchedule({ onChange }) {
         ) : null}
         <Button
           type="button"
-          className="w-full"
+          className={cn("w-full", onDone && "h-12 font-heading text-[15px] font-semibold")}
           size="lg"
-          disabled={!dateSelected}
+          variant={onDone ? "cta" : "default"}
+          disabled={!dateSelected || busy}
           onClick={commitSchedule}
         >
-          Done
+          {busy ? "Adding…" : doneLabel}
         </Button>
       </CardContent>
       )}
@@ -908,6 +823,8 @@ export function ProductPdp({ product, onChangeLocation }) {
   const [addonQtyById, setAddonQtyById] = useState({});
   const [shareOpen, setShareOpen] = useState(false);
   const [similarOpen, setSimilarOpen] = useState(false);
+  const [scheduleSheetOpen, setScheduleSheetOpen] = useState(false);
+  const isMdDown = useMediaMdDown();
   const navigate = useNavigate();
   const addItem = useCartStore((s) => s.addItem);
   const setCartOpen = useCartStore((s) => s.setOpen);
@@ -919,7 +836,6 @@ export function ProductPdp({ product, onChangeLocation }) {
 
   const productAddons = product?.addons ?? [];
   const hasAddons = productAddons.length > 0;
-  const merchBadge = useProductMerchBadge(product?.id);
   const isLgUp = useIsLgUp();
   const { brand } = useSiteShell();
 
@@ -944,8 +860,10 @@ export function ProductPdp({ product, onChangeLocation }) {
     });
   }
 
-  async function completeBooking() {
+  /** `scheduledIso` lets the phone sheet pass its time directly (state may not have updated yet). */
+  async function completeBooking(scheduledIso) {
     if (!product?.id) return;
+    const when = scheduledIso ?? scheduledAt;
     setBooking(true);
     try {
       const selections = buildAddonSelections(productAddons, addonQtyById);
@@ -957,12 +875,13 @@ export function ProductPdp({ product, onChangeLocation }) {
           quantity: 1,
           pincode: pincode?.code || undefined,
           cityId: pincode?.code ? undefined : city?.id,
-          scheduledAt: isInstantBooking ? null : scheduledAt || undefined,
+          scheduledAt: isInstantBooking ? null : when || undefined,
           fulfillmentType: isInstantBooking ? "instant" : "scheduled",
         },
         { openDrawer: false },
       );
       toast.add({ title: "Added to bag", type: "success" });
+      setScheduleSheetOpen(false);
       proceedToCheckout({
         user,
         setLoginOpen,
@@ -985,6 +904,11 @@ export function ProductPdp({ product, onChangeLocation }) {
       toast.add({ title: "Select your city first", type: "info" });
       return;
     }
+    // Phones (app parity): "Book your setup" opens the date & time sheet.
+    if (!isInstantBooking && isMdDown) {
+      setScheduleSheetOpen(true);
+      return;
+    }
     if (!isInstantBooking && !scheduledAt) {
       toast.add({ title: "Choose date and time, then tap Done", type: "info" });
       return;
@@ -994,7 +918,8 @@ export function ProductPdp({ product, onChangeLocation }) {
 
   return (
     <div className="flex min-w-0 flex-col gap-0 max-md:pb-[calc(5.75rem+env(safe-area-inset-bottom))]">
-      <div className="grid min-w-0 gap-8 overflow-x-hidden max-md:gap-4 lg:grid-cols-2 lg:items-start lg:gap-10">
+      <PdpMobileTopBar product={product} />
+      <div className="grid min-w-0 gap-8 overflow-x-hidden max-md:gap-3 lg:grid-cols-2 lg:items-start lg:gap-10">
         <div className="flex min-w-0 flex-col gap-6 lg:sticky lg:top-20 lg:z-[1] lg:self-start">
           <ProductGallery
             images={images}
@@ -1008,12 +933,15 @@ export function ProductPdp({ product, onChangeLocation }) {
         </div>
 
         <div className="flex min-w-0 flex-col gap-4 px-4 pb-2 max-md:px-5 md:gap-4 md:px-0">
-        <ProductBreadcrumb title={title} categoryId={product?.categoryId} />
+        {/* No breadcrumb on phones (app parity). */}
+        <div className="max-md:hidden">
+          <ProductBreadcrumb title={title} categoryId={product?.categoryId} />
+        </div>
 
         <div className="flex min-w-0 flex-col gap-2">
           <div className="flex min-w-0 items-start justify-between gap-3">
             <h1
-              className="min-w-0 flex-1 font-heading text-xl font-semibold tracking-tight max-md:line-clamp-3 md:line-clamp-2 md:text-[1.75rem] md:leading-snug"
+              className="min-w-0 flex-1 font-heading text-xl font-semibold tracking-tight max-md:line-clamp-3 max-md:text-lg max-md:leading-snug max-md:font-medium max-md:tracking-normal md:line-clamp-2 md:text-[1.75rem] md:leading-snug"
               title={title}
             >
               {title}
@@ -1023,48 +951,71 @@ export function ProductPdp({ product, onChangeLocation }) {
               <ProductShareTrigger onClick={() => setShareOpen(true)} />
             </div>
           </div>
-          <SectionMerchBadge
-            variant="inline"
-            label={merchBadge.badgeLabel}
-            color={merchBadge.badgeColor}
-            className="max-md:hidden"
-          />
         </div>
 
-        <ProductPrice
-          pricePaise={product?.pricePaise}
-          compareAtPaise={product?.compareAtPaise}
-          ratingAvg={product?.ratingAvg}
-          reviewCount={product?.reviewCount}
-        />
+        <div className="max-md:hidden">
+          <ProductPrice
+            productId={product?.id}
+            instant={product?.instant}
+            pricePaise={product?.pricePaise}
+            compareAtPaise={product?.compareAtPaise}
+            ratingAvg={product?.ratingAvg}
+            reviewCount={product?.reviewCount}
+          />
+        </div>
+        <div className="-mt-2 md:hidden">
+          <PdpMobilePriceBlock
+            productId={product?.id}
+            instant={product?.instant}
+            pricePaise={product?.pricePaise}
+            compareAtPaise={product?.compareAtPaise}
+            ratingAvg={product?.ratingAvg}
+            reviewCount={product?.reviewCount}
+          />
+        </div>
 
         <div className="hidden flex-col gap-3 md:flex">
           <ProductOnSiteSetupBadge />
           <ProductLocationCard cityLabel={cityLabel} onChangeLocation={onChangeLocation} />
         </div>
 
+        {/* Phones: full-width pale green band (app primary-tint #D9F0ED). */}
         <div
-          className="flex flex-col gap-4 max-md:-mx-5 max-md:bg-secondary/60 max-md:px-5 max-md:py-4 md:gap-4"
+          className="flex flex-col gap-4 max-md:-mx-5 max-md:bg-[#d9f0ed] max-md:px-5 max-md:py-4 max-md:dark:bg-primary/15 md:gap-4"
         >
-          {canInstant && canScheduled ? (
-            <FulfillmentModeSwitch
-              value={fulfillment}
-              onChange={setFulfillment}
-              instantLabel={product.instant?.badgeLabel}
+          <div className="md:hidden">
+            <PdpMobileDeliveryPreference
+              canInstant={canInstant}
+              canScheduled={canScheduled}
+              isInstantBooking={isInstantBooking}
+              onFulfillmentChange={setFulfillment}
+              instantLabel={product?.instant?.badgeLabel}
+              instantEtaMinutes={product?.instant?.etaMinutes}
             />
-          ) : canInstant && !canScheduled ? (
-            <div className="flex items-center gap-2 border-b border-border pb-3 text-sm font-semibold text-instant">
-              <ZapIcon className="size-5 shrink-0 fill-current" aria-hidden />
-              {product.instant?.badgeLabel || "Instant booking"}
-            </div>
-          ) : null}
+          </div>
+
+          <div className="max-md:hidden">
+            {canInstant && canScheduled ? (
+              <FulfillmentModeSwitch
+                value={fulfillment}
+                onChange={setFulfillment}
+                instantLabel={product.instant?.badgeLabel}
+              />
+            ) : canInstant && !canScheduled ? (
+              <div className="flex items-center gap-2 border-b border-border pb-3 text-sm font-semibold text-instant">
+                <ZapIcon className="size-5 shrink-0 fill-current" aria-hidden />
+                {product.instant?.badgeLabel || "Instant booking"}
+              </div>
+            ) : null}
+          </div>
 
           {isInstantBooking ? (
             <InstantBookingDetails
               note={product.instant?.pdpNote}
               etaMinutes={product.instant?.etaMinutes}
             />
-          ) : canScheduled ? (
+          ) : canScheduled && !isMdDown ? (
+            // Desktop: inline picker. Phones pick the slot in the sheet opened by "Book your setup".
             <ProductSchedule onChange={setScheduledAt} />
           ) : null}
 
@@ -1107,18 +1058,36 @@ export function ProductPdp({ product, onChangeLocation }) {
         <ProductOtherCategoriesRail product={product} />
       </div>
 
-      <div
-        className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/95 px-3 pt-2.5 shadow-[0_-4px_24px_-8px] shadow-foreground/10 backdrop-blur-md md:hidden"
-        style={{ paddingBottom: "max(0.625rem, env(safe-area-inset-bottom))" }}
-      >
-        <ProductPdpMobileBookingBar
-          pricePaise={product?.pricePaise}
-          booking={booking}
-          isInstantBooking={isInstantBooking}
-          onWhatsApp={onWhatsApp}
-          onBookNow={onBookNow}
-        />
-      </div>
+      {!scheduleSheetOpen ? (
+        <div
+          className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-card px-4 pt-3 shadow-[0_-4px_12px_rgb(15_23_42/0.05)] md:hidden"
+          style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
+        >
+          <PdpMobileBookingBar
+            pricePaise={product?.pricePaise}
+            booking={booking}
+            isInstantBooking={isInstantBooking}
+            onWhatsApp={onWhatsApp}
+            onBookNow={onBookNow}
+          />
+        </div>
+      ) : null}
+
+      {isMdDown && canScheduled ? (
+        <PdpScheduleSheet
+          open={scheduleSheetOpen}
+          onOpenChange={setScheduleSheetOpen}
+          title={title}
+          imageUrl={imageSrc(images[0])}
+        >
+          <ProductSchedule
+            onChange={setScheduledAt}
+            onDone={(iso) => void completeBooking(iso)}
+            doneLabel="Continue to checkout"
+            busy={booking}
+          />
+        </PdpScheduleSheet>
+      ) : null}
 
       <ProductShareSheet
         open={shareOpen}
