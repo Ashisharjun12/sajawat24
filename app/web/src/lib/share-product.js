@@ -11,6 +11,26 @@ export function shareViaWhatsApp(message) {
   );
 }
 
+function openShareWindow(url) {
+  window.open(url, "_blank", "noopener,noreferrer");
+}
+
+export function shareViaTelegram(title, url) {
+  const text = encodeURIComponent((title ?? "").trim() || "Decoration setup");
+  openShareWindow(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${text}`);
+}
+
+export function shareViaFacebook(url) {
+  openShareWindow(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`);
+}
+
+/** SMS composer (phones only). iOS uses "&body=", Android "?body=". */
+export function shareViaSms(message) {
+  const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const body = encodeURIComponent(message ?? "");
+  window.location.href = isIos ? `sms:&body=${body}` : `sms:?body=${body}`;
+}
+
 export function shareViaEmail(subject, body) {
   const params = new URLSearchParams({
     subject: subject ?? "",

@@ -3,7 +3,7 @@ export const API_URL =
 
 /** Public site origin for canonical URLs and Open Graph (no trailing slash). */
 export const WEB_URL = (
-  import.meta.env.VITE_WEB_URL || "https://www.deccorbuddys.com"
+  import.meta.env.VITE_WEB_URL || "https://www.sajawat24.com"
 ).replace(/\/$/, "");
 
 export const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";

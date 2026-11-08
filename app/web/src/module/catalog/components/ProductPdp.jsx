@@ -1040,6 +1040,8 @@ export function ProductPdp({ product, onChangeLocation }) {
         onOpenChange={setShareOpen}
         title={title}
         productId={product?.id}
+        imageUrl={imageSrc(images[0]) || null}
+        pricePaise={product?.pricePaise}
       />
       <ProductPdpSimilarPackages
         product={product}
