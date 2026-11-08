@@ -135,6 +135,8 @@ Living brief for the customer mobile app (`app/user`). Update this file when eac
 ## History (newest first)
 
 ```text
+2026-11-08 — PDP VERIFIED chip: green as before (#DCFCE7 fill, #15803D text) with a filled blue shield-check (#2563EB, white tick, 16px); same on web
+2026-11-08 — Delivery address sheet (`CheckoutAddressPickerSheet`, PDP + checkout): tap only picks (radio moves), bottom "Save address" applies + closes ("Add address" stays top; bottom button is Add address only when no saved addresses). PDP no longer drops to the full-page skeleton when the address changes (`useProductDetailQuery` keeps the same product as placeholder while it refetches for the new city/pin; delivery type no longer resets)
 2026-11-08 — Account tab footer: "Privacy policy" link only (terms/refund removed) + app version → `/(app)/profile/legal/[doc]` (`LegalPageScreen`) loads the published CMS page (`GET /catalog/cms/pages/:slug`, tries slugs like privacy-policy/privacy, platform mobile then web), rendered with `components/ui/markdown-text.tsx`
 2026-11-08 — Profile tab renamed "Account" (tab label + "My Account" title). New layout: account card (avatar, name, email/phone, edit → Personal info; guest = Sign in card) → 2×2 shortcut tiles `ProfileQuickActions` (My orders, Wishlist, Chat with us/WhatsApp, Saved addresses) → grouped white cards `ProfileMenuCard` with divided rows (Your account: Personal info, My cart, Refunds · Preferences · Support: Help, FAQ's · More: About us, Manage account)
 2026-11-08 — PDP About this package, Package details and Ratings & reviews are full-width white panels (cancel 20px gutter, border top/bottom, no rounded card, like "Make it yours"); detail chips scroll edge to edge

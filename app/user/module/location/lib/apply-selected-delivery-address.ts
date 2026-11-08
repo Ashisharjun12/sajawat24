@@ -5,14 +5,25 @@ import { useCheckoutStore } from '@/store/checkout.store';
 import { useDeliveryLocationStore } from '@/store/delivery-location.store';
 import type { QueryClient } from '@tanstack/react-query';
 
-/** Persist delivery choice locally and align server cart city/pin/geo when possible. */
+/**
+ * Persist delivery choice locally and align server cart city/pin/geo when possible.
+ * `waitForServer: false` returns right after the local save (UI can close at once);
+ * the cart sync then finishes in the background.
+ */
 export async function applySelectedDeliveryAddress(
   addr: CustomerAddress,
   queryClient?: QueryClient,
+  { waitForServer = true }: { waitForServer?: boolean } = {},
 ) {
   await useDeliveryLocationStore.getState().setFromAddress(addr);
   useCheckoutStore.getState().setFromAddress(addr);
 
+  const sync = syncCartToAddress(addr, queryClient);
+  if (waitForServer) await sync;
+  else void sync;
+}
+
+async function syncCartToAddress(addr: CustomerAddress, queryClient?: QueryClient) {
   const cityId = addr.cityId;
   const pincode = addr.pincode.replace(/\D/g, '').slice(0, 6);
   if (!cityId || pincode.length !== 6) return;

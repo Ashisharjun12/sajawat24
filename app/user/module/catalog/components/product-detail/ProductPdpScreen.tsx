@@ -99,12 +99,15 @@ export function ProductPdpScreen({ productId }: ProductPdpScreenProps) {
     };
   }, [navigation]);
 
+  // Reset the delivery type only when a different product opens — not when the same
+  // product refetches after a delivery-address change (that would undo the user's pick).
+  const productKey = product?.id;
+  const productCanInstant = Boolean(product?.instant?.enabled);
+  const productCanScheduled = product?.scheduledEnabled !== false;
   useEffect(() => {
-    if (!product) return;
-    const canInstant = Boolean(product.instant?.enabled);
-    const canScheduled = product.scheduledEnabled !== false;
-    setFulfillment(canInstant && !canScheduled ? 'instant' : 'scheduled');
-  }, [product]);
+    if (!productKey) return;
+    setFulfillment(productCanInstant && !productCanScheduled ? 'instant' : 'scheduled');
+  }, [productKey, productCanInstant, productCanScheduled]);
 
   const resetAddonSelection = addonSelection.reset;
 

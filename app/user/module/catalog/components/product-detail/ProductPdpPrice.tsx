@@ -7,14 +7,11 @@ import { Text } from '@/components/ui/text';
 import { formatPaise } from '@/lib/format-money';
 import { discountPercent } from '@/lib/product-price';
 import { formatPdpRating } from '@/module/catalog/lib/product-pdp-helpers';
-import { BadgeCheck, Star } from 'lucide-react-native';
+import { ShieldCheck, Star } from 'lucide-react-native';
 import { View } from 'react-native';
 
 /** Rating star yellow (PDP rating pill). */
 const RATING_STAR_HEX = '#F5B301';
-/** Green chips (Free delivery, Verified) — light green fill, green text + icon. */
-const GREEN_CHIP_BG_HEX = '#DCFCE7';
-const GREEN_CHIP_TEXT_HEX = '#15803D';
 /** "33% OFF" next to the price — darker green than the default success tone. */
 const DISCOUNT_TEXT_HEX = '#166534';
 
@@ -29,6 +26,11 @@ type ProductPdpPriceProps = {
   instant?: { enabled?: boolean; badgeLabel?: string | null } | null;
 };
 
+/** Verified chip: light green fill + green text, with a blue shield (white tick). */
+const GREEN_CHIP_BG_HEX = '#DCFCE7';
+const GREEN_CHIP_TEXT_HEX = '#15803D';
+const SHIELD_BLUE_HEX = '#2563EB';
+
 function VerifiedChip() {
   return (
     <View
@@ -38,7 +40,7 @@ function VerifiedChip() {
         borderRadius: PDP_CHIP_RADIUS,
         backgroundColor: GREEN_CHIP_BG_HEX,
       }}>
-      <BadgeCheck size={12} color={GREEN_CHIP_TEXT_HEX} />
+      <ShieldCheck size={16} color="#FFFFFF" fill={SHIELD_BLUE_HEX} strokeWidth={2.25} />
       <Text
         className="text-[10px] font-semibold uppercase tracking-wide"
         style={{ color: GREEN_CHIP_TEXT_HEX }}>

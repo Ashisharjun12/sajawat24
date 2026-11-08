@@ -7,7 +7,6 @@ import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   ArrowLeftIcon,
-  BadgeCheckIcon,
   CalendarDaysIcon,
   CheckIcon,
   ChevronDownIcon,
@@ -38,9 +37,6 @@ import { useWishlistStore } from "@/store/wishlist.store";
 /** Same green chips as the app PDP (Free delivery, Verified). */
 const GREEN_CHIP_CLASS =
   "bg-[#dcfce7] text-[#15803d] dark:bg-emerald-950/50 dark:text-emerald-300";
-/** Golden yellow Verified chip: pale gold fill, dark gold text, #F5B301 icon (matches the ★). */
-const GOLD_CHIP_CLASS =
-  "bg-[#fff4cc] text-[#a16207] dark:bg-amber-950/50 dark:text-amber-300";
 const CHIP_CLASS =
   "inline-flex h-[22px] shrink-0 items-center gap-1 rounded-[3px] px-2 text-[10px] font-semibold tracking-wide uppercase";
 const CHIP_ROTATE_MS = 2800;
@@ -271,6 +267,32 @@ function formatRating(value) {
 }
 
 /**
+ * Solid blue shield with a white tick (same as the app's Verified chip).
+ * Colours are set on each shape, so no CSS `fill` class is needed.
+ */
+function VerifiedShield() {
+  return (
+    <svg viewBox="0 0 24 24" width={16} height={16} className="shrink-0" aria-hidden>
+      <path
+        d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"
+        fill="#2563eb"
+        stroke="#2563eb"
+        strokeWidth={1.5}
+        strokeLinejoin="round"
+      />
+      <path
+        d="m9 12 2 2 4-4"
+        fill="none"
+        stroke="#ffffff"
+        strokeWidth={2.4}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+/**
  * Chip row above the price, used on phone AND desktop:
  * FREE DELIVERY (alternates with the Trending/Popular badge) · Verified · ★ rating pill.
  */
@@ -288,8 +310,8 @@ export function PdpPriceChipRow({ productId, instant, ratingAvg, reviewCount, cl
       </div>
       <div className="flex shrink-0 items-center gap-2">
         {ratingLabel != null ? (
-          <span className={cn(CHIP_CLASS, GOLD_CHIP_CLASS)}>
-            <BadgeCheckIcon className="size-3 text-[#f5b301]" aria-hidden />
+          <span className={cn(CHIP_CLASS, GREEN_CHIP_CLASS)}>
+            <VerifiedShield />
             Verified
           </span>
         ) : null}

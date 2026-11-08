@@ -40,5 +40,9 @@ export function useProductDetailQuery(productId: string, { enabled = true } = {}
     },
     enabled: queryEnabled,
     staleTime: PRODUCT_DETAIL_STALE_MS,
+    // Changing the delivery address changes city/pin → new query key. Keep showing the
+    // same product while it refetches, instead of dropping to the full-page skeleton.
+    // Only for the same product: a different product id still shows the skeleton.
+    placeholderData: (previous) => (previous?.id === productId ? previous : undefined),
   });
 }

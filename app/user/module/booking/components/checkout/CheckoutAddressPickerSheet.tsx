@@ -12,6 +12,7 @@ import { useDeliveryLocationStore } from '@/store/delivery-location.store';
 import { Map, Plus } from 'lucide-react-native';
 import { useQueryClient } from '@tanstack/react-query';
 import type { Href } from 'expo-router';
+import { useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, View } from 'react-native';
 
 type CheckoutAddressPickerSheetProps = {
@@ -61,17 +62,49 @@ export function CheckoutAddressPickerSheet({
   const selectedAddressId = useDeliveryLocationStore((s) => s.selectedAddressId);
   const { data: addresses = [], isLoading } = useAddressesQuery(visible);
 
-  async function selectAddress(addr: CustomerAddress) {
+  // Tapping an address only picks it (radio moves); "Save address" applies it and closes.
+  const [pickedId, setPickedId] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  // Forget an unsaved pick whenever the sheet closes, so it reopens on the address in use.
+  function close() {
+    setPickedId(null);
+    onClose();
+  }
+
+  const activeId = pickedId ?? selectedAddressId;
+  const picked = addresses.find((a) => a.id === activeId) ?? null;
+
+  function pickAddress(addr: CustomerAddress) {
+    if (saving) return;
     if (!addr.cityId || !isBackendCityId(addr.cityId)) {
       Alert.alert('Address not serviceable', 'This address needs a valid city before delivery.');
       return;
     }
-    await applySelectedDeliveryAddress(addr, queryClient);
-    onClose();
+    setPickedId(addr.id);
+  }
+
+  async function saveAddress() {
+    if (!picked || saving) return;
+    if (picked.id === selectedAddressId) {
+      close();
+      return;
+    }
+    setSaving(true);
+    try {
+      // Save locally and close right away; the cart city/pin sync on the server
+      // finishes in the background.
+      await applySelectedDeliveryAddress(picked, queryClient, { waitForServer: false });
+      close();
+    } catch {
+      Alert.alert('Could not change address', 'Please try again.');
+    } finally {
+      setSaving(false);
+    }
   }
 
   function openAddAddress() {
-    onClose();
+    close();
     navigateToAddAddressScreen(
       cartCityId ? { cityId: cartCityId } : null,
       addAddressReturnHref ? { returnHref: addAddressReturnHref } : undefined,
@@ -81,7 +114,7 @@ export function CheckoutAddressPickerSheet({
   return (
     <HomeBottomSheetModal
       visible={visible}
-      onClose={onClose}
+      onClose={close}
       closeAccessibilityLabel="Close address picker">
       <View className="gap-4 px-5 pb-8 pt-4">
         <View className="flex-row items-start justify-between gap-3">
@@ -108,13 +141,21 @@ export function CheckoutAddressPickerSheet({
           <ScrollView className="max-h-72" nestedScrollEnabled showsVerticalScrollIndicator={false}>
             <View className="gap-3">
               {addresses.map((addr) => {
-                const selected = selectedAddressId === addr.id;
+                const selected = activeId === addr.id;
                 return (
-                  <Pressable key={addr.id} onPress={() => void selectAddress(addr)}>
+                  <Pressable
+                    key={addr.id}
+                    onPress={() => pickAddress(addr)}
+                    disabled={saving}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected }}
+                    accessibilityLabel={`${addr.label}, ${addr.address}, ${addr.cityName} ${addr.pincode}`}>
+                    {({ pressed }) => (
                     <View
                       className={cn(
-                        'rounded-xl border p-3 active:bg-muted/40',
+                        'rounded-xl border p-3',
                         selected ? 'border-primary bg-primary/5' : 'border-border',
+                        pressed && !selected && 'bg-muted/40',
                       )}>
                       <View className="flex-row items-start gap-3">
                         <AddressRadio selected={selected} />
@@ -137,6 +178,7 @@ export function CheckoutAddressPickerSheet({
                         </View>
                       </View>
                     </View>
+                    )}
                   </Pressable>
                 );
               })}
@@ -144,10 +186,24 @@ export function CheckoutAddressPickerSheet({
           </ScrollView>
         )}
 
-        <Button variant="primary" size="md" className="w-full" onPress={openAddAddress}>
-          <Icon as={Plus} className="size-4 text-primary-foreground" strokeWidth={2.5} />
-          <Text>Add address</Text>
-        </Button>
+        {/* With saved addresses: "Save address" applies the picked one ("Add address" stays
+            at the top). With none: the bottom button adds the first address. */}
+        {addresses.length > 0 ? (
+          <Button
+            variant="primary"
+            size="md"
+            className="w-full"
+            disabled={!picked}
+            loading={saving}
+            onPress={() => void saveAddress()}>
+            <Text>Save address</Text>
+          </Button>
+        ) : isLoading ? null : (
+          <Button variant="primary" size="md" className="w-full" onPress={openAddAddress}>
+            <Icon as={Plus} className="size-4 text-primary-foreground" strokeWidth={2.5} />
+            <Text>Add address</Text>
+          </Button>
+        )}
       </View>
     </HomeBottomSheetModal>
   );
