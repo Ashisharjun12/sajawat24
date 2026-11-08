@@ -1,4 +1,4 @@
-import { ShoppingBagIcon } from "lucide-react";
+import { ShoppingCartIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/cart.store";
@@ -20,10 +20,10 @@ export function CartButton({ variant = "default", className }) {
         className,
       )}
       onClick={() => setOpen(true)}
-      aria-label="Open bag"
+      aria-label="Open cart"
     >
-      <ShoppingBagIcon className={cn(isHero && "size-5 text-primary")} />
-      <span className="sr-only">Bag</span>
+      <ShoppingCartIcon className={cn(isHero && "size-5 text-primary")} />
+      <span className="sr-only">Cart</span>
       {count > 0 ? (
         <span
           className={cn(

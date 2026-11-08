@@ -1,15 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { BellIcon, UserRoundIcon } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { BannerSlider } from "@/module/home/components/BannerSlider";
 import { CartButton } from "@/module/layout/components/CartButton";
 import { LocationPicker } from "@/module/layout/components/LocationPicker";
 import { MobileNav } from "@/module/layout/components/MobileNav";
 import { SearchCommand } from "@/module/layout/components/SearchCommand";
-import { UserMenu } from "@/module/layout/components/UserMenu";
 import { WishlistButton } from "@/module/layout/components/WishlistButton";
 import { NotificationBell } from "@/module/notifications/components/NotificationBell";
 import { useAuthStore } from "@/store/auth.store";
@@ -67,31 +64,12 @@ export function HomeMobileHero({ slides = [] }) {
             <div className="flex min-w-0 flex-1">
               <LocationPicker variant="onBrand" className={locationPillClass} />
             </div>
+            {/* Wishlist · cart · then: signed in → notifications bell; signed out → account (sign in). */}
             <div className="flex shrink-0 items-center gap-1.5">
               <WishlistButton className={onPrimaryIconClass} />
-              {isLoggedIn ? (
-                <NotificationBell className={onPrimaryIconClass} />
-              ) : null}
               <CartButton className={onPrimaryIconClass} />
               {isLoggedIn ? (
-                user ? (
-                  <UserMenu
-                    variant="iconToolbar"
-                    className="ring-primary-foreground/25"
-                  />
-                ) : (
-                  <Link
-                    to="/account"
-                    className="size-9 shrink-0 overflow-hidden rounded-full ring-1 ring-primary-foreground/25"
-                    aria-label="Account"
-                  >
-                    <Avatar className="size-9">
-                      <AvatarFallback className="bg-primary text-xs font-semibold text-primary-foreground">
-                        U
-                      </AvatarFallback>
-                    </Avatar>
-                  </Link>
-                )
+                <NotificationBell className={onPrimaryIconClass} />
               ) : (
                 <Button
                   type="button"

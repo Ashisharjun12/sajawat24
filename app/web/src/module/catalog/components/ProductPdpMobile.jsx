@@ -92,7 +92,7 @@ export function PdpMobileTopBar({ product }) {
           type="button"
           onClick={() => setCartOpen(true)}
           className={cn(TOP_BAR_BUTTON, "relative")}
-          aria-label={count > 0 ? `Open bag, ${count} items` : "Open bag"}
+          aria-label={count > 0 ? `Open cart, ${count} items` : "Open cart"}
         >
           <ShoppingCartIcon className="size-6" aria-hidden />
           {count > 0 ? (

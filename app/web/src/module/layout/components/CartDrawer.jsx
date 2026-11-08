@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
-import { ShoppingBagIcon, XIcon } from "lucide-react";
+import { ShoppingCartIcon, XIcon } from "lucide-react";
 import { getApiError } from "@/api/api";
 import { formatPaise } from "@/lib/money";
 import { toast } from "@/components/ui/toast";
@@ -140,7 +140,7 @@ export function CartDrawer() {
                 className="flex size-16 items-center justify-center rounded-full bg-primary shadow-sm"
                 aria-hidden
               >
-                <ShoppingBagIcon className="size-8 text-primary-foreground" strokeWidth={1.5} />
+                <ShoppingCartIcon className="size-8 text-primary-foreground" strokeWidth={1.5} />
               </span>
               <p className="mt-5 font-heading text-base font-semibold tracking-tight text-foreground">
                 No products added
