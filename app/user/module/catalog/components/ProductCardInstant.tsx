@@ -79,7 +79,7 @@ export function ProductCardInstantLine({
   );
 }
 
-/** Card body tag — solid pink rectangle (square corners), white Zap + "Instant". */
+/** Card body tag — solid pink rectangle (slightly rounded 3px corners), white Zap + "Instant". */
 export function ProductCardInstantTag({
   instant,
   className,
@@ -95,7 +95,7 @@ export function ProductCardInstantTag({
   return (
     <View
       className={cn(
-        'h-[18px] shrink-0 flex-row items-center gap-0.5 rounded-none bg-instant px-1.5',
+        'h-[18px] shrink-0 flex-row items-center gap-0.5 rounded-[3px] bg-instant px-1.5',
         className,
       )}
       accessibilityLabel={eta ? `${label}, ${eta} typical arrival after confirmation` : label}>
