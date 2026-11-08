@@ -39,11 +39,7 @@ export function SearchProductRow({ product, onPress }: SearchProductRowProps) {
             {formatPaise(product.pricePaise)}
           </Text>
           {percentOff > 0 ? (
-            <View className="rounded-md bg-success/15 px-1.5 py-0.5">
-              <Text className="text-[11px] font-semibold text-success">
-                {percentOff}% off
-              </Text>
-            </View>
+            <Text className="text-xs font-semibold text-success">{percentOff}% OFF</Text>
           ) : null}
         </View>
       </View>
