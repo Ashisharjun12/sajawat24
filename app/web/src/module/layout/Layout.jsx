@@ -4,7 +4,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { LenisProvider } from "@/lib/lenis";
 import { LoginDialog } from "@/module/layout/components/LoginDialog";
 import { LocationPrompt } from "@/module/layout/components/LocationPrompt";
-import { LocationPickerHost } from "@/module/layout/components/LocationPicker";
 import { CartDrawer } from "@/module/layout/components/CartDrawer";
 import { SiteFooter } from "@/module/layout/components/SiteFooter";
 import { SiteShellProvider } from "@/module/site/hooks/use-site-shell.jsx";
@@ -50,7 +49,6 @@ export function Layout() {
             {showFooter ? <SiteFooter /> : null}
             <MobileBottomNav visible={showMobileBottomNav} />
             <MobileCategorySheet />
-            <LocationPickerHost />
             <LoginDialog />
             <CartDrawer />
             {showFooter ? <ScrollToTopButton /> : null}

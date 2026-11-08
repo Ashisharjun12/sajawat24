@@ -22,25 +22,26 @@ import { useLocationStore } from '@/store/location.store';
 import { useEffect, useMemo, useState } from 'react';
 import { View } from 'react-native';
 
-type CategoryProductListingProps = {
+type CategoryProductListingOptions = {
   categoryIds: string[];
   /** Explore “All” — list every product in the city without categoryIds. */
   showAllProducts?: boolean;
-  sectionTitle?: string;
-  emptyTitle?: string;
-  emptyDescription?: string;
   /** Bumped by parent on pull-to-refresh to reload page 1. */
   refreshNonce?: number;
 };
 
-export function CategoryProductListing({
+type CategoryProductListingProps = CategoryProductListingOptions & {
+  sectionTitle?: string;
+  emptyTitle?: string;
+  emptyDescription?: string;
+};
+
+/** Listing state (sort, price, pagination, query) — shared by the inline and split layouts. */
+export function useCategoryProductListing({
   categoryIds,
   showAllProducts = false,
-  sectionTitle = 'All packages',
-  emptyTitle = 'No packages in this category yet',
-  emptyDescription = 'Try another subcategory or browse all categories.',
   refreshNonce = 0,
-}: CategoryProductListingProps) {
+}: CategoryProductListingOptions) {
   const city = useLocationStore((s) => s.city);
   const pincode = useLocationStore((s) => s.pincode);
   const cityId = city?.id && isBackendCityId(city.id) ? city.id : undefined;
@@ -68,13 +69,13 @@ export function CategoryProductListing({
 
   const { data, dataUpdatedAt, isLoading, isFetching, isError, refetch } =
     useCatalogListingQuery({
-    categoryIds: showAllProducts ? undefined : categoryIds,
-    unfiltered: showAllProducts,
-    sort,
-    minPriceRupees,
-    maxPriceRupees,
-    page,
-  });
+      categoryIds: showAllProducts ? undefined : categoryIds,
+      unfiltered: showAllProducts,
+      sort,
+      minPriceRupees,
+      maxPriceRupees,
+      page,
+    });
 
   useEffect(() => {
     if (refreshNonce <= 0) return;
@@ -96,6 +97,7 @@ export function CategoryProductListing({
   }, [data, page, dataUpdatedAt]);
 
   const total = data?.total ?? 0;
+
   const priceFacet = data?.priceFacet ?? { minPaise: 0, maxPaise: 0 };
 
   const facetMaxRupees = Math.round(priceFacet.maxPaise / 100);
@@ -125,7 +127,79 @@ export function CategoryProductListing({
     setAccumulated([]);
   }
 
-  if (!hasLocation) {
+  return {
+    hasLocation,
+    sort,
+    page,
+    total,
+    accumulated,
+    priceOpen,
+    setPriceOpen,
+    priceFacet,
+    priceRangeReady,
+    priceActive,
+    minPriceRupees,
+    appliedMaxRupees,
+    isLoading,
+    isFetching,
+    isError,
+    showInitialSkeleton,
+    showEmpty,
+    canLoadMore,
+    loadMore: () => setPage((p) => p + 1),
+    onSortChange,
+    onPriceApply,
+  };
+}
+
+export type CategoryProductListingState = ReturnType<typeof useCategoryProductListing>;
+
+/** Sort chips + Custom price (and its sheet). */
+export function CategoryProductListingToolbar({
+  listing,
+  showTotal = true,
+}: {
+  listing: CategoryProductListingState;
+  showTotal?: boolean;
+}) {
+  if (!listing.hasLocation) return null;
+  return (
+    <>
+      <CatalogListingToolbar
+        total={listing.total}
+        sort={listing.sort}
+        loading={listing.isFetching && listing.page === 1}
+        onSortChange={listing.onSortChange}
+        onPricePress={() => listing.setPriceOpen(true)}
+        priceOpen={listing.priceOpen}
+        priceActive={listing.priceActive}
+        showPriceButton={listing.priceRangeReady || listing.priceActive || listing.isLoading}
+        showTotal={showTotal}
+      />
+      <CatalogPriceFilterPanel
+        visible={listing.priceOpen}
+        facetMaxPaise={listing.priceFacet.maxPaise}
+        appliedMinRupees={listing.minPriceRupees}
+        appliedMaxRupees={listing.appliedMaxRupees}
+        disabled={listing.isFetching}
+        onClose={() => listing.setPriceOpen(false)}
+        onApply={listing.onPriceApply}
+      />
+    </>
+  );
+}
+
+/** Location prompt, skeleton, error, empty state, grid and load more. */
+export function CategoryProductListingResults({
+  listing,
+  emptyTitle = 'No packages in this category yet',
+  emptyDescription = 'Try another subcategory or browse all categories.',
+}: {
+  listing: CategoryProductListingState;
+  emptyTitle?: string;
+  emptyDescription?: string;
+}) {
+  if (!listing.hasLocation) {
     return (
       <View className="mx-5 rounded-2xl border border-dashed border-border px-6 py-10">
         <Text className="text-foreground text-center text-base font-semibold">Pick your city</Text>
@@ -142,40 +216,17 @@ export function CategoryProductListing({
     );
   }
 
+  const { accumulated, total } = listing;
+
   return (
-    <View className="gap-4 px-5">
-      {sectionTitle ? (
-        <Text className="text-foreground text-lg font-semibold">{sectionTitle}</Text>
-      ) : null}
+    <>
+      {listing.showInitialSkeleton ? <CatalogProductGridSkeleton /> : null}
 
-      <CatalogListingToolbar
-        total={total}
-        sort={sort}
-        loading={isFetching && page === 1}
-        onSortChange={onSortChange}
-        onPricePress={() => setPriceOpen(true)}
-        priceOpen={priceOpen}
-        priceActive={priceActive}
-        showPriceButton={priceRangeReady || priceActive || isLoading}
-      />
-
-      <CatalogPriceFilterPanel
-        visible={priceOpen}
-        facetMaxPaise={priceFacet.maxPaise}
-        appliedMinRupees={minPriceRupees}
-        appliedMaxRupees={appliedMaxRupees}
-        disabled={isFetching}
-        onClose={() => setPriceOpen(false)}
-        onApply={onPriceApply}
-      />
-
-      {showInitialSkeleton ? <CatalogProductGridSkeleton /> : null}
-
-      {isError ? (
+      {listing.isError ? (
         <Text className="text-destructive py-6 text-center text-sm">Could not load products.</Text>
       ) : null}
 
-      {showEmpty ? (
+      {listing.showEmpty ? (
         <View className="rounded-2xl border border-dashed border-border px-6 py-12">
           <Text className="text-foreground text-center text-base font-semibold">{emptyTitle}</Text>
           <Text className="text-muted-foreground mt-2 text-center text-sm">{emptyDescription}</Text>
@@ -185,11 +236,8 @@ export function CategoryProductListing({
       {accumulated.length > 0 ? (
         <View className="gap-4">
           <CatalogProductGrid products={accumulated} />
-          {canLoadMore ? (
-            <Button
-              variant="secondary"
-              loading={isFetching}
-              onPress={() => setPage((p) => p + 1)}>
+          {listing.canLoadMore ? (
+            <Button variant="secondary" loading={listing.isFetching} onPress={listing.loadMore}>
               <Text>Load more</Text>
             </Button>
           ) : null}
@@ -200,6 +248,33 @@ export function CategoryProductListing({
           ) : null}
         </View>
       ) : null}
+    </>
+  );
+}
+
+export function CategoryProductListing({
+  sectionTitle = 'All packages',
+  emptyTitle,
+  emptyDescription,
+  ...options
+}: CategoryProductListingProps) {
+  const listing = useCategoryProductListing(options);
+
+  if (!listing.hasLocation) {
+    return <CategoryProductListingResults listing={listing} />;
+  }
+
+  return (
+    <View className="gap-4 px-5">
+      {sectionTitle ? (
+        <Text className="text-foreground text-lg font-semibold">{sectionTitle}</Text>
+      ) : null}
+      <CategoryProductListingToolbar listing={listing} />
+      <CategoryProductListingResults
+        listing={listing}
+        emptyTitle={emptyTitle}
+        emptyDescription={emptyDescription}
+      />
     </View>
   );
 }

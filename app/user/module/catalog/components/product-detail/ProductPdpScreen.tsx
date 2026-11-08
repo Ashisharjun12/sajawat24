@@ -41,7 +41,7 @@ import { ProductDetailLocationPrompt } from './ProductDetailLocationPrompt';
 import { ProductDetailSkeleton } from './ProductDetailSkeleton';
 import { ProductDetailTitleBlock } from './ProductDetailTitleBlock';
 import { ProductPdpMobileBookingBar } from './ProductPdpMobileBookingBar';
-import { ProductPdpBreadcrumb } from './ProductPdpBreadcrumb';
+import { ProductPdpTopBar } from './ProductPdpTopBar';
 import { ProductPdpDetailsTabs } from './ProductPdpDetailsTabs';
 import { ProductPdpAboutPackage } from './ProductPdpAboutPackage';
 import { ProductPdpOffers } from './ProductPdpOffers';
@@ -183,10 +183,6 @@ export function ProductPdpScreen({ productId }: ProductPdpScreenProps) {
 
   const onBack = useGoBack();
 
-  function onHome() {
-    router.navigate('/(app)/' as Href);
-  }
-
   if (!productId) {
     return (
       <View className="flex-1 bg-background px-5" style={{ paddingTop: insets.top + 8 }}>
@@ -232,6 +228,16 @@ export function ProductPdpScreen({ productId }: ProductPdpScreenProps) {
 
   return (
     <View className="flex-1 bg-background">
+      <ProductPdpTopBar
+        onBack={onBack}
+        wishlistProduct={{
+          id: detail.id,
+          title,
+          imageUrl: images[0] ?? null,
+          pricePaise: detail.pricePaise ?? 0,
+          compareAtPaise: detail.compareAtPaise,
+        }}
+      />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
@@ -241,17 +247,8 @@ export function ProductPdpScreen({ productId }: ProductPdpScreenProps) {
         <ProductDetailGallery
           imageUrls={images}
           title={title}
-          onBack={onBack}
-          onHome={onHome}
-          wishlistProduct={{
-            id: detail.id,
-            title,
-            imageUrl: images[0] ?? null,
-            pricePaise: detail.pricePaise ?? 0,
-            compareAtPaise: detail.compareAtPaise,
-          }}
-          onShare={detail.id ? () => setShareOpen(true) : undefined}
           showSimilar={Boolean(detail.categoryId)}
+          onShare={detail.id ? () => setShareOpen(true) : undefined}
           onSimilar={() => setSimilarOpen(true)}
           suppressChrome={scheduleSheetOpen}
           onSchedulePress={
@@ -259,14 +256,13 @@ export function ProductPdpScreen({ productId }: ProductPdpScreenProps) {
           }
         />
 
-        <View className="mt-4 gap-4">
-          <ProductPdpBreadcrumb title={title} categoryId={detail.categoryId} />
-
+        <View className="mt-3 gap-2">
           <ProductDetailTitleBlock title={title} showInstantBadge={false} />
 
           <ProductPdpPrice
             pricePaise={detail.pricePaise}
             compareAtPaise={detail.compareAtPaise}
+            productId={detail.id}
             ratingAvg={rating}
             reviewCount={detail.reviewCount != null ? Number(detail.reviewCount) : null}
           />
@@ -281,6 +277,7 @@ export function ProductPdpScreen({ productId }: ProductPdpScreenProps) {
             instantLabel={detail.instant?.badgeLabel}
             instantNote={detail.instant?.pdpNote}
             instantEtaMinutes={detail.instant?.etaMinutes}
+            productId={detail.id}
           />
 
           <ProductPdpOffers productId={detail.id} categoryId={detail.categoryId} />

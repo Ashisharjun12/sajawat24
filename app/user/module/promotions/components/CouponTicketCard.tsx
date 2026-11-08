@@ -6,13 +6,13 @@ import {
   type CouponLike,
 } from '@/module/booking/lib/coupon-preview';
 import { resolveCouponCode } from '@/module/promotions/lib/pdp-coupon-display';
-import {
-  couponOfferIconBadgeClass,
-  couponOfferIconClass,
-} from '@/module/promotions/lib/coupon-offer-styles';
+import { DiscountSeal } from '@/components/ui/discount-seal';
 import { cn } from '@/lib/utils';
 import { TicketPercent } from 'lucide-react-native';
 import { View } from 'react-native';
+
+/** Offer-card code title — deep navy, like a brand wordmark. */
+const COUPON_CODE_HEX = '#13306B';
 
 const TICKET_TONES = [
   { bg: 'bg-primary', notch: 'bg-primary' },
@@ -45,36 +45,37 @@ export function CouponTicketCard({
   const isStack = layout === 'stack';
 
   if (variant === 'minimal') {
+    // Offer card: code as the bold "brand" line, description below, green % seal top-right.
+    const description = title && title.toUpperCase() !== code.toUpperCase()
+      ? `${preview.discount} · ${title}`
+      : `${preview.discount} · ${subtitle}`;
+
     return (
       <ScalePressable
         haptic
         onPress={onPress}
         accessibilityRole="button"
-        accessibilityLabel={`Coupon ${preview.code}`}
-        className={cn(layout === 'stack' ? 'w-full self-stretch' : 'mr-3 w-[168px]')}>
+        accessibilityLabel={`Coupon ${preview.code}. ${description}`}
+        className={cn(layout === 'stack' ? 'w-full self-stretch' : 'mr-3 w-[240px]')}>
         <View
           className={cn(
-            'rounded-2xl border border-border bg-card',
-            isStack ? 'px-4 py-3.5' : 'px-3.5 py-3',
+            'relative min-h-[96px] overflow-hidden rounded-xl border border-border/80 bg-card',
+            isStack ? 'px-4 py-3.5' : 'px-3.5 pb-3 pt-3.5',
           )}>
-          <View className="flex-row items-start gap-2.5">
-            <View
-              className={`size-9 shrink-0 items-center justify-center rounded-xl ${couponOfferIconBadgeClass}`}>
-              <Icon as={TicketPercent} className={`size-4 ${couponOfferIconClass}`} />
-            </View>
-            <View className="min-w-0 flex-1">
-              <Text className="text-foreground text-sm font-semibold leading-snug" numberOfLines={2}>
-                {preview.discount}
-              </Text>
-              {title ? (
-                <Text className="text-muted-foreground mt-1 text-xs leading-snug" numberOfLines={2}>
-                  {title}
-                </Text>
-              ) : null}
-              <Text className="text-foreground mt-2 text-xs font-semibold tracking-wide" numberOfLines={1}>
-                {code}
-              </Text>
-            </View>
+          <Text
+            className="pr-12 text-[19px] font-bold uppercase tracking-wide"
+            style={{ color: COUPON_CODE_HEX }}
+            numberOfLines={1}>
+            {code}
+          </Text>
+          <Text
+            className="mt-2 text-[13px] leading-[19px] text-foreground/85"
+            numberOfLines={2}>
+            {description}
+          </Text>
+          {/* Seal pushed into the top-right corner; the card clips its top and right edges. */}
+          <View className="absolute" style={{ top: -7, right: -7 }}>
+            <DiscountSeal size={46} />
           </View>
         </View>
       </ScalePressable>

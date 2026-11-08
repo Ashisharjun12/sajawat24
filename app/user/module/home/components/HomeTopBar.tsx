@@ -8,7 +8,7 @@ import { useAuthStore } from '@/store/auth.store';
 import { openCartCheckout } from '@/module/booking/lib/open-cart-checkout';
 import { Href, router } from 'expo-router';
 import { useWishlistStore } from '@/store/wishlist.store';
-import { Bell, Heart, ShoppingBag } from 'lucide-react-native';
+import { Bell, Heart, ShoppingCart } from 'lucide-react-native';
 import { useEffect } from 'react';
 import { View } from 'react-native';
 
@@ -66,7 +66,7 @@ export function HomeTopBar({ onCityPress }: HomeTopBarProps) {
           accessibilityLabel="Cart"
           onPress={() => openCartCheckout(user, itemCount)}
           className={`relative ${headerActionClass}`}>
-          <Icon as={ShoppingBag} className="size-5 text-primary-foreground" strokeWidth={2.25} />
+          <Icon as={ShoppingCart} className="size-5 text-primary-foreground" strokeWidth={2.25} />
           <HomeHeaderIconBadge count={itemCount} />
         </ScalePressable>
         <HomeNotificationButton unreadCount={unreadCount} />

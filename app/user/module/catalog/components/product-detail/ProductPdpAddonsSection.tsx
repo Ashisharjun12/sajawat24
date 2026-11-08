@@ -16,11 +16,11 @@ import {
 const CARD_GAP = ADDON_CARD_GAP;
 /** ~9.5rem — matches web PDP addon rail card width */
 const PDP_ADDON_CARD_WIDTH = 152;
-const PDP_SCROLL_HORIZONTAL_PADDING = 20;
-const SECTION_HORIZONTAL_PADDING = 16;
+/** Section bleeds to the screen edges; only its own inner padding remains. */
+const SECTION_HORIZONTAL_PADDING = 20;
 
 function addonSectionContentWidth(windowWidth = Dimensions.get('window').width) {
-  return windowWidth - PDP_SCROLL_HORIZONTAL_PADDING * 2 - SECTION_HORIZONTAL_PADDING * 2;
+  return windowWidth - SECTION_HORIZONTAL_PADDING * 2;
 }
 
 type ProductPdpAddonsSectionProps = {
@@ -62,7 +62,10 @@ export function ProductPdpAddonsSection({
   if (!addons.length) return null;
 
   return (
-    <View className="rounded-3xl border border-border/80 bg-card px-4 py-4 shadow-sm">
+    // Full width: cancel the PDP's 20px side padding so the white panel spans edge to edge.
+    <View
+      className="-mx-5 border-y border-border/80 bg-card py-4"
+      style={{ paddingHorizontal: SECTION_HORIZONTAL_PADDING }}>
       <View className="flex-row items-start justify-between gap-3">
         <View className="min-w-0 flex-1 flex-row items-start gap-2.5">
           <View
@@ -70,9 +73,8 @@ export function ProductPdpAddonsSection({
             accessibilityElementsHidden>
             <Icon as={Gift} className="size-4 text-rose-500" strokeWidth={2} />
           </View>
-          <View className="min-w-0 flex-1 gap-0.5">
+          <View className="min-w-0 flex-1 justify-center self-stretch">
             <Text className="text-foreground text-lg font-semibold tracking-tight">Make it yours</Text>
-            <Text className="text-muted-foreground text-sm">Optional extras. Add only what you love.</Text>
           </View>
         </View>
         {addons.length > 3 ? (
@@ -140,8 +142,13 @@ export function ProductPdpAddonsSection({
           snapToAlignment="start"
           disableIntervalMomentum
           nestedScrollEnabled
-          style={{ minHeight: listMinHeight, flexGrow: 0, marginTop: 16 }}
-          contentContainerStyle={{ gap: CARD_GAP, paddingRight: 4 }}
+          style={{
+            minHeight: listMinHeight,
+            flexGrow: 0,
+            marginTop: 16,
+            marginHorizontal: -SECTION_HORIZONTAL_PADDING,
+          }}
+          contentContainerStyle={{ gap: CARD_GAP, paddingHorizontal: SECTION_HORIZONTAL_PADDING }}
           renderItem={({ item: addon }) => (
             <ProductAddonCustomizeCard
               addon={addon}

@@ -4,7 +4,7 @@ import { Text } from '@/components/ui/text';
 import { formatPaise } from '@/lib/format-money';
 import { sectionBadgeAppearance } from '@/lib/section-badge-color';
 import { cn } from '@/lib/utils';
-import { ProductCardInstantLine } from '@/module/catalog/components/ProductCardInstant';
+import { ProductCardInstantTag } from '@/module/catalog/components/ProductCardInstant';
 import { ProductCardWishlistButton } from '@/module/catalog/components/ProductCardWishlistButton';
 import { discountPercent } from '@/lib/product-price';
 import {
@@ -13,7 +13,9 @@ import {
 } from '@/module/catalog/hooks/use-product-merch-badge';
 import type { HomeCatalogProduct } from '@/module/home/lib/home-catalog';
 import { Image } from 'expo-image';
+import { DiscountTagSvg } from '@/module/catalog/components/DiscountTagSvg';
 import { type Href, router } from 'expo-router';
+import { RIBBON_FOLD, RibbonBadge } from '@/module/catalog/components/RibbonBadge';
 import { View } from 'react-native';
 
 const PLACEHOLDER =
@@ -21,9 +23,8 @@ const PLACEHOLDER =
 
 const RAIL_WIDTH_CLASS = 'w-[168px]';
 
-/** Two-line title — matches web `HomeProductCard` `PRODUCT_CARD_TITLE_CLASS`. */
-const PRODUCT_CARD_TITLE_CLASS =
-  'text-foreground min-h-[2.75em] text-[13px] font-bold leading-snug tracking-tight';
+/** Two-line title, fixed height so every card's price row starts at the same y. */
+const PRODUCT_CARD_TITLE_CLASS = 'text-foreground h-9 text-[13px] font-medium leading-[18px]';
 
 export type CatalogProductCardLayout = 'rail' | 'grid';
 
@@ -45,17 +46,12 @@ function ProductSectionBadge({
 }) {
   const trimmed = label?.trim();
   if (!trimmed) return null;
-  const { className, backgroundColor } = sectionBadgeAppearance(color ?? 'amber');
+  const { backgroundColor } = sectionBadgeAppearance(color ?? 'amber');
+
+  // Wrap-around ribbon hanging just past the photo's right edge.
   return (
-    <View
-      className={cn(
-        'absolute right-2 top-2 z-10 max-w-[85%] rounded-md px-2 py-0.5 shadow-sm',
-        className,
-      )}
-      style={{ backgroundColor }}>
-      <Text className="text-[10px] font-bold leading-tight text-white" numberOfLines={1}>
-        {trimmed}
-      </Text>
+    <View className="absolute top-2 z-10 max-w-[85%]" style={{ right: -RIBBON_FOLD }}>
+      <RibbonBadge label={trimmed} color={backgroundColor} />
     </View>
   );
 }
@@ -84,18 +80,33 @@ function ProductCardRatingReviews({
   const positiveCount = resolveReviewCount(reviewCount);
   if (ratingLabel == null && positiveCount == null) return null;
   const countLabel = positiveCount != null ? positiveCount.toLocaleString('en-IN') : null;
-  const reviewSize = size === 'rail' ? 'text-[11px]' : 'text-xs';
+  const textSize = size === 'rail' ? 'text-[11px]' : 'text-xs';
 
   return (
-    <View className="min-h-5 min-w-0 flex-1 flex-row items-center gap-1.5">
+    <View
+      className="min-h-5 min-w-0 shrink flex-row items-center gap-1"
+      accessibilityLabel={[
+        ratingLabel != null ? `Rated ${ratingLabel}` : null,
+        countLabel != null ? `${countLabel} ${positiveCount === 1 ? 'review' : 'reviews'}` : null,
+      ]
+        .filter(Boolean)
+        .join(', ')}>
       {ratingLabel != null ? (
-        <View className="rounded-md bg-success px-1.5 py-0.5">
-          <Text className="text-[11px] font-bold leading-none text-white">★ {ratingLabel}</Text>
-        </View>
+        <>
+          <Text className={cn('font-bold leading-none text-success', textSize)}>★</Text>
+          <Text className={cn('font-semibold leading-none text-foreground tabular-nums', textSize)}>
+            {ratingLabel}
+          </Text>
+        </>
+      ) : null}
+      {ratingLabel != null && countLabel != null ? (
+        <View className="mx-1 h-3 w-px bg-border" />
       ) : null}
       {countLabel != null ? (
-        <Text className={cn('text-muted-foreground shrink', reviewSize)} numberOfLines={1}>
-          {countLabel} {positiveCount === 1 ? 'review' : 'reviews'}
+        <Text
+          className={cn('shrink leading-none text-muted-foreground tabular-nums', textSize)}
+          numberOfLines={1}>
+          {countLabel}
         </Text>
       ) : null}
     </View>
@@ -115,77 +126,75 @@ function ProductCardReviewsAndEta({
   size?: 'rail' | 'default';
   reserveSpace?: boolean;
 }) {
-  const showInstantMeta =
-    Boolean(instant?.enabled) &&
-    (Boolean(instant.showBadge) || instant.etaMinutes != null);
+  const showInstant = Boolean(instant?.enabled);
   const hasReviews =
     ratingLabel != null || resolveReviewCount(reviewCount) != null;
 
-  if (!hasReviews && !showInstantMeta && !reserveSpace) return null;
+  if (!hasReviews && !showInstant && !reserveSpace) return null;
 
+  // Rating first, then the Instant tag right after it with a small gap.
   return (
     <View
       className={cn(
-        'flex-row items-center justify-between gap-2',
+        'flex-row items-center gap-2',
         reserveSpace ? 'h-5' : 'mt-1.5 min-h-5',
       )}>
-      <View className="min-w-0 flex-1 flex-row items-center overflow-hidden">
-        {hasReviews ? (
+      {hasReviews ? (
+        <View className="min-w-0 shrink flex-row items-center overflow-hidden">
           <ProductCardRatingReviews
             size={size}
             ratingLabel={ratingLabel}
             reviewCount={reviewCount}
           />
-        ) : null}
-      </View>
-      {showInstantMeta ? (
-        <ProductCardInstantLine instant={instant} size={size} className="ml-auto max-w-[48%]" />
+        </View>
+      ) : null}
+      {showInstant ? (
+        <ProductCardInstantTag instant={instant} className={hasReviews ? 'ml-1.5' : undefined} />
       ) : null}
     </View>
   );
 }
 
+/**
+ * Fixed sizes for every card (grid + rail) so price and tag never differ between cards.
+ * MRP 12 · price 14 · tag 10 — fits "₹2,349 ₹2,049 13% OFF" in a 2-column phone grid.
+ */
+const PRICE_SIZE = 14;
+const MRP_SIZE = 12;
+const DISCOUNT_TAG_SIZE = 10;
+
+/** MRP (struck) → selling price → discount tag, always on one line. */
 function ProductCardPriceBlock({
   pricePaise,
   compareAtPaise,
-  size = 'default',
 }: {
   pricePaise: number;
   compareAtPaise?: number | null;
-  size?: 'rail' | 'default';
 }) {
   const hasCompare = compareAtPaise != null && compareAtPaise > pricePaise;
   const percentOff = discountPercent(pricePaise, compareAtPaise);
-  const priceClass = size === 'rail' ? 'text-[15px]' : 'text-base';
-  const mrpClass = size === 'rail' ? 'text-[11px]' : 'text-xs';
-  const offClass = size === 'rail' ? 'text-[10px]' : 'text-[11px]';
-  const wrapClass = size === 'rail' ? 'pt-1.5 min-h-6' : 'mt-auto pt-2';
 
   return (
-    <View className={wrapClass}>
-      <View className="min-h-6 min-w-0 flex-row items-center justify-between gap-2">
-        <View className="min-w-0 flex-1 flex-row flex-wrap items-center gap-1">
-          <Text className={cn('shrink-0 font-extrabold tabular-nums text-foreground', priceClass)}>
-            {formatPaise(pricePaise)}
-          </Text>
-          {hasCompare ? (
-            <Text
-              className={cn(
-                'shrink-0 font-medium text-muted-foreground line-through tabular-nums',
-                mrpClass,
-              )}>
-              {formatPaise(compareAtPaise!)}
-            </Text>
-          ) : null}
+    <View className="mt-1 h-6 min-w-0 flex-row flex-nowrap items-center gap-1 overflow-hidden">
+      {hasCompare ? (
+        <Text
+          className="shrink text-muted-foreground line-through tabular-nums"
+          style={{ fontSize: MRP_SIZE, lineHeight: 16 }}
+          numberOfLines={1}>
+          {formatPaise(compareAtPaise!)}
+        </Text>
+      ) : null}
+      <Text
+        className="shrink-0 font-semibold tabular-nums text-foreground"
+        style={{ fontSize: PRICE_SIZE, lineHeight: 18 }}
+        numberOfLines={1}>
+        {formatPaise(pricePaise)}
+      </Text>
+      {percentOff > 0 ? (
+        <View className="ml-0.5 shrink-0">
+          <DiscountTagSvg percentOff={percentOff} fontSize={DISCOUNT_TAG_SIZE} />
         </View>
-        {percentOff > 0 ? (
-          <Text
-            className={cn('shrink-0 font-bold text-primary tabular-nums', offClass)}
-            numberOfLines={1}>
-            {percentOff}% off
-          </Text>
-        ) : null}
-      </View>
+      ) : null}
     </View>
   );
 }
@@ -199,7 +208,6 @@ export function CatalogProductCard({
   className,
 }: CatalogProductCardProps) {
   const isRail = layout === 'rail';
-  const cardSize = isRail ? 'rail' : 'default';
 
   function handlePress() {
     if (onPress) {
@@ -218,47 +226,43 @@ export function CatalogProductCard({
     <ScalePressable
       onPress={handlePress}
       haptic
-      className={cn(
-        'flex-col rounded-card border border-border/80 bg-card shadow-raised',
-        isRail ? RAIL_WIDTH_CLASS : 'w-full flex-1',
-        className,
-      )}
+      className={cn('flex-col', isRail ? RAIL_WIDTH_CLASS : 'w-full flex-1', className)}
       accessibilityRole="button"
       accessibilityLabel={product.title}>
-      <View className="relative aspect-square w-full shrink-0 overflow-hidden rounded-t-card bg-muted">
+      {/* Outer box does not clip, so the ribbon can wrap past the photo edge. */}
+      <View className="relative aspect-square w-full shrink-0">
+        <View className="h-full w-full overflow-hidden rounded-xl bg-muted">
+          <Image
+            source={{ uri: imageUri }}
+            style={{ width: '100%', height: '100%' }}
+            contentFit="cover"
+            accessibilityLabel={product.title}
+          />
+          <ProductCardWishlistButton product={product} className="left-2 top-2" />
+        </View>
         <ProductSectionBadge label={resolved.badgeLabel} color={resolved.badgeColor} />
-        <ProductCardWishlistButton product={product} className="left-2 top-2" />
-        <Image
-          source={{ uri: imageUri }}
-          style={{ width: '100%', height: '100%' }}
-          contentFit="cover"
-          accessibilityLabel={product.title}
-        />
       </View>
-      <View
-        className={cn(
-          'flex shrink-0 flex-col',
-          isRail ? 'px-2 pb-2.5 pt-2' : 'flex-1 px-2.5 pb-3 pt-2.5',
-        )}>
+      <View className="flex flex-1 shrink-0 flex-col pt-2">
         <Text className={PRODUCT_CARD_TITLE_CLASS} numberOfLines={2}>
           {product.title}
         </Text>
 
-        <View className="mt-1.5 h-5 shrink-0 justify-center">
-          <ProductCardReviewsAndEta
-            size={cardSize}
-            ratingLabel={ratingLabel}
-            reviewCount={product.reviewCount}
-            instant={product.instant}
-            reserveSpace
-          />
-        </View>
-
         <ProductCardPriceBlock
-          size={cardSize}
           pricePaise={product.pricePaise}
           compareAtPaise={product.compareAtPaise}
         />
+
+        <View className="mt-auto shrink-0 pt-0.5">
+          <View className="h-5 justify-center">
+            <ProductCardReviewsAndEta
+              size="default"
+              ratingLabel={ratingLabel}
+              reviewCount={product.reviewCount}
+              instant={product.instant}
+              reserveSpace
+            />
+          </View>
+        </View>
       </View>
     </ScalePressable>
   );
@@ -273,16 +277,17 @@ export function CatalogProductCardRail(props: CatalogProductCardRailProps) {
 export function CatalogProductCardSkeleton({ layout = 'rail' }: { layout?: CatalogProductCardLayout }) {
   const widthClass = layout === 'rail' ? RAIL_WIDTH_CLASS : 'w-full';
   return (
-    <View className={cn('overflow-hidden rounded-card border border-border bg-card', widthClass)}>
-      <Skeleton className="aspect-square w-full rounded-none" />
-      <View className="flex flex-col px-2 pb-2.5 pt-2 sm:px-2.5">
-        <Skeleton className="min-h-[2.75em] w-[88%] rounded-md" />
-        <View className="mt-1.5 h-5 flex-row items-center gap-1.5">
-          <Skeleton className="h-5 w-10 rounded-md" />
-          <Skeleton className="h-3 w-16 rounded-md" />
+    <View className={widthClass}>
+      <Skeleton className="aspect-square w-full rounded-xl" />
+      <View className="flex flex-col pt-2">
+        <Skeleton className="h-9 w-[88%] rounded-md" />
+        <View className="mt-1 h-6 flex-row items-center gap-1.5">
+          <Skeleton className="h-3 w-10 rounded-md" />
+          <Skeleton className="h-5 w-14 rounded-md" />
+          <Skeleton className="h-4 w-14 rounded-md" />
         </View>
-        <View className="min-h-6 flex-row items-center pt-1.5">
-          <Skeleton className="h-5 w-[4.5rem] rounded-md" />
+        <View className="mt-0.5 h-5 flex-row items-center gap-1.5">
+          <Skeleton className="h-3 w-16 rounded-md" />
         </View>
       </View>
     </View>

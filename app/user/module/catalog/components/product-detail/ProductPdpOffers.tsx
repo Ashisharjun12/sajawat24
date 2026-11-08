@@ -14,6 +14,9 @@ import { router } from 'expo-router';
 import { useMemo } from 'react';
 import { View } from 'react-native';
 
+/** "View all" link — same green as the PDP chips. */
+const VIEW_ALL_GREEN_HEX = '#15803D';
+
 type ProductPdpOffersProps = {
   productId?: string;
   categoryId?: string;
@@ -35,8 +38,8 @@ export function ProductPdpOffers({ productId, categoryId }: ProductPdpOffersProp
       <View className="gap-3">
         <Text className="text-foreground text-base font-semibold">Available offers</Text>
         <View className="flex-row gap-3">
-          <Skeleton className="h-[88px] w-[168px] rounded-2xl" />
-          <Skeleton className="h-[88px] w-[168px] rounded-2xl" />
+          <Skeleton className="h-[96px] w-[240px] rounded-xl" />
+          <Skeleton className="h-[96px] w-[240px] rounded-xl" />
         </View>
       </View>
     );
@@ -65,12 +68,11 @@ export function ProductPdpOffers({ productId, categoryId }: ProductPdpOffersProp
           <Text className="text-foreground text-base font-semibold">Available offers</Text>
         </View>
         <ScalePressable haptic onPress={onViewAll} accessibilityRole="button">
-          <Text className="text-muted-foreground text-sm font-medium">View all</Text>
+          <Text className="text-sm font-semibold" style={{ color: VIEW_ALL_GREEN_HEX }}>
+            View all
+          </Text>
         </ScalePressable>
       </View>
-      <Text className="text-muted-foreground -mt-1 text-xs">
-        {visible.length} offer{visible.length === 1 ? '' : 's'} for this setup
-      </Text>
       <CouponOffersRail coupons={visible} cardVariant="minimal" />
     </View>
   );

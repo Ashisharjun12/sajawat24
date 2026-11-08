@@ -11,12 +11,17 @@ import { HomeBottomSheetModal } from '@/module/home/components/HomeBottomSheetMo
 import { useDeliveryLocationStore } from '@/store/delivery-location.store';
 import { Map, Plus } from 'lucide-react-native';
 import { useQueryClient } from '@tanstack/react-query';
+import type { Href } from 'expo-router';
 import { ActivityIndicator, Alert, Pressable, ScrollView, View } from 'react-native';
 
 type CheckoutAddressPickerSheetProps = {
   visible: boolean;
   onClose: () => void;
   cartCityId?: string | null;
+  /** Line under the title (default is checkout wording). */
+  subtitle?: string;
+  /** After adding an address, come back here instead of checkout (e.g. the product page). */
+  addAddressReturnHref?: Href;
 };
 
 function AddressRadio({ selected }: { selected: boolean }) {
@@ -49,6 +54,8 @@ export function CheckoutAddressPickerSheet({
   visible,
   onClose,
   cartCityId,
+  subtitle = 'Choose a saved address for this booking.',
+  addAddressReturnHref,
 }: CheckoutAddressPickerSheetProps) {
   const queryClient = useQueryClient();
   const selectedAddressId = useDeliveryLocationStore((s) => s.selectedAddressId);
@@ -65,7 +72,10 @@ export function CheckoutAddressPickerSheet({
 
   function openAddAddress() {
     onClose();
-    navigateToAddAddressScreen(cartCityId ? { cityId: cartCityId } : null);
+    navigateToAddAddressScreen(
+      cartCityId ? { cityId: cartCityId } : null,
+      addAddressReturnHref ? { returnHref: addAddressReturnHref } : undefined,
+    );
   }
 
   return (
@@ -77,9 +87,7 @@ export function CheckoutAddressPickerSheet({
         <View className="flex-row items-start justify-between gap-3">
           <View className="min-w-0 flex-1">
             <Text className="text-foreground text-h2 font-semibold">Delivery address</Text>
-            <Text className="text-muted-foreground mt-1 text-sm leading-5">
-              Choose a saved address for this booking.
-            </Text>
+            <Text className="text-muted-foreground mt-1 text-sm leading-5">{subtitle}</Text>
           </View>
           <Pressable
             onPress={openAddAddress}

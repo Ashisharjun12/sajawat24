@@ -19,8 +19,8 @@ Living brief for the customer mobile app (`app/user`). Update this file when eac
 
 | Field | Value |
 |-------|--------|
-| Name | Login hub branding |
-| Status | shipped — login header uses the local app icon asset |
+| Name | Explore listing header |
+| Status | shipped — Explore uses `ExploreHeader` (back, title, search, cart badge); header fixed; category chips + sort/price filters sticky on scroll; no duplicate "N products" line |
 | Theme | Light default + Dark via Profile → Appearance; dark uses `#0B1514` bg (no pure black) |
 | Home UI | Browse feed without city + compact “Please select city” banner; auto city sheet; CMS/discovery rails match web View all + badge colors |
 | Bag / checkout | Bag icon → `/(app)/checkout`; empty bag shows **My bag** + View packages; with items → Confirm booking → Payment; offers + address sub-routes |
@@ -36,13 +36,14 @@ Living brief for the customer mobile app (`app/user`). Update this file when eac
 |------|------|
 | `module/onboarding/` | Welcome UI, phone + OTP, `otp.service`, SMS autofill hook; login hub header uses `assets/images/icon.png` |
 | `module/home/` | `HomeTopBar` → `select-location` route; `HomeSearchBar` + city picker; CMS feed; `HomeLaunchAnnouncementSheet`, `use-launch-announcement-sheet`, `lib/announcement.ts`; `MerchSectionsSync`, `use-catalog-sections-query` |
+| `module/catalog/components/ExploreHeader.tsx` | Explore listing header — back, title, Search → `/(app)/search`, Wishlist → `/(app)/wishlist` with count badge, Cart → `openCartCheckout` with count badge |
 | `module/catalog/components/CatalogProductCard.tsx` | Single browse product card (`layout` grid/rail); `use-product-merch-badge` |
 | `store/merch-sections.store.ts` | City-scoped product → section badge index for cards |
 | `module/location/` | `SelectLocationScreen`, `AddAddressScreen`, `ConfirmAddressMapScreen` (web-style form → Ola map + pin) |
 | `module/geo/` | `OlaPinMapView`, `MapCenterPin`, `use-maps-sdk-config`, Ola auth (MapLibre) |
 | `module/geo/` | `PlacesAddressAutocomplete` (maps API) |
 | `module/booking/` | `checkout/*`, `abandon-incomplete-online-payment.ts`, `CashfreePaymentGatewayHost`, `cashfree-payment-bridge.ts`, `online-checkout-native.ts`, `place-order.ts` |
-| `module/catalog/` | PLP + `ProductPdpScreen` (gallery Share + Home, `ProductShareSheet`, web `/p/{id}` share URL, breadcrumb, price, location, schedule/instant, coupon ticket rail, `ProductPdpAddonsSection`, About accordion, details tabs, rails, reviews, `ProductPdpMobileBookingBar`); hooks `use-product-detail-query`, `use-product-reviews-preview-query`, `use-similar-products-query`, `use-other-category-products-query`, `use-available-coupons` |
+| `module/catalog/` | PLP + `ProductPdpScreen` (`ProductPdpTopBar` back/search/wishlist/share, gallery with dots below, `ProductShareSheet`, web `/p/{id}` share URL, price + rating pill, location, schedule/instant, coupon ticket rail, `ProductPdpAddonsSection`, About accordion, details tabs, rails, reviews, `ProductPdpMobileBookingBar`); hooks `use-product-detail-query`, `use-product-reviews-preview-query`, `use-similar-products-query`, `use-other-category-products-query`, `use-available-coupons` |
 | `module/promotions/` | `CouponTicketCard` (rail/stack), `CouponOffersRail`, `CouponDetailSheet`, `CouponOffersFilterSheet`, `OffersScreen`; PDP horizontal coupons + `app/(app)/offers` (stacked tickets, filter, load more) |
 | `module/account/` | `ProfileTabScreen`, `ManageAccountScreen`, `DeleteAccountConfirmSheet`, `FaqScreen`, `AboutUsScreen`, `LogoutConfirmSheet`, `use-profile-sign-out`; `AccountScreen` (Personal info), `RefundsScreen`, `HelpScreen`, …; `profile-menu` |
 | `store/wishlist.store.ts` | Guest SecureStore + logged-in `GET/POST/DELETE /wishlist`; merge on login via `apply-consumer-session` |
@@ -90,7 +91,7 @@ Living brief for the customer mobile app (`app/user`). Update this file when eac
 - [x] `app/(app)/category` — All = top-level grid only; parent drill-down = horizontal subcategory rail + 2-col product grid (sort + custom price, load more); `parentSlug` / `childSlug`
 - [x] `app/(app)/search` — popular setups + debounced product/category search (location required)
 - [x] `app/(app)/instant` — instant-only catalog (`GET /catalog/products?instant=1`), sort/price toolbar, infinite scroll + pull-to-refresh
-- [x] `app/(app)/explore` — web `/explore` parity: category rail + city-wide or filtered product grid (sort/price, load more)
+- [x] `app/(app)/explore` — web `/explore` parity: category rail + city-wide or filtered product grid (sort/price, load more); listing header with search + cart; category chips + sort/price filters sticky while scrolling
 - [x] `whatsapp` (FAB action)
 - [x] `app/(app)/profile` tab — web `AccountNav` labels; push toggle + Notifications row; Personal info / orders / addresses / refunds / help stack
 - [x] Profile → Appearance — bottom sheet (light/dark + Save preference); default light on boot
@@ -134,6 +135,21 @@ Living brief for the customer mobile app (`app/user`). Update this file when eac
 ## History (newest first)
 
 ```text
+2026-11-08 — PDP delivery location → saved-address bottom sheet (reuses `CheckoutAddressPickerSheet`: pick address, Add address button); signed-out still opens city picker. Add-address flow returns to the product page via new `beginLocationFlowReturningTo(href)` / `returnHref` in `location-flow.store` (checkout return unchanged)
+2026-11-08 — PDP "Make it yours" — full-width white panel (cancels 20px PDP gutter, border top/bottom, no rounded card); addon rail scrolls edge to edge with 20px start inset; grid width = screen − 40
+2026-11-08 — PDP offer cards — `CouponTicketCard` minimal: 240px white card (overflow-hidden), coupon code navy bold title (e.g. WELCOME10), "discount · title" description, svg `DiscountSeal` (pale mint scalloped %) pushed into top-right corner and clipped by the card; card icon removed, header icon kept; "N offers for this setup" removed, "View all" green
+2026-11-08 — PDP chip rotation — `ProductPdpDeliveryChip`: "FREE DELIVERY" + scooter alternates every 2.8s with the product's merch section badge (Trending / Popular, section color, white text) via slide-up enter/exit; delivery-only when no section. Chips 22px tall, 10px uppercase, square corners (Verified matches); no icon on section face
+2026-11-08 — PDP "FREE DELIVERY" chip — square-corner light green chip with `AnimatedScooter` (minimal line-art svg `ScooterIcon`, one color, rides out right, re-enters from left, parks 1.4s, loops; static under Reduce Motion), left of Verified; rating pill stays right
+2026-11-08 — PDP delivery section — "Choose delivery preference": Delivery location field (svg `IndiaFlag` + address line + chevron → `/(app)/location`), Schedule / Instant as side-by-side rectangular cards (replaces underline tabs), removed "Choose your date and time…" copy; light-green section background kept
+2026-11-08 — PDP layout — `ProductPdpTopBar` solid header (back · search, wishlist, cart with badge) above gallery; Similar on photo bottom-left, Share bottom-right; gallery overlay buttons + Home removed, page dots below photo; title 18 medium; Verified left + rating pill right (yellow star, rating | count); price 22
+2026-11-08 — PDP — removed breadcrumb (Home / category / title) above the product title
+2026-11-08 — Product card section badge (Trending / popular) — `RibbonBadge` svg wrap ribbon (notched left end, overhangs photo right edge 4px with darker folded tail), admin color fill; photo clip moved to inner view so ribbon can overhang
+2026-11-08 — Product card Instant tag — `ProductCardInstantTag` (solid pink rectangle, square corners, white Zap + "Instant"); sits right after the rating with a 6px gap
+2026-11-08 — Product card consistency — borderless card (rounded-xl image, no border/shadow/padding); fixed sizes for all cards (title 13/2 lines fixed height, MRP 12, price 14, tag 10, rating 12), price row never wraps; grid gap 12 × 24
+2026-11-08 — Product card discount UI — `CatalogProductCard`: title → struck MRP + price + green gradient "N% OFF" tag (`DiscountTagSvg`, shape + text in SVG, slanted edge) → "★ 5 | 386" row pinned to bottom; Home header bag icon → `ShoppingCart`
+2026-11-08 — Explore header — removed "N items" subtitle under the title; dropped `onTotalChange`
+2026-11-08 — Explore sticky filters — sort/price toolbar pinned with category chips; "N products" line hidden on Explore (`showTotal={false}`); `CategoryProductListing` split into `useCategoryProductListing` + `CategoryProductListingToolbar` / `CategoryProductListingResults`
+2026-11-08 — Explore listing header — `ExploreHeader` (back, category title + item count via `CategoryProductListing.onTotalChange`, search, cart badge); category rail sticky via `stickyHeaderIndices`
 2026-10-08 — Checkout offers apply UX — optimistic cart coupon + per-card spinner; return delay 1.6s → 280ms
 2026-10-08 — Empty bag + wishlist — `PackagesEmptyState`; bag icon opens checkout empty state (no alert); wishlist empty copy + View packages
 2026-10-08 — Delete account data hygiene — backend purges inbox/cart/wishlist/addresses/refunds on delete; auth ignores tombstones; app clears React Query on logout/delete; admin hides refunds panel for deleted customers

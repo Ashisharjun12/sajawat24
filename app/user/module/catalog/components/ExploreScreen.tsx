@@ -1,6 +1,11 @@
-import { SmoothScrollView, TabScreenTitle } from '@/components/shell';
-import { CategoryProductListing } from '@/module/catalog/components/CategoryProductListing';
+import { SmoothScrollView } from '@/components/shell';
+import {
+  CategoryProductListingResults,
+  CategoryProductListingToolbar,
+  useCategoryProductListing,
+} from '@/module/catalog/components/CategoryProductListing';
 import { ExploreCategoryRail } from '@/module/catalog/components/ExploreCategoryRail';
+import { ExploreHeader } from '@/module/catalog/components/ExploreHeader';
 import {
   parseExploreCategoryIds,
   resolveExploreProductCategoryIds,
@@ -73,12 +78,21 @@ export function ExploreScreen() {
     router.navigate('/(app)/' as Href);
   }, [appliedCategoryIds.length]);
 
+  const listing = useCategoryProductListing({
+    categoryIds: productCategoryIds ?? [],
+    showAllProducts,
+    refreshNonce: productRefreshNonce,
+  });
+
+  const headerTitle = useMemo(() => {
+    if (appliedCategoryIds.length !== 1) return 'Explore';
+    return categories.find((c) => c.id === appliedCategoryIds[0])?.name ?? 'Explore';
+  }, [appliedCategoryIds, categories]);
+
   return (
     <View className="flex-1">
-      <TabScreenTitle
-        title="Explore"
-        subtitle="All setups in your city"
-        showBack
+      <ExploreHeader
+        title={headerTitle}
         onBack={onHeaderBack}
         backAccessibilityLabel={
           appliedCategoryIds.length > 0 ? 'Clear category filter' : 'Back to home'
@@ -86,27 +100,33 @@ export function ExploreScreen() {
       />
       <SmoothScrollView
         className="flex-1"
-        contentContainerClassName="gap-3 pt-3"
+        contentContainerClassName="gap-3"
         contentContainerStyle={{ paddingBottom: scrollBottomPadding }}
+        stickyHeaderIndices={[0]}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
-        {isPending && categories.length === 0 ? (
-          <ActivityIndicator className="py-6" />
-        ) : (
-          <ExploreCategoryRail
-            categories={categories}
-            selectedIds={appliedCategoryIds}
-            onSelectAll={onSelectAll}
-            onSelectCategory={onSelectCategory}
+        {/* Sticky: category chips + sort / price filters stay pinned under the header. */}
+        <View className="bg-background pt-3">
+          {isPending && categories.length === 0 ? (
+            <ActivityIndicator className="py-6" />
+          ) : (
+            <ExploreCategoryRail
+              categories={categories}
+              selectedIds={appliedCategoryIds}
+              onSelectAll={onSelectAll}
+              onSelectCategory={onSelectCategory}
+            />
+          )}
+          <View className="px-5">
+            <CategoryProductListingToolbar listing={listing} showTotal={false} />
+          </View>
+        </View>
+        <View className={listing.hasLocation ? 'gap-4 px-5 pt-1' : undefined}>
+          <CategoryProductListingResults
+            listing={listing}
+            emptyTitle="No packages yet"
+            emptyDescription="Try clearing filters or pick another category."
           />
-        )}
-        <CategoryProductListing
-          categoryIds={productCategoryIds ?? []}
-          showAllProducts={showAllProducts}
-          sectionTitle=""
-          emptyTitle="No packages yet"
-          emptyDescription="Try clearing filters or pick another category."
-          refreshNonce={productRefreshNonce}
-        />
+        </View>
       </SmoothScrollView>
     </View>
   );

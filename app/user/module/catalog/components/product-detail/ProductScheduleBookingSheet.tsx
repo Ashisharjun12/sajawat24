@@ -10,6 +10,7 @@ import { Image } from 'expo-image';
 import { CalendarDays, X } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
 import { Dimensions, Platform, ScrollView, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ProductDeliveryScheduleDialog } from './ProductDeliveryScheduleDialog';
 
 type ProductScheduleBookingSheetProps = {
@@ -38,6 +39,10 @@ function isWithinQuickRange(date: Date, today: Date): boolean {
 }
 
 const THUMB_SIZE = 64;
+/** `BottomSheetHandle`: pt-3 + 4px bar + pb-2. */
+const SHEET_HANDLE_HEIGHT = 24;
+/** `HomeBottomSheetModal` adds 16px under the safe-area inset. */
+const SHEET_BOTTOM_PAD = 16;
 
 export function ProductScheduleBookingSheet({
   visible,
@@ -58,9 +63,20 @@ export function ProductScheduleBookingSheet({
 
   const laterSelected = !isWithinQuickRange(selectedDate, today);
 
+  // Fit the sheet to its content (last time-slot row sits just above the button, no empty
+  // gap), capped at 90% of the screen; scrolls only if content is taller than that.
   const windowHeight = Dimensions.get('window').height;
-  const sheetMinHeight = Math.round(windowHeight * 0.52);
-  const sheetMaxHeight = Math.round(windowHeight * 0.78);
+  const insets = useSafeAreaInsets();
+  const [headerH, setHeaderH] = useState(0);
+  const [contentH, setContentH] = useState(0);
+  const [footerH, setFooterH] = useState(0);
+  const sheetMaxHeight = Math.round(windowHeight * 0.9);
+  const measured = headerH > 0 && contentH > 0 && footerH > 0;
+  const fittedHeight =
+    SHEET_HANDLE_HEIGHT + headerH + contentH + footerH + insets.bottom + SHEET_BOTTOM_PAD;
+  const sheetHeight = measured
+    ? Math.min(Math.ceil(fittedHeight), sheetMaxHeight)
+    : Math.round(windowHeight * 0.7);
 
   function handleContinue() {
     onContinue(buildScheduledIso(selectedDate, slotId));
@@ -79,11 +95,13 @@ export function ProductScheduleBookingSheet({
     <HomeBottomSheetModal
       visible={visible}
       onClose={onClose}
-      sheetMinHeight={sheetMinHeight}
+      sheetMinHeight={sheetHeight}
       sheetMaxHeight={sheetMaxHeight}
       closeAccessibilityLabel="Close schedule picker">
       <View className="min-h-0 flex-1">
-        <View className="flex-row items-center justify-between gap-3 px-5 pb-2 pt-1">
+        <View
+          className="flex-row items-center justify-between gap-3 px-5 pb-2 pt-1"
+          onLayout={(e) => setHeaderH(e.nativeEvent.layout.height)}>
           <Text className="text-foreground min-w-0 flex-1 text-lg font-semibold">
             Pick date & time slot
           </Text>
@@ -102,6 +120,7 @@ export function ProductScheduleBookingSheet({
           showsVerticalScrollIndicator={false}
           nestedScrollEnabled
           keyboardShouldPersistTaps="handled"
+          onContentSizeChange={(_, h) => setContentH(h)}
           contentContainerClassName="gap-4 px-5 pb-4">
           <View className="flex-row items-center gap-3 rounded-2xl bg-primary-tint px-3 py-3">
             <View
@@ -240,7 +259,9 @@ export function ProductScheduleBookingSheet({
           </View>
         </ScrollView>
 
-        <View className="border-t border-border/60 px-5 pt-3">
+        <View
+          className="border-t border-border/60 px-5 pt-3"
+          onLayout={(e) => setFooterH(e.nativeEvent.layout.height)}>
           <Button variant="cta" loading={submitting} onPress={handleContinue}>
             <Text>Continue to checkout</Text>
           </Button>

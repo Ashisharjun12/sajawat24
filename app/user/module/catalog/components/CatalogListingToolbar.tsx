@@ -31,6 +31,8 @@ type CatalogListingToolbarProps = {
   priceOpen?: boolean;
   priceActive?: boolean;
   showPriceButton?: boolean;
+  /** Hide the "N products" line (e.g. when the screen header already shows the count). */
+  showTotal?: boolean;
 };
 
 export function CatalogListingToolbar({
@@ -42,15 +44,20 @@ export function CatalogListingToolbar({
   priceOpen = false,
   priceActive = false,
   showPriceButton = true,
+  showTotal = true,
 }: CatalogListingToolbarProps) {
   return (
-    <View className="gap-3 border-b border-border/80 pb-4" accessibilityLabel="Sort and filter products">
-      <Text className="text-muted-foreground text-sm">
-        <Text className="text-foreground font-bold tabular-nums">
-          {loading ? '…' : total.toLocaleString()}
-        </Text>{' '}
-        products
-      </Text>
+    <View
+      className={`gap-3 border-b border-border/80 ${showTotal ? 'pb-4' : 'pb-3'}`}
+      accessibilityLabel="Sort and filter products">
+      {showTotal ? (
+        <Text className="text-muted-foreground text-sm">
+          <Text className="text-foreground font-bold tabular-nums">
+            {loading ? '…' : total.toLocaleString()}
+          </Text>{' '}
+          products
+        </Text>
+      ) : null}
 
       <ScrollView
         horizontal

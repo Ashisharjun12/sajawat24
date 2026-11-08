@@ -79,6 +79,36 @@ export function ProductCardInstantLine({
   );
 }
 
+/** Card body tag — solid pink rectangle (square corners), white Zap + "Instant". */
+export function ProductCardInstantTag({
+  instant,
+  className,
+}: {
+  instant?: HomeProductInstant | null;
+  className?: string;
+}) {
+  if (!instant?.enabled) return null;
+
+  const label = (instant.badgeLabel || 'Instant').trim() || 'Instant';
+  const eta = formatInstantCardEta(instant.etaMinutes);
+
+  return (
+    <View
+      className={cn(
+        'h-[18px] shrink-0 flex-row items-center gap-0.5 rounded-none bg-instant px-1.5',
+        className,
+      )}
+      accessibilityLabel={eta ? `${label}, ${eta} typical arrival after confirmation` : label}>
+      <Icon as={Zap} size={10} className="shrink-0 text-instant-foreground" strokeWidth={2.5} />
+      <Text
+        className="text-[11px] font-semibold leading-none text-instant-foreground"
+        numberOfLines={1}>
+        {label}
+      </Text>
+    </View>
+  );
+}
+
 /** Bottom-right on card image — crimson pill with Zap + label (optional ETA). */
 export function ProductCardInstantImageBadge({
   instant,

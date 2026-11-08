@@ -232,62 +232,10 @@ function LocationCityPickerPanel({
   );
 }
 
-/**
- * City chip trigger. Several of these are mounted at once (header, mobile home hero,
- * mobile nav), so it only opens the picker; the picker itself is rendered once by
- * `LocationPickerHost` in the layout.
- */
 export function LocationPicker({ variant = "default", className }) {
   const city = useLocationStore((s) => s.city);
   const pincode = useLocationStore((s) => s.pincode);
   const source = useLocationStore((s) => s.source);
-  const setPickerOpen = useLocationStore((s) => s.setPickerOpen);
-
-  return (
-    <CityChip
-      city={city}
-      pincode={pincode}
-      source={source}
-      onClick={() => setPickerOpen(true)}
-      className={cn(
-        variant === "onBrand" || variant === "onHero"
-          ? "h-auto max-w-[10.5rem] border-0 bg-transparent px-0 py-0 shadow-none hover:border-0 hover:bg-transparent hover:shadow-none"
-          : undefined,
-        variant === "mobileToolbar"
-          ? "h-9 w-full max-w-full border-border/80 bg-muted/40 px-2.5 text-xs hover:bg-muted/60"
-          : undefined,
-        className,
-      )}
-      labelClassName={
-        variant === "onBrand"
-          ? "text-sm font-semibold text-primary-foreground"
-          : variant === "onHero"
-            ? "text-sm font-semibold text-background"
-            : variant === "mobileToolbar"
-              ? "text-xs font-bold"
-              : undefined
-      }
-      chevronClassName={
-        variant === "onBrand"
-          ? "text-primary-foreground/70"
-          : variant === "onHero"
-            ? "text-background/70"
-            : undefined
-      }
-      pinClassName={
-        variant === "onBrand"
-          ? "text-primary-foreground"
-          : variant === "onHero"
-            ? "text-background"
-            : undefined
-      }
-    />
-  );
-}
-
-/** The single "Select your city" sheet (mobile) / dialog (desktop). Mount once in the layout. */
-export function LocationPickerHost() {
-  const city = useLocationStore((s) => s.city);
   const cities = useLocationStore((s) => s.cities);
   const pickerOpen = useLocationStore((s) => s.pickerOpen);
   const setPickerOpen = useLocationStore((s) => s.setPickerOpen);
@@ -351,6 +299,45 @@ export function LocationPickerHost() {
 
   return (
     <>
+      <CityChip
+        city={city}
+        pincode={pincode}
+        source={source}
+        onClick={() => setPickerOpen(true)}
+        className={cn(
+          variant === "onBrand" || variant === "onHero"
+            ? "h-auto max-w-[10.5rem] border-0 bg-transparent px-0 py-0 shadow-none hover:border-0 hover:bg-transparent hover:shadow-none"
+            : undefined,
+          variant === "mobileToolbar"
+            ? "h-9 w-full max-w-full border-border/80 bg-muted/40 px-2.5 text-xs hover:bg-muted/60"
+            : undefined,
+          className,
+        )}
+        labelClassName={
+          variant === "onBrand"
+            ? "text-sm font-semibold text-primary-foreground"
+            : variant === "onHero"
+              ? "text-sm font-semibold text-background"
+              : variant === "mobileToolbar"
+                ? "text-xs font-bold"
+                : undefined
+        }
+        chevronClassName={
+          variant === "onBrand"
+            ? "text-primary-foreground/70"
+            : variant === "onHero"
+              ? "text-background/70"
+              : undefined
+        }
+        pinClassName={
+          variant === "onBrand"
+            ? "text-primary-foreground"
+            : variant === "onHero"
+              ? "text-background"
+              : undefined
+        }
+      />
+
       {isMdDown ? (
         <Sheet open={pickerOpen} onOpenChange={closePicker}>
           <SheetContent

@@ -1,23 +1,79 @@
-import { Icon } from '@/components/ui/icon';
+import {
+  PDP_CHIP_HEIGHT,
+  PDP_CHIP_RADIUS,
+  ProductPdpDeliveryChip,
+} from './ProductPdpDeliveryChip';
 import { Text } from '@/components/ui/text';
 import { formatPaise } from '@/lib/format-money';
 import { discountPercent } from '@/lib/product-price';
 import { formatPdpRating } from '@/module/catalog/lib/product-pdp-helpers';
-import { BadgeCheck } from 'lucide-react-native';
+import { BadgeCheck, Star } from 'lucide-react-native';
 import { View } from 'react-native';
+
+/** Rating star yellow (PDP rating pill). */
+const RATING_STAR_HEX = '#F5B301';
+/** Green chips (Free delivery, Verified) — light green fill, green text + icon. */
+const GREEN_CHIP_BG_HEX = '#DCFCE7';
+const GREEN_CHIP_TEXT_HEX = '#15803D';
+/** "33% OFF" next to the price — darker green than the default success tone. */
+const DISCOUNT_TEXT_HEX = '#166534';
 
 type ProductPdpPriceProps = {
   pricePaise: number | null | undefined;
   compareAtPaise?: number | null;
   ratingAvg?: number | null;
   reviewCount?: number | null;
+  /** Lets the Free delivery chip alternate with the product's section badge. */
+  productId?: string | null;
 };
+
+function VerifiedChip() {
+  return (
+    <View
+      className="flex-row items-center gap-1 px-2"
+      style={{
+        height: PDP_CHIP_HEIGHT,
+        borderRadius: PDP_CHIP_RADIUS,
+        backgroundColor: GREEN_CHIP_BG_HEX,
+      }}>
+      <BadgeCheck size={12} color={GREEN_CHIP_TEXT_HEX} />
+      <Text
+        className="text-[10px] font-semibold uppercase tracking-wide"
+        style={{ color: GREEN_CHIP_TEXT_HEX }}>
+        Verified
+      </Text>
+    </View>
+  );
+}
+
+function RatingPill({ ratingLabel, reviews }: { ratingLabel: string | null; reviews: string | null }) {
+  return (
+    <View
+      className="flex-row items-center gap-1.5 rounded-full border border-border bg-card px-2.5 py-1"
+      accessibilityLabel={[
+        ratingLabel != null ? `Rated ${ratingLabel}` : null,
+        reviews ? `${reviews} reviews` : null,
+      ]
+        .filter(Boolean)
+        .join(', ')}>
+      {ratingLabel != null ? (
+        <>
+          <Star size={14} color={RATING_STAR_HEX} fill={RATING_STAR_HEX} />
+          <Text className="text-foreground text-sm font-medium tabular-nums">{ratingLabel}</Text>
+        </>
+      ) : null}
+      {ratingLabel != null && reviews ? <View className="h-3.5 w-px bg-border" /> : null}
+      {reviews ? <Text className="text-muted-foreground text-sm tabular-nums">{reviews}</Text> : null}
+    </View>
+  );
+}
 
 export function ProductPdpPrice({
   pricePaise,
   compareAtPaise,
   ratingAvg,
   reviewCount,
+  productId,
 }: ProductPdpPriceProps) {
   if (pricePaise == null) {
     return <Text className="text-muted-foreground text-sm">Price unavailable</Text>;
@@ -31,27 +87,24 @@ export function ProductPdpPrice({
     reviewCount != null && Number(reviewCount) > 0
       ? Number(reviewCount).toLocaleString('en-IN')
       : null;
+  const hasRating = ratingLabel != null || reviews != null;
 
   return (
     <View className="gap-2.5 border-b border-border/60 pb-5">
-      {ratingLabel != null || reviews ? (
-        <View className="flex-row flex-wrap items-center gap-2">
-          {ratingLabel != null ? (
-            <View className="rounded-md bg-success px-2 py-0.5">
-              <Text className="text-xs font-bold text-white">★ {ratingLabel}</Text>
-            </View>
-          ) : null}
-          {reviews ? <Text className="text-muted-foreground text-sm">{reviews} reviews</Text> : null}
-          {ratingLabel != null ? (
-            <View className="flex-row items-center gap-1 rounded-md bg-primary-tint px-1.5 py-0.5">
-              <Icon as={BadgeCheck} className="size-3.5 text-primary" />
-              <Text className="text-xs font-semibold text-primary">Verified</Text>
-            </View>
-          ) : null}
+      {/* Free delivery chip on the left; Verified + rating pill on the right. */}
+      <View className="flex-row items-center justify-between gap-2">
+        <View className="min-w-0 shrink flex-row items-center">
+          <ProductPdpDeliveryChip productId={productId} />
         </View>
-      ) : null}
-      <View className="flex-row flex-wrap items-baseline gap-x-2.5 gap-y-1">
-        <Text className="text-foreground text-display font-semibold tabular-nums">
+        {/* Verified sits just left of the rating pill. */}
+        <View className="shrink-0 flex-row items-center gap-2">
+          {ratingLabel != null ? <VerifiedChip /> : null}
+          {hasRating ? <RatingPill ratingLabel={ratingLabel} reviews={reviews} /> : null}
+        </View>
+      </View>
+
+      <View className="flex-row flex-wrap items-center gap-x-2 gap-y-1">
+        <Text className="text-foreground text-2xl font-semibold tabular-nums">
           {formatPaise(pricePaise)}
         </Text>
         {hasCompare ? (
@@ -60,14 +113,15 @@ export function ProductPdpPrice({
           </Text>
         ) : null}
         {percentOff > 0 ? (
-          <Text className="text-sm font-bold text-success">{percentOff}% OFF</Text>
+          <Text className="text-sm font-semibold" style={{ color: DISCOUNT_TEXT_HEX }}>
+            {percentOff}% OFF
+          </Text>
         ) : null}
       </View>
+
       {savedPaise > 0 ? (
         <Text className="text-sm leading-relaxed">
-          <Text className="font-semibold text-success">
-            You save {formatPaise(savedPaise)}
-          </Text>
+          <Text className="font-semibold text-success">You save {formatPaise(savedPaise)}</Text>
           <Text className="text-muted-foreground"> · Inclusive of all charges & setup</Text>
         </Text>
       ) : (
