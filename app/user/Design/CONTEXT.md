@@ -135,6 +135,7 @@ Living brief for the customer mobile app (`app/user`). Update this file when eac
 ## History (newest first)
 
 ```text
+2026-11-08 — PDP share sheet redesign (`ProductShareSheet`): "Share this setup" + product preview (photo, title, price on primary-tint) → link field with inline Copy that flips to green "Copied ✓" (stays open, haptic, no alert) → "Share via" row of round app targets: WhatsApp, Telegram, Facebook, Messages, Email, More (system sheet). New helpers in `lib/share-product.ts`
 2026-11-08 — PDP VERIFIED chip: green as before (#DCFCE7 fill, #15803D text) with a filled blue shield-check (#2563EB, white tick, 16px); same on web
 2026-11-08 — Delivery address sheet (`CheckoutAddressPickerSheet`, PDP + checkout): tap only picks (radio moves), bottom "Save address" applies + closes ("Add address" stays top; bottom button is Add address only when no saved addresses). PDP no longer drops to the full-page skeleton when the address changes (`useProductDetailQuery` keeps the same product as placeholder while it refetches for the new city/pin; delivery type no longer resets)
 2026-11-08 — Account tab footer: "Privacy policy" link only (terms/refund removed) + app version → `/(app)/profile/legal/[doc]` (`LegalPageScreen`) loads the published CMS page (`GET /catalog/cms/pages/:slug`, tries slugs like privacy-policy/privacy, platform mobile then web), rendered with `components/ui/markdown-text.tsx`

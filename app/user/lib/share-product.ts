@@ -42,6 +42,52 @@ export async function shareViaWhatsApp(message: string): Promise<boolean> {
   return false;
 }
 
+/** Open the first URL that works; returns false (with an alert) if none can be opened. */
+async function openFirst(urls: string[], failTitle: string): Promise<boolean> {
+  for (const url of urls) {
+    try {
+      await Linking.openURL(url);
+      return true;
+    } catch {
+      // try next
+    }
+  }
+  Alert.alert(failTitle, 'Try Copy link instead.');
+  return false;
+}
+
+export function shareViaTelegram(title: string, url: string) {
+  const text = encodeURIComponent((title ?? '').trim() || 'Decoration setup');
+  const link = encodeURIComponent(url);
+  return openFirst(
+    [`tg://msg_url?url=${link}&text=${text}`, `https://t.me/share/url?url=${link}&text=${text}`],
+    'Could not open Telegram',
+  );
+}
+
+export function shareViaFacebook(url: string) {
+  const link = encodeURIComponent(url);
+  return openFirst(
+    [`https://www.facebook.com/sharer/sharer.php?u=${link}`],
+    'Could not open Facebook',
+  );
+}
+
+export function shareViaSms(message: string) {
+  const body = encodeURIComponent(message);
+  // iOS uses "&body=", Android "?body=".
+  return openFirst(
+    [Platform.OS === 'ios' ? `sms:&body=${body}` : `sms:?body=${body}`],
+    'Could not open Messages',
+  );
+}
+
+export function shareViaEmail(title: string, message: string) {
+  const subject = encodeURIComponent((title ?? '').trim() || 'Decoration setup');
+  const body = encodeURIComponent(message);
+  return openFirst([`mailto:?subject=${subject}&body=${body}`], 'Could not open email');
+}
+
 export async function copyProductLink(url: string) {
   await Clipboard.setStringAsync(url);
 }

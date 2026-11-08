@@ -350,6 +350,8 @@ export function ProductPdpScreen({ productId }: ProductPdpScreenProps) {
           onOpenChange={setShareOpen}
           title={title}
           productId={detail.id}
+          imageUrl={images[0] ?? null}
+          pricePaise={detail.pricePaise}
         />
       ) : null}
 
