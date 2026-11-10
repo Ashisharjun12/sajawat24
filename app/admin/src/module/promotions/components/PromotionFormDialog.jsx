@@ -65,6 +65,8 @@ function defaultValues(coupon) {
     startsAt: toDateInput(coupon?.startsAt) || new Date().toISOString().slice(0, 10),
     endsAt: toDateInput(coupon?.endsAt) || "2026-12-31",
     isActive: coupon ? coupon.status !== "disabled" : true,
+    // Older API responses may not include the field; treat missing as listed (the DB default).
+    showOnPlatform: coupon?.showOnPlatform ?? true,
   }
 }
 
@@ -472,6 +474,26 @@ export function PromotionFormDialog({ open, onOpenChange, coupon, onSubmit, subm
                       <FieldLabel htmlFor="promo-active">Active</FieldLabel>
                       <Switch
                         id="promo-active"
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </Field>
+                  )}
+                />
+                <Controller
+                  name="showOnPlatform"
+                  control={form.control}
+                  render={({ field }) => (
+                    <Field orientation="horizontal">
+                      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                        <FieldLabel htmlFor="promo-show-on-platform">Show on platform</FieldLabel>
+                        <p className="text-xs text-muted-foreground">
+                          Off: the coupon still works, but only when a customer types the code at
+                          checkout. It is hidden from product pages and offer lists.
+                        </p>
+                      </div>
+                      <Switch
+                        id="promo-show-on-platform"
                         checked={field.value}
                         onCheckedChange={field.onChange}
                       />

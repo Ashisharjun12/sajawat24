@@ -1,22 +1,9 @@
 import { ScalePressable } from '@/components/shell';
-import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { categoryImageUrl, type HomeCategory } from '@/module/home/lib/home-catalog';
 import { Image } from 'expo-image';
-import { Baby, Cake, Heart, Home, Sparkles, type LucideIcon } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
-
-const ICON_MAP: Record<string, LucideIcon> = {
-  cake: Cake,
-  heart: Heart,
-  baby: Baby,
-  home: Home,
-  sparkles: Sparkles,
-};
-
-const CATEGORY_PLACEHOLDER =
-  'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=400&h=400&fit=crop';
 
 type HomeCategoryTileProps = {
   category: HomeCategory;
@@ -24,7 +11,6 @@ type HomeCategoryTileProps = {
 };
 
 export function HomeCategoryTile({ category, onPress }: HomeCategoryTileProps) {
-  const Lucide = ICON_MAP[category.iconKey ?? 'sparkles'] ?? Sparkles;
   const remoteUri = categoryImageUrl(category)?.trim() || null;
   const [remoteFailed, setRemoteFailed] = useState(false);
 
@@ -52,18 +38,14 @@ export function HomeCategoryTile({ category, onPress }: HomeCategoryTileProps) {
             onError={() => setRemoteFailed(true)}
           />
         ) : (
-          <View className="h-full w-full">
-            <Image
-              source={{ uri: CATEGORY_PLACEHOLDER }}
-              style={{ width: '100%', height: '100%' }}
-              contentFit="cover"
-              accessibilityLabel=""
-            />
-            <View className="absolute inset-0 items-center justify-center bg-black/25">
-              <View className="items-center justify-center rounded-full bg-background/90 p-2.5">
-                <Icon as={Lucide} className="text-primary size-7" />
-              </View>
-            </View>
+          <View className="bg-muted h-full w-full items-center justify-center px-1.5">
+            <Text
+              className="text-muted-foreground text-sm font-semibold tracking-tight"
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              accessibilityLabel="No image">
+              sajawat24
+            </Text>
           </View>
         )}
       </View>

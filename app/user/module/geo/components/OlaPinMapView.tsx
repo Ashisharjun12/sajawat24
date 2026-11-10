@@ -22,6 +22,8 @@ type Props = {
   zoom?: number;
   /** Increment to move the camera programmatically (search, GPS, etc.). */
   flyToKey?: number;
+  /** false = a still preview: no pan / zoom gestures (e.g. the small map on the address form). */
+  interactive?: boolean;
   onCenterChange?: (change: MapCenterChange) => void;
   className?: string;
   showUserLocation?: boolean;
@@ -34,6 +36,7 @@ export function OlaPinMapView({
   center,
   zoom = 16,
   flyToKey = 0,
+  interactive = true,
   onCenterChange,
   className,
   showUserLocation = false,
@@ -66,10 +69,10 @@ export function OlaPinMapView({
         key={mapRemountKey}
         style={{ flex: 1 }}
         mapStyle={sdkConfig.styleUrl}
-        dragPan
-        touchZoom
-        doubleTapZoom
-        doubleTapHoldZoom
+        dragPan={interactive}
+        touchZoom={interactive}
+        doubleTapZoom={interactive}
+        doubleTapHoldZoom={interactive}
         touchRotate={false}
         touchPitch={false}
         attribution={false}

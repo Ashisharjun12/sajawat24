@@ -25,6 +25,7 @@ export type CouponPatch = Partial<
         | "firstOrderOnly"
         | "allowedPaymentMethods"
         | "isActive"
+        | "showOnPlatform"
         | "startsAt"
         | "endsAt"
     >
@@ -137,10 +138,16 @@ export class CouponRepository implements ICouponRepository {
         return Number(row?.value ?? 0);
     }
 
+    /**
+     * Coupons customers may be SHOWN (product offers, offers list, checkout list): active, inside
+     * their dates and listed on the platform. Hidden coupons are deliberately excluded here only;
+     * lookups by code or id (apply, cart re-validation, order placement) must not use this.
+     */
     async listCurrentlyActive(): Promise<CouponWithMeta[]> {
         const now = new Date();
         const timeWhere = and(
             eq(coupons.isActive, true),
+            eq(coupons.showOnPlatform, true),
             sql`${coupons.startsAt} <= ${now}`,
             sql`${coupons.endsAt} >= ${now}`,
         );

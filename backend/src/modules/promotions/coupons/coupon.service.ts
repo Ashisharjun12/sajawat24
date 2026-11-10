@@ -39,6 +39,7 @@ export type PublicCoupon = {
     targets: CouponTargetLabel[];
     firstOrderOnly: boolean;
     allowedPaymentMethods: string[];
+    showOnPlatform: boolean;
     status: ReturnType<typeof deriveCouponStatus>;
     startsAt: string;
     endsAt: string;
@@ -101,6 +102,7 @@ async function mapCoupon(
         targets: targetLabels,
         firstOrderOnly: row.firstOrderOnly,
         allowedPaymentMethods: row.allowedPaymentMethods,
+        showOnPlatform: row.showOnPlatform,
         status: deriveCouponStatus(row),
         startsAt: row.startsAt.toISOString(),
         endsAt: row.endsAt.toISOString(),
@@ -166,6 +168,7 @@ export class CouponAdminService {
                     firstOrderOnly: input.firstOrderOnly,
                     allowedPaymentMethods: input.allowedPaymentMethods,
                     isActive: input.isActive,
+                    showOnPlatform: input.showOnPlatform ?? true,
                     startsAt: input.startsAt,
                     endsAt: input.endsAt,
                 },
@@ -224,6 +227,9 @@ export class CouponAdminService {
                         ? { allowedPaymentMethods: input.allowedPaymentMethods }
                         : {}),
                     ...(input.isActive !== undefined ? { isActive: input.isActive } : {}),
+                    ...(input.showOnPlatform !== undefined
+                        ? { showOnPlatform: input.showOnPlatform }
+                        : {}),
                     ...(input.startsAt !== undefined ? { startsAt: input.startsAt } : {}),
                     ...(input.endsAt !== undefined ? { endsAt: input.endsAt } : {}),
                     ...(nextType === "flat"

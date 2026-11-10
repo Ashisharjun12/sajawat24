@@ -770,7 +770,7 @@ function ProductSchedule({ onChange, onDone, doneLabel = "Done", busy = false })
   );
 }
 
-export function ProductPdp({ product, onChangeLocation }) {
+export function ProductPdp({ product }) {
   const images = useMemo(() => galleryImages(product?.images), [product?.images]);
   const title = (product?.name ?? "").trim() || "Product";
   const copy = (product?.description ?? "").trim();
@@ -950,7 +950,6 @@ export function ProductPdp({ product, onChangeLocation }) {
             canScheduled={canScheduled}
             isInstantBooking={isInstantBooking}
             onFulfillmentChange={setFulfillment}
-            onChangeLocation={onChangeLocation}
             instantLabel={product?.instant?.badgeLabel}
             instantEtaMinutes={product?.instant?.etaMinutes}
           />

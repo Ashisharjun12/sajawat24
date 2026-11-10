@@ -32,6 +32,19 @@ function toPixelCrop(crop, image) {
   }
 }
 
+/** Largest centered crop (in %) with the given width/height ratio. */
+function fitCropToAspect(aspect, { width, height }) {
+  let cropWidth = width
+  let cropHeight = width / aspect
+  if (cropHeight > height) {
+    cropHeight = height
+    cropWidth = height * aspect
+  }
+  const w = (cropWidth / width) * 100
+  const h = (cropHeight / height) * 100
+  return { unit: "%", x: (100 - w) / 2, y: (100 - h) / 2, width: w, height: h }
+}
+
 function buildOutput(width, height) {
   const w = Number.parseInt(String(width), 10)
   const h = Number.parseInt(String(height), 10)
@@ -47,6 +60,7 @@ export function MediaCropDialog({ open, onOpenChange, item, onConfirm, submittin
   const [presetId, setPresetId] = useState("free")
   const [outputWidth, setOutputWidth] = useState("")
   const [outputHeight, setOutputHeight] = useState("")
+  const [naturalSize, setNaturalSize] = useState(null)
 
   useEffect(() => {
     if (!open) {
@@ -54,10 +68,13 @@ export function MediaCropDialog({ open, onOpenChange, item, onConfirm, submittin
       setPresetId("free")
       setOutputWidth("")
       setOutputHeight("")
+      setNaturalSize(null)
     }
   }, [open, item?.id])
 
   function onImageLoad(event) {
+    const { naturalWidth, naturalHeight } = event.currentTarget
+    setNaturalSize({ width: naturalWidth, height: naturalHeight })
     setCrop({
       unit: "%",
       x: 5,
@@ -74,6 +91,10 @@ export function MediaCropDialog({ open, onOpenChange, item, onConfirm, submittin
     else setOutputWidth("")
     if (preset.outputHeight) setOutputHeight(String(preset.outputHeight))
     else setOutputHeight("")
+    // Auto-fit: largest centered crop box with the preset's ratio.
+    if (preset.aspect && naturalSize) {
+      setCrop(fitCropToAspect(preset.aspect, naturalSize))
+    }
   }
 
   async function handleConfirm() {
@@ -85,6 +106,23 @@ export function MediaCropDialog({ open, onOpenChange, item, onConfirm, submittin
 
   const activePreset = getCropPreset(presetId)
   const cropAspect = activePreset.aspect
+
+  // The backend only shrinks images, never enlarges them, so warn when the
+  // selected area is smaller than the preset's target size.
+  let smallWarning = ""
+  if (activePreset.outputWidth && crop?.width && naturalSize) {
+    const cropPxWidth =
+      crop.unit === "%" ? (crop.width / 100) * naturalSize.width : null
+    const cropPxHeight =
+      crop.unit === "%" ? (crop.height / 100) * naturalSize.height : null
+    if (
+      cropPxWidth != null &&
+      cropPxHeight != null &&
+      (cropPxWidth < activePreset.outputWidth - 1 || cropPxHeight < activePreset.outputHeight - 1)
+    ) {
+      smallWarning = `Selected area is ${Math.round(cropPxWidth)} × ${Math.round(cropPxHeight)} px, smaller than the target. It will not be enlarged, so use a larger original for the best quality.`
+    }
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -113,6 +151,14 @@ export function MediaCropDialog({ open, onOpenChange, item, onConfirm, submittin
               </Button>
             ))}
           </div>
+
+          {activePreset.outputWidth ? (
+            <p className="text-xs text-muted-foreground">
+              Output {activePreset.outputWidth} × {activePreset.outputHeight} px ({activePreset.ratioLabel}).
+              The crop box is locked to this ratio and the size fills in automatically.
+            </p>
+          ) : null}
+          {smallWarning ? <p className="text-xs text-amber-600 dark:text-amber-500">{smallWarning}</p> : null}
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
@@ -146,7 +192,7 @@ export function MediaCropDialog({ open, onOpenChange, item, onConfirm, submittin
           {item?.publicUrl ? (
             <ReactCrop
               crop={crop}
-              onChange={setCrop}
+              onChange={(_, percentCrop) => setCrop(percentCrop)}
               aspect={cropAspect}
               className="mx-auto block max-w-full"
             >

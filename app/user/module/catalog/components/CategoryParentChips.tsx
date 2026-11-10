@@ -30,14 +30,16 @@ export function CategoryParentChips({
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
-      contentContainerClassName="gap-2 px-5 pb-1 pr-6"
+      contentContainerClassName="items-center gap-2 px-5 pb-1 pr-6"
       accessibilityLabel="Browse categories">
       <ScalePressable
         onPress={onSelectAll}
         haptic
         pressScale={0.96}
+        // Same as the Explore tab: fixed 44px height (matches the icon chips), pill shape,
+        // centred label.
         className={cn(
-          'rounded-full px-3.5 py-2',
+          'h-11 min-w-16 items-center justify-center rounded-full px-5',
           showAllParents ? 'bg-primary' : 'bg-muted',
         )}
         accessibilityRole="button"
@@ -45,7 +47,7 @@ export function CategoryParentChips({
         accessibilityLabel="All categories">
         <Text
           className={cn(
-            'text-xs font-semibold',
+            'text-center text-xs font-semibold',
             showAllParents ? 'text-primary-foreground' : 'text-foreground',
           )}>
           All
@@ -65,7 +67,7 @@ export function CategoryParentChips({
             haptic
             pressScale={0.96}
             className={cn(
-              'flex-row items-center gap-1.5 rounded-full py-2 pl-2 pr-3.5',
+              'h-11 flex-row items-center gap-1.5 rounded-full pl-2 pr-3.5',
               active ? 'bg-primary' : 'bg-muted',
             )}
             accessibilityRole="button"

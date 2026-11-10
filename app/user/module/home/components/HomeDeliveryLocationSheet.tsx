@@ -290,11 +290,7 @@ export function HomeDeliveryLocationSheet({ onClose }: HomeDeliveryLocationSheet
               })}
             </ScrollView>
           </View>
-        ) : (
-          <Text className="text-muted-foreground mb-4 text-sm">
-            No saved addresses yet. Add one to deliver faster next time.
-          </Text>
-        )}
+        ) : null}
 
         <Button variant="primary" onPress={() => void handleConfirm()} className="mb-2 w-full">
           <Text>Confirm</Text>

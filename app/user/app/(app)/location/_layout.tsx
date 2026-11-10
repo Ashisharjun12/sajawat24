@@ -8,8 +8,9 @@ export default function LocationStackLayout() {
         animation: 'slide_from_right',
       }}>
       <Stack.Screen name="index" />
+      {/* Add address: step 1 (map) then step 2 (details). */}
       <Stack.Screen name="add" />
-      <Stack.Screen name="confirm-map" />
+      <Stack.Screen name="details" />
     </Stack>
   );
 }

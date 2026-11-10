@@ -144,10 +144,12 @@ export function buildCouponPreviewFromCoupon(coupon) {
     },
   )
 
+  // A hidden coupon still works when its code is typed; flag it so admins can tell at a glance.
   const status = statusBadge(coupon)
-  if (status) {
-    preview.badge = status.text
-    preview.badgeTone = status.tone
+  const hidden = coupon.showOnPlatform === false
+  if (status || hidden) {
+    preview.badge = [status?.text, hidden ? "Hidden" : null].filter(Boolean).join(" · ")
+    preview.badgeTone = "muted"
   }
 
   if (!coupon.description?.trim() && coupon.eligibilitySummary) {

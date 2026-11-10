@@ -3,15 +3,23 @@ import { Text } from '@/components/ui/text';
 import { getApiError } from '@/api/client';
 import type { CustomerAddress } from '@/api/addresses.api';
 import { AccountSubScreen } from '@/module/account/components/AccountSubScreen';
-import { ADD_ADDRESS_HREF } from '@/lib/select-location-route';
+import { ADD_ADDRESS_HREF, ADDRESS_DETAILS_HREF } from '@/lib/select-location-route';
 import { useAddressFormDraftStore } from '@/store/address-form-draft.store';
-import { emptyAddressForm } from '@/module/account/lib/address-form';
+import { addressFormFromCustomer, emptyAddressForm } from '@/module/account/lib/address-form';
 import { router } from 'expo-router';
 import { AddressOptionsSheet } from '@/module/account/components/AddressOptionsSheet';
 import { useDeleteAddress } from '@/module/account/hooks/use-delete-address';
 import { useAddressMutations, useAddressesQuery } from '@/module/account/hooks/use-addresses-query';
 import { cn } from '@/lib/utils';
-import { Briefcase, Home, MapPin, MoreVertical, Plane } from 'lucide-react-native';
+import {
+  Briefcase,
+  ChevronRight,
+  Home,
+  MapPin,
+  MoreVertical,
+  Plane,
+  Plus,
+} from 'lucide-react-native';
 import { useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, View } from 'react-native';
 
@@ -30,27 +38,16 @@ export function AddressesScreen() {
   const [menuAddress, setMenuAddress] = useState<CustomerAddress | null>(null);
   const setDraft = useAddressFormDraftStore((s) => s.setDraft);
 
+  // Add: pick the spot on the map first, then fill in the details.
   function openAdd() {
     setDraft(emptyAddressForm);
     router.push(ADD_ADDRESS_HREF);
   }
 
+  // Edit: straight to the details screen; its "Change" button reopens the map.
   function openEdit(addr: CustomerAddress) {
-    setDraft(
-      {
-        label: addr.label,
-        address: addr.address,
-        landmark: addr.landmark ?? '',
-        pincode: addr.pincode,
-        cityName: addr.cityName,
-        cityId: addr.cityId,
-        isDefault: addr.isDefault,
-        latitude: addr.latitude,
-        longitude: addr.longitude,
-      },
-      addr.id,
-    );
-    router.push(ADD_ADDRESS_HREF);
+    setDraft(addressFormFromCustomer(addr), addr.id);
+    router.push(ADDRESS_DETAILS_HREF);
   }
 
   async function makeDefault(addr: CustomerAddress) {
@@ -66,22 +63,19 @@ export function AddressesScreen() {
     <AccountSubScreen title="Addresses">
       <Pressable
         onPress={openAdd}
-        className="bg-primary rounded-xl py-3.5 active:opacity-90"
-        accessibilityRole="button">
-        <Text className="text-primary-foreground text-center text-sm font-semibold">
-          Add new address
-        </Text>
+        className="flex-row items-center gap-3 rounded-xl border border-border bg-card px-4 py-4 active:bg-primary-tint"
+        accessibilityRole="button"
+        accessibilityLabel="Add new address">
+        <Icon as={Plus} className="text-primary size-5" />
+        <Text className="text-primary flex-1 text-base font-semibold">Add New Address</Text>
+        <Icon as={ChevronRight} className="text-foreground size-5" />
       </Pressable>
 
       {isLoading ? (
         <ActivityIndicator className="py-8" />
       ) : isError ? (
         <Text className="text-destructive text-sm">{getApiError(error)}</Text>
-      ) : addresses.length === 0 ? (
-        <Text className="text-muted-foreground text-sm leading-6">
-          No saved addresses yet. Add one for faster checkout.
-        </Text>
-      ) : (
+      ) : addresses.length === 0 ? null : (
         <View className="gap-3">
           <Text className="text-muted-foreground text-xs font-semibold uppercase tracking-wide">
             Saved addresses
@@ -116,6 +110,12 @@ export function AddressesScreen() {
                         {addr.address}
                         {addr.landmark ? `, ${addr.landmark}` : ''}, {addr.cityName} {addr.pincode}
                       </Text>
+                      {addr.receiverName ? (
+                        <Text className="text-muted-foreground mt-1 text-xs" numberOfLines={1}>
+                          {addr.receiverName}
+                          {addr.receiverPhone ? ` · +91 ${addr.receiverPhone}` : ''}
+                        </Text>
+                      ) : null}
                       <Text className="text-muted-foreground mt-1 text-xs">Tap to set default</Text>
                     </View>
                     <Pressable

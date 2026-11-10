@@ -9,6 +9,10 @@ export function OlaPinMap({
   sdkConfig,
   onCenterChange,
   liveCenterChange = false,
+  /** false = a still preview (no pan / zoom). Callers should also add pointer-events-none. */
+  interactive = true,
+  /** Change to move the camera to `center` even when the coordinates did not change. */
+  flyKey = 0,
   className = "size-full",
 }) {
   const containerRef = useRef(null);
@@ -30,6 +34,7 @@ export function OlaPinMap({
         container: el,
         center: [center.lng, center.lat],
         zoom,
+        interactive,
         ...buildOlaMapInitOptions(sdkConfig),
       })
       .then((map) => {
@@ -38,16 +43,17 @@ export function OlaPinMap({
           return;
         }
         mapRef.current = map;
-        const emitCenter = () => {
+        // `userInteraction` is true when the move came from the user (drag / zoom), not from code.
+        const emitCenter = (event) => {
           const c = map.getCenter();
-          onCenterChange?.({ lat: c.lat, lng: c.lng });
+          onCenterChange?.({ lat: c.lat, lng: c.lng, userInteraction: Boolean(event?.originalEvent) });
         };
         let moveFrame = null;
-        const emitCenterThrottled = () => {
+        const emitCenterThrottled = (event) => {
           if (moveFrame != null) return;
           moveFrame = requestAnimationFrame(() => {
             moveFrame = null;
-            emitCenter();
+            emitCenter(event);
           });
         };
         map.on("moveend", emitCenter);
@@ -62,13 +68,13 @@ export function OlaPinMap({
       mapRef.current?.remove?.();
       mapRef.current = null;
     };
-  }, [mapKey, sdkConfig?.styleUrl, sdkConfig?.apiKey, sdkConfig?.accessToken]);
+  }, [mapKey, interactive, sdkConfig?.styleUrl, sdkConfig?.apiKey, sdkConfig?.accessToken]);
 
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
     map.jumpTo({ center: [center.lng, center.lat], zoom });
-  }, [center.lat, center.lng, zoom]);
+  }, [center.lat, center.lng, zoom, flyKey]);
 
   return <div ref={containerRef} className={className} />;
 }

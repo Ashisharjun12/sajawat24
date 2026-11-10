@@ -22,6 +22,11 @@ export function useProductDetailQuery(productId, { enabled = true } = {}) {
       }),
     enabled: Boolean(productId) && hasLocation && enabled,
     staleTime: PRODUCT_DETAIL_STALE_MS,
+    // Saving a new pincode changes the query key. Keep showing the SAME product while it refetches
+    // so the page doesn't drop back to the skeleton (and lose the typed pincode and the date picked).
+    // Never reuse another product's data: only the same product id carries over.
+    placeholderData: (previous) =>
+      previous && String(previous.id) === String(productId) ? previous : undefined,
   });
 }
 

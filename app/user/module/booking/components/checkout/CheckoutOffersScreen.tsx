@@ -1,6 +1,4 @@
-import { getApiError } from '@/api/client';
 import { Screen, SmoothScrollView, TabScreenTitle } from '@/components/shell';
-import { Input } from '@/components/ui/input';
 import { Text } from '@/components/ui/text';
 import { useGoBack } from '@/lib/use-go-back';
 import { isBackendCityId } from '@/lib/location-label';
@@ -10,6 +8,8 @@ import {
   buildCouponPreviewFromApplied,
   type CouponLike,
 } from '@/module/booking/lib/coupon-preview';
+import { CheckoutCouponCodeSheet } from '@/module/booking/components/checkout/CheckoutCouponCodeSheet';
+import { friendlyCouponError } from '@/module/promotions/lib/coupon-error-message';
 import { listAvailableCouponsForLocation } from '@/module/promotions/lib/coupons-location';
 import { resolveCouponCode } from '@/module/promotions/lib/pdp-coupon-display';
 import {
@@ -58,7 +58,7 @@ export function CheckoutOffersScreen() {
     cart.pincode?.replace(/\D/g, '').slice(0, 6) ||
     undefined;
 
-  const [code, setCode] = useState(cart.appliedCoupon?.code ?? '');
+  const [codeSheetOpen, setCodeSheetOpen] = useState(false);
   const [applyingCode, setApplyingCode] = useState<string | null>(null);
   const backTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -71,10 +71,6 @@ export function CheckoutOffersScreen() {
   useEffect(() => {
     if (!user) router.replace('/(onboarding)/login' as Href);
   }, [user]);
-
-  useEffect(() => {
-    if (cart.appliedCoupon?.code) setCode(cart.appliedCoupon.code);
-  }, [cart.appliedCoupon?.code]);
 
   const needsCity = couponRequiresCity(cart);
   const applying = applyCoupon.isPending || clearCoupon.isPending;
@@ -102,20 +98,6 @@ export function CheckoutOffersScreen() {
     }, APPLIED_BACK_DELAY_MS);
   }
 
-  async function onApplyCode() {
-    const trimmed = code.trim();
-    if (!trimmed) return;
-    setApplyingCode(trimmed);
-    try {
-      await applyCoupon.mutateAsync(trimmed);
-      scheduleReturnToCheckout();
-    } catch (e) {
-      Alert.alert('Promo failed', getApiError(e));
-    } finally {
-      setApplyingCode(null);
-    }
-  }
-
   async function onApplyListed(coupon: CouponLike) {
     const cCode = resolveCouponCode(coupon) || coupon.code?.trim();
     if (!cCode) return;
@@ -124,7 +106,7 @@ export function CheckoutOffersScreen() {
       await applyCoupon.mutateAsync({ code: cCode, coupon });
       scheduleReturnToCheckout();
     } catch (e) {
-      Alert.alert('Could not apply', getApiError(e));
+      Alert.alert('Could not apply', friendlyCouponError(e));
     } finally {
       setApplyingCode(null);
     }
@@ -136,41 +118,26 @@ export function CheckoutOffersScreen() {
   return (
     <Screen edges={['top', 'left', 'right']} gutter contentClassName="flex-1">
       <TabScreenTitle
-        title="Save more with coupons"
+        title="Coupons & offers"
         showBack
         onBack={onBack}
         insetFromParentGutter
+        trailing={
+          <Pressable
+            onPress={() => setCodeSheetOpen(true)}
+            disabled={applying}
+            hitSlop={6}
+            className="h-9 items-center justify-center rounded-full border border-primary px-3.5 active:bg-primary-tint"
+            accessibilityRole="button"
+            accessibilityLabel="Have a coupon code? Enter it here">
+            <Text className="text-primary text-sm font-semibold">Have a code?</Text>
+          </Pressable>
+        }
       />
       <SmoothScrollView
         className="flex-1"
         contentContainerClassName="gap-4 pb-6 pt-2"
         contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}>
-        <View className="flex-row items-center gap-2 rounded-2xl border border-border bg-card px-3 py-1">
-          <Input
-            className="flex-1 border-0 bg-transparent shadow-none"
-            placeholder="Enter coupon code"
-            value={code}
-            onChangeText={setCode}
-            autoCapitalize="characters"
-            editable={!needsCity && !applying}
-          />
-          <Pressable
-            disabled={applying || needsCity || !code.trim()}
-            onPress={() => void onApplyCode()}
-            hitSlop={8}
-            accessibilityRole="button"
-            accessibilityLabel="Add coupon">
-            <Text
-              className={
-                applying || needsCity || !code.trim()
-                  ? 'text-muted-foreground text-sm font-semibold'
-                  : 'text-foreground text-sm font-bold'
-              }>
-              Add Coupon
-            </Text>
-          </Pressable>
-        </View>
-
         {needsCity ? (
           <Text className="text-muted-foreground text-xs">Select a delivery address to apply coupons.</Text>
         ) : null}
@@ -182,7 +149,7 @@ export function CheckoutOffersScreen() {
                 clearTimeout(backTimerRef.current);
                 backTimerRef.current = null;
               }
-              void clearCoupon.mutateAsync().then(() => setCode(''));
+              void clearCoupon.mutateAsync();
             }}
             disabled={applying}
             className="flex-row items-center justify-between rounded-2xl border border-success/40 bg-success/10 px-4 py-3">
@@ -207,7 +174,7 @@ export function CheckoutOffersScreen() {
               No best coupons available
             </Text>
             <Text className="text-muted-foreground mt-1 text-center text-sm">
-              Try a promo code above or check back later.
+              Have a promo code? Tap &quot;Have a code?&quot; above, or check back later.
             </Text>
           </View>
         ) : (
@@ -256,6 +223,18 @@ export function CheckoutOffersScreen() {
           </View>
         )}
       </SmoothScrollView>
+
+      <CheckoutCouponCodeSheet
+        visible={codeSheetOpen}
+        onClose={() => setCodeSheetOpen(false)}
+        onApplied={() => {
+          setCodeSheetOpen(false);
+          // Short pause so the sheet closes first, then back to checkout with the discount applied.
+          scheduleReturnToCheckout();
+        }}
+        needsCity={needsCity}
+        appliedCode={appliedCode}
+      />
     </Screen>
   );
 }

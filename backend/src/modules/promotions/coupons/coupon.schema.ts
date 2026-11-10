@@ -25,6 +25,11 @@ export const coupons = pgTable("coupons", {
         .notNull()
         .default(sql`ARRAY['online','cod']::text[]`),
     isActive: boolean("is_active").notNull().default(true),
+    /**
+     * Listed to customers (product page offers, offers list, checkout list). When false the
+     * coupon still works if the customer types the code, it is just never listed.
+     */
+    showOnPlatform: boolean("show_on_platform").notNull().default(true),
     startsAt: timestamp("starts_at", { withTimezone: true }).notNull(),
     endsAt: timestamp("ends_at", { withTimezone: true }).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),

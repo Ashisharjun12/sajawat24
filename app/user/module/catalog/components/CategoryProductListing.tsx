@@ -9,6 +9,7 @@ import {
 } from '@/module/catalog/components/CatalogProductGrid';
 import {
   CATALOG_LISTING_LIMIT,
+  type CatalogPriceFacet,
   useCatalogListingQuery,
 } from '@/module/catalog/hooks/use-catalog-listing-query';
 import {
@@ -19,8 +20,12 @@ import { SELECT_LOCATION_HREF } from '@/lib/select-location-route';
 import { router } from 'expo-router';
 import type { HomeCatalogProduct } from '@/module/home/lib/home-catalog';
 import { useLocationStore } from '@/store/location.store';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { View } from 'react-native';
+
+/** Last known totals, kept while the next page loads (its `data` is empty until it arrives). */
+type ListingMeta = { total: number; priceFacet: CatalogPriceFacet };
+const EMPTY_META: ListingMeta = { total: 0, priceFacet: { minPaise: 0, maxPaise: 0 } };
 
 type CategoryProductListingOptions = {
   categoryIds: string[];
@@ -54,18 +59,47 @@ export function useCategoryProductListing({
   const [sort, setSort] = useState<CatalogSortId>(CATALOG_SORT_DEFAULT);
   const [minPriceRupees, setMinPriceRupees] = useState<number | null>(null);
   const [maxPriceRupees, setMaxPriceRupees] = useState<number | null>(null);
+  /** Page being requested. */
   const [page, setPage] = useState(1);
+  /** Highest page already merged into `accumulated` (0 = nothing yet). */
+  const [loadedPage, setLoadedPage] = useState(0);
+  /** A page came back with nothing new, so there is nothing more to load. */
+  const [exhausted, setExhausted] = useState(false);
+  const [meta, setMeta] = useState<ListingMeta>(EMPTY_META);
   const [accumulated, setAccumulated] = useState<HomeCatalogProduct[]>([]);
   const [priceOpen, setPriceOpen] = useState(false);
+
+  // Refs mirror the state above so the merge effect reads the latest values without
+  // re-running, and so a repeat fetch of an already-merged page is never mistaken for a new one.
+  const listRef = useRef<HomeCatalogProduct[]>([]);
+  const loadedPageRef = useRef(0);
+
+  const commitList = useCallback((next: HomeCatalogProduct[]) => {
+    listRef.current = next;
+    setAccumulated(next);
+  }, []);
+
+  const markLoaded = useCallback((n: number) => {
+    loadedPageRef.current = n;
+    setLoadedPage(n);
+  }, []);
+
+  /** Back to page 1 with an empty list (filters changed). */
+  const resetList = useCallback(() => {
+    setPage(1);
+    commitList([]);
+    markLoaded(0);
+    setExhausted(false);
+  }, [commitList, markLoaded]);
 
   useEffect(() => {
     setSort(CATALOG_SORT_DEFAULT);
     setMinPriceRupees(null);
     setMaxPriceRupees(null);
-    setPage(1);
-    setAccumulated([]);
+    resetList();
+    setMeta(EMPTY_META);
     setPriceOpen(false);
-  }, [listingFilterKey]);
+  }, [listingFilterKey, resetList]);
 
   const { data, dataUpdatedAt, isLoading, isFetching, isError, refetch } =
     useCatalogListingQuery({
@@ -85,47 +119,94 @@ export function useCategoryProductListing({
 
   useEffect(() => {
     if (!data) return;
+    setMeta({ total: data.total, priceFacet: data.priceFacet });
+
     if (page === 1) {
-      setAccumulated(data.items);
-    } else {
-      setAccumulated((prev) => {
-        const seen = new Set(prev.map((p) => p.id));
-        const next = data.items.filter((p) => !seen.has(p.id));
-        return next.length ? [...prev, ...next] : prev;
-      });
+      commitList(data.items);
+      markLoaded(1);
+      setExhausted(data.items.length === 0);
+      return;
     }
-  }, [data, page, dataUpdatedAt]);
 
-  const total = data?.total ?? 0;
+    const prev = listRef.current;
+    const seen = new Set(prev.map((p) => p.id));
+    const fresh = data.items.filter((p) => !seen.has(p.id));
+    if (fresh.length) commitList([...prev, ...fresh]);
 
-  const priceFacet = data?.priceFacet ?? { minPaise: 0, maxPaise: 0 };
+    // Only a page we have not merged before can prove the list has ended. A background
+    // refetch of an already-merged page returns only duplicates and must not flip this.
+    if (page > loadedPageRef.current) {
+      markLoaded(page);
+      setExhausted(fresh.length === 0);
+    }
+  }, [data, page, dataUpdatedAt, commitList, markLoaded]);
+
+  // Fall back to the last known values while the next page's `data` is still empty.
+  const total = data?.total ?? meta.total;
+
+  const priceFacet = data?.priceFacet ?? meta.priceFacet;
 
   const facetMaxRupees = Math.round(priceFacet.maxPaise / 100);
   const priceRangeReady = priceFacet.maxPaise > 0;
   const priceActive = minPriceRupees != null || maxPriceRupees != null;
 
-  const showInitialSkeleton = hasLocation && page === 1 && isLoading && accumulated.length === 0;
-  const showEmpty =
-    hasLocation && !showInitialSkeleton && !isLoading && accumulated.length === 0 && !isError;
-  const canLoadMore = accumulated.length < total && !isFetching;
+  const hasItems = accumulated.length > 0;
+  /** Next page requested but not merged yet (request in flight, or arrived this frame). */
+  const nextPagePending = hasItems && page > loadedPage;
+
+  // `data !== undefined` covers the frame where cached data has arrived but is not merged
+  // yet, so the list never flashes its empty state between skeleton and products.
+  const showInitialSkeleton =
+    hasLocation && !hasItems && loadedPage < 1 && !isError && (isLoading || data !== undefined);
+  const showEmpty = hasLocation && !hasItems && !isError && !showInitialSkeleton;
+
+  /** Skeleton rows under the grid while the next page loads. */
+  const loadingMore = nextPagePending && !isError;
+  /** The next page failed: keep the products, offer a retry for that same page. */
+  const loadMoreFailed = nextPagePending && isError;
+  // `page === loadedPage` also rules out the short window after a pull-to-refresh where the page
+  // is already back at 1 but the list still holds later pages until page 1 is merged again.
+  const inSync = page === loadedPage;
+  const canLoadMore = hasItems && inSync && !exhausted && accumulated.length < total;
+  const reachedEnd =
+    hasItems && inSync && !canLoadMore && accumulated.length > CATALOG_LISTING_LIMIT;
 
   const appliedMaxRupees = useMemo(
     () => maxPriceRupees ?? (facetMaxRupees > 0 ? facetMaxRupees : null),
     [maxPriceRupees, facetMaxRupees],
   );
 
+  // Both handlers return early when nothing changed: the query key would stay the same, so
+  // no new data would arrive to refill the list we are about to clear.
   function onSortChange(next: CatalogSortId) {
+    if (next === sort) return;
     setSort(next);
-    setPage(1);
-    setAccumulated([]);
+    resetList();
   }
 
   function onPriceApply(patch: { minRupees: number | null; maxRupees: number | null }) {
+    if (patch.minRupees === minPriceRupees && patch.maxRupees === maxPriceRupees) return;
     setMinPriceRupees(patch.minRupees);
     setMaxPriceRupees(patch.maxRupees);
-    setPage(1);
-    setAccumulated([]);
+    resetList();
   }
+
+  /**
+   * Load the page after the last merged one. Idempotent: a double tap asks for the same page
+   * twice instead of skipping one. If that page already failed, retry it rather than moving on.
+   */
+  const loadMore = useCallback(() => {
+    if (page > loadedPage) {
+      if (!isFetching) void refetch();
+      return;
+    }
+    if (page < loadedPage) return; // refresh in progress, list not back in sync yet
+    setPage(loadedPage + 1);
+  }, [page, loadedPage, isFetching, refetch]);
+
+  const retry = useCallback(() => {
+    void refetch();
+  }, [refetch]);
 
   return {
     hasLocation,
@@ -146,7 +227,11 @@ export function useCategoryProductListing({
     showInitialSkeleton,
     showEmpty,
     canLoadMore,
-    loadMore: () => setPage((p) => p + 1),
+    loadingMore,
+    loadMoreFailed,
+    reachedEnd,
+    loadMore,
+    retry,
     onSortChange,
     onPriceApply,
   };
@@ -216,14 +301,20 @@ export function CategoryProductListingResults({
     );
   }
 
-  const { accumulated, total } = listing;
+  const { accumulated } = listing;
 
   return (
     <>
       {listing.showInitialSkeleton ? <CatalogProductGridSkeleton /> : null}
 
-      {listing.isError ? (
-        <Text className="text-destructive py-6 text-center text-sm">Could not load products.</Text>
+      {/* First page failed (or a refresh failed). A failed next page is handled under the grid. */}
+      {listing.isError && !listing.loadMoreFailed ? (
+        <View className="items-center gap-3 py-6">
+          <Text className="text-destructive text-center text-sm">Could not load products.</Text>
+          <Button variant="primary" size="md" onPress={listing.retry}>
+            <Text>Try again</Text>
+          </Button>
+        </View>
       ) : null}
 
       {listing.showEmpty ? (
@@ -236,14 +327,39 @@ export function CategoryProductListingResults({
       {accumulated.length > 0 ? (
         <View className="gap-4">
           <CatalogProductGrid products={accumulated} />
+
+          {/* Next page loading: placeholder cards under the products instead of a blank gap.
+              mt-2 + the 16px gap = the 24px row spacing used inside the grid. */}
+          {listing.loadingMore ? (
+            <View
+              className="mt-2"
+              accessibilityLabel="Loading more products"
+              accessibilityLiveRegion="polite">
+              <CatalogProductGridSkeleton rows={2} />
+            </View>
+          ) : null}
+
+          {/* Next page failed: products stay, retry fetches that same page. */}
+          {listing.loadMoreFailed ? (
+            <View className="items-center gap-3">
+              <Text className="text-destructive text-center text-sm">
+                Could not load more products.
+              </Text>
+              <Button variant="primary" className="self-stretch" onPress={listing.loadMore}>
+                <Text>Try again</Text>
+              </Button>
+            </View>
+          ) : null}
+
           {listing.canLoadMore ? (
-            <Button variant="secondary" loading={listing.isFetching} onPress={listing.loadMore}>
+            <Button variant="primary" onPress={listing.loadMore}>
               <Text>Load more</Text>
             </Button>
           ) : null}
-          {accumulated.length >= total && total > CATALOG_LISTING_LIMIT ? (
+
+          {listing.reachedEnd ? (
             <Text className="text-muted-foreground text-center text-xs">
-              Showing all {total.toLocaleString()} products
+              Showing all {accumulated.length.toLocaleString()} products
             </Text>
           ) : null}
         </View>

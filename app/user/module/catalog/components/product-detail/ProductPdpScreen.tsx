@@ -28,6 +28,7 @@ import { useCartStore } from '@/store/cart.store';
 import { useLocationStore } from '@/store/location.store';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
+import { useKeyboardInset } from '@/lib/use-keyboard-inset';
 import { Href, router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, ScrollView, View } from 'react-native';
@@ -74,6 +75,8 @@ export function ProductPdpScreen({ productId }: ProductPdpScreenProps) {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const footerPad = 108 + Math.max(insets.bottom, 12);
+  // Extra scroll room while the keyboard is up, so the pincode field can be scrolled above it.
+  const keyboardInset = useKeyboardInset(true);
 
   const [fulfillment, setFulfillment] = useState<FulfillmentMode>('scheduled');
   const [scheduledAt, setScheduledAt] = useState<string | null>(null);
@@ -243,8 +246,10 @@ export function ProductPdpScreen({ productId }: ProductPdpScreenProps) {
       />
       <ScrollView
         showsVerticalScrollIndicator={false}
+        // "handled": the first tap on Check works while the keyboard is open.
+        keyboardShouldPersistTaps="handled"
         contentContainerStyle={{
-          paddingBottom: footerPad,
+          paddingBottom: footerPad + keyboardInset,
           paddingHorizontal: 20,
         }}>
         <ProductDetailGallery
@@ -281,7 +286,6 @@ export function ProductPdpScreen({ productId }: ProductPdpScreenProps) {
             instantLabel={detail.instant?.badgeLabel}
             instantNote={detail.instant?.pdpNote}
             instantEtaMinutes={detail.instant?.etaMinutes}
-            productId={detail.id}
           />
 
           <ProductPdpOffers productId={detail.id} categoryId={detail.categoryId} />

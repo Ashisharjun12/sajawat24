@@ -1,337 +1,337 @@
-import { useEffect, useRef, useState } from "react";
-import { isPincodeDeliverable, resolvePincode } from "@/api/geo.api";
-import {
-  deliveryPinCartCityMessage,
-  isDeliveryPinInCartCity,
-  NOT_DELIVERABLE_MESSAGE,
-  pinLookupMessage,
-  pinResolveErrorMessage,
-} from "@/lib/pin-delivery-message";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ArrowLeftIcon, XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Spinner } from "@/components/ui/spinner";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { toast } from "@/components/ui/toast";
-import { DeliveryMapConfirmDialog } from "@/module/geo/components/DeliveryMapConfirmDialog";
-import { PlacesAddressAutocomplete } from "@/module/geo/components/PlacesAddressAutocomplete";
+import { isValidIndianMobileDigits, toLocalPhone } from "@/lib/indian-phone";
+import { NOT_DELIVERABLE_MESSAGE } from "@/lib/pin-delivery-message";
+import { useLockPageScrollWhen } from "@/lib/use-lock-page-scroll";
+import { useMediaMdDown } from "@/module/catalog/hooks/use-media-md-down";
+import { useAddressesQuery } from "@/module/account/hooks/use-addresses-query";
+import { useDeliveryPinCheck } from "@/module/account/hooks/use-delivery-pin-check";
+import { AddressDetailsStep } from "@/module/account/components/address-flow/AddressDetailsStep";
+import {
+  choiceFromLabel,
+  resolveAddressLabel,
+} from "@/module/account/components/address-flow/AddressLabelChips";
+import { AddressMapStep } from "@/module/account/components/address-flow/AddressMapStep";
+import {
+  buildAddressPayload,
+  composeAddressLine,
+  emptyAddressForm,
+} from "@/module/account/lib/address-form";
+import { useAuthStore } from "@/store/auth.store";
 
-export const emptyAddressForm = {
-  label: "",
-  address: "",
-  landmark: "",
-  pincode: "",
-  cityName: "",
-  cityId: null,
-  isDefault: false,
-  latitude: null,
-  longitude: null,
-};
+// Callers import the empty form from here.
+export { emptyAddressForm };
 
+/**
+ * Add / edit address. Two steps in one container (bottom sheet on phones, dialog on desktop):
+ *   1. map: pick the exact spot (opens on the device location, blocks undeliverable spots)
+ *   2. details: house / building / landmark, Home-Office-Other label, receiver, default switch
+ * A new address starts on the map; editing (an address that already has a spot) starts on the
+ * details. `onSubmit(payload)` receives the request body; the caller saves it and closes the flow.
+ * `title` / `description` / `contextCityPinHint` from older callers are no longer used.
+ */
 export function AddressFormDialog({
   open,
   onOpenChange,
-  title = "Add address",
-  description = "Enter your delivery details. Next you will review them on the map.",
-  submitLabel = "Save address",
+  submitLabel = "Save Address",
   initial = emptyAddressForm,
   submitting = false,
   onSubmit,
   contextCityId = null,
   contextCityName = "",
-  contextCityPinHint = false,
+  isEdit = false,
 }) {
-  const [form, setForm] = useState(initial);
-  const [pinStatus, setPinStatus] = useState("idle");
-  const [pinMessage, setPinMessage] = useState("");
-  const [mapOpen, setMapOpen] = useState(false);
-  const [fieldErrors, setFieldErrors] = useState({});
+  const isMobile = useMediaMdDown();
+  const user = useAuthStore((s) => s.user);
+  const { data: savedAddresses = [] } = useAddressesQuery();
+
+  const [step, setStep] = useState("map");
+  /** Bumped each time the map step is shown so it starts fresh (own camera + location lookup). */
+  const [mapSession, setMapSession] = useState(0);
+  const [mapFromDetails, setMapFromDetails] = useState(false);
+  const [form, setForm] = useState(emptyAddressForm);
+  const [labelChoice, setLabelChoice] = useState("home");
+  const [customLabel, setCustomLabel] = useState("");
+  const [focusCustomLabel, setFocusCustomLabel] = useState(false);
+  /** PIN typed by the user, only when the map data had none. */
+  const [pinTyped, setPinTyped] = useState("");
+  const [touched, setTouched] = useState({});
+  const [attempted, setAttempted] = useState(false);
+  /** False until the fields are seeded, so the wrong step never mounts (and never asks for location). */
+  const [seeded, setSeeded] = useState(false);
   const wasOpenRef = useRef(false);
+  const submitLockRef = useRef(false);
 
+  useLockPageScrollWhen(open);
+
+  // Seed every field when the flow opens (not on later re-renders).
   useEffect(() => {
-    if (!open) setMapOpen(false);
-  }, [open]);
-
-  useEffect(() => {
-    const justOpened = open && !wasOpenRef.current;
-    wasOpenRef.current = open;
-    if (!justOpened) return;
-
-    const seedCityId = initial.cityId ?? contextCityId ?? null;
-    const seedCityName = initial.cityName || contextCityName || "";
-    setForm({
-      ...initial,
-      cityId: seedCityId,
-      cityName: seedCityName || initial.cityName,
-    });
-    const pin = (initial.pincode ?? "").replace(/\D/g, "");
-    setPinStatus(seedCityId && pin.length === 6 ? "ok" : "idle");
-    setPinMessage(seedCityId && seedCityName ? `Delivering in ${seedCityName}` : "");
-    setMapOpen(false);
-    setFieldErrors({});
-  }, [open, initial, contextCityId, contextCityName]);
-
-  useEffect(() => {
-    const code = (form.pincode ?? "").replace(/\D/g, "");
-    if (code.length !== 6) {
-      setPinStatus("idle");
-      setPinMessage("");
-      return undefined;
-    }
-
-    const scopedCityId = form.cityId ?? contextCityId ?? null;
-
-    let cancelled = false;
-    setPinStatus("loading");
-    const timer = window.setTimeout(() => {
-      const request = scopedCityId
-        ? resolvePincode(code, { cityId: scopedCityId })
-        : resolvePincode(code);
-
-      void request
-        .then((data) => {
-          if (cancelled) return;
-          if (!isPincodeDeliverable(data)) {
-            setPinStatus("error");
-            setPinMessage(pinLookupMessage(data));
-            return;
-          }
-          if (
-            contextCityId &&
-            !isDeliveryPinInCartCity(data, contextCityId)
-          ) {
-            setPinStatus("error");
-            setPinMessage(
-              deliveryPinCartCityMessage(data, contextCityName || "your city"),
-            );
-            const city = data.city;
-            setForm((f) => ({
-              ...f,
-              cityName: city?.name ?? f.cityName,
-              cityId: city?.id ?? f.cityId,
-            }));
-            return;
-          }
-          const city = data.city;
-          setForm((f) => ({
-            ...f,
-            cityId: city?.id ?? scopedCityId ?? f.cityId,
-            cityName: city?.name ?? f.cityName,
-          }));
-          setPinStatus("ok");
-          setPinMessage(pinLookupMessage(data));
-        })
-        .catch((err) => {
-          if (cancelled) return;
-          setPinStatus("error");
-          setPinMessage(pinResolveErrorMessage(err));
-        });
-    }, 280);
-
-    return () => {
-      cancelled = true;
-      window.clearTimeout(timer);
-    };
-  }, [form.pincode, form.cityId, contextCityId, contextCityName]);
-
-  function validateDetails() {
-    const errors = {};
-    const address = form.address.trim();
-    const pin = form.pincode.replace(/\D/g, "");
-
-    if (address.length < 6) {
-      errors.address = "Add flat, street, and area (at least 6 characters).";
-    }
-    if (pin.length !== 6) {
-      errors.pincode = "Enter a valid 6-digit PIN code.";
-    }
-    if (pinStatus === "loading") {
-      toast.add({ title: "Still checking PIN — wait a moment", type: "info" });
-      return false;
-    }
-    if (pinStatus === "error" || pinStatus !== "ok" || !form.cityId) {
-      errors.pincode = pinMessage || NOT_DELIVERABLE_MESSAGE;
-    }
-
-    setFieldErrors(errors);
-    return Object.keys(errors).length === 0;
-  }
-
-  function openReviewMap(event) {
-    event?.preventDefault?.();
-    if (!validateDetails()) return;
-    setMapOpen(true);
-  }
-
-  function buildPayload(coords) {
-    return {
-      label: form.label.trim() || "Address",
-      address: form.address.trim(),
-      landmark: form.landmark.trim() || undefined,
-      pincode: form.pincode.replace(/\D/g, "").slice(0, 6),
-      cityId: form.cityId,
-      cityName: form.cityName || undefined,
-      setDefault: form.isDefault,
-      latitude: coords.latitude,
-      longitude: coords.longitude,
-      geoSource: "geocode_manual",
-    };
-  }
-
-  function handleMapConfirm(coords) {
-    if (!form.cityId) {
-      toast.add({ title: "PIN code is not serviceable", type: "error" });
+    if (!open) {
+      wasOpenRef.current = false;
+      setSeeded(false);
       return;
     }
-    onSubmit?.(buildPayload(coords));
+    if (wasOpenRef.current) return;
+    wasOpenRef.current = true;
+
+    const seed = {
+      ...emptyAddressForm,
+      ...initial,
+      cityId: initial.cityId ?? contextCityId ?? null,
+      cityName: initial.cityName || contextCityName || "",
+    };
+    // Receiver defaults to the account holder; they can change it.
+    seed.receiverName = seed.receiverName || user?.name?.trim() || "";
+    seed.receiverPhone = seed.receiverPhone || toLocalPhone(user?.phone ?? "");
+    const label = choiceFromLabel(seed.label);
+
+    setForm(seed);
+    setLabelChoice(label.choice);
+    setCustomLabel(label.custom);
+    setFocusCustomLabel(false);
+    setPinTyped("");
+    setTouched({});
+    setAttempted(false);
+    submitLockRef.current = false;
+    setMapFromDetails(false);
+    setMapSession((n) => n + 1);
+    setStep(seed.latitude != null && seed.longitude != null ? "details" : "map");
+    setSeeded(true);
+  }, [open, initial, contextCityId, contextCityName, user]);
+
+  useEffect(() => {
+    if (!submitting) submitLockRef.current = false;
+  }, [submitting]);
+
+  const hasCoords = form.latitude != null && form.longitude != null;
+  /** The map step already read (and validated) a PIN. Otherwise the user types it. */
+  const pinFromMap = Boolean(form.pincode);
+  const pincode = (form.pincode || pinTyped).replace(/\D/g, "").slice(0, 6);
+
+  const pinCheck = useDeliveryPinCheck({
+    pincode,
+    formCityId: form.cityId,
+    contextCityId,
+    contextCityName,
+    enabled: open && step === "details" && !pinFromMap,
+  });
+
+  const cityId = pinCheck.city?.id ?? form.cityId ?? contextCityId ?? null;
+  const cityName = pinCheck.city?.name || form.cityName || contextCityName || "";
+
+  /** The last saved address with a pin, used only when the device location is unavailable. */
+  const savedSpot = useMemo(() => {
+    const withPin = savedAddresses.filter((a) => a.latitude != null && a.longitude != null);
+    const pick = withPin.find((a) => a.isDefault) ?? withPin[0];
+    return pick ? { lat: pick.latitude, lng: pick.longitude } : null;
+  }, [savedAddresses]);
+
+  // ── Validation ──
+  const houseOptional = isEdit && form.isLegacy;
+  const composed = composeAddressLine(form);
+  const errors = {};
+  if (!form.houseFloor.trim() && !houseOptional) {
+    errors.houseFloor = "Enter your house / flat number and floor.";
+  } else if (composed.length < 6) {
+    errors.houseFloor = "Add a few more details so the delivery partner can find you.";
+  } else if (composed.length > 500) {
+    errors.houseFloor = "This address is too long. Shorten it a little.";
+  }
+  if (labelChoice === "other" && !customLabel.trim()) {
+    errors.customLabel = 'Give this address a name, like "Mom\'s place".';
+  }
+  if (form.receiverName.trim().length < 2) errors.receiverName = "Enter the receiver's name.";
+  if (!isValidIndianMobileDigits(form.receiverPhone)) {
+    errors.receiverPhone = "Enter a valid 10-digit mobile number.";
+  }
+  if (!pinFromMap) {
+    if (pincode.length !== 6) errors.pincode = "Enter a valid 6-digit PIN code.";
+    else if (pinCheck.status === "loading") errors.pincode = "Still checking the PIN. One moment.";
+    else if (pinCheck.status !== "ok" || !cityId) {
+      errors.pincode = pinCheck.message || NOT_DELIVERABLE_MESSAGE;
+    }
+  } else if (!cityId) {
+    errors.pincode = NOT_DELIVERABLE_MESSAGE;
+  }
+  const hasErrors = Object.keys(errors).length > 0;
+  const show = (key) => (attempted || touched[key] ? errors[key] : undefined);
+  const touch = useCallback((key) => setTouched((t) => ({ ...t, [key]: true })), []);
+
+  const patch = useCallback((next) => setForm((f) => ({ ...f, ...next })), []);
+
+  function goToMap(fromDetails) {
+    setMapFromDetails(fromDetails);
+    setMapSession((n) => n + 1);
+    setStep("map");
   }
 
-  const addressSummary = {
-    label: form.label.trim() || "Address",
-    meta: form.cityName ? `${form.cityName} · ${form.pincode}` : form.pincode,
-    line: form.address.trim(),
-    landmark: form.landmark?.trim() || "",
-  };
+  function handleMapConfirm(spot) {
+    setForm((f) => ({
+      ...f,
+      latitude: spot.latitude,
+      longitude: spot.longitude,
+      address: spot.address,
+      areaTitle: spot.areaTitle,
+      pincode: spot.pincode,
+      cityId: spot.city?.id ?? f.cityId ?? contextCityId ?? null,
+      cityName: spot.city?.name ?? f.cityName ?? contextCityName ?? "",
+      // The street line now comes from the map, so house / floor is needed again.
+      isLegacy: false,
+    }));
+    setMapFromDetails(false);
+    setStep("details");
+  }
+
+  function handleSubmit() {
+    setAttempted(true);
+    if (submitting || submitLockRef.current) return;
+    if (!hasCoords) {
+      toast.add({ title: "Choose the delivery spot on the map first", type: "error" });
+      return;
+    }
+    if (hasErrors) return;
+
+    const payload = buildAddressPayload(
+      {
+        ...form,
+        label: resolveAddressLabel(labelChoice, customLabel),
+        pincode,
+        cityId,
+        cityName,
+      },
+      { forUpdate: isEdit },
+    );
+    if (!payload) {
+      toast.add({ title: "Please check the address details and try again", type: "error" });
+      return;
+    }
+    // Guards a fast double click before the caller's pending state kicks in.
+    submitLockRef.current = true;
+    window.setTimeout(() => {
+      submitLockRef.current = false;
+    }, 1500);
+    onSubmit?.(payload);
+  }
+
+  function handleOpenChange(next) {
+    if (!next && submitting) return; // never close mid-save
+    onOpenChange?.(next);
+  }
+
+  function handleBack() {
+    if (step === "details") {
+      // Editing: back leaves. Adding: back returns to the map at the chosen spot.
+      if (isEdit) handleOpenChange(false);
+      else goToMap(true);
+      return;
+    }
+    if (mapFromDetails) {
+      setMapFromDetails(false);
+      setStep("details");
+      return;
+    }
+    handleOpenChange(false);
+  }
+
+  const title =
+    step === "map" ? "Select Your Location" : isEdit ? "Edit Address Details" : "Add Address Details";
+  const Title = isMobile ? SheetTitle : DialogTitle;
+
+  const body = (
+    <>
+      <div className="flex shrink-0 items-center gap-1 border-b border-border px-2 py-2">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={handleBack}
+          disabled={submitting}
+          aria-label="Back"
+        >
+          <ArrowLeftIcon className="size-5" />
+        </Button>
+        <Title className="min-w-0 flex-1 truncate text-center text-base font-semibold text-foreground">
+          {title}
+        </Title>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={() => handleOpenChange(false)}
+          disabled={submitting}
+          aria-label="Close"
+        >
+          <XIcon className="size-5" />
+        </Button>
+      </div>
+
+      {!seeded ? null : step === "map" ? (
+        <AddressMapStep
+          key={mapSession}
+          initialSpot={
+            mapFromDetails && hasCoords ? { lat: form.latitude, lng: form.longitude } : null
+          }
+          savedSpot={savedSpot}
+          contextCityId={contextCityId}
+          contextCityName={contextCityName}
+          onConfirm={handleMapConfirm}
+        />
+      ) : (
+        <AddressDetailsStep
+          form={form}
+          onChange={patch}
+          labelChoice={labelChoice}
+          onLabelChoice={(next) => {
+            if (next === "other" && labelChoice !== "other") setFocusCustomLabel(true);
+            setLabelChoice(next);
+          }}
+          customLabel={customLabel}
+          onCustomLabel={setCustomLabel}
+          focusCustomLabel={focusCustomLabel}
+          pinTyped={pinTyped}
+          onPinTyped={setPinTyped}
+          pinFromMap={pinFromMap}
+          pinCheck={pinCheck}
+          pincode={pincode}
+          cityName={cityName}
+          show={show}
+          touch={touch}
+          hasLocation={hasCoords}
+          submitLabel={submitLabel}
+          submitting={submitting}
+          onChangeLocation={() => goToMap(true)}
+          onSubmit={handleSubmit}
+        />
+      )}
+    </>
+  );
+
+  if (isMobile) {
+    return (
+      <Sheet open={open} onOpenChange={handleOpenChange}>
+        <SheetContent
+          side="bottom"
+          showCloseButton={false}
+          className="gap-0 overflow-hidden rounded-t-[var(--r-sheet)] p-0 data-[side=bottom]:h-[94dvh] data-[side=bottom]:max-h-[94dvh]"
+        >
+          {body}
+        </SheetContent>
+      </Sheet>
+    );
+  }
 
   return (
-    <>
-      <Dialog open={open && !mapOpen} onOpenChange={onOpenChange}>
-        <DialogContent className="flex max-h-[min(92vh,640px)] flex-col gap-0 overflow-hidden p-0 sm:max-w-md">
-          <DialogHeader className="shrink-0 px-6 pt-6 pb-2">
-            <DialogTitle>{title}</DialogTitle>
-            <DialogDescription>{description}</DialogDescription>
-          </DialogHeader>
-          <form
-            className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-6 pb-6"
-            onSubmit={openReviewMap}>
-            <Field>
-              <FieldLabel htmlFor="addr-label">Label</FieldLabel>
-              <Input
-                id="addr-label"
-                placeholder="Home, Office, Venue…"
-                value={form.label}
-                onChange={(e) => setForm((f) => ({ ...f, label: e.target.value }))}
-              />
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="addr-line">Search address</FieldLabel>
-              <PlacesAddressAutocomplete
-                key={open ? "addr-open" : "addr-closed"}
-                id="addr-line"
-                placeholder="Search area, street, building…"
-                aria-invalid={Boolean(fieldErrors.address)}
-                value={form.address}
-                onChange={(address) =>
-                  setForm((f) => ({
-                    ...f,
-                    address,
-                    latitude: null,
-                    longitude: null,
-                  }))
-                }
-                onPlaceResolved={({ address, pincode, latitude, longitude }) => {
-                  setForm((f) => ({
-                    ...f,
-                    address: address || f.address,
-                    pincode: pincode || f.pincode,
-                    latitude: latitude ?? f.latitude,
-                    longitude: longitude ?? f.longitude,
-                  }));
-                }}
-              />
-              {fieldErrors.address ? (
-                <p className="text-sm text-destructive">{fieldErrors.address}</p>
-              ) : (
-                <FieldDescription>Pick a suggestion or type your full address</FieldDescription>
-              )}
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="addr-pin">PIN code</FieldLabel>
-              {contextCityPinHint && contextCityName ? (
-                <FieldDescription>
-                  Order is for <span className="font-medium text-foreground">{contextCityName}</span>
-                  — PIN must be in this city.
-                </FieldDescription>
-              ) : null}
-              <Input
-                id="addr-pin"
-                inputMode="numeric"
-                placeholder="560001"
-                maxLength={6}
-                aria-invalid={Boolean(fieldErrors.pincode) || pinStatus === "error"}
-                value={form.pincode}
-                onChange={(e) =>
-                  setForm((f) => ({
-                    ...f,
-                    pincode: e.target.value.replace(/\D/g, "").slice(0, 6),
-                    latitude: null,
-                    longitude: null,
-                  }))
-                }
-              />
-              {pinStatus === "loading" ? (
-                <Skeleton className="mt-1 h-4 w-44 rounded-md" aria-label="Checking delivery" />
-              ) : null}
-              {pinStatus === "ok" && !fieldErrors.pincode ? (
-                <FieldDescription className="text-emerald-700 dark:text-emerald-400">
-                  {pinMessage}
-                </FieldDescription>
-              ) : null}
-              {fieldErrors.pincode ? (
-                <p className="text-sm text-destructive">{fieldErrors.pincode}</p>
-              ) : null}
-              {pinStatus === "error" && !fieldErrors.pincode ? (
-                <p className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
-                  {pinMessage}
-                </p>
-              ) : null}
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="addr-landmark">Landmark (optional)</FieldLabel>
-              <Input
-                id="addr-landmark"
-                value={form.landmark}
-                onChange={(e) => setForm((f) => ({ ...f, landmark: e.target.value }))}
-              />
-            </Field>
-            <label className="flex items-center gap-2 text-sm text-muted-foreground">
-              <input
-                type="checkbox"
-                checked={form.isDefault}
-                onChange={(e) => setForm((f) => ({ ...f, isDefault: e.target.checked }))}
-                className="size-4 rounded border-border"
-              />
-              Set as default address
-            </label>
-            <Button type="submit" className="w-full" disabled={pinStatus === "loading" || submitting}>
-              Review address on map
-            </Button>
-          </form>
-        </DialogContent>
-      </Dialog>
-      <DeliveryMapConfirmDialog
-        open={mapOpen}
-        onOpenChange={(next) => {
-          setMapOpen(next);
-          if (!next && !submitting) {
-            // keep address dialog open when backing out of map
-          }
-        }}
-        initialLatitude={form.latitude}
-        initialLongitude={form.longitude}
-        addressSummary={addressSummary}
-        confirmLabel={submitLabel}
-        saving={submitting}
-        closeOnConfirm={false}
-        onConfirm={handleMapConfirm}
-      />
-    </>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent
+        showCloseButton={false}
+        className="flex h-[min(92vh,760px)] flex-col gap-0 overflow-hidden p-0 sm:max-w-[34rem]"
+      >
+        {body}
+      </DialogContent>
+    </Dialog>
   );
 }

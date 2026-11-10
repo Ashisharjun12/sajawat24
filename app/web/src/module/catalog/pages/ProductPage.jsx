@@ -88,7 +88,7 @@ export function ProductPage() {
       ) : null}
 
       {hasLocation && product ? (
-        <ProductPdp product={product} onChangeLocation={() => setPickerOpen(true)} />
+        <ProductPdp product={product} />
       ) : null}
     </div>
   );

@@ -12,19 +12,15 @@ import {
 } from "@/module/account/components/AddressFormDialog";
 import { useAddressMutations, useAddressesQuery } from "@/module/account/hooks/use-addresses-query";
 
+/**
+ * A NEW address starts empty (on the map step) with only the order's city carried over. It must not
+ * reuse the currently selected address's pin or text: that would skip the map and edit that address.
+ */
 function checkoutAddressInitial(delivery, cartCityId, cartCityName) {
-  const pin = (delivery?.pincode ?? "").replace(/\D/g, "").slice(0, 6);
-  const cityId = delivery?.cityId ?? cartCityId ?? null;
-  const cityName = delivery?.cityName || cartCityName || "";
   return {
     ...emptyAddressForm,
-    pincode: pin,
-    address: delivery?.address ?? "",
-    landmark: delivery?.landmark ?? "",
-    cityName,
-    cityId,
-    latitude: delivery?.latitude ?? null,
-    longitude: delivery?.longitude ?? null,
+    cityId: delivery?.cityId ?? cartCityId ?? null,
+    cityName: delivery?.cityName || cartCityName || "",
   };
 }
 
@@ -104,7 +100,9 @@ export function CheckoutAddressPicker({
       setDialogOpen(false);
       toast.add({ title: "Address saved", type: "success" });
       onReturnToSaved?.();
-      selectAddress(saved, { openMap: true });
+      // The pin was just placed in the add-address flow, so don't ask for it again. Selecting the
+      // address applies its pin to the cart (see applySavedAddress in CheckoutDeliveryStep).
+      selectAddress(saved, { openMap: false });
     } catch (err) {
       toast.add({ title: getApiError(err), type: "error" });
     }
@@ -163,6 +161,12 @@ export function CheckoutAddressPicker({
                       {row.cityName} · {row.pincode}
                     </p>
                     <p className="mt-1 line-clamp-2 text-sm text-foreground">{row.address}</p>
+                    {row.receiverName ? (
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Receiver: {row.receiverName}
+                        {row.receiverPhone ? ` · +91 ${row.receiverPhone}` : ""}
+                      </p>
+                    ) : null}
                   </button>
                 </li>
               );
@@ -204,8 +208,7 @@ export function CheckoutAddressPicker({
         </div>
       ) : (
         <div className="flex flex-col gap-4">
-          <div className="flex items-start justify-between gap-3">
-            <p className="text-sm text-muted-foreground">No saved addresses yet.</p>
+          <div className="flex items-start justify-end gap-3">
             <Button
               type="button"
               size="sm"
@@ -232,14 +235,11 @@ export function CheckoutAddressPicker({
       <AddressFormDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        title="Add delivery address"
-        description="Enter where we should set up your decoration. You will pin the exact spot next."
         submitLabel="Save & use for order"
         initial={addressFormInitial}
         submitting={create.isPending}
         contextCityId={cartCityId ?? null}
         contextCityName={cartCityName}
-        contextCityPinHint={Boolean(cartCityName)}
         onSubmit={(body) => void onCreateAddress(body)}
       />
     </div>

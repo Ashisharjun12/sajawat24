@@ -29,6 +29,20 @@
       "when": 1791474568123,
       "tag": "0003_fearless_gargoyle",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791500000000,
+      "tag": "0004_coupon_show_on_platform",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791600000000,
+      "tag": "0005_customer_address_details",
+      "breakpoints": true
     }
   ]
 }

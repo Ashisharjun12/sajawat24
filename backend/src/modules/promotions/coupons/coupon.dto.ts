@@ -27,6 +27,10 @@ const couponBaseSchema = z.object({
     startsAt: z.coerce.date(),
     endsAt: z.coerce.date(),
     isActive: z.boolean().default(true),
+    // No `.default()` on purpose: zod 4's `.partial()` (used by the PATCH schema) still applies a
+    // default when the key is missing, so a partial edit would silently flip this back to true.
+    // Create applies the default (true) in the service instead.
+    showOnPlatform: z.boolean().optional(),
 });
 
 function refineCreateCoupon(

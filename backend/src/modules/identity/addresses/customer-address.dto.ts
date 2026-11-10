@@ -16,10 +16,20 @@ const geoSourceSchema = z.enum([
     "device",
 ]);
 
+/** Indian mobile number, 10 digits starting 6-9 (no +91 / spaces). */
+const receiverPhoneSchema = z
+    .string()
+    .trim()
+    .regex(/^[6-9]\d{9}$/, "receiverPhone must be a 10-digit mobile number");
+
 export const createCustomerAddressDto = z.object({
     label: z.string().trim().min(1).max(80),
     address: z.string().trim().min(6).max(500),
     landmark: z.string().trim().max(200).optional(),
+    houseFloor: z.string().trim().max(120).optional(),
+    buildingBlock: z.string().trim().max(120).optional(),
+    receiverName: z.string().trim().min(2).max(80).optional(),
+    receiverPhone: receiverPhoneSchema.optional(),
     pincode: pincodeSchema,
     cityName: z.string().trim().min(1).max(120).optional(),
     cityId: z.string().uuid(),
@@ -33,6 +43,10 @@ export const patchCustomerAddressDto = z.object({
     label: z.string().trim().min(1).max(80).optional(),
     address: z.string().trim().min(6).max(500).optional(),
     landmark: z.string().trim().max(200).nullable().optional(),
+    houseFloor: z.string().trim().max(120).nullable().optional(),
+    buildingBlock: z.string().trim().max(120).nullable().optional(),
+    receiverName: z.string().trim().min(2).max(80).nullable().optional(),
+    receiverPhone: receiverPhoneSchema.nullable().optional(),
     pincode: pincodeSchema.optional(),
     cityName: z.string().trim().min(1).max(120).optional(),
     cityId: z.string().uuid().nullable().optional(),

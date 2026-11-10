@@ -1,5 +1,5 @@
-import { AddAddressScreen } from '@/module/location/components/AddAddressScreen';
+import { PickAddressLocationScreen } from '@/module/location/components/PickAddressLocationScreen';
 
 export default function AddAddressRoute() {
-  return <AddAddressScreen />;
+  return <PickAddressLocationScreen />;
 }

@@ -29,6 +29,7 @@ export const promotionFormSchema = z
     startsAt: z.string().min(1, "Start date is required"),
     endsAt: z.string().min(1, "End date is required"),
     isActive: z.boolean(),
+    showOnPlatform: z.boolean(),
   })
   .superRefine((value, ctx) => {
     if (value.type === "flat" && !value.valuePaise) {
@@ -93,5 +94,6 @@ export function buildApiPayload(values) {
     startsAt: `${values.startsAt}T00:00:00.000Z`,
     endsAt: `${values.endsAt}T23:59:59.000Z`,
     isActive: values.isActive,
+    showOnPlatform: values.showOnPlatform,
   }
 }

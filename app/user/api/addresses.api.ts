@@ -5,6 +5,11 @@ export type CustomerAddress = {
   label: string;
   address: string;
   landmark: string | null;
+  /** Optional on addresses saved before the structured form existed. */
+  houseFloor?: string | null;
+  buildingBlock?: string | null;
+  receiverName?: string | null;
+  receiverPhone?: string | null;
   pincode: string;
   cityId: string | null;
   cityName: string;
@@ -18,6 +23,11 @@ export type CreateAddressBody = {
   label: string;
   address: string;
   landmark?: string;
+  houseFloor?: string;
+  buildingBlock?: string;
+  receiverName?: string;
+  /** 10-digit Indian mobile, no +91. */
+  receiverPhone?: string;
   pincode: string;
   cityId: string;
   cityName?: string;
@@ -27,8 +37,15 @@ export type CreateAddressBody = {
   geoSource?: 'geocode_google' | 'geocode_manual' | 'pincode_centroid' | 'device';
 };
 
-export type PatchAddressBody = Partial<CreateAddressBody> & {
+/** For PATCH, `null` clears a field and leaving it out keeps the stored value. */
+export type PatchAddressBody = Partial<
+  Omit<CreateAddressBody, 'landmark' | 'houseFloor' | 'buildingBlock' | 'receiverName' | 'receiverPhone'>
+> & {
   landmark?: string | null;
+  houseFloor?: string | null;
+  buildingBlock?: string | null;
+  receiverName?: string | null;
+  receiverPhone?: string | null;
   cityId?: string | null;
 };
 

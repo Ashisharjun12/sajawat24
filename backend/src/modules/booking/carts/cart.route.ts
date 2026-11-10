@@ -9,6 +9,7 @@ import {
 } from "@/modules/booking/carts/cart.dto.js";
 import { applyCartCouponDto } from "@/modules/promotions/coupons/coupon.dto.js";
 import { authOptional, authRequired } from "@/shared/middlewares/auth.middleware.js";
+import { couponAttemptRateLimit } from "@/shared/middlewares/coupon-rate-limit.middleware.js";
 import { validate } from "@/shared/middlewares/validate.middleware.js";
 
 export function createCartRouter(cartController: CartController) {
@@ -30,7 +31,12 @@ export function createCartRouter(cartController: CartController) {
     router.post("/location", validate(cartLocationDto), cartController.setLocation);
     router.post("/delivery-geo", validate(cartDeliveryGeoDto), cartController.setDeliveryGeo);
     router.post("/merge", authRequired, cartController.merge);
-    router.post("/coupon", validate(applyCartCouponDto), cartController.applyCoupon);
+    router.post(
+        "/coupon",
+        couponAttemptRateLimit,
+        validate(applyCartCouponDto),
+        cartController.applyCoupon,
+    );
     router.delete("/coupon", cartController.removeCoupon);
     return router;
 }

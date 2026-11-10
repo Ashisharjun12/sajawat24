@@ -3,7 +3,8 @@ import { Input } from '@/components/ui/input';
 import { Text } from '@/components/ui/text';
 import { formatPaise } from '@/lib/format-money';
 import { useEffect, useMemo, useState } from 'react';
-import { Modal, Pressable, View } from 'react-native';
+import { HomeBottomSheetModal } from '@/module/home/components/HomeBottomSheetModal';
+import { Keyboard, View } from 'react-native';
 
 function paiseToRupees(paise: number) {
   return Math.round(Number(paise) / 100);
@@ -66,63 +67,62 @@ export function CatalogPriceFilterPanel({
             maxRupees: high < bounds.max ? high : null,
           },
     );
+    Keyboard.dismiss();
     onClose();
   }
 
   function handleClear() {
     onApply({ minRupees: null, maxRupees: null });
+    Keyboard.dismiss();
     onClose();
   }
 
   if (!rangeReady) return null;
 
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-      <Pressable className="flex-1 justify-end bg-black/40" onPress={onClose}>
-        <Pressable
-          className="rounded-t-3xl bg-background px-5 pb-8 pt-4"
-          onPress={(e) => e.stopPropagation()}>
-          <Text className="text-foreground text-lg font-semibold">Custom price</Text>
-          <Text className="text-muted-foreground mt-1 text-sm">
-            Range up to {formatPaise(bounds.max * 100)}
-          </Text>
+    // Shared sheet: lifts itself above the keyboard so Min/Max and Apply stay visible.
+    <HomeBottomSheetModal visible={visible} onClose={onClose} closeAccessibilityLabel="Close custom price">
+      <View className="px-5 pt-1">
+        <Text className="text-foreground text-lg font-semibold">Custom price</Text>
+        <Text className="text-muted-foreground mt-1 text-sm">
+          Range up to {formatPaise(bounds.max * 100)}
+        </Text>
 
-          <View className="mt-5 flex-row items-center gap-3">
-            <View className="min-w-0 flex-1">
-              <Text className="text-muted-foreground mb-1.5 text-xs font-medium">Min (₹)</Text>
-              <Input
-                value={minDraft}
-                onChangeText={setMinDraft}
-                keyboardType="number-pad"
-                editable={!disabled}
-                className="h-11 rounded-xl"
-                placeholder="0"
-              />
-            </View>
-            <Text className="text-muted-foreground pt-5">—</Text>
-            <View className="min-w-0 flex-1">
-              <Text className="text-muted-foreground mb-1.5 text-xs font-medium">Max (₹)</Text>
-              <Input
-                value={maxDraft}
-                onChangeText={setMaxDraft}
-                keyboardType="number-pad"
-                editable={!disabled}
-                className="h-11 rounded-xl"
-                placeholder={String(bounds.max)}
-              />
-            </View>
+        <View className="mt-5 flex-row items-center gap-3">
+          <View className="min-w-0 flex-1">
+            <Text className="text-muted-foreground mb-1.5 text-xs font-medium">Min (₹)</Text>
+            <Input
+              value={minDraft}
+              onChangeText={setMinDraft}
+              keyboardType="number-pad"
+              editable={!disabled}
+              className="h-11 rounded-xl"
+              placeholder="0"
+            />
           </View>
+          <Text className="text-muted-foreground pt-5">—</Text>
+          <View className="min-w-0 flex-1">
+            <Text className="text-muted-foreground mb-1.5 text-xs font-medium">Max (₹)</Text>
+            <Input
+              value={maxDraft}
+              onChangeText={setMaxDraft}
+              keyboardType="number-pad"
+              editable={!disabled}
+              className="h-11 rounded-xl"
+              placeholder={String(bounds.max)}
+            />
+          </View>
+        </View>
 
-          <View className="mt-6 flex-row gap-3">
-            <Button variant="outline" className="flex-1 rounded-xl" onPress={handleClear} disabled={disabled}>
-              <Text>Clear</Text>
-            </Button>
-            <Button className="flex-1 rounded-xl" onPress={handleApply} disabled={disabled}>
-              <Text>Apply</Text>
-            </Button>
-          </View>
-        </Pressable>
-      </Pressable>
-    </Modal>
+        <View className="mt-6 flex-row gap-3">
+          <Button variant="outline" className="flex-1 rounded-xl" onPress={handleClear} disabled={disabled}>
+            <Text>Clear</Text>
+          </Button>
+          <Button className="flex-1 rounded-xl" onPress={handleApply} disabled={disabled}>
+            <Text>Apply</Text>
+          </Button>
+        </View>
+      </View>
+    </HomeBottomSheetModal>
   );
 }

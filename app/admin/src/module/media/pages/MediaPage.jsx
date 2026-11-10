@@ -69,6 +69,7 @@ import { FolderFormDialog } from "@/module/media/components/FolderFormDialog"
 import { FilenameFormDialog } from "@/module/media/components/FilenameFormDialog"
 import { MediaFilesTable } from "@/module/media/components/MediaFilesTable"
 import { MediaGrid } from "@/module/media/components/MediaGrid"
+import { MediaSizeGuide } from "@/module/media/components/MediaSizeGuide"
 import { UploadProgressList } from "@/module/media/components/UploadProgressList"
 
 const LIMIT = 20
@@ -373,7 +374,10 @@ export function MediaPage() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="font-heading text-2xl font-medium tracking-tight">Media</h1>
+          <div className="flex items-center gap-1">
+            <h1 className="font-heading text-2xl font-medium tracking-tight">Media</h1>
+            <MediaSizeGuide />
+          </div>
           <p className="mt-1 text-sm text-muted-foreground">
             {inFolder
               ? "Upload images and videos to this folder."

@@ -1,29 +1,14 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { PlusIcon } from "lucide-react";
+import { ChevronRightIcon, PlusIcon } from "lucide-react";
 import { getApiError } from "@/api/api";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { AddressListSkeleton } from "@/module/account/components/AddressListSkeleton";
 import { toast } from "@/components/ui/toast";
 import { AccountPageTitle } from "@/module/account/components/AccountPageTitle";
 import { AddressFormDialog, emptyAddressForm } from "@/module/account/components/AddressFormDialog";
 import { useAddressMutations, useAddressesQuery } from "@/module/account/hooks/use-addresses-query";
+import { addressFormFromRow } from "@/module/account/lib/address-form";
 import { useLocationStore } from "@/store/location.store";
-
-function rowToForm(row) {
-  return {
-    label: row.label,
-    address: row.address,
-    landmark: row.landmark ?? "",
-    pincode: row.pincode,
-    cityName: row.cityName,
-    cityId: row.cityId,
-    isDefault: row.isDefault,
-    latitude: row.latitude ?? null,
-    longitude: row.longitude ?? null,
-  };
-}
 
 export function AddressesPage() {
   const locationCity = useLocationStore((s) => s.city);
@@ -90,10 +75,15 @@ export function AddressesPage() {
         Add and manage delivery addresses for checkout and bookings.
       </p>
 
-      <Button type="button" className="mt-6 gap-2" onClick={openAddDialog}>
-        <PlusIcon className="size-4" />
-        Add new address
-      </Button>
+      <button
+        type="button"
+        onClick={openAddDialog}
+        className="mt-6 flex w-full cursor-pointer items-center gap-3 rounded-xl border border-border bg-card px-4 py-4 text-left transition-colors outline-none hover:bg-primary/5 focus-visible:ring-3 focus-visible:ring-ring/30"
+      >
+        <PlusIcon className="size-5 text-primary" aria-hidden />
+        <span className="flex-1 text-base font-semibold text-primary">Add New Address</span>
+        <ChevronRightIcon className="size-5 text-foreground" aria-hidden />
+      </button>
 
       {isLoading ? <AddressListSkeleton count={2} /> : null}
 
@@ -127,6 +117,12 @@ export function AddressesPage() {
                 {row.landmark ? (
                   <p className="mt-1 text-sm text-muted-foreground">Landmark: {row.landmark}</p>
                 ) : null}
+                {row.receiverName ? (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Receiver: {row.receiverName}
+                    {row.receiverPhone ? ` · +91 ${row.receiverPhone}` : ""}
+                  </p>
+                ) : null}
               </div>
               <div className="flex shrink-0 flex-col items-end gap-2">
                 <button
@@ -158,21 +154,12 @@ export function AddressesPage() {
         ))}
       </ul>
 
-      {!isLoading && !isError && saved.length === 0 ? (
-        <div className="mt-10 rounded-xl border border-dashed border-border px-6 py-10 text-center">
-          <p className="text-sm text-muted-foreground">No saved addresses yet. Add one above.</p>
-          <Button asChild variant="outline" className="mt-4">
-            <Link to="/decorations">Browse decorations</Link>
-          </Button>
-        </div>
-      ) : null}
-
       <AddressFormDialog
         open={dialogOpen}
         onOpenChange={closeDialog}
-        title={editingId ? "Edit address" : "Add address"}
-        submitLabel={editingId ? "Update address" : "Save address"}
-        initial={editingRow ? rowToForm(editingRow) : emptyAddressForm}
+        isEdit={Boolean(editingId)}
+        submitLabel={editingId ? "Update Address" : "Save Address"}
+        initial={editingRow ? addressFormFromRow(editingRow) : emptyAddressForm}
         submitting={editingId ? update.isPending : create.isPending}
         contextCityId={locationCity?.id ?? null}
         contextCityName={locationCity?.name ?? ""}

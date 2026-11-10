@@ -2,25 +2,26 @@
  * Phone-only (< md) PDP pieces that mirror the user app's product page
  * (app/user/module/catalog/components/product-detail/*). Desktop keeps its own layout.
  */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   ArrowLeftIcon,
   CalendarDaysIcon,
   CheckIcon,
-  ChevronDownIcon,
+  CircleCheckIcon,
   HeartIcon,
-  MapPinIcon,
   ShoppingCartIcon,
   StarIcon,
   ZapIcon,
 } from "lucide-react";
+import { resolvePincode } from "@/api/geo.api";
 import { formatPaise } from "@/lib/money";
 import { discountPercent } from "@/lib/product-price";
 import { sectionBadgeAppearance } from "@/lib/section-badge-color";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Sheet,
   SheetContent,
@@ -28,10 +29,11 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { Spinner } from "@/components/ui/spinner";
 import { SearchCommand } from "@/module/layout/components/SearchCommand";
 import { useProductMerchBadge } from "@/module/home/hooks/use-product-merch-badge";
 import { useCartStore } from "@/store/cart.store";
-import { useLocationStore } from "@/store/location.store";
+import { isBackendCityId, useLocationStore } from "@/store/location.store";
 import { useWishlistStore } from "@/store/wishlist.store";
 
 /** Same green chips as the app PDP (Free delivery, Verified). */
@@ -410,13 +412,96 @@ function IndiaFlag() {
   );
 }
 
-function deliveryLocationLine(city, pincode) {
-  const code = pincode?.code?.trim();
-  const cityName = city?.name?.trim();
-  if (code && cityName) return `${code}, ${cityName}`;
-  if (code) return code;
-  if (cityName) return cityName;
-  return "Set delivery location";
+const PIN_LENGTH = 6;
+
+/**
+ * Delivery pincode + green Check button (app parity). For now every valid 6-digit pincode gets the
+ * "we deliver" message. If the lookup confirms the pincode is served in the city already being
+ * browsed, it is also saved (and the bag synced) so prices and availability follow it; otherwise
+ * the saved location is left alone (checkout still validates the delivery PIN).
+ */
+function PdpDeliveryPincodeField() {
+  const city = useLocationStore((s) => s.city);
+  const storedPin = useLocationStore((s) => s.pincode?.code);
+  const setLocation = useLocationStore((s) => s.setLocation);
+  const setCartLocation = useCartStore((s) => s.setLocation);
+
+  const [pin, setPin] = useState(() => (storedPin ?? "").replace(/\D/g, "").slice(0, PIN_LENGTH));
+  const [checking, setChecking] = useState(false);
+  const [message, setMessage] = useState(null);
+  /** Bumped on every edit/check so a lookup that finishes late is ignored. */
+  const requestRef = useRef(0);
+
+  function onChangePin(value) {
+    requestRef.current += 1;
+    setChecking(false);
+    setMessage(null);
+    setPin(value.replace(/\D/g, "").slice(0, PIN_LENGTH));
+  }
+
+  async function onCheck() {
+    if (pin.length !== PIN_LENGTH || checking) return;
+    const requestId = ++requestRef.current;
+    setChecking(true);
+    setMessage(null);
+
+    let text = `Great news, we deliver to ${pin}`;
+    try {
+      const cityId = city?.id && isBackendCityId(city.id) ? city.id : undefined;
+      const data = await resolvePincode(pin, cityId ? { cityId } : {});
+      if (requestId !== requestRef.current) return; // edited while checking
+      if (city && cityId && data?.deliverable && data.city?.id === cityId) {
+        setLocation({ city, pincode: { code: pin }, source: "pincode" });
+        void setCartLocation({ cityId, pincode: pin }).catch(() => {});
+        text = `Great news, we deliver to ${pin}, ${city.name}`;
+      }
+    } catch {
+      // Lookup unavailable: keep the friendly message and leave the saved location unchanged.
+    }
+    if (requestId !== requestRef.current) return;
+    setChecking(false);
+    setMessage(text);
+  }
+
+  const ready = pin.length === PIN_LENGTH;
+
+  return (
+    <form
+      className="flex flex-col gap-2"
+      onSubmit={(event) => {
+        event.preventDefault();
+        void onCheck();
+      }}
+      noValidate
+    >
+      <div className="flex items-center gap-3">
+        <div className="relative min-w-0 flex-1">
+          <span className="pointer-events-none absolute inset-y-0 left-3.5 flex items-center">
+            <IndiaFlag />
+          </span>
+          <Input
+            value={pin}
+            onChange={(event) => onChangePin(event.target.value)}
+            placeholder="Delivery pincode"
+            inputMode="numeric"
+            autoComplete="postal-code"
+            maxLength={PIN_LENGTH}
+            aria-label="Delivery pincode"
+            className="h-12 pl-12"
+          />
+        </div>
+        <Button type="submit" className="h-12 shrink-0 px-6" disabled={!ready || checking}>
+          {checking ? <Spinner className="size-4" /> : "Check"}
+        </Button>
+      </div>
+      {message ? (
+        <p className="flex items-center gap-1.5 text-sm font-medium text-primary" role="status">
+          <CircleCheckIcon className="size-4 shrink-0" aria-hidden />
+          <span className="min-w-0">{message}</span>
+        </p>
+      ) : null}
+    </form>
+  );
 }
 
 function FulfillmentCard({ title, subtitle, Icon, selected, tone, onClick }) {
@@ -452,46 +537,28 @@ function FulfillmentCard({ title, subtitle, Icon, selected, tone, onClick }) {
   );
 }
 
-/** "Choose delivery preference": location field + Schedule / Instant cards. */
+/** "Where & when?": delivery pincode check + Schedule / Instant cards, in one white panel. */
 export function PdpMobileDeliveryPreference({
   canInstant,
   canScheduled,
   isInstantBooking,
   onFulfillmentChange,
-  onChangeLocation,
   instantLabel,
   instantEtaMinutes,
 }) {
-  const city = useLocationStore((s) => s.city);
-  const pincode = useLocationStore((s) => s.pincode);
-  const storeSetPickerOpen = useLocationStore((s) => s.setPickerOpen);
-  const setPickerOpen = (open) =>
-    onChangeLocation ? onChangeLocation() : storeSetPickerOpen(open);
-  const line = deliveryLocationLine(city, pincode);
   const eta = instantEtaMinutes ?? 15;
 
   return (
-    <div className="flex flex-col gap-4">
-      <h2 className="font-heading text-lg font-semibold text-foreground">
-        Choose delivery preference
-      </h2>
-
-      <div className="flex flex-col gap-2">
-        <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
-          <MapPinIcon className="size-4" aria-hidden />
-          Delivery location
-        </p>
-        <button
-          type="button"
-          onClick={() => setPickerOpen(true)}
-          className="flex min-h-12 items-center gap-3 rounded-[var(--r-btn)] border border-border bg-card px-3.5 text-left"
-          aria-label={`Delivery location: ${line}. Change`}
-        >
-          <IndiaFlag />
-          <span className="min-w-0 flex-1 truncate text-sm font-medium text-foreground">{line}</span>
-          <ChevronDownIcon className="size-5 shrink-0 text-foreground" aria-hidden />
-        </button>
+    // Phones: full width, cancelling the page's 20px side padding (like the app). Desktop: a card.
+    <div className="flex flex-col gap-4 border-border bg-card max-md:-mx-5 max-md:border-y max-md:px-5 max-md:py-4 md:rounded-[var(--r-card)] md:border md:p-4">
+      <div className="flex items-center gap-2.5">
+        <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
+          1
+        </span>
+        <h2 className="font-heading text-lg font-semibold text-foreground">Where &amp; when?</h2>
       </div>
+
+      <PdpDeliveryPincodeField />
 
       {canScheduled || canInstant ? (
         <div className="flex flex-col gap-2">

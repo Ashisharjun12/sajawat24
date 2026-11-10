@@ -17,7 +17,8 @@ import { useCallback, useMemo, useState } from 'react';
 import { useActiveOrderScrollPaddingBottom } from '@/module/home/hooks/use-tab-active-order-bar';
 import { ActivityIndicator, RefreshControl, View } from 'react-native';
 
-const TAB_SCROLL_BASE_BOTTOM = 112;
+/** The tab bar sits below the list (not over it), so only a small breathing gap is needed. */
+const TAB_SCROLL_BASE_BOTTOM = 16;
 
 export function ExploreScreen() {
   const scrollBottomPadding = useActiveOrderScrollPaddingBottom(TAB_SCROLL_BASE_BOTTOM);

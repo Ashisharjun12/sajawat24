@@ -11,7 +11,7 @@ import { useLocationStore } from '@/store/location.store';
 import { type Href, router } from 'expo-router';
 
 /**
- * Full-screen add-address flow (form → map), not the account address sheet.
+ * Full-screen add-address flow (map → details), not the account address sheet.
  * Returns to checkout after saving, or to `returnHref` when given (e.g. the product page).
  */
 export function navigateToAddAddressScreen(

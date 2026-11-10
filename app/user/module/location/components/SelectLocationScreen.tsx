@@ -5,7 +5,7 @@ import { Text } from '@/components/ui/text';
 import type { CustomerAddress } from '@/api/addresses.api';
 import { Screen } from '@/components/shell';
 import { openWhatsAppSupport } from '@/lib/support-actions';
-import { ADD_ADDRESS_HREF } from '@/lib/select-location-route';
+import { ADD_ADDRESS_HREF, ADDRESS_DETAILS_HREF } from '@/lib/select-location-route';
 import { LocationAddressListSkeleton } from '@/module/location/components/LocationAddressListSkeleton';
 import { LocationStackHeader } from '@/module/location/components/LocationStackHeader';
 import { resolveAddressDeliveryContext } from '@/module/location/lib/address-delivery-context';
@@ -15,7 +15,7 @@ import { useAddressesQuery } from '@/module/account/hooks/use-addresses-query';
 import { emptyCart } from '@/module/booking/lib/cart-types';
 import { useCartQuery } from '@/module/booking/hooks/use-cart-query';
 import { useAuthStore } from '@/store/auth.store';
-import { emptyAddressForm } from '@/module/account/lib/address-form';
+import { addressFormFromCustomer, emptyAddressForm } from '@/module/account/lib/address-form';
 import { PlacesAddressAutocomplete } from '@/module/geo/components/PlacesAddressAutocomplete';
 import { useAddressFormDraftStore } from '@/store/address-form-draft.store';
 import { useDeliveryLocationStore } from '@/store/delivery-location.store';
@@ -145,21 +145,9 @@ export function SelectLocationScreen() {
   }
 
   function openEditAddress(addr: CustomerAddress) {
-    setDraft(
-      {
-        label: addr.label,
-        address: addr.address,
-        landmark: addr.landmark ?? '',
-        pincode: addr.pincode,
-        cityName: addr.cityName,
-        cityId: addr.cityId,
-        isDefault: addr.isDefault,
-        latitude: addr.latitude,
-        longitude: addr.longitude,
-      },
-      addr.id,
-    );
-    router.push(ADD_ADDRESS_HREF);
+    // Editing goes straight to the details screen; its "Change" button reopens the map.
+    setDraft(addressFormFromCustomer(addr), addr.id);
+    router.push(ADDRESS_DETAILS_HREF);
   }
 
 

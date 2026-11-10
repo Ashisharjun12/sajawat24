@@ -11,6 +11,12 @@ export const customerAddresses = pgTable("customer_addresses", {
     label: text("label").notNull(),
     addressLine: text("address_line").notNull(),
     landmark: text("landmark"),
+    /** "House No. & Floor" as typed. `addressLine` still holds the full composed line. */
+    houseFloor: text("house_floor"),
+    buildingBlock: text("building_block"),
+    /** Who receives the setup at this address (may differ from the account holder). */
+    receiverName: text("receiver_name"),
+    receiverPhone: text("receiver_phone"),
     pincode: text("pincode").notNull(),
     cityId: uuid("city_id").references(() => cities.id, { onDelete: "set null" }),
     cityName: text("city_name").notNull(),

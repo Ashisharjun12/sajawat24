@@ -31,6 +31,10 @@ export class CustomerAddressService {
             label: input.label,
             addressLine: input.address,
             landmark: input.landmark?.trim() || null,
+            houseFloor: input.houseFloor?.trim() || null,
+            buildingBlock: input.buildingBlock?.trim() || null,
+            receiverName: input.receiverName?.trim() || null,
+            receiverPhone: input.receiverPhone?.trim() || null,
             pincode: input.pincode,
             cityId: resolved.cityId,
             cityName: input.cityName?.trim() || resolved.cityName,
@@ -74,6 +78,14 @@ export class CustomerAddressService {
             label: input.label,
             addressLine: input.address,
             landmark: input.landmark === null ? null : input.landmark,
+            // undefined = leave as is, null (or blank) = clear.
+            houseFloor: input.houseFloor === undefined ? undefined : input.houseFloor?.trim() || null,
+            buildingBlock:
+                input.buildingBlock === undefined ? undefined : input.buildingBlock?.trim() || null,
+            receiverName:
+                input.receiverName === undefined ? undefined : input.receiverName?.trim() || null,
+            receiverPhone:
+                input.receiverPhone === undefined ? undefined : input.receiverPhone?.trim() || null,
             pincode: input.pincode,
             cityId: resolved.cityId,
             cityName: input.cityName ?? (input.pincode ? resolved.cityName : undefined),
