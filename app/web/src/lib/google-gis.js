@@ -96,7 +96,8 @@ export function renderGoogleButton(element) {
     size: "large",
     text: "continue_with",
     shape: "pill",
-    width: Math.max(Math.floor(element.offsetWidth) || 320, 200),
+    // GIS accepts 200–400px only.
+    width: Math.min(Math.max(Math.floor(element.offsetWidth) || 320, 200), 400),
   });
 }
 

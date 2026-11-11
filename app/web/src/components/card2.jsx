@@ -29,7 +29,6 @@ import { Spinner } from "@/components/ui/spinner";
 import { toast } from "@/components/ui/toast";
 import {
   ensureGoogleGis,
-  promptGoogleSignIn,
   renderGoogleButton,
   setGoogleCredentialHandler,
 } from "@/lib/google-gis";
@@ -110,7 +109,22 @@ export function LoginCard({ embedded = false }) {
 
     setGoogleCredentialHandler(onCredential);
 
+    return () => {
+      setGoogleCredentialHandler(null);
+    };
+  }, []);
+
+  // The Google button lives inside the "phone" step only. It is a new DOM node
+  // every time that step is shown (e.g. after "Change number"), so it must be
+  // rendered again whenever we come back to it.
+  useEffect(() => {
+    if (phoneStep !== "phone") {
+      return undefined;
+    }
+
+    let cancelled = false;
     let observer = null;
+    setOverlayReady(false);
 
     function mountOverlay() {
       const el = overlayRef.current;
@@ -124,10 +138,7 @@ export function LoginCard({ embedded = false }) {
 
     ensureGoogleGis()
       .then(() => {
-        if (cancelled) {
-          return;
-        }
-        if (mountOverlay()) {
+        if (cancelled || mountOverlay()) {
           return;
         }
         const el = overlayRef.current;
@@ -152,39 +163,25 @@ export function LoginCard({ embedded = false }) {
     return () => {
       cancelled = true;
       observer?.disconnect();
-      setGoogleCredentialHandler(null);
     };
-  }, []);
+  }, [phoneStep]);
 
+  // Only reachable while the real Google button is not mounted (script failed
+  // to load, or the dialog was still animating). Retry the setup and tell the
+  // user what is wrong instead of failing silently.
   async function onGoogleClick() {
     if (pendingRef.current) {
       return;
     }
-    setPending(true);
     try {
-      const idToken = await promptGoogleSignIn();
-      pendingRef.current = true;
-      const payload = await googleLogin({ idToken });
-      await applyCustomerSession(payload);
-    } catch (err) {
-      if (err?.code === "PROMPT_BLOCKED" && overlayRef.current) {
-        try {
-          await ensureGoogleGis();
-          renderGoogleButton(overlayRef.current);
-          setOverlayReady(true);
-          toast.add({
-            title: "Tap Continue with Google again",
-            type: "info",
-          });
-        } catch (setupErr) {
-          toast.add({ title: getApiError(setupErr), type: "error" });
-        }
-        return;
+      await ensureGoogleGis();
+      if (overlayRef.current) {
+        renderGoogleButton(overlayRef.current);
+        setOverlayReady(true);
+        toast.add({ title: "Tap Continue with Google again", type: "info" });
       }
+    } catch (err) {
       toast.add({ title: getApiError(err), type: "error" });
-    } finally {
-      pendingRef.current = false;
-      setPending(false);
     }
   }
 
@@ -299,13 +296,15 @@ export function LoginCard({ embedded = false }) {
       <CardContent className={embedded ? "w-full px-5 pb-8" : undefined}>
         {phoneStep === "phone" ? (
           <>
-            <div className="relative h-12 w-full">
+            {/* Google renders its button 40px high and at most 400px wide, so the
+                click-through overlay must be exactly that size to leave no dead zones. */}
+            <div className="relative mx-auto h-10 w-full max-w-[400px]">
               <Button
                 type="button"
                 variant="outline"
                 size="lg"
                 disabled={pending}
-                className="h-12 w-full text-[15px]"
+                className="h-10 w-full text-[15px]"
                 onClick={onGoogleClick}
               >
                 {pending ? (
