@@ -103,7 +103,11 @@ export function OrderListCard({ order }: OrderListCardProps) {
             <Text>Complete payment</Text>
           </Button>
         ) : null}
-        <Button variant="secondary" size="sm" className="w-full" onPress={openOrderDetail}>
+        <Button
+          variant={order.status === 'PENDING_PAYMENT' ? 'secondary' : 'primary'}
+          size="sm"
+          className="w-full"
+          onPress={openOrderDetail}>
           <Text>View order</Text>
         </Button>
         {order.canReview && !order.reviewSubmitted ? (

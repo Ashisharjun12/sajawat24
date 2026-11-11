@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
+import { catalogLocationErrorMessage } from '@/lib/catalog-location';
 import { isBackendCityId } from '@/lib/location-label';
 import { CatalogListingToolbar } from '@/module/catalog/components/CatalogListingToolbar';
 import { CatalogPriceFilterPanel } from '@/module/catalog/components/CatalogPriceFilterPanel';
@@ -31,6 +32,8 @@ type CategoryProductListingOptions = {
   categoryIds: string[];
   /** Explore “All” — list every product in the city without categoryIds. */
   showAllProducts?: boolean;
+  /** Instant tab — only products that can be set up same day (ignores `categoryIds`). */
+  instantOnly?: boolean;
   /** Bumped by parent on pull-to-refresh to reload page 1. */
   refreshNonce?: number;
 };
@@ -45,16 +48,22 @@ type CategoryProductListingProps = CategoryProductListingOptions & {
 export function useCategoryProductListing({
   categoryIds,
   showAllProducts = false,
+  instantOnly = false,
   refreshNonce = 0,
 }: CategoryProductListingOptions) {
   const city = useLocationStore((s) => s.city);
   const pincode = useLocationStore((s) => s.pincode);
+  const locationChosen = useLocationStore((s) => s.isLocationChosen());
   const cityId = city?.id && isBackendCityId(city.id) ? city.id : undefined;
   const pincodeCode = pincode?.code?.replace(/\D/g, '').slice(0, 6) || undefined;
-  const hasLocation = Boolean(pincodeCode || cityId);
+  // The listing query only runs for a chosen backend city, so Instant must require the same;
+  // otherwise a pincode-only location would show an empty state instead of the location prompt.
+  const hasLocation = instantOnly
+    ? locationChosen && Boolean(cityId)
+    : Boolean(pincodeCode || cityId);
 
   const categoryIdsKey = categoryIds.join(',');
-  const listingFilterKey = showAllProducts ? 'all' : categoryIdsKey;
+  const listingFilterKey = instantOnly ? 'instant' : showAllProducts ? 'all' : categoryIdsKey;
 
   const [sort, setSort] = useState<CatalogSortId>(CATALOG_SORT_DEFAULT);
   const [minPriceRupees, setMinPriceRupees] = useState<number | null>(null);
@@ -101,10 +110,11 @@ export function useCategoryProductListing({
     setPriceOpen(false);
   }, [listingFilterKey, resetList]);
 
-  const { data, dataUpdatedAt, isLoading, isFetching, isError, refetch } =
+  const { data, dataUpdatedAt, isLoading, isFetching, isError, error, refetch } =
     useCatalogListingQuery({
-      categoryIds: showAllProducts ? undefined : categoryIds,
-      unfiltered: showAllProducts,
+      categoryIds: showAllProducts || instantOnly ? undefined : categoryIds,
+      unfiltered: showAllProducts && !instantOnly,
+      instantOnly,
       sort,
       minPriceRupees,
       maxPriceRupees,
@@ -224,6 +234,7 @@ export function useCategoryProductListing({
     isLoading,
     isFetching,
     isError,
+    error,
     showInitialSkeleton,
     showEmpty,
     canLoadMore,
@@ -310,9 +321,14 @@ export function CategoryProductListingResults({
       {/* First page failed (or a refresh failed). A failed next page is handled under the grid. */}
       {listing.isError && !listing.loadMoreFailed ? (
         <View className="items-center gap-3 py-6">
-          <Text className="text-destructive text-center text-sm">Could not load products.</Text>
+          <Text className="text-destructive text-center text-sm">
+            {catalogLocationErrorMessage(listing.error)}
+          </Text>
           <Button variant="primary" size="md" onPress={listing.retry}>
             <Text>Try again</Text>
+          </Button>
+          <Button variant="secondary" size="md" onPress={() => router.push(SELECT_LOCATION_HREF)}>
+            <Text>Update delivery location</Text>
           </Button>
         </View>
       ) : null}
