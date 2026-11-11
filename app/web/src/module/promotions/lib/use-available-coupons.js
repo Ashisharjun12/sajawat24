@@ -30,7 +30,7 @@ export function useAvailableCoupons({ productId, categoryId, scope = "product" }
       productId: scope === "product" ? productId : productId || undefined,
       categoryId: scope === "product" ? categoryId : categoryId || undefined,
       scope,
-      cityId: pincodeCode ? undefined : serviceCityId,
+      cityId: serviceCityId,
       pincode: pincodeCode,
     })
       .then((data) => {

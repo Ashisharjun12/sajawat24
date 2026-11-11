@@ -40,7 +40,7 @@ export function ProductReviewsPage() {
     Promise.all([
       getProduct(id, {
         pincode: pincode?.code || undefined,
-        cityId: pincode?.code ? undefined : city?.id,
+        cityId: isBackendCityId(city?.id) ? city.id : undefined,
       }),
       listProductReviews(id, { page, limit: PAGE_SIZE }),
     ])

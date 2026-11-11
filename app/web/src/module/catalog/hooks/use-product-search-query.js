@@ -40,7 +40,7 @@ export function useProductSearchQuery(
     queryFn: async () => {
       const data = await listProducts({
         pincode: pincodeCode,
-        cityId: pincodeCode ? undefined : cityId,
+        cityId,
         sort: "popularity",
         limit: SEARCH_LIMIT,
         page: 1,

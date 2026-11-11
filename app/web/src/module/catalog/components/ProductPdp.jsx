@@ -836,7 +836,7 @@ export function ProductPdp({ product }) {
           addons,
           quantity: 1,
           pincode: pincode?.code || undefined,
-          cityId: pincode?.code ? undefined : city?.id,
+          cityId: isBackendCityId(city?.id) ? city.id : undefined,
           scheduledAt: isInstantBooking ? null : when || undefined,
           fulfillmentType: isInstantBooking ? "instant" : "scheduled",
         },

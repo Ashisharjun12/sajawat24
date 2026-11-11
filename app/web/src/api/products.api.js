@@ -1,4 +1,5 @@
 import { api, unwrap } from "@/api/api";
+import { withCatalogLocationRetry } from "@/lib/catalog-location";
 
 export function listProducts({
   pincode,
@@ -11,23 +12,25 @@ export function listProducts({
   page = 1,
   limit = 24,
 } = {}) {
-  const params = {
+  const base = {
     page,
     limit,
   };
-  if (pincode) params.pincode = pincode;
-  if (cityId) params.cityId = cityId;
-  if (categoryIds?.length) params.categoryIds = categoryIds.join(",");
-  if (minPricePaise != null) params.minPricePaise = minPricePaise;
-  if (maxPricePaise != null) params.maxPricePaise = maxPricePaise;
-  if (sort) params.sort = sort;
-  if (q?.trim()) params.q = q.trim();
-  return api.get("/catalog/products", { params }).then(unwrap);
+  if (categoryIds?.length) base.categoryIds = categoryIds.join(",");
+  if (minPricePaise != null) base.minPricePaise = minPricePaise;
+  if (maxPricePaise != null) base.maxPricePaise = maxPricePaise;
+  if (sort) base.sort = sort;
+  if (q?.trim()) base.q = q.trim();
+
+  return withCatalogLocationRetry(
+    (location) => api.get("/catalog/products", { params: { ...base, ...location } }).then(unwrap),
+    { cityId, pincode },
+  );
 }
 
 export function getProduct(id, { pincode, cityId } = {}) {
-  const params = {};
-  if (pincode) params.pincode = pincode;
-  if (cityId) params.cityId = cityId;
-  return api.get(`/catalog/products/${id}`, { params }).then(unwrap);
+  return withCatalogLocationRetry(
+    (location) => api.get(`/catalog/products/${id}`, { params: location }).then(unwrap),
+    { cityId, pincode },
+  );
 }

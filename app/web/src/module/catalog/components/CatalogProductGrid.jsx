@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { ArrowRightIcon, SlidersHorizontalIcon } from "lucide-react";
-import { getApiError } from "@/api/api";
+import { catalogLocationErrorMessage } from "@/lib/catalog-location";
 import { listProducts } from "@/api/products.api";
 import { Button } from "@/components/ui/button";
 import { CatalogListingFilterSheet } from "@/module/catalog/components/CatalogListingFilterSheet";
@@ -174,7 +174,7 @@ export function CatalogProductGrid({
 
     void listProducts({
       pincode: pincode?.code || undefined,
-      cityId: pincode?.code ? undefined : city?.id,
+      cityId: isBackendCityId(city?.id) ? city.id : undefined,
       categoryIds: listingCategoryIds?.length ? listingCategoryIds : undefined,
       sort,
       minPricePaise,
@@ -202,7 +202,7 @@ export function CatalogProductGrid({
       })
       .catch((err) => {
         if (cancelled) return;
-        setError(getApiError(err));
+        setError(catalogLocationErrorMessage(err));
         setItems([]);
         setTotal(0);
         setStatus("error");

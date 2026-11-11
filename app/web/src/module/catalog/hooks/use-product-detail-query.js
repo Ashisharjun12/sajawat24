@@ -18,7 +18,7 @@ export function useProductDetailQuery(productId, { enabled = true } = {}) {
     queryFn: () =>
       getProduct(productId, {
         pincode: pincodeCode,
-        cityId: pincodeCode ? undefined : cityId,
+        cityId,
       }),
     enabled: Boolean(productId) && hasLocation && enabled,
     staleTime: PRODUCT_DETAIL_STALE_MS,

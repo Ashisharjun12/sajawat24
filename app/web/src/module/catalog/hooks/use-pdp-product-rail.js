@@ -53,7 +53,7 @@ export function usePdpProductRail(
       ...(variant === "other-categories"
         ? { sort: "popularity" }
         : { categoryIds }),
-      cityId: pincodeCode ? undefined : serviceCityId,
+      cityId: serviceCityId,
       pincode: pincodeCode,
       page: 1,
       limit,

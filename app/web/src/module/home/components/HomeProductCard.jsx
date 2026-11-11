@@ -22,7 +22,7 @@ import {
  * fixed two-line height so every price row lines up. md+ keeps the desktop style.
  */
 const CARD_TITLE_CLASS =
-  "line-clamp-2 h-9 font-heading text-[13px] font-medium leading-[18px] text-foreground md:line-clamp-1 md:h-auto md:text-[15px] md:leading-snug";
+  "line-clamp-2 h-9 font-heading text-[13px] font-medium leading-[18px] text-foreground md:h-10 md:text-[15px] md:leading-5";
 
 /**
  * Card frame. Phones: no box (app style). md+: white card with an invisible border;
@@ -31,9 +31,13 @@ const CARD_TITLE_CLASS =
 const CARD_FRAME_CLASS =
   "group flex h-full min-w-0 flex-col md:rounded-[var(--r-card)] md:border md:border-transparent md:bg-card md:transition-[box-shadow,border-color] md:duration-200 md:hover:border-border md:hover:shadow-[0_6px_20px_-4px_rgb(0_0_0/0.12)] md:focus-visible:border-border";
 
-/** Photo: rounded on its own on phones; top corners only inside the md+ card. */
+/**
+ * Photo: rounded on its own on phones; top corners only inside the md+ card.
+ * Absolutely positioned inside the square box so the image's natural size can never
+ * stretch it: every card photo is the same square, whatever the source aspect ratio.
+ */
 const CARD_PHOTO_CLASS =
-  "size-full overflow-hidden rounded-[var(--r-btn)] bg-muted md:rounded-none md:rounded-t-(--radius-card)";
+  "absolute inset-0 overflow-hidden rounded-[var(--r-btn)] bg-muted md:rounded-none md:rounded-t-(--radius-card)";
 
 /** Card body padding: none on phones (app style), inset on md+. */
 const CARD_BODY_CLASS = "flex flex-1 shrink-0 flex-col pt-2 md:px-3 md:pb-3 md:pt-3";
@@ -176,7 +180,7 @@ function ProductCardShell({ product, badgeLabel, badgeColor }) {
   return (
     <>
       {/* Outer box does not clip, so the phone ribbon can hang past the photo edge. */}
-      <div className="relative aspect-square w-full shrink-0">
+      <div className="relative aspect-square w-full shrink-0 overflow-visible">
         <div className={CARD_PHOTO_CLASS}>
           <div className="absolute left-2 top-2 z-10">
             <WishlistHeartButton product={product} />
@@ -367,7 +371,7 @@ export function HomeProductCardRailSkeleton() {
     <div className="h-full min-w-0 md:overflow-hidden md:rounded-[var(--r-card)] md:border md:border-border/80 md:bg-card md:shadow-sm">
       <Skeleton className="aspect-square w-full rounded-[var(--r-btn)] md:rounded-none" />
       <div className="flex flex-col pt-2 md:px-2.5 md:pb-2.5">
-        <Skeleton className="min-h-[2.75em] w-[88%] rounded-md" />
+        <Skeleton className="h-9 w-[88%] rounded-md md:h-10" />
         <div className="mt-1.5 flex h-5 items-center gap-1.5">
           <Skeleton className="h-5 w-10 rounded-md" />
           <Skeleton className="h-3 w-16 rounded-md" />

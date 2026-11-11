@@ -1,5 +1,5 @@
 import { Link, useLocation, useParams } from "react-router-dom";
-import { getApiError } from "@/api/api";
+import { catalogLocationErrorMessage } from "@/lib/catalog-location";
 import { SeoHead } from "@/components/SeoHead";
 import { Button } from "@/components/ui/button";
 import { truncateDescription } from "@/lib/site-seo";
@@ -75,7 +75,9 @@ export function ProductPage() {
           <h1 className="font-heading text-2xl font-medium tracking-tight">
             Couldn’t load this setup
           </h1>
-          <p className="max-w-[50ch] text-sm text-muted-foreground">{getApiError(error)}</p>
+          <p className="max-w-[50ch] text-sm text-muted-foreground">
+            {catalogLocationErrorMessage(error)}
+          </p>
           <div className="flex flex-wrap gap-2">
             <Button type="button" variant="outline" onClick={() => setPickerOpen(true)}>
               Change city

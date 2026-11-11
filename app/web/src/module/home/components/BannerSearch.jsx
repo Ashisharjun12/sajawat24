@@ -87,10 +87,16 @@ export function BannerSearch() {
     }
 
     const activeCity = city ?? cities.find((item) => item.id === cityId);
-    const body = pincode?.code
-      ? { pincode: pincode.code.replace(/\D/g, "").slice(0, 6) }
-      : activeCity?.id && isBackendCityId(activeCity.id)
-        ? { cityId: activeCity.id }
+    const pin = pincode?.code ? pincode.code.replace(/\D/g, "").slice(0, 6) : "";
+    const serviceCityId =
+      activeCity?.id && isBackendCityId(activeCity.id) ? activeCity.id : undefined;
+    // Send city + PIN together (user app cartLocationBody): a PIN alone is validated strictly.
+    const body = serviceCityId
+      ? pin.length === 6
+        ? { cityId: serviceCityId, pincode: pin }
+        : { cityId: serviceCityId }
+      : pin.length === 6
+        ? { pincode: pin }
         : null;
 
     if (body) {

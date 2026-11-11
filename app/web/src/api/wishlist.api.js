@@ -1,30 +1,30 @@
 import { api, unwrap } from "@/api/api";
-
-function locationParams(cityId, pincode) {
-  const params = {};
-  if (cityId) params.cityId = cityId;
-  if (pincode) params.pincode = pincode;
-  return params;
-}
+import { withCatalogLocationRetry } from "@/lib/catalog-location";
 
 export function getWishlist({ cityId, pincode }) {
-  return api.get("/wishlist", { params: locationParams(cityId, pincode) }).then(unwrap);
+  return withCatalogLocationRetry(
+    (location) => api.get("/wishlist", { params: location }).then(unwrap),
+    { cityId, pincode },
+  );
 }
 
 export function addWishlistItem(productId, { cityId, pincode }) {
-  return api
-    .post("/wishlist/items", { productId }, { params: locationParams(cityId, pincode) })
-    .then(unwrap);
+  return withCatalogLocationRetry(
+    (location) => api.post("/wishlist/items", { productId }, { params: location }).then(unwrap),
+    { cityId, pincode },
+  );
 }
 
 export function removeWishlistItem(productId, { cityId, pincode }) {
-  return api
-    .delete(`/wishlist/items/${productId}`, { params: locationParams(cityId, pincode) })
-    .then(unwrap);
+  return withCatalogLocationRetry(
+    (location) => api.delete(`/wishlist/items/${productId}`, { params: location }).then(unwrap),
+    { cityId, pincode },
+  );
 }
 
 export function mergeWishlist(productIds, { cityId, pincode }) {
-  return api
-    .post("/wishlist/merge", { productIds }, { params: locationParams(cityId, pincode) })
-    .then(unwrap);
+  return withCatalogLocationRetry(
+    (location) => api.post("/wishlist/merge", { productIds }, { params: location }).then(unwrap),
+    { cityId, pincode },
+  );
 }
