@@ -14,6 +14,7 @@ export const createCategoryDto = z.object({
     imageUploadId: z.string().uuid().nullable().optional(),
     iconKey: iconKeySchema.nullable().optional(),
     iconTone: iconToneSchema.nullable().optional(),
+    iconUploadId: z.string().uuid().nullable().optional(),
     isActive: z.boolean().optional(),
 });
 
@@ -24,6 +25,7 @@ export const patchCategoryDto = z.object({
     imageUploadId: z.string().uuid().nullable().optional(),
     iconKey: iconKeySchema.nullable().optional(),
     iconTone: iconToneSchema.nullable().optional(),
+    iconUploadId: z.string().uuid().nullable().optional(),
     isActive: z.boolean().optional(),
 });
 

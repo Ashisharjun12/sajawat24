@@ -51,9 +51,11 @@ export function mediaDisplayUrl(item) {
   return item?.optimizedUrl || item?.publicUrl || item?.url || "";
 }
 
-export function ingestUpload(file, { folderId, crop, filename } = {}) {
+/** `preset: "icon"` → backend accepts PNG/SVG and stores a 192×192 transparent WebP. */
+export function ingestUpload(file, { folderId, crop, filename, preset } = {}) {
   const form = new FormData();
   form.append("file", file);
+  if (preset) form.append("preset", preset);
   if (folderId) form.append("folderId", folderId);
   if (filename) form.append("filename", filename);
   if (crop) form.append("crop", JSON.stringify(crop));

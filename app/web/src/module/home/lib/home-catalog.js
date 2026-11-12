@@ -48,6 +48,8 @@ export function normalizeCategory(raw) {
     parentId: raw.parentId ?? null,
     iconKey: raw.iconKey ?? null,
     iconTone: raw.iconTone ?? null,
+    // Admin-uploaded bar icon: `iconUrl` from home layout, `icon.url` from the category tree.
+    iconUrl: raw.iconUrl ?? raw.icon?.url ?? null,
     imageUrl,
     tileBg: raw.tileBg ?? "bg-muted",
     children,

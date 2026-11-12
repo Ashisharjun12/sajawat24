@@ -1,10 +1,10 @@
 import { ScalePressable } from '@/components/shell';
-import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
-import { listTopLevelCategories, resolveCategoryIcon } from '@/lib/category-icons';
+import { listTopLevelCategories } from '@/lib/category-icons';
+import { CategoryChipIcon } from '@/module/catalog/components/CategoryChipIcon';
 import type { HomeCategory } from '@/module/home/lib/home-catalog';
-import { ScrollView, View } from 'react-native';
+import { ScrollView } from 'react-native';
 
 type ExploreCategoryRailProps = {
   categories: HomeCategory[];
@@ -53,11 +53,6 @@ export function ExploreCategoryRail({
       </ScalePressable>
       {topLevel.map((category) => {
         const active = activeSingle === category.id;
-        const { Icon: CategoryIcon, toneBg, toneIcon } = resolveCategoryIcon({
-          iconKey: category.iconKey,
-          iconTone: category.iconTone,
-          slug: category.slug,
-        });
         return (
           <ScalePressable
             key={category.id}
@@ -71,19 +66,7 @@ export function ExploreCategoryRail({
             accessibilityRole="button"
             accessibilityState={active ? { selected: true } : {}}
             accessibilityLabel={category.name}>
-            <View
-              className={cn(
-                'flex size-7 items-center justify-center rounded-full',
-                active ? 'bg-primary-foreground/15' : toneBg,
-              )}>
-              <Icon
-                as={CategoryIcon}
-                className={cn(
-                  'size-3.5',
-                  active ? 'text-primary-foreground' : toneIcon,
-                )}
-              />
-            </View>
+            <CategoryChipIcon category={category} active={active} />
             <Text
               className={cn(
                 'text-xs font-semibold',

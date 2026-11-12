@@ -1,10 +1,10 @@
 import { ScalePressable } from '@/components/shell';
-import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
-import { listTopLevelCategories, resolveCategoryIcon } from '@/lib/category-icons';
+import { listTopLevelCategories } from '@/lib/category-icons';
+import { CategoryChipIcon } from '@/module/catalog/components/CategoryChipIcon';
 import type { HomeCategory } from '@/module/home/lib/home-catalog';
-import { ScrollView, View } from 'react-native';
+import { ScrollView } from 'react-native';
 
 type CategoryParentChipsProps = {
   parents: HomeCategory[];
@@ -55,11 +55,6 @@ export function CategoryParentChips({
       </ScalePressable>
       {topLevel.map((parent) => {
         const active = parent.slug === selectedSlug;
-        const { Icon: CategoryIcon, toneBg, toneIcon } = resolveCategoryIcon({
-          iconKey: parent.iconKey,
-          iconTone: parent.iconTone,
-          slug: parent.slug,
-        });
         return (
           <ScalePressable
             key={parent.id}
@@ -73,19 +68,7 @@ export function CategoryParentChips({
             accessibilityRole="button"
             accessibilityState={{ selected: active }}
             accessibilityLabel={parent.name}>
-            <View
-              className={cn(
-                'flex size-7 items-center justify-center rounded-full',
-                active ? 'bg-primary-foreground/15' : toneBg,
-              )}>
-              <Icon
-                as={CategoryIcon}
-                className={cn(
-                  'size-3.5',
-                  active ? 'text-primary-foreground' : toneIcon,
-                )}
-              />
-            </View>
+            <CategoryChipIcon category={parent} active={active} />
             <Text
               className={cn(
                 'text-xs font-semibold',

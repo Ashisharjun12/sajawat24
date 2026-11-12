@@ -33,28 +33,22 @@ export function isCategoryRouteValid({ parent, childSlug, child }) {
   return true;
 }
 
-/** Home “View all” → first row category that exists in the catalog tree (e.g. `/c/birthday`). */
+/**
+ * Home “View all” → `/explore` with no filter: every product, paginated.
+ * Only exception: after drilling into a parent on the home row, the heading is that parent,
+ * so “View all” opens that parent's page.
+ */
 export function resolveViewAllCategoryHref({
   rowCategories = [],
   catalogCategories = [],
   currentParent = null,
 } = {}) {
-  const tree =
-    catalogCategories.length > 0 ? catalogCategories : rowCategories;
-
   if (currentParent?.slug) {
+    const tree =
+      catalogCategories.length > 0 ? catalogCategories : rowCategories;
     const parent =
       tree.find((row) => row.slug === currentParent.slug) ?? currentParent;
-    return parent?.slug ? categoryPath(parent) : null;
+    return categoryPath(parent);
   }
-
-  const ordered = rowCategories.length > 0 ? rowCategories : tree;
-  for (const cat of ordered) {
-    if (!cat?.slug) continue;
-    const match = tree.find((row) => row.slug === cat.slug);
-    if (match) return categoryPath(match);
-  }
-
-  const first = tree[0];
-  return first?.slug ? categoryPath(first) : null;
+  return "/explore";
 }

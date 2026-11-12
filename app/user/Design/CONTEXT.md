@@ -19,8 +19,8 @@ Living brief for the customer mobile app (`app/user`). Update this file when eac
 
 | Field | Value |
 |-------|--------|
-| Name | Explore listing header |
-| Status | shipped — Explore uses `ExploreHeader` (back, title, search, cart badge); header fixed; category chips + sort/price filters sticky on scroll; no duplicate "N products" line |
+| Name | Custom category bar icons |
+| Status | shipped — Explore + Category chip rails show the admin-uploaded icon (`iconUrl`) via `CategoryChipIcon`; no tone colour behind it, white circle when the chip is selected; falls back to `iconKey` + `iconTone` |
 | Theme | Light default + Dark via Profile → Appearance; dark uses `#0B1514` bg (no pure black) |
 | Home UI | Browse feed without city + compact “Please select city” banner; auto city sheet; CMS/discovery rails match web View all + badge colors |
 | Bag / checkout | Bag icon → `/(app)/checkout`; empty bag shows **My bag** + View packages; with items → Confirm booking → Payment; offers + address sub-routes |
@@ -37,6 +37,7 @@ Living brief for the customer mobile app (`app/user`). Update this file when eac
 | `module/onboarding/` | Welcome UI, phone + OTP, `otp.service`, SMS autofill hook; login hub header uses `assets/images/icon.png` |
 | `module/home/` | `HomeTopBar` → `select-location` route; `HomeSearchBar` + city picker; CMS feed; `HomeLaunchAnnouncementSheet`, `use-launch-announcement-sheet`, `lib/announcement.ts`; `MerchSectionsSync`, `use-catalog-sections-query` |
 | `module/catalog/components/ExploreHeader.tsx` | Explore listing header — back, title, Search → `/(app)/search`, Wishlist → `/(app)/wishlist` with count badge, Cart → `openCartCheckout` with count badge |
+| `module/catalog/components/CategoryChipIcon.tsx` | 28px category icon inside Explore/Category chips: uploaded `iconUrl` (expo-image, no tone bg) or Lucide `iconKey` + `iconTone` |
 | `module/catalog/components/CatalogProductCard.tsx` | Single browse product card (`layout` grid/rail); `use-product-merch-badge` |
 | `store/merch-sections.store.ts` | City-scoped product → section badge index for cards |
 | `module/location/` | `SelectLocationScreen`; add-address flow = `PickAddressLocationScreen` (route `location/add`: Ola map + pin, tooltip, Confirm Location) → `AddressDetailsScreen` (route `location/details`: map preview + Change, house/building/landmark, `AddressLabelChips` Home/Office/Other, receiver name + +91 phone, Save). `hooks/use-pinned-location.ts` = reverse geocode + deliverability under the pin |
@@ -92,6 +93,7 @@ Living brief for the customer mobile app (`app/user`). Update this file when eac
 - [x] `app/(app)/search` — popular setups + debounced product/category search (location required)
 - [x] `app/(app)/instant` — instant-only catalog (`GET /catalog/products?instant=1`); same listing as Explore (`useCategoryProductListing({ instantOnly })`, `CatalogProductGrid`, sticky sort/price toolbar, Load more button, pull-to-refresh)
 - [x] `app/(app)/explore` — web `/explore` parity: category rail + city-wide or filtered product grid (sort/price, load more); listing header with search + cart; category chips + sort/price filters sticky while scrolling
+- [x] Category chips (Explore + Category tabs) — admin-uploaded bar icon when set, built-in icon + tone otherwise
 - [x] `whatsapp` (FAB action)
 - [x] `app/(app)/profile` tab — web `AccountNav` labels; push toggle + Notifications row; Personal info / orders / addresses / refunds / help stack
 - [x] Profile → Appearance — bottom sheet (light/dark + Save preference); default light on boot
@@ -135,6 +137,8 @@ Living brief for the customer mobile app (`app/user`). Update this file when eac
 ## History (newest first)
 
 ```text
+2026-11-12 — Home category row "View all" → Explore with no filter (all products, load more), was: first category only. `resolveViewAllCategoryHref` always returns Explore unless a drilled-in parent is passed. `HomeCategoryHorizontalSection` ignores the backend default `/decorations` link (only a custom CMS link overrides). Web: `/explore` (paginated)
+2026-11-12 — Custom category bar icons: `HomeCategory.iconUrl` (from `icon.url` / layout `iconUrl`); `resolveCategoryIcon` returns `iconUrl` and empty tone classes when set; new `CategoryChipIcon` used by `ExploreCategoryRail` + `CategoryParentChips` (white circle behind the icon when selected). Backend: categories.icon_upload_id (migration 0006, run `pnpm db:migrate` first); admin uploads PNG/SVG via ingest `preset=icon` → 192×192 transparent WebP
 2026-11-12 — Instant tab header: removed the "Same-day decoration in {city}" subtitle and the "N products" line above the sort chips (`showTotal={false}`)
 2026-11-12 — Instant tab (`InstantScreen`) rebuilt on the Explore listing: the 2-column `FlatList` made cards overlap (rows measured short), now uses `useCategoryProductListing({ instantOnly: true })` + `CategoryProductListingToolbar/Results` in a `SmoothScrollView` (sticky sort/price, row grid, skeletons, "Load more" button, failed-page retry, price-aware empty copy, pull-to-refresh with a 5s spinner cap). Hook: `instantOnly` option (location needs a chosen backend city, like the query), returns `error`; list error block now shows `catalogLocationErrorMessage` + Try again + "Update delivery location"
 2026-11-12 — My orders list (`OrderListCard`): "View order" is now the filled teal `primary` button (was outlined `secondary`); when the order is `PENDING_PAYMENT` it stays outlined so "Complete payment" remains the main action

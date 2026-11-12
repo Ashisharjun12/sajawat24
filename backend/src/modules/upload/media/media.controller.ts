@@ -36,6 +36,7 @@ export class MediaController {
             folderId: typeof req.body.folderId === "string" ? req.body.folderId : null,
             uploadedBy: req.actor?.id ?? null,
             crop,
+            preset: req.body.preset === "icon" ? "icon" : undefined,
         });
         res.status(200).json(new ApiResponse(200, data, "upload ingested"));
     });

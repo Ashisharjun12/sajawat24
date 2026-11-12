@@ -4,7 +4,6 @@ import { useMotionValueEvent, useScroll } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { DecoryLogo } from "@/components/decory-logo";
 import { Button } from "@/components/ui/button";
-import { ModeToggle } from "@/components/ui/mode-toggle";
 import { CategoryBar } from "@/module/catalog/components/CategoryBar";
 import { CartButton } from "@/module/layout/components/CartButton";
 import { WishlistButton } from "@/module/layout/components/WishlistButton";
@@ -66,7 +65,7 @@ export function SiteHeader() {
         <div
           className={cn(
             "mx-auto flex max-w-[1240px] items-center gap-3 px-4 transition-[padding] duration-200 md:gap-4 md:px-8",
-            compact ? "py-2" : "pt-4 pb-3",
+            compact ? "py-1.5" : "py-2.5",
           )}
         >
         <MobileNav
@@ -79,7 +78,7 @@ export function SiteHeader() {
         >
           <DecoryLogo
             variant="wordmark"
-            className="h-8 sm:h-9"
+            className="h-10 md:h-11"
             alt={brand.companyName}
             lightSrc={brand.logoLightUrl}
             darkSrc={brand.logoDarkUrl}
@@ -125,9 +124,6 @@ export function SiteHeader() {
               Sign in
             </Button>
           )}
-          <ModeToggle
-            className="border-primary-foreground/25 bg-transparent text-primary-foreground hover:bg-primary-foreground/15"
-          />
         </div>
         </div>
       </div>

@@ -64,6 +64,34 @@ export async function runImagePipeline(
     };
 }
 
+/** Category bar icons are shown at 28–32px, so 192px covers 3x+ screens with headroom. */
+export const ICON_OUTPUT_SIZE = 192;
+
+/**
+ * Square, transparent icon raster. SVGs are rendered by sharp (librsvg) at a density that gives
+ * at least 2x the output size, so small viewBoxes (e.g. 24x24) stay sharp. Raw SVG is never stored.
+ */
+export async function runIconPipeline(input: Buffer, mimeType: string): Promise<ImagePipelineResult> {
+    const sharp = (await import("sharp")).default;
+    let density: number | undefined;
+    if (mimeType === "image/svg+xml") {
+        const meta = await sharp(input).metadata();
+        const longest = Math.max(meta.width ?? 0, meta.height ?? 0) || ICON_OUTPUT_SIZE;
+        density = Math.min(2400, Math.max(72, Math.ceil((72 * ICON_OUTPUT_SIZE * 2) / longest)));
+    }
+    const buffer = await sharp(input, density ? { density } : undefined)
+        .rotate()
+        .resize({
+            width: ICON_OUTPUT_SIZE,
+            height: ICON_OUTPUT_SIZE,
+            fit: "contain",
+            background: { r: 0, g: 0, b: 0, alpha: 0 },
+        })
+        .webp({ quality: 90, alphaQuality: 100 })
+        .toBuffer();
+    return { buffer, width: ICON_OUTPUT_SIZE, height: ICON_OUTPUT_SIZE };
+}
+
 export function optimizedKeyFromOriginal(key: string): string {
     return `${key.replace(/\.[^.]+$/, "")}.webp`;
 }

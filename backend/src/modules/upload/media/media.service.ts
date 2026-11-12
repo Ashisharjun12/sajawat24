@@ -8,7 +8,7 @@ import type { IMediaRepository } from "@/modules/upload/media/media.repository.j
 import type { IFolderRepository } from "@/modules/upload/folders/folder.repository.js";
 import { safeFilename, toPublicMedia, type PublicMedia } from "@/modules/upload/media/media.public.js";
 import type { ImageCropInput } from "@/modules/upload/media/media.dto.js";
-import { runImagePipeline } from "@/modules/upload/media/image.pipeline.js";
+import { runIconPipeline, runImagePipeline } from "@/modules/upload/media/image.pipeline.js";
 import type { MediaKind, OptimizeStatus, Upload, UploadStatus } from "@/modules/upload/media/media.schema.js";
 import {
     findUploadReferences,
@@ -19,6 +19,27 @@ import {
 const IMAGE_MIMES = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
 const VIDEO_MIMES = new Set(["video/mp4", "video/webm"]);
 const FILE_MIMES = new Set(["application/pdf"]);
+/** Bar icons: SVG is accepted only here, because it is rasterized before storage. */
+const ICON_MIMES = new Set(["image/png", "image/webp", "image/svg+xml"]);
+const ICON_MAX_BYTES = 2 * 1024 * 1024;
+
+export type IngestPreset = "icon";
+
+function assertIconInput(mimeType: string, buffer: Buffer) {
+    if (!ICON_MIMES.has(mimeType)) {
+        throw ApiError.badRequest("icon must be a PNG or SVG");
+    }
+    if (buffer.length > ICON_MAX_BYTES) {
+        throw ApiError.badRequest("icon must be under 2 MB");
+    }
+    if (mimeType === "image/svg+xml") {
+        const text = buffer.toString("utf8");
+        // No entity expansion and no external/file references; the renderer must only see inline shapes.
+        if (/<!ENTITY/i.test(text) || /(?:xlink:)?href\s*=\s*["']\s*(?:https?:|file:|\/\/)/i.test(text)) {
+            throw ApiError.badRequest("SVG icon cannot reference external files");
+        }
+    }
+}
 
 export type PresignInput = {
     id?: string;
@@ -38,6 +59,7 @@ export type IngestInput = {
     uploadedBy?: string | null;
     folderId?: string | null;
     crop?: ImageCropInput;
+    preset?: IngestPreset;
 };
 
 export type PresignResult =
@@ -146,7 +168,12 @@ export class MediaService implements IMediaService {
 
     async ingest(input: IngestInput): Promise<PublicMedia> {
         const mimeType = input.mimeType.trim().toLowerCase();
-        assertMime("image", mimeType);
+        const isIcon = input.preset === "icon";
+        if (isIcon) {
+            assertIconInput(mimeType, input.buffer);
+        } else {
+            assertMime("image", mimeType);
+        }
 
         const folderId = await this.assertFolder(input.folderId);
         const id = randomUUID();
@@ -154,7 +181,17 @@ export class MediaService implements IMediaService {
         const filename = `${baseName}.webp`;
         const key = buildObjectKey("image", id, filename);
 
-        const { buffer, width, height } = await runImagePipeline(input.buffer, input.crop);
+        let result: Awaited<ReturnType<typeof runImagePipeline>>;
+        if (isIcon) {
+            try {
+                result = await runIconPipeline(input.buffer, mimeType);
+            } catch {
+                throw ApiError.badRequest("could not read icon file");
+            }
+        } else {
+            result = await runImagePipeline(input.buffer, input.crop);
+        }
+        const { buffer, width, height } = result;
         await storageProvider.putObject(key, buffer, "image/webp");
 
         const row = await this.media.insert({

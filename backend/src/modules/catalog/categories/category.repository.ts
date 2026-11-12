@@ -4,7 +4,10 @@ import { paginationOffset, type PaginationQuery } from "@/shared/http/pagination
 import { categories, type Category, type NewCategory } from "@/modules/catalog/categories/category.schema.js";
 
 export type CategoryPatch = Partial<
-    Pick<Category, "name" | "slug" | "parentId" | "imageUploadId" | "iconKey" | "iconTone" | "isActive">
+    Pick<
+        Category,
+        "name" | "slug" | "parentId" | "imageUploadId" | "iconKey" | "iconTone" | "iconUploadId" | "isActive"
+    >
 >;
 
 export type CategoryListFilter = {

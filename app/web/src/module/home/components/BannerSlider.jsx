@@ -271,7 +271,7 @@ export function BannerSlider({ slides = [], variant, dotsBottom = 12 }) {
               ))}
             </div>
           ) : (
-          <div className="absolute bottom-3 left-4 z-30 flex gap-2 md:bottom-7 md:left-16">
+          <div className="absolute bottom-3 left-4 z-30 flex gap-2 md:bottom-12 md:left-16">
             {slides.map((item, index) => (
               <button
                 key={item.id}

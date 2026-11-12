@@ -1,5 +1,6 @@
 import { Link, useSearchParams } from "react-router-dom";
 import {
+  categoryIconUrl,
   listTopLevelCategories,
   resolveCategoryIcon,
 } from "@/lib/category-icons";
@@ -32,9 +33,10 @@ export function MobileExploreCategoryRail({ categories = [] }) {
       </Link>
       {topLevel.map((category) => {
         const active = activeSingle === category.id;
-        const { Icon, iconBg } = resolveCategoryIcon({
+        const { Icon, iconBg, iconUrl } = resolveCategoryIcon({
           iconKey: category.iconKey,
           iconTone: category.iconTone,
+          iconUrl: categoryIconUrl(category),
           slug: category.slug,
         });
         return (
@@ -50,11 +52,29 @@ export function MobileExploreCategoryRail({ categories = [] }) {
           >
             <span
               className={cn(
-                "flex size-7 items-center justify-center rounded-full",
-                active ? "bg-primary-foreground/15" : iconBg,
+                "flex size-7 items-center justify-center overflow-hidden rounded-full",
+                // Custom icons keep their own colours: no tone behind them, and a white
+                // circle when the chip turns teal so the artwork stays visible.
+                iconUrl
+                  ? active && "bg-primary-foreground"
+                  : active
+                    ? "bg-primary-foreground/15"
+                    : iconBg,
               )}
             >
-              <Icon className="size-3.5" strokeWidth={1.85} aria-hidden />
+              {iconUrl ? (
+                <img
+                  src={iconUrl}
+                  alt=""
+                  width={28}
+                  height={28}
+                  loading="lazy"
+                  decoding="async"
+                  className={cn("object-contain", active ? "size-6" : "size-7")}
+                />
+              ) : (
+                <Icon className="size-3.5" strokeWidth={1.85} aria-hidden />
+              )}
             </span>
             <span className="whitespace-nowrap">{category.name}</span>
           </Link>

@@ -20,7 +20,7 @@ export function HomePage() {
       <HomeMobileHero slides={hero} />
       <div className="mx-auto hidden max-w-[1240px] px-4 pt-6 md:block md:px-8">
         <BannerSlider slides={hero} />
-        <div className="mx-auto mt-8 max-w-[920px]">
+        <div className="relative z-20 mx-auto -mt-8 max-w-[920px]">
           <BannerSearch />
         </div>
       </div>

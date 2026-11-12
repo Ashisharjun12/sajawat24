@@ -175,6 +175,7 @@ export function CategoriesPanel() {
       }
       body.iconKey = values.iconKey
       body.iconTone = values.iconTone
+      body.iconUploadId = values.icon?.uploadId || null
     }
     try {
       if (editing) {

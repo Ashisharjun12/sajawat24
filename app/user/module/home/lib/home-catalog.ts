@@ -37,6 +37,8 @@ export type HomeCategory = {
   slug: string;
   iconKey?: string | null;
   iconTone?: string | null;
+  /** Admin-uploaded bar icon; when set it replaces iconKey + iconTone. */
+  iconUrl?: string | null;
   imageUrl?: string | null;
   children?: HomeCategory[];
 };
@@ -102,6 +104,10 @@ export function normalizeCategory(raw: unknown): HomeCategory | null {
     slug: String(row.slug ?? row.id),
     iconKey: (row.iconKey as string) ?? 'sparkles',
     iconTone: (row.iconTone as string) ?? null,
+    // `iconUrl` from home layout, `icon.url` from the category tree.
+    iconUrl:
+      (row.iconUrl as string | null | undefined) ??
+      ((row.icon as { url?: string } | null | undefined)?.url ?? null),
     imageUrl: categoryImageUrl(row as Parameters<typeof categoryImageUrl>[0]),
   };
   const childRows = row.children;

@@ -50,20 +50,29 @@ function toneFromSlug(slug: string | undefined): string {
   return TONE_KEYS[hash];
 }
 
+/**
+ * Bar icon for a category. When the admin uploaded a custom icon, `iconUrl` is set and the tone
+ * classes are empty: the image is shown as uploaded, with no colour behind it.
+ */
 export function resolveCategoryIcon({
   iconKey,
   iconTone,
+  iconUrl,
   slug,
 }: {
   iconKey?: string | null;
   iconTone?: string | null;
+  iconUrl?: string | null;
   slug?: string;
 }) {
   const Icon = ICON_MAP[iconKey ?? ''] ?? PartyPopper;
+  if (iconUrl) {
+    return { Icon, toneBg: '', toneIcon: '', iconUrl };
+  }
   const tone =
     iconTone && CATEGORY_TONE_CLASSES[iconTone] ? iconTone : toneFromSlug(slug);
   const classes = CATEGORY_TONE_CLASSES[tone] ?? CATEGORY_TONE_CLASSES.amber;
-  return { Icon, toneBg: classes.bg, toneIcon: classes.icon };
+  return { Icon, toneBg: classes.bg, toneIcon: classes.icon, iconUrl: null };
 }
 
 export function listTopLevelCategories(categories: HomeCategory[]): HomeCategory[] {

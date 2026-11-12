@@ -57,7 +57,12 @@ export function categoryProductIds({
   return [parent.id, ...children.map((row) => row.id)];
 }
 
-/** Home “View all” → first row category that exists in the catalog tree. */
+const EXPLORE_HREF = '/(app)/explore' as Href;
+
+/**
+ * Home “View all” → Explore with no filter: every product (same as web `/explore`).
+ * Only exception: a drilled-in parent opens that parent's page.
+ */
 export function resolveViewAllCategoryHref({
   rowCategories = [],
   catalogCategories = [],
@@ -67,20 +72,10 @@ export function resolveViewAllCategoryHref({
   catalogCategories?: HomeCategory[];
   currentParent?: HomeCategory | null;
 } = {}): Href | null {
-  const tree = catalogCategories.length > 0 ? catalogCategories : rowCategories;
-
   if (currentParent?.slug) {
+    const tree = catalogCategories.length > 0 ? catalogCategories : rowCategories;
     const parent = tree.find((row) => row.slug === currentParent.slug) ?? currentParent;
-    return parent?.slug ? categoryPath(parent) : null;
+    return categoryPath(parent);
   }
-
-  const ordered = rowCategories.length > 0 ? rowCategories : tree;
-  for (const cat of ordered) {
-    if (!cat?.slug) continue;
-    const match = tree.find((row) => row.slug === cat.slug);
-    if (match) return categoryPath(match);
-  }
-
-  const first = tree[0];
-  return first?.slug ? categoryPath(first) : null;
+  return EXPLORE_HREF;
 }

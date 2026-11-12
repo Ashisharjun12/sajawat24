@@ -9,6 +9,8 @@ export const categories = pgTable("categories", {
     imageUploadId: uuid("image_upload_id").references(() => uploads.id, { onDelete: "set null" }),
     iconKey: text("icon_key"),
     iconTone: text("icon_tone"),
+    /** Admin-uploaded bar icon. When set, apps show it instead of iconKey/iconTone. */
+    iconUploadId: uuid("icon_upload_id").references(() => uploads.id, { onDelete: "set null" }),
     isActive: boolean("is_active").notNull().default(true),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),

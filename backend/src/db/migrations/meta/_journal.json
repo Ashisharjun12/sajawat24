@@ -43,6 +43,13 @@
       "when": 1791600000000,
       "tag": "0005_customer_address_details",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791700000000,
+      "tag": "0006_category_icon_upload",
+      "breakpoints": true
     }
   ]
 }

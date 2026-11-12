@@ -22,7 +22,8 @@ import type { Upload } from "@/modules/upload/media/media.schema.js";
 
 export type CategoryImage = (PublicMedia & { url: string }) | null;
 
-export type CategoryAdmin = Category & { image: CategoryImage };
+/** `icon` is the admin-uploaded bar icon; null means apps use iconKey + iconTone. */
+export type CategoryAdmin = Category & { image: CategoryImage; icon: CategoryImage };
 
 export type CategoryTree = CategoryAdmin & { children: CategoryAdmin[] };
 
@@ -33,6 +34,7 @@ export type CreateCategoryInput = {
     imageUploadId?: string | null;
     iconKey?: string | null;
     iconTone?: string | null;
+    iconUploadId?: string | null;
     isActive?: boolean;
 };
 
@@ -43,6 +45,7 @@ export type PatchCategoryInput = {
     imageUploadId?: string | null;
     iconKey?: string | null;
     iconTone?: string | null;
+    iconUploadId?: string | null;
     isActive?: boolean;
 };
 
@@ -79,7 +82,9 @@ export class CategoryService implements ICategoryService {
 
     async listActiveTree(): Promise<CategoryTree[]> {
         const rows = await this.categories.listActive();
-        const uploadIds = rows.map((row) => row.imageUploadId).filter(Boolean) as string[];
+        const uploadIds = rows
+            .flatMap((row) => [row.imageUploadId, row.iconUploadId])
+            .filter(Boolean) as string[];
         const uploadMap = await resolveCompletedUploads(uploadIds);
         const withMedia = rows.map((row) => this.toAdminWithUploadMap(row, uploadMap));
         const childrenByParent = new Map<string, CategoryAdmin[]>();
@@ -131,6 +136,8 @@ export class CategoryService implements ICategoryService {
             await this.assertTopLevelParent(parentId);
         }
         const imageUploadId = await this.assertImage(input.imageUploadId);
+        // Bar icons only exist on top-level categories, same as iconKey/iconTone.
+        const iconUploadId = parentId ? null : await this.assertImage(input.iconUploadId);
         try {
             const row = await this.categories.insert({
                 name,
@@ -139,6 +146,7 @@ export class CategoryService implements ICategoryService {
                 imageUploadId,
                 iconKey: parentId ? null : (input.iconKey ?? "sparkles"),
                 iconTone: parentId ? null : (input.iconTone ?? "amber"),
+                iconUploadId,
                 isActive: input.isActive ?? true,
             });
             const created = await this.toAdmin(row);
@@ -185,6 +193,9 @@ export class CategoryService implements ICategoryService {
         if (input.iconTone !== undefined) {
             data.iconTone = existing.parentId ? null : input.iconTone;
         }
+        if (input.iconUploadId !== undefined) {
+            data.iconUploadId = existing.parentId ? null : await this.assertImage(input.iconUploadId);
+        }
         if (input.isActive !== undefined) data.isActive = input.isActive;
         try {
             const row = await this.categories.update(id, data);
@@ -228,11 +239,19 @@ export class CategoryService implements ICategoryService {
         row: Category,
         uploadMap: Map<string, Upload>,
     ): CategoryAdmin {
-        return { ...row, image: this.toImageFromUploadMap(row.imageUploadId, uploadMap) };
+        return {
+            ...row,
+            image: this.toImageFromUploadMap(row.imageUploadId, uploadMap),
+            icon: this.toImageFromUploadMap(row.iconUploadId, uploadMap),
+        };
     }
 
     private async toAdmin(row: Category): Promise<CategoryAdmin> {
-        return { ...row, image: await this.toImage(row.imageUploadId) };
+        const [image, icon] = await Promise.all([
+            this.toImage(row.imageUploadId),
+            this.toImage(row.iconUploadId),
+        ]);
+        return { ...row, image, icon };
     }
 
     private toImageFromUploadMap(

@@ -10,6 +10,7 @@ import {
 import { toGalleryItem } from "@/module/catalog/components/ProductMediaGallery"
 import { ProductMediaPickerDialog } from "@/module/catalog/components/ProductMediaPickerDialog"
 import { CategoryImageField } from "@/module/catalog/components/CategoryImageField"
+import { CategoryIconField } from "@/module/catalog/components/CategoryIconField"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -50,7 +51,9 @@ export function CategoryFormDialog({
   const isEdit = Boolean(category)
   const isSub = kind === "subcategory"
   const [image, setImage] = useState(null)
+  const [icon, setIcon] = useState(null)
   const [pickerOpen, setPickerOpen] = useState(false)
+  const hasCustomIcon = Boolean(icon?.uploadId)
   const form = useForm({
     resolver: zodResolver(categorySchema),
     defaultValues: {
@@ -72,6 +75,11 @@ export function CategoryFormDialog({
       isActive: category?.isActive ?? true,
     })
     setImage(category?.image ? toGalleryItem(category.image) : null)
+    setIcon(
+      category?.iconUploadId && category?.icon?.url
+        ? { uploadId: category.iconUploadId, url: category.icon.url }
+        : null,
+    )
     setPickerOpen(false)
   }, [open, category, form])
 
@@ -100,7 +108,7 @@ export function CategoryFormDialog({
         <div className="scrollbar-theme min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto">
         <form
           id="category-form"
-          onSubmit={form.handleSubmit((values) => onSubmit({ ...values, image }))}
+          onSubmit={form.handleSubmit((values) => onSubmit({ ...values, image, icon }))}
           className="grid w-full min-w-0 gap-4"
           noValidate
         >
@@ -148,6 +156,20 @@ export function CategoryFormDialog({
             </Field>
             {!isSub ? (
               <>
+                <Field>
+                  <FieldLabel>Custom bar icon</FieldLabel>
+                  <CategoryIconField
+                    icon={icon}
+                    onIconChange={setIcon}
+                    disabled={submitting}
+                  />
+                </Field>
+                {hasCustomIcon ? (
+                  <p className="text-muted-foreground text-xs">
+                    Custom icon is set, so the built-in icon and color below are not used.
+                    Remove it to go back to them.
+                  </p>
+                ) : null}
                 <Controller
                   name="iconKey"
                   control={form.control}
@@ -155,7 +177,7 @@ export function CategoryFormDialog({
                     <Field data-invalid={fieldState.invalid}>
                       <FieldLabel htmlFor="category-icon-key">Bar icon</FieldLabel>
                       <div className="w-full min-w-0">
-                      <Select value={field.value} onValueChange={field.onChange}>
+                      <Select value={field.value} onValueChange={field.onChange} disabled={hasCustomIcon}>
                         <SelectTrigger id="category-icon-key" className="w-full min-w-0 max-w-full">
                           <SelectValue placeholder="Icon">
                             {CATEGORY_ICON_LABELS[field.value] ?? field.value}
@@ -181,7 +203,7 @@ export function CategoryFormDialog({
                     <Field data-invalid={fieldState.invalid}>
                       <FieldLabel htmlFor="category-icon-tone">Icon color</FieldLabel>
                       <div className="w-full min-w-0">
-                      <Select value={field.value} onValueChange={field.onChange}>
+                      <Select value={field.value} onValueChange={field.onChange} disabled={hasCustomIcon}>
                         <SelectTrigger id="category-icon-tone" className="w-full min-w-0 max-w-full">
                           <SelectValue placeholder="Color">
                             {field.value.charAt(0).toUpperCase() + field.value.slice(1)}

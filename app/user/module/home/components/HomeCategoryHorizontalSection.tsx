@@ -13,6 +13,8 @@ import { useMemo } from 'react';
 import { ScrollView, View } from 'react-native';
 
 const TILE_WIDTH = 88;
+/** `home-layout.service` default when a category row has no custom "View all" link. */
+const DEFAULT_CMS_VIEW_ALL_HREF = '/decorations';
 
 type HomeCategoryHorizontalSectionProps = {
   categories: HomeCategory[];
@@ -48,23 +50,28 @@ export function HomeCategoryHorizontalSection({
   const cap = Math.max(1, maxVisible);
   const visible = categories.slice(0, cap);
 
+  // Backend fills `/decorations` when the admin left the link empty; treat that as unset so
+  // "View all" shows products from every category in this row.
+  const customHref = useMemo(() => {
+    const cmsHref = viewAllHref?.trim();
+    return cmsHref && cmsHref !== DEFAULT_CMS_VIEW_ALL_HREF ? cmsHref : null;
+  }, [viewAllHref]);
+
   const resolvedHref = useMemo(() => {
     if (!showViewAll || loading) return null;
-    const cmsHref = viewAllHref?.trim();
-    if (cmsHref) return cmsHref;
+    if (customHref) return customHref;
     return resolveViewAllCategoryHref({
       rowCategories: categories,
       catalogCategories,
     });
-  }, [showViewAll, loading, viewAllHref, categories, catalogCategories]);
+  }, [showViewAll, loading, customHref, categories, catalogCategories]);
 
   const showViewAllLink = Boolean(resolvedHref);
 
   function onViewAllPress() {
     if (!resolvedHref) return;
-    const cmsHref = viewAllHref?.trim();
-    if (cmsHref) {
-      openCmsLink(cmsHref);
+    if (customHref) {
+      openCmsLink(customHref);
       return;
     }
     router.push(resolvedHref as Href);

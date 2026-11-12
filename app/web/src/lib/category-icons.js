@@ -50,11 +50,23 @@ function toneFromSlug(slug) {
   return TONE_KEYS[hash];
 }
 
-export function resolveCategoryIcon({ iconKey, iconTone, slug }) {
+/** Uploaded bar icon URL from a raw API category (`icon.url`) or a normalized one (`iconUrl`). */
+export function categoryIconUrl(category) {
+  return category?.iconUrl ?? category?.icon?.url ?? null;
+}
+
+/**
+ * Bar icon for a category. When the admin uploaded a custom icon, `iconUrl` is set and
+ * `iconBg` is empty: the image is shown as uploaded, with no tone colour behind it.
+ */
+export function resolveCategoryIcon({ iconKey, iconTone, iconUrl, slug }) {
   const Icon = ICON_MAP[iconKey] ?? PartyPopperIcon;
+  if (iconUrl) {
+    return { Icon, iconBg: "", iconUrl };
+  }
   const tone = iconTone && TONE_MAP[iconTone] ? iconTone : toneFromSlug(slug);
   const iconBg = TONE_MAP[tone] ?? TONE_MAP.amber;
-  return { Icon, iconBg };
+  return { Icon, iconBg, iconUrl: null };
 }
 
 export function listTopLevelCategories(categories) {

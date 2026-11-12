@@ -3,6 +3,7 @@ import { LayoutGroup, motion, useReducedMotion } from "framer-motion";
 import { LayoutGridIcon } from "lucide-react";
 import { categoryPath } from "@/lib/catalog-path";
 import {
+  categoryIconUrl,
   listTopLevelCategories,
   resolveCategoryIcon,
 } from "@/lib/category-icons";
@@ -12,9 +13,10 @@ import { useCatalogStore } from "@/store/catalog.store";
 const VISIBLE_COUNT = 8;
 
 function CategoryLink({ category, active, layoutId, onPrimary }) {
-  const { Icon, iconBg } = resolveCategoryIcon({
+  const { Icon, iconBg, iconUrl } = resolveCategoryIcon({
     iconKey: category.iconKey,
     iconTone: category.iconTone,
+    iconUrl: categoryIconUrl(category),
     slug: category.slug,
   });
   const href = categoryPath(category);
@@ -23,17 +25,28 @@ function CategoryLink({ category, active, layoutId, onPrimary }) {
     <Link
       to={href}
       className={cn(
-        "relative flex shrink-0 flex-col items-center gap-1.5 px-3.5 pt-1.5 pb-3 text-xs font-semibold opacity-70 transition-opacity hover:opacity-100",
+        "relative flex shrink-0 flex-col items-center gap-1 px-3.5 pt-1 pb-2 text-xs font-semibold opacity-70 transition-opacity hover:opacity-100",
         active && "opacity-100",
       )}
     >
       <span
         className={cn(
-          "flex size-9 items-center justify-center rounded-xl",
+          "flex size-8 items-center justify-center rounded-xl",
           iconBg,
         )}
       >
-        <Icon className="size-[18px]" strokeWidth={1.75} />
+        {iconUrl ? (
+          <img
+            src={iconUrl}
+            alt=""
+            width={32}
+            height={32}
+            decoding="async"
+            className="size-8 object-contain"
+          />
+        ) : (
+          <Icon className="size-4" strokeWidth={1.75} />
+        )}
       </span>
       <span className="whitespace-nowrap">{category.name}</span>
       {active ? (
@@ -88,13 +101,13 @@ export function CategoryBar({ onPrimary = false }) {
         <Link
           to="/decorations"
           className={cn(
-            "relative flex shrink-0 flex-col items-center gap-1.5 px-3.5 pt-1.5 pb-3 text-xs font-semibold opacity-70 transition-opacity hover:opacity-100",
+            "relative flex shrink-0 flex-col items-center gap-1 px-3.5 pt-1 pb-2 text-xs font-semibold opacity-70 transition-opacity hover:opacity-100",
             decorationsActive && "opacity-100",
           )}
         >
           <span
             className={cn(
-              "flex size-9 items-center justify-center rounded-xl",
+              "flex size-8 items-center justify-center rounded-xl",
               decorationsActive
                 ? onPrimary
                   ? "bg-primary-foreground/20 text-primary-foreground"
@@ -104,7 +117,7 @@ export function CategoryBar({ onPrimary = false }) {
                   : "bg-muted/80 text-foreground/70",
             )}
           >
-            <LayoutGridIcon className="size-[18px]" strokeWidth={1.75} aria-hidden />
+            <LayoutGridIcon className="size-4" strokeWidth={1.75} aria-hidden />
           </span>
           <span className="whitespace-nowrap">View all</span>
           {decorationsActive ? (

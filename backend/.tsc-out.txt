@@ -1,0 +1,4 @@
+src/mastra/tools/analytics-queries.ts(576,13): error TS2783: 'productId' is specified more than once, so this usage will be overwritten.
+src/mastra/tools/analytics-queries.ts(577,13): error TS2783: 'name' is specified more than once, so this usage will be overwritten.
+src/mastra/tools/analytics-queries.ts(578,13): error TS2783: 'imageUrl' is specified more than once, so this usage will be overwritten.
+src/mastra/tools/analytics-queries.ts(579,13): error TS2783: 'images' is specified more than once, so this usage will be overwritten.

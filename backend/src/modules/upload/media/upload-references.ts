@@ -86,6 +86,16 @@ export async function findUploadReferences(uploadId: string): Promise<UploadRefe
         );
     }
 
+    const categoryIconRows = await db
+        .select({ id: categories.id, name: categories.name })
+        .from(categories)
+        .where(eq(categories.iconUploadId, uploadId));
+    for (const row of categoryIconRows) {
+        references.push(
+            ref("category", row.id, row.name, "icon", false, "/catalog?tab=categories"),
+        );
+    }
+
     const cityRows = await db
         .select({ id: cities.id, name: cities.name })
         .from(cities)

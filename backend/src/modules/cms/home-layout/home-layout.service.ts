@@ -28,6 +28,7 @@ export type PublicLayoutCategory = {
     parentId: string | null;
     iconKey: string | null;
     iconTone: string | null;
+    iconUrl: string | null;
     imageUrl: string | null;
     children: PublicLayoutCategory[];
 };
@@ -381,6 +382,7 @@ export class CmsHomeLayoutService {
             parentId: raw.parentId,
             iconKey: raw.iconKey,
             iconTone: raw.iconTone,
+            iconUrl: raw.icon?.url ?? null,
             imageUrl: raw.image?.url ?? null,
             children: enableDrillDown ? children : [],
         };
