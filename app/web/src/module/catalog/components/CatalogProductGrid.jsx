@@ -343,23 +343,23 @@ export function CatalogProductGrid({
                 showPriceButton={priceRangeReady || priceActive || listingBusy}
                 priceOpen={priceOpen}
                 priceActive={priceActive}
-                onPriceClick={() => setPriceOpen((open) => !open)}
+                onPriceClick={() => setPriceOpen(true)}
                 onSortChange={(nextSort) => updateListingParams({ sort: nextSort })}
               />
-              {priceOpen && priceRangeReady ? (
-                <CatalogPriceFilter
-                  facetMaxPaise={priceFacet.maxPaise}
-                  appliedMinRupees={minPriceRupees ?? 0}
-                  appliedMaxRupees={maxPriceRupees ?? facetMaxRupees}
-                  disabled={listingBusy}
-                  onApply={({ minRupees, maxRupees }) => {
-                    updateListingParams({
-                      minPriceRupees: minRupees,
-                      maxPriceRupees: maxRupees,
-                    });
-                  }}
-                />
-              ) : null}
+              <CatalogPriceFilter
+                open={priceOpen && priceRangeReady}
+                onOpenChange={setPriceOpen}
+                facetMaxPaise={priceFacet.maxPaise}
+                appliedMinRupees={minPriceRupees ?? 0}
+                appliedMaxRupees={maxPriceRupees ?? facetMaxRupees}
+                disabled={listingBusy}
+                onApply={({ minRupees, maxRupees }) => {
+                  updateListingParams({
+                    minPriceRupees: minRupees,
+                    maxPriceRupees: maxRupees,
+                  });
+                }}
+              />
             </>
           )}
         </div>

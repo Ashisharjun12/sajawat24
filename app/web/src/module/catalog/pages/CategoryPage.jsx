@@ -1,20 +1,11 @@
-import { useMemo, useState } from "react";
-import { Link, useLocation, useParams, useSearchParams } from "react-router-dom";
+import { useMemo } from "react";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { SeoHead } from "@/components/SeoHead";
 import { useSiteShell } from "@/module/site/hooks/use-site-shell";
 import { categoryPath } from "@/lib/catalog-path";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CatalogListingFilterButton } from "@/module/catalog/components/CatalogListingFilterButton";
 import { CatalogProductGrid } from "@/module/catalog/components/CatalogProductGrid";
-import {
-  countActiveListingFilters,
-  parseSubcategoryIdsParam,
-} from "@/module/catalog/lib/category-listing-filter";
-import {
-  CATALOG_SORT_DEFAULT,
-  parseCatalogSort,
-} from "@/module/catalog/lib/catalog-listing-sort";
 import { CategorySubcategoryTextRail } from "@/module/catalog/components/CategorySubcategoryTextRail";
 import { CategoryTopLevelImageRail } from "@/module/catalog/components/CategoryTopLevelImageRail";
 import { HomeProductCardRailSkeleton } from "@/module/home/components/HomeProductCard";
@@ -26,18 +17,9 @@ import {
 import { normalizeCategoryTree } from "@/module/home/lib/home-catalog";
 import { useCatalogStore } from "@/store/catalog.store";
 
-function parsePriceParam(value) {
-  if (value == null || value === "") return null;
-  const n = Number(value);
-  if (!Number.isFinite(n) || n < 0) return null;
-  return Math.round(n);
-}
-
 export function CategoryPage() {
   const { parentSlug, childSlug } = useParams();
   const { pathname } = useLocation();
-  const [searchParams] = useSearchParams();
-  const [filterSheetOpen, setFilterSheetOpen] = useState(false);
   const { brand } = useSiteShell();
   const catalogStatus = useCatalogStore((s) => s.status);
   const rawCategories = useCatalogStore((s) => s.categories);
@@ -68,19 +50,6 @@ export function CategoryPage() {
 
   const productSectionTitle = "All packages";
 
-  const activeFilterCount = useMemo(() => {
-    const sort = parseCatalogSort(searchParams.get("sort") ?? CATALOG_SORT_DEFAULT);
-    const subcategoryIds = childSlug
-      ? []
-      : parseSubcategoryIdsParam(searchParams);
-    return countActiveListingFilters({
-      sort,
-      minPriceRupees: parsePriceParam(searchParams.get("minPrice")),
-      maxPriceRupees: parsePriceParam(searchParams.get("maxPrice")),
-      subcategoryIds,
-      defaultSort: CATALOG_SORT_DEFAULT,
-    });
-  }, [searchParams, childSlug]);
   const categorySeoTitle = valid ? pageTitle : "Category not found";
   const categorySeo = (
     <SeoHead
@@ -144,18 +113,9 @@ export function CategoryPage() {
             </>
           ) : null}
         </p>
-        <div className="mt-2 flex items-center justify-between gap-2">
-          <h1 className="min-w-0 flex-1 font-heading text-xl font-semibold leading-tight tracking-tight md:text-3xl">
-            {loading ? "…" : pageTitle}
-          </h1>
-          {!loading && valid ? (
-            <CatalogListingFilterButton
-              activeCount={activeFilterCount}
-              className="shrink-0 rounded-full md:hidden"
-              onClick={() => setFilterSheetOpen(true)}
-            />
-          ) : null}
-        </div>
+        <h1 className="mt-2 min-w-0 font-heading text-xl font-semibold leading-tight tracking-tight md:text-3xl">
+          {loading ? "…" : pageTitle}
+        </h1>
         {child && parent ? (
           <p className="mt-2 text-sm text-muted-foreground">
             <Link to={categoryPath(parent)} className="font-medium text-foreground hover:underline">
@@ -190,11 +150,6 @@ export function CategoryPage() {
           sectionTitle={productSectionTitle}
           emptyTitle="No packages in this category yet"
           emptyDescription="Try another subcategory or browse all decorations."
-          filterUi="sheet"
-          filterTriggerPlacement="external"
-          filterSheetOpen={filterSheetOpen}
-          onFilterSheetOpenChange={setFilterSheetOpen}
-          subcategoryFilterOptions={subcategories}
           childRouteActive={Boolean(child)}
           parentChildIds={parentChildIds}
         />

@@ -1,13 +1,31 @@
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
+import { Input } from "@/components/ui/input";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { formatPaise } from "@/lib/money";
 
 function paiseToRupees(paise) {
   return Math.round(Number(paise) / 100);
 }
 
+function parseRupees(value) {
+  const n = Number(String(value).replace(/\D/g, ""));
+  if (!Number.isFinite(n) || n < 0) return 0;
+  return Math.round(n);
+}
+
+/**
+ * Custom price bottom sheet. Mirrors the user app (CatalogPriceFilterPanel):
+ * handle, title, "Range up to", Min/Max inputs, Clear + Apply.
+ */
 export function CatalogPriceFilter({
+  open,
+  onOpenChange,
   facetMaxPaise = 0,
   appliedMinRupees,
   appliedMaxRupees,
@@ -22,63 +40,125 @@ export function CatalogPriceFilter({
   const appliedMin = appliedMinRupees ?? bounds.min;
   const appliedMax = appliedMaxRupees ?? bounds.max;
 
-  const [draft, setDraft] = useState([appliedMin, appliedMax]);
+  const [minDraft, setMinDraft] = useState(String(appliedMin));
+  const [maxDraft, setMaxDraft] = useState(String(appliedMax));
 
   useEffect(() => {
-    setDraft([appliedMin, appliedMax]);
-  }, [appliedMin, appliedMax, bounds.min, bounds.max]);
+    if (open) {
+      setMinDraft(String(appliedMin));
+      setMaxDraft(String(appliedMax));
+    }
+  }, [open, appliedMin, appliedMax]);
 
-  const dirty = draft[0] !== appliedMin || draft[1] !== appliedMax;
-
-  const rangeReady = facetMaxPaise > 0;
-
-  if (!rangeReady) {
+  if (facetMaxPaise <= 0) {
     return null;
   }
 
+  function handleApply() {
+    const a = parseRupees(minDraft);
+    const b = maxDraft.trim() === "" ? bounds.max : parseRupees(maxDraft);
+    const low = Math.min(a, b);
+    const high = Math.max(a, b);
+    const isFullRange = low <= bounds.min && high >= bounds.max;
+    onApply?.(
+      isFullRange
+        ? { minRupees: null, maxRupees: null }
+        : {
+            minRupees: low > 0 ? low : null,
+            maxRupees: high < bounds.max ? high : null,
+          },
+    );
+    onOpenChange?.(false);
+  }
+
+  function handleClear() {
+    onApply?.({ minRupees: null, maxRupees: null });
+    onOpenChange?.(false);
+  }
+
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-border/60 bg-card/50 px-4 py-3 sm:flex-row sm:items-center sm:gap-6">
-      <p className="shrink-0 text-sm font-semibold text-foreground">Price</p>
-      <div className="min-w-0 flex-1 space-y-2">
-        <Slider
-          min={bounds.min}
-          max={bounds.max}
-          step={1}
-          value={draft}
-          onValueChange={(next) => {
-            const values = Array.isArray(next) ? next : [next];
-            const low = Math.min(values[0] ?? bounds.min, values[1] ?? bounds.max);
-            const high = Math.max(values[0] ?? bounds.min, values[1] ?? bounds.max);
-            setDraft([low, high]);
-          }}
-          disabled={disabled}
-          className="w-full"
-        />
-        <div className="flex justify-between text-xs font-medium tabular-nums text-muted-foreground">
-          <span>{formatPaise(draft[0] * 100)}</span>
-          <span>{formatPaise(draft[1] * 100)}</span>
-        </div>
-      </div>
-      <Button
-        type="button"
-        size="sm"
-        className="shrink-0 rounded-full sm:w-auto"
-        disabled={disabled || !dirty}
-        onClick={() => {
-          const [low, high] = draft;
-          const isFullRange = low <= bounds.min && high >= bounds.max;
-          onApply?.(
-            isFullRange
-              ? { minRupees: null, maxRupees: null }
-              : {
-                  minRupees: low > 0 ? low : null,
-                  maxRupees: high < bounds.max ? high : null,
-                },
-          );
-        }}
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent
+        side="bottom"
+        showCloseButton={false}
+        className="mx-auto w-full gap-0 overflow-hidden rounded-t-[var(--r-sheet)] border-t p-0 pb-[max(1rem,env(safe-area-inset-bottom))] sm:max-w-md"
       >
-        Apply
-      </Button>
-    </div>
+        <div className="flex items-center justify-center pb-2 pt-3" aria-hidden="true">
+          <div className="h-1 w-10 rounded-full bg-border" />
+        </div>
+        <form
+          className="px-5 pt-1"
+          onSubmit={(event) => {
+            event.preventDefault();
+            handleApply();
+          }}
+        >
+          <SheetTitle className="text-lg font-semibold">Custom price</SheetTitle>
+          <SheetDescription className="mt-1">
+            Range up to {formatPaise(bounds.max * 100)}
+          </SheetDescription>
+
+          <div className="mt-5 flex items-center gap-3">
+            <div className="min-w-0 flex-1">
+              <label
+                htmlFor="catalog-price-min"
+                className="mb-1.5 block text-xs font-medium text-muted-foreground"
+              >
+                Min (₹)
+              </label>
+              <Input
+                id="catalog-price-min"
+                value={minDraft}
+                onChange={(event) => setMinDraft(event.target.value)}
+                inputMode="numeric"
+                disabled={disabled}
+                className="h-12 rounded-[var(--r-input)]"
+                placeholder="0"
+              />
+            </div>
+            <span className="pt-5 text-muted-foreground" aria-hidden="true">
+              —
+            </span>
+            <div className="min-w-0 flex-1">
+              <label
+                htmlFor="catalog-price-max"
+                className="mb-1.5 block text-xs font-medium text-muted-foreground"
+              >
+                Max (₹)
+              </label>
+              <Input
+                id="catalog-price-max"
+                value={maxDraft}
+                onChange={(event) => setMaxDraft(event.target.value)}
+                inputMode="numeric"
+                disabled={disabled}
+                className="h-12 rounded-[var(--r-input)]"
+                placeholder={String(bounds.max)}
+              />
+            </div>
+          </div>
+
+          <div className="mt-6 flex gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              className="h-12 flex-1 rounded-[var(--r-btn)] text-base"
+              onClick={handleClear}
+              disabled={disabled}
+            >
+              Clear
+            </Button>
+            <Button
+              type="submit"
+              variant="cta"
+              className="h-12 flex-1 rounded-[var(--r-btn)] text-base"
+              disabled={disabled}
+            >
+              Apply
+            </Button>
+          </div>
+        </form>
+      </SheetContent>
+    </Sheet>
   );
 }
