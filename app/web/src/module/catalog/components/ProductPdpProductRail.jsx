@@ -17,8 +17,9 @@ export const RAIL_SECTION_FIRST =
 export const RAIL_SECTION_FOLLOW =
   "mt-6 border-t border-border/60 pt-6 md:mt-8 md:pt-7";
 
+// `scroll-px-4` matches the row's `px-4` so snapping keeps the 16px inset on phones.
 const SCROLL_ROW =
-  "flex gap-2.5 overflow-x-auto overscroll-x-contain pb-1 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden";
+  "flex gap-2.5 overflow-x-auto overscroll-x-contain pb-1 snap-x snap-mandatory scroll-px-4 md:scroll-px-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden";
 const CARD_SLOT = cn("shrink-0 snap-start", PRODUCT_RAIL_PDP_MOBILE_CARD_SLOT);
 
 export function ProductPdpProductRail({

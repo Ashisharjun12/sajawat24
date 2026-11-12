@@ -9,8 +9,10 @@ import {
 import { PRODUCT_RAIL_PDP_MOBILE_CARD_SLOT } from "@/module/home/lib/product-rail-layout";
 import { useCatalogStore } from "@/store/catalog.store";
 
+// `scroll-px-4` matches the row's `px-4`: snap-start otherwise aligns the first card to the
+// screen edge on phones instead of the 16px inset.
 const SCROLL_ROW =
-  "flex gap-2.5 overflow-x-auto overscroll-x-contain pb-1 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden";
+  "flex gap-2.5 overflow-x-auto overscroll-x-contain pb-1 snap-x snap-mandatory scroll-px-4 md:scroll-px-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden";
 
 const CARD_SLOT = cn("shrink-0 snap-start", PRODUCT_RAIL_PDP_MOBILE_CARD_SLOT);
 
