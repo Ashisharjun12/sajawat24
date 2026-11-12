@@ -105,6 +105,9 @@ export function DecorationsPage() {
             categories={categories}
             navigation="link"
             loading={loadingCategories}
+            initialVisible={Math.max(categories.length, 1)}
+            showExpandButton={false}
+            skeletonCount={12}
           />
         </section>
       ) : null}

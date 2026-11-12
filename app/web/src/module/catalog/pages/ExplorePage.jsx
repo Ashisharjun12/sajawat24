@@ -9,6 +9,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { CatalogProductGrid } from "@/module/catalog/components/CatalogProductGrid";
+import { CategoryTileGrid } from "@/module/catalog/components/CategoryTileGrid";
 import { FilterSidebar } from "@/module/catalog/components/FilterSidebar";
 import { MobileExploreCategoryRail } from "@/module/catalog/components/MobileExploreCategoryRail";
 import {
@@ -137,10 +138,43 @@ export function ExplorePage() {
           <span className="text-foreground">Explore</span>
         </p>
 
+        {categories.length > 0 || loadingCategories ? (
+          <section className="mb-6 md:mb-8" aria-label="Shop by occasion">
+            <h2 className="mb-3 font-heading text-lg font-semibold tracking-tight md:mb-4 md:text-xl">
+              Shop by occasion
+            </h2>
+            <CategoryTileGrid
+              categories={categories}
+              navigation="link"
+              loading={loadingCategories}
+              initialVisible={Math.max(categories.length, 1)}
+              showExpandButton={false}
+              skeletonCount={12}
+            />
+          </section>
+        ) : null}
+
         <CatalogProductGrid
           categoryIds={productCategoryIds}
           sectionTitle=""
           emptyDescription="Try clearing filters or pick another city."
+          toolbarTrailing={
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="hidden rounded-full md:inline-flex"
+              onClick={openFilter}
+            >
+              <SlidersHorizontalIcon className="size-4" />
+              Filter
+              {filterCount > 0 ? (
+                <span className="ml-1 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-bold text-primary-foreground">
+                  {filterCount}
+                </span>
+              ) : null}
+            </Button>
+          }
         />
       </div>
 

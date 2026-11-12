@@ -27,6 +27,7 @@ export function CatalogListingToolbar({
   priceOpen = false,
   priceActive = false,
   showPriceButton = true,
+  trailing = null,
 }) {
   return (
     <div
@@ -40,8 +41,9 @@ export function CatalogListingToolbar({
         products
       </p>
 
+      <div className="flex min-w-0 items-center gap-3">
       <div
-        className="flex min-w-0 items-center justify-start gap-2 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="flex min-w-0 flex-1 items-center justify-start gap-2 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {CATALOG_SORT_OPTIONS.map((option) => {
           const Icon = SORT_ICONS[option.id];
@@ -81,6 +83,8 @@ export function CatalogListingToolbar({
             Custom price
           </button>
         ) : null}
+      </div>
+      {trailing ? <div className="shrink-0">{trailing}</div> : null}
       </div>
     </div>
   );

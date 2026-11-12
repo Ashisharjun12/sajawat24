@@ -8,9 +8,15 @@ import {
 import { HomeScrollControls } from "@/module/home/components/HomeScrollControls";
 import { HomeCategoryTile } from "@/module/home/components/HomeCategoryTile";
 
+/**
+ * Image-card rail at the top of a category page. Shows top-level categories, or — when
+ * `parent` is set — that parent's subcategories (links go to `/c/parent/child`).
+ */
 export function CategoryTopLevelImageRail({
   categories = [],
   activeParentSlug,
+  activeSlug = activeParentSlug,
+  parent = null,
   loading = false,
 }) {
   const scrollRef = useRef(null);
@@ -73,14 +79,15 @@ export function CategoryTopLevelImageRail({
       <div
         ref={scrollRef}
         className={categoryPlpTopRailRowClass}
-        aria-label="Browse categories"
+        aria-label={parent ? "Browse subcategories" : "Browse categories"}
       >
         {categories.map((category) => {
-          const active = category.slug === activeParentSlug;
+          const active = category.slug === activeSlug;
           return (
             <HomeCategoryTile
               key={category.id}
               category={category}
+              parent={parent}
               navigation="link"
               compact
               squareImage

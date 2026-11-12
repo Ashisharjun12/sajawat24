@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ImageIcon, XIcon } from "lucide-react"
 
-export function CategoryImageField({ image, onImageChange, onSelect, disabled }) {
+export function CategoryImageField({ image, onImageChange, onSelect, disabled, hint }) {
   const previewUrl = image?.url || image?.publicUrl || ""
 
   function handleRemove(event) {
@@ -52,6 +52,7 @@ export function CategoryImageField({ image, onImageChange, onSelect, disabled })
       <div className="space-y-0.5 text-center">
         <p className="text-sm font-medium">{previewUrl ? "Image selected" : "Select image"}</p>
         <p className="text-muted-foreground text-xs">Choose from the media library</p>
+        {hint ? <p className="text-muted-foreground max-w-xs pt-1 text-xs">{hint}</p> : null}
       </div>
     </div>
   )

@@ -148,6 +148,7 @@ export function CategoryFormDialog({
             <Field>
               <FieldLabel>Image</FieldLabel>
               <CategoryImageField
+                hint="Square 600 × 600 px, JPG or WebP, under 150 KB. Keep the decoration in the middle (edges are cropped and corners are rounded). No text in the image."
                 image={image}
                 onImageChange={setImage}
                 onSelect={() => setPickerOpen(true)}

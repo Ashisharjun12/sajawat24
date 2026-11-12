@@ -6,7 +6,6 @@ import { categoryPath } from "@/lib/catalog-path";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CatalogProductGrid } from "@/module/catalog/components/CatalogProductGrid";
-import { CategorySubcategoryTextRail } from "@/module/catalog/components/CategorySubcategoryTextRail";
 import { CategoryTopLevelImageRail } from "@/module/catalog/components/CategoryTopLevelImageRail";
 import { HomeProductCardRailSkeleton } from "@/module/home/components/HomeProductCard";
 import {
@@ -127,21 +126,20 @@ export function CategoryPage() {
 
       <section className="mb-6 space-y-3" aria-label="Category navigation">
         <div className="-mx-4 px-4 md:mx-0 md:px-0">
-          <CategoryTopLevelImageRail
-            categories={categories}
-            activeParentSlug={parentSlug}
-            loading={loading}
-          />
-        </div>
-        {subcategories.length > 0 && parent ? (
-          <div className="sticky top-[var(--site-header-height,0px)] z-20 -mx-4 border-b border-border/80 bg-background/95 px-4 py-2 backdrop-blur-md md:static md:mx-0 md:border-none md:bg-transparent md:px-0 md:py-0 md:backdrop-blur-none">
-            <CategorySubcategoryTextRail
+          {subcategories.length > 0 && parent ? (
+            <CategoryTopLevelImageRail
+              categories={subcategories}
               parent={parent}
-              subcategories={subcategories}
-              activeChildSlug={childSlug}
+              activeSlug={childSlug}
             />
-          </div>
-        ) : null}
+          ) : (
+            <CategoryTopLevelImageRail
+              categories={categories}
+              activeParentSlug={parentSlug}
+              loading={loading}
+            />
+          )}
+        </div>
       </section>
 
       {parent || (!loading && valid) ? (

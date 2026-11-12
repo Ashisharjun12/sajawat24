@@ -47,6 +47,7 @@ export function CatalogProductGrid({
   filterTriggerPlacement = "inline",
   filterSheetOpen: filterSheetOpenProp,
   onFilterSheetOpenChange,
+  toolbarTrailing = null,
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const city = useLocationStore((s) => s.city);
@@ -345,6 +346,7 @@ export function CatalogProductGrid({
                 priceActive={priceActive}
                 onPriceClick={() => setPriceOpen(true)}
                 onSortChange={(nextSort) => updateListingParams({ sort: nextSort })}
+                trailing={toolbarTrailing}
               />
               <CatalogPriceFilter
                 open={priceOpen && priceRangeReady}
