@@ -2,6 +2,7 @@ import {
   ArrowDownWideNarrowIcon,
   ArrowUpWideNarrowIcon,
   IndianRupeeIcon,
+  LayoutGridIcon,
   SparklesIcon,
   TrendingUpIcon,
 } from "lucide-react";
@@ -28,6 +29,9 @@ export function CatalogListingToolbar({
   priceActive = false,
   showPriceButton = true,
   trailing = null,
+  /** "All" chip: active when no sort or price filter is chosen. */
+  allActive = false,
+  onAllClick,
 }) {
   return (
     <div
@@ -45,6 +49,23 @@ export function CatalogListingToolbar({
       <div
         className="flex min-w-0 flex-1 items-center justify-start gap-2 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
+        {onAllClick ? (
+          <button
+            type="button"
+            disabled={loading}
+            onClick={() => onAllClick()}
+            aria-pressed={allActive}
+            className={cn(
+              "inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold transition-colors sm:text-[13px]",
+              allActive
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-foreground hover:bg-muted/80",
+            )}
+          >
+            <LayoutGridIcon className="size-3.5 shrink-0 opacity-90" />
+            All
+          </button>
+        ) : null}
         {CATALOG_SORT_OPTIONS.map((option) => {
           const Icon = SORT_ICONS[option.id];
           const active = sort === option.id;

@@ -55,7 +55,10 @@ export function CatalogProductGrid({
   const setPickerOpen = useLocationStore((s) => s.setPickerOpen);
 
   const page = Math.max(1, Number(searchParams.get(pageParam)) || 1);
-  const sort = parseCatalogSort(searchParams.get("sort") ?? CATALOG_SORT_DEFAULT);
+  const sortParam = searchParams.get("sort");
+  const sort = parseCatalogSort(sortParam ?? CATALOG_SORT_DEFAULT);
+  /** True only when the user picked a sort chip; otherwise the "All" chip is shown active. */
+  const sortExplicit = sortParam != null && parseCatalogSort(sortParam) === sortParam;
   const minPriceRupees = parsePriceParam(searchParams.get("minPrice"));
   const maxPriceRupees = parsePriceParam(searchParams.get("maxPrice"));
   const instantOnly = searchParams.get("instant") === "1";
@@ -109,7 +112,12 @@ export function CatalogProductGrid({
           next.delete(pageParam);
 
           if (patch.sort !== undefined) {
-            if (patch.sort === CATALOG_SORT_DEFAULT) next.delete("sort");
+            if (
+              patch.sort == null ||
+              (patch.sort === CATALOG_SORT_DEFAULT && !patch.explicitSort)
+            ) {
+              next.delete("sort");
+            }
             else next.set("sort", patch.sort);
           }
 
@@ -339,13 +347,24 @@ export function CatalogProductGrid({
             <>
               <CatalogListingToolbar
                 total={total}
-                sort={sort}
+                sort={sortExplicit ? sort : null}
+                allActive={!sortExplicit && !priceActive}
+                onAllClick={() => {
+                  setPriceOpen(false);
+                  updateListingParams({
+                    sort: null,
+                    minPriceRupees: null,
+                    maxPriceRupees: null,
+                  });
+                }}
                 loading={listingBusy}
                 showPriceButton={priceRangeReady || priceActive || listingBusy}
                 priceOpen={priceOpen}
                 priceActive={priceActive}
                 onPriceClick={() => setPriceOpen(true)}
-                onSortChange={(nextSort) => updateListingParams({ sort: nextSort })}
+                onSortChange={(nextSort) =>
+                  updateListingParams({ sort: nextSort, explicitSort: true })
+                }
                 trailing={toolbarTrailing}
               />
               <CatalogPriceFilter
