@@ -1,12 +1,8 @@
-import { PressableScale } from '@/components/motion';
-import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
-import { formatUnreadBadgeCount } from '@/module/notifications/lib/notification-format';
-import { router } from 'expo-router';
-import { Bell } from 'lucide-react-native';
 import type { ReactNode } from 'react';
 import { View } from 'react-native';
+import { NotificationBell } from './NotificationBell';
 
 type ScreenHeaderProps = {
   title: string;
@@ -26,8 +22,6 @@ export function ScreenHeader({
   trailing,
   className,
 }: ScreenHeaderProps) {
-  const badgeLabel = formatUnreadBadgeCount(unreadCount);
-
   return (
     <View className={cn('flex-row items-start justify-between gap-3', className)}>
       <View className="flex-1 gap-1">
@@ -35,20 +29,7 @@ export function ScreenHeader({
         {subtitle ? <Text className="text-muted-foreground text-sm">{subtitle}</Text> : null}
       </View>
       {trailing ?? null}
-      {!trailing && showBell ? (
-        <PressableScale
-          className="relative size-11 items-center justify-center rounded-full bg-muted"
-          onPress={() => router.push('/(app)/notifications')}
-          accessibilityLabel="Notifications"
-          scaleTo={0.92}>
-          <Icon as={Bell} className="text-foreground size-5" />
-          {badgeLabel ? (
-            <View className="absolute -right-0.5 -top-0.5 min-w-[22px] items-center justify-center rounded-full bg-primary px-1 py-0.5">
-              <Text className="text-[10px] font-semibold text-primary-foreground">{badgeLabel}</Text>
-            </View>
-          ) : null}
-        </PressableScale>
-      ) : null}
+      {!trailing && showBell ? <NotificationBell unreadCount={unreadCount} /> : null}
     </View>
   );
 }

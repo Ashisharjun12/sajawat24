@@ -1,4 +1,3 @@
-import { Screen, ScreenHeader } from '@/components/shell';
 import { FadeInView } from '@/components/motion';
 import { ActionRequiredBanner } from '@/module/bookings/components/ActionRequiredBanner';
 import { HomeBookingsPreview } from '@/module/bookings/components/HomeBookingsPreview';
@@ -11,12 +10,15 @@ import { getHomePreviewBookings } from '@/module/bookings/lib/get-home-preview-b
 import { getHomeViewModel } from '@/module/bookings/lib/get-home-state';
 import { HomeScreenSkeleton } from '@/module/bookings/components/skeletons/HomeScreenSkeleton';
 import { DutyStatusCard } from '@/module/duty/components/DutyStatusCard';
+import { VendorStoreStatusBanner } from '@/module/duty/components/StoreStatusBanner';
 import { useVendorDuty } from '@/module/duty/hooks/use-vendor-duty';
 import { useUnreadNotificationCount } from '@/module/notifications/hooks/use-unread-count';
 import { useAuthStore } from '@/store/auth.store';
 import { FieldTodayScreen } from '@/module/partner/field/FieldTodayScreen';
 import { selectIsFieldShell, usePartnerModeStore } from '@/store/partner-mode.store';
+import { PartnerHomeHeader } from '@/module/partner/shared/PartnerHomeHeader';
 import { Href, router } from 'expo-router';
+import { ScrollView, View } from 'react-native';
 
 const GATED_STATES = new Set(['pending_approval', 'rejected', 'blocked']);
 
@@ -24,7 +26,7 @@ function OwnerHomeScreen() {
   const user = useAuthStore((s) => s.user);
   const firstName = user?.name.split(' ')[0] ?? 'Partner';
   const unreadCount = useUnreadNotificationCount();
-  const { onboardingStatus, isOnDuty } = useVendorDuty();
+  const { onboardingStatus, isOnDuty, canToggle } = useVendorDuty();
   const { bookings, actionBookings, actionCount, isLoading, refreshControl } =
     useVendorJobsScreen();
 
@@ -46,43 +48,62 @@ function OwnerHomeScreen() {
   const openPayouts = () => router.push('/(app)/payouts' as Href);
 
   return (
-    <Screen scrollProps={{ refreshControl }}>
-      <ScreenHeader title={`Hi, ${firstName}`} subtitle="Sajawat24 Partner" unreadCount={unreadCount} />
+    <View className="flex-1 bg-background">
+      <ScrollView
+        className="flex-1"
+        contentContainerClassName="pb-8"
+        showsVerticalScrollIndicator={false}
+        refreshControl={refreshControl}>
+        <PartnerHomeHeader
+          firstName={firstName}
+          unreadCount={unreadCount}
+          storeClosed={canToggle && !isOnDuty}
+        />
 
-      <DutyStatusCard pendingActionCount={actionCount} className="mb-1" />
+        <View className="gap-5 px-5">
+          {/* Opaque backing so the card's translucent tints stay readable over the green curve. */}
+          <View className="-mt-10 mb-1 rounded-3xl bg-card">
+            <DutyStatusCard pendingActionCount={actionCount} />
+          </View>
 
-      {isLoading && showBookingSections ? (
-        <HomeScreenSkeleton />
-      ) : showBookingSections ? (
-        <>
-          {state === 'needs_action' ? <ActionRequiredBanner bookings={pendingActionBookings} /> : null}
+          <VendorStoreStatusBanner />
 
-          {state === 'active_job' && activeBooking ? (
-            <NextJobHero
-              booking={activeBooking}
-              onViewBooking={() => router.push(`/(app)/bookings/${activeBooking.id}` as Href)}
-            />
+          {isLoading && showBookingSections ? (
+            <HomeScreenSkeleton />
+          ) : showBookingSections ? (
+            <>
+              {state === 'needs_action' ? (
+                <ActionRequiredBanner bookings={pendingActionBookings} />
+              ) : null}
+
+              {state === 'active_job' && activeBooking ? (
+                <NextJobHero
+                  booking={activeBooking}
+                  onViewBooking={() => router.push(`/(app)/bookings/${activeBooking.id}` as Href)}
+                />
+              ) : null}
+
+              {state === 'online_idle' ? <HomeIdleCard variant="online_idle" /> : null}
+              {state === 'offline' ? <HomeIdleCard variant="offline" /> : null}
+
+              <FadeInView delay={120}>
+                <HomeEarningsCard
+                  earnedTodayPaise={todayEarnings.earnedTodayPaise}
+                  completedToday={todayEarnings.completedToday}
+                  earnedThisMonthPaise={monthlyStats.earnedThisMonthPaise}
+                  completedThisMonth={monthlyStats.completedThisMonth}
+                  onPress={openPayouts}
+                />
+              </FadeInView>
+
+              <FadeInView delay={200}>
+                <HomeBookingsPreview bookings={previewBookings} homeState={state} />
+              </FadeInView>
+            </>
           ) : null}
-
-          {state === 'online_idle' ? <HomeIdleCard variant="online_idle" /> : null}
-          {state === 'offline' ? <HomeIdleCard variant="offline" /> : null}
-
-          <FadeInView delay={120}>
-            <HomeEarningsCard
-              earnedTodayPaise={todayEarnings.earnedTodayPaise}
-              completedToday={todayEarnings.completedToday}
-              earnedThisMonthPaise={monthlyStats.earnedThisMonthPaise}
-              completedThisMonth={monthlyStats.completedThisMonth}
-              onPress={openPayouts}
-            />
-          </FadeInView>
-
-          <FadeInView delay={200}>
-            <HomeBookingsPreview bookings={previewBookings} homeState={state} />
-          </FadeInView>
-        </>
-      ) : null}
-    </Screen>
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 

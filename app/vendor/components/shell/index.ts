@@ -2,6 +2,7 @@ export { VendorTabBar } from './VendorTabBar';
 export { LoadingPlaceholder } from './LoadingPlaceholder';
 export { Screen } from './Screen';
 export { ScreenHeader } from './ScreenHeader';
+export { NotificationBell } from './NotificationBell';
 export { Surface, SoftSection } from './Surface';
 export { IconWell } from './IconWell';
 export { SearchField } from './SearchField';

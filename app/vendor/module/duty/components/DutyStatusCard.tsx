@@ -52,10 +52,10 @@ export function DutyStatusCard({
 
   const online = isOnDuty;
   const dotClass = online ? 'bg-emerald-500' : 'bg-muted-foreground/50';
-  const title = online ? "You're online" : "You're offline";
-  const subtitle = online
-    ? 'Ready to take new bookings'
-    : "You won't receive new bookings";
+  const title = online ? 'Store open' : 'Store closed';
+  const subtitle = online ? 'Accepting new bookings' : 'Not accepting new bookings';
+  // Red track while closed so the off state reads as a warning, not just "inactive".
+  const switchClassName = online ? undefined : 'bg-destructive dark:bg-destructive';
 
   async function handleToggle(next: boolean) {
     triggerHaptic();
@@ -77,6 +77,7 @@ export function DutyStatusCard({
             checked={online}
             onCheckedChange={handleToggle}
             disabled={isUpdating}
+            className={switchClassName}
           />
         )}
       </View>
@@ -107,6 +108,7 @@ export function DutyStatusCard({
               checked={online}
               onCheckedChange={handleToggle}
               disabled={isUpdating}
+              className={switchClassName}
             />
           )}
         </Surface>
