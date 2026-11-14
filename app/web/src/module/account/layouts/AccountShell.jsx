@@ -12,9 +12,15 @@ function isAccountChatRoute(pathname) {
   );
 }
 
+/** Booking details draws its own mobile header and full-bleed map (user-app layout). */
+function isBookingDetailRoute(pathname) {
+  return /^\/account\/bookings\/[^/]+\/?$/.test(pathname);
+}
+
 export function AccountShell() {
   const { pathname } = useLocation();
   const isChat = isAccountChatRoute(pathname);
+  const isBookingDetail = isBookingDetailRoute(pathname);
 
   useEffect(() => {
     const lenis = getLenis();
@@ -37,15 +43,19 @@ export function AccountShell() {
       </aside>
 
       <div className="flex min-h-0 min-w-0 w-full flex-1 flex-col">
-        <div className="shrink-0 border-b border-border p-4 md:hidden">
-          <AccountNav variant="mobile" />
-        </div>
+        {!isBookingDetail ? (
+          <div className="shrink-0 border-b border-border p-4 md:hidden">
+            <AccountNav variant="mobile" />
+          </div>
+        ) : null}
         <div
           className={cn(
             "min-h-0 flex-1",
             isChat
               ? "overflow-hidden"
-              : "overflow-y-auto overscroll-contain px-6 py-8 lg:px-12 lg:py-10",
+              : isBookingDetail
+                ? "overflow-y-auto overscroll-contain md:px-6 md:py-8 lg:px-12 lg:py-10"
+                : "overflow-y-auto overscroll-contain px-6 py-8 lg:px-12 lg:py-10",
           )}
           data-lenis-prevent
         >

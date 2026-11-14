@@ -16,16 +16,13 @@ import {
 } from "@/module/geo/lib/trip-route-refetch";
 import { trimRouteAhead, workerMovedMeters } from "@/module/geo/lib/trim-route-ahead";
 import { Maximize2 } from "lucide-react";
+import {
+  isTripFulfillment,
+  MAP_LIVE_STATUSES,
+  ROUTE_STATUSES,
+} from "@/module/account/lib/live-trip";
 
 const TRACKING_POLL_MS = 8000;
-/** Live map only while decorator is driving; not before dispatch or after arrival. */
-const MAP_LIVE_STATUSES = new Set(["EN_ROUTE"]);
-const ROUTE_STATUSES = new Set(["EN_ROUTE"]);
-const TRIP_FULFILLMENT_TYPES = new Set(["instant", "scheduled"]);
-
-function isTripFulfillment(fulfillmentType) {
-  return TRIP_FULFILLMENT_TYPES.has(fulfillmentType);
-}
 
 function hasVendorCoords(vendor) {
   return vendor?.latitude != null && vendor?.longitude != null;
@@ -67,7 +64,17 @@ function TripMapShell({ className, onExpand, onOpenMaps, children }) {
   );
 }
 
-export function InstantTripTrackingMap({ orderId, orderStatus, fulfillmentType }) {
+/**
+ * `variant="inline"` (default): "Live trip" card used on desktop.
+ * `variant="hero"`: map fills `className` (mobile map-first tracking layout).
+ */
+export function InstantTripTrackingMap({
+  orderId,
+  orderStatus,
+  fulfillmentType,
+  variant = "inline",
+  className,
+}) {
   const [tracking, setTracking] = useState(null);
   const [fullRoutePath, setFullRoutePath] = useState([]);
   const [routeMeta, setRouteMeta] = useState(null);
@@ -226,6 +233,81 @@ export function InstantTripTrackingMap({ orderId, orderStatus, fulfillmentType }
     return null;
   }
 
+  const handleOpenMaps = () => openGoogleMapsTrip(tracking);
+
+  const fullscreenDialog = (
+    <Dialog open={mapExpanded} onOpenChange={setMapExpanded}>
+      <DialogContent
+        showCloseButton
+        className="fixed inset-0 top-0 left-0 z-50 flex h-[100dvh] w-full max-w-none translate-x-0 translate-y-0 gap-0 rounded-none border-0 p-0 shadow-none ring-0 sm:max-w-none">
+        <div className="relative h-full min-h-0 w-full flex-1 bg-background">
+          {mapExpanded ? (
+            <OlaTrackingMap
+              {...mapProps}
+              mapInstanceKey="fullscreen"
+              className="absolute inset-0 size-full"
+            />
+          ) : null}
+          <TripMapChrome
+            showExpand={false}
+            onOpenMaps={handleOpenMaps}
+            openMapsClassName="bottom-6 left-4"
+          />
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+
+  // Mobile map-first layout (same as the user app): the map fills its container and every
+  // loading / error state keeps the same footprint so the page below doesn't jump.
+  if (variant === "hero") {
+    const placeholder = (content) => (
+      <div
+        className={cn(
+          "flex items-center justify-center bg-muted px-6 text-center text-sm text-muted-foreground",
+          className,
+        )}>
+        {content}
+      </div>
+    );
+
+    if (sdkLoading || (status === "idle" && !tracking)) {
+      return placeholder(<Spinner className="size-6" />);
+    }
+    if (sdkError || !sdkConfig) return placeholder("Map could not load.");
+    if (status === "error" && !tracking) return placeholder("Live map is temporarily unavailable.");
+    if (!tracking?.webMapEnabled || !tracking?.liveTrackingEnabled) {
+      return placeholder("Live map unavailable. Your decorator is on the way.");
+    }
+
+    // No coordinates means the decorator's app hasn't sent a location for this trip yet, so
+    // there is no bike to draw and no route to request. Say so instead of "updating".
+    const pillLabel = !hasVendorCoords(tracking?.vendor)
+      ? "Waiting for decorator's live location"
+      : tracking.vendor.stale
+        ? "Location updating…"
+        : etaLabel;
+
+    return (
+      <>
+        <TripMapShell
+          className={className}
+          onExpand={() => setMapExpanded(true)}
+          onOpenMaps={handleOpenMaps}>
+          <OlaTrackingMap {...mapProps} mapInstanceKey="hero" className="absolute inset-0 size-full" />
+          {pillLabel ? (
+            <div className="pointer-events-none absolute inset-x-0 top-16 z-10 flex justify-center px-4">
+              <span className="rounded-full bg-background/95 px-3 py-1.5 text-xs font-semibold text-foreground shadow-sm">
+                {pillLabel}
+              </span>
+            </div>
+          ) : null}
+        </TripMapShell>
+        {fullscreenDialog}
+      </>
+    );
+  }
+
   if (sdkLoading) {
     return (
       <div className="flex h-32 items-center justify-center rounded-2xl border border-border bg-muted/30">
@@ -256,8 +338,6 @@ export function InstantTripTrackingMap({ orderId, orderStatus, fulfillmentType }
     );
   }
 
-  const handleOpenMaps = () => openGoogleMapsTrip(tracking);
-
   return (
     <div className="space-y-2">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -273,26 +353,7 @@ export function InstantTripTrackingMap({ orderId, orderStatus, fulfillmentType }
         <OlaTrackingMap {...mapProps} mapInstanceKey="inline" className="size-full" />
       </TripMapShell>
 
-      <Dialog open={mapExpanded} onOpenChange={setMapExpanded}>
-        <DialogContent
-          showCloseButton
-          className="fixed inset-0 top-0 left-0 z-50 flex h-[100dvh] w-full max-w-none translate-x-0 translate-y-0 gap-0 rounded-none border-0 p-0 shadow-none ring-0 sm:max-w-none">
-          <div className="relative h-full min-h-0 w-full flex-1 bg-background">
-            {mapExpanded ? (
-              <OlaTrackingMap
-                {...mapProps}
-                mapInstanceKey="fullscreen"
-                className="absolute inset-0 size-full"
-              />
-            ) : null}
-            <TripMapChrome
-              showExpand={false}
-              onOpenMaps={handleOpenMaps}
-              openMapsClassName="bottom-6 left-4"
-            />
-          </div>
-        </DialogContent>
-      </Dialog>
+      {fullscreenDialog}
 
       {routeIsFallback && displayRoutePath.length < 2 && connectorPath.length > 1 ? (
         <p className="text-xs text-muted-foreground">

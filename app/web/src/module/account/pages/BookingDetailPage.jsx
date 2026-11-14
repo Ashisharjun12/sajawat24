@@ -20,6 +20,8 @@ import {
 } from "@/module/account/lib/booking-ui";
 import { InstantDispatchBanner } from "@/module/booking/components/InstantDispatchBanner";
 import { InstantTripTrackingMap } from "@/module/account/components/InstantTripTrackingMap";
+import { BookingDetailMobile } from "@/module/account/components/BookingDetailMobile";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 function BookingTimeline({ status }) {
   const activeIndex = bookingTimelineIndex(status);
@@ -83,6 +85,7 @@ export function BookingDetailPage() {
   const [status, setStatus] = useState("loading");
   const [error, setError] = useState("");
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   const loadOrder = useCallback(async (showSpinner = false) => {
     if (!orderId) {
@@ -151,7 +154,7 @@ export function BookingDetailPage() {
 
   if (status === "error" || !order) {
     return (
-      <div className="max-w-lg">
+      <div className="max-w-lg max-md:px-4 max-md:py-6">
         <Card>
           <CardHeader>
             <CardTitle>Booking not found</CardTitle>
@@ -175,6 +178,40 @@ export function BookingDetailPage() {
     order.status !== "CANCELLED" &&
     (order.status === "COMPLETED" ? Boolean(order.serviceContact) : vendorAccepted) &&
     (order.serviceContact || order.assignee);
+
+  const reviewDialog = (
+    <WriteBookingReviewDialog
+      order={order}
+      open={reviewDialogOpen}
+      onOpenChange={setReviewDialogOpen}
+      onSubmitted={(meta) => {
+        setOrder((current) =>
+          current
+            ? {
+                ...current,
+                canReview: meta.canReview,
+                reviewSubmitted: meta.reviewSubmitted,
+                review: meta.review,
+              }
+            : current,
+        );
+      }}
+    />
+  );
+
+  if (isMobile) {
+    return (
+      <>
+        <BookingDetailMobile
+          order={order}
+          showContact={Boolean(showContactCard)}
+          canChat={canChatWithVendor}
+          onWriteReview={() => setReviewDialogOpen(true)}
+        />
+        {reviewDialog}
+      </>
+    );
+  }
 
   return (
     <div className="w-full space-y-6">
@@ -256,23 +293,7 @@ export function BookingDetailPage() {
 
       <BookingReviewCard order={order} onWriteReview={() => setReviewDialogOpen(true)} />
 
-      <WriteBookingReviewDialog
-        order={order}
-        open={reviewDialogOpen}
-        onOpenChange={setReviewDialogOpen}
-        onSubmitted={(meta) => {
-          setOrder((current) =>
-            current
-              ? {
-                  ...current,
-                  canReview: meta.canReview,
-                  reviewSubmitted: meta.reviewSubmitted,
-                  review: meta.review,
-                }
-              : current,
-          );
-        }}
-      />
+      {reviewDialog}
 
       <Card className="shadow-none ring-0">
         <CardHeader>

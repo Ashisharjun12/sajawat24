@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { MessageCircleIcon, PhoneIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { normalizeContacts } from "@/module/account/lib/order-contacts";
 
 function vendorInitials(name) {
   return name
@@ -49,63 +50,6 @@ function ContactRow({ name, subtitle, phone, callLabel = "Call" }) {
       <CallButton phone={phone} label={callLabel} />
     </div>
   );
-}
-
-function normalizeContacts({ serviceContact, assignee }) {
-  if (serviceContact?.kind === "worker" && serviceContact.name) {
-    const vendorPhone = serviceContact.vendorPhone?.trim() || null;
-    const workerPhone = serviceContact.phone?.trim() || null;
-    const showVendorSupport =
-      vendorPhone && (!workerPhone || vendorPhone.replace(/\D/g, "") !== workerPhone.replace(/\D/g, ""));
-
-    return {
-      primary: {
-        name: serviceContact.name,
-        phone: workerPhone,
-        subtitle:
-          serviceContact.shopName
-            ? `Your decorator on the way · ${serviceContact.shopName}`
-            : "Your decorator on the way",
-        callLabel: "Call decorator",
-      },
-      vendorSupport: showVendorSupport
-        ? {
-            name: serviceContact.vendorName || serviceContact.shopName || "Shop support",
-            phone: vendorPhone,
-            subtitle: "Vendor support",
-            callLabel: "Call vendor",
-          }
-        : null,
-    };
-  }
-
-  if (serviceContact?.name) {
-    const subtitle =
-      serviceContact.kind === "shop" ? "Decoration partner" : "Your decorator";
-    return {
-      primary: {
-        name: serviceContact.name,
-        phone: serviceContact.phone,
-        subtitle,
-        callLabel: "Call",
-      },
-      vendorSupport: null,
-    };
-  }
-
-  if (assignee) {
-    return {
-      primary: {
-        name: assignee.name,
-        phone: assignee.phone,
-        subtitle: "Your decorator",
-        callLabel: "Call",
-      },
-      vendorSupport: null,
-    };
-  }
-
-  return null;
 }
 
 export function VendorContactCard({ serviceContact, assignee, orderId, showChat = true }) {

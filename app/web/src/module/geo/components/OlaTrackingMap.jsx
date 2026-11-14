@@ -1,6 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { OlaMaps } from "olamaps-web-sdk";
 import { buildOlaMapInitOptions } from "@/module/geo/lib/ola-map-auth";
+import {
+  MAP_DRIVER_MARKER_FRAME_PX,
+  MAP_DRIVER_MARKER_ICON_PX,
+  MAP_DRIVER_MARKER_URL,
+  MAP_FIXED_LOCATION_HEIGHT_PX,
+  MAP_FIXED_LOCATION_URL,
+  MAP_FIXED_LOCATION_WIDTH_PX,
+} from "@/module/geo/lib/map-assets";
 import { TRIP_ROUTE_PAINT } from "@/module/geo/lib/trip-map-markers";
 
 const ROUTE_SOURCE = "decory-trip-route";
@@ -9,58 +17,6 @@ const ROUTE_LAYER = "decory-trip-route-line";
 const FALLBACK_SOURCE = "decory-trip-fallback";
 const FALLBACK_CASING_LAYER = "decory-trip-fallback-casing";
 const FALLBACK_LAYER = "decory-trip-fallback-line";
-const TRIP_POINTS_SOURCE = "decory-trip-points";
-const TRIP_POINTS_LAYER = "decory-trip-points-circle";
-
-function tripPointsGeoJson(tracking) {
-  const features = [];
-  const dest = tracking?.destination;
-  const vendor = tracking?.vendor;
-  if (dest?.latitude != null && dest?.longitude != null) {
-    features.push({
-      type: "Feature",
-      geometry: { type: "Point", coordinates: [dest.longitude, dest.latitude] },
-      properties: { kind: "customer" },
-    });
-  }
-  if (vendor?.latitude != null && vendor?.longitude != null) {
-    features.push({
-      type: "Feature",
-      geometry: { type: "Point", coordinates: [vendor.longitude, vendor.latitude] },
-      properties: { kind: "worker" },
-    });
-  }
-  return { type: "FeatureCollection", features };
-}
-
-function upsertTripPointLayers(map, tracking) {
-  const data = tripPointsGeoJson(tracking);
-  if (!data.features.length) return;
-  if (map.getSource(TRIP_POINTS_SOURCE)) {
-    map.getSource(TRIP_POINTS_SOURCE).setData(data);
-    return;
-  }
-  map.addSource(TRIP_POINTS_SOURCE, { type: "geojson", data });
-  map.addLayer({
-    id: TRIP_POINTS_LAYER,
-    type: "circle",
-    source: TRIP_POINTS_SOURCE,
-    paint: {
-      "circle-radius": 12,
-      "circle-color": [
-        "match",
-        ["get", "kind"],
-        "worker",
-        "#F5C518",
-        "customer",
-        "#1A1A1A",
-        "#888888",
-      ],
-      "circle-stroke-width": 3,
-      "circle-stroke-color": "#ffffff",
-    },
-  });
-}
 
 function upsertRouteSource(map, sourceId, routePath) {
   if (!map || routePath?.length < 2) return false;
@@ -156,50 +112,58 @@ function fitMapToTrip(map, tracking, routePath, fallbackPath) {
   );
 }
 
-function addTripMarker(olaMaps, map, lngLat, kind) {
+/** The rider artwork faces east, so subtract 90° from a compass heading (0° = north). */
+function riderRotation(heading) {
+  return Number.isFinite(heading) && heading >= 0 ? heading - 90 : 0;
+}
+
+/**
+ * Same markers as the user app: a top-down bike rider for the decorator (rotated to their
+ * heading) and a location pin for the customer venue (anchored at its tip).
+ */
+function createTripMarkerElement(kind, heading) {
+  const isWorker = kind === "worker";
   const wrap = document.createElement("div");
-  wrap.style.width = "44px";
-  wrap.style.height = "44px";
   wrap.style.display = "flex";
   wrap.style.alignItems = "center";
   wrap.style.justifyContent = "center";
+  wrap.style.pointerEvents = "none";
 
-  const dot = document.createElement("div");
-  dot.style.width = "34px";
-  dot.style.height = "34px";
-  dot.style.borderRadius = "17px";
-  dot.style.border = "3px solid #fff";
-  dot.style.boxShadow = "0 2px 6px rgba(0,0,0,0.25)";
-  dot.style.backgroundColor = kind === "worker" ? "#F5C518" : "#1A1A1A";
-  dot.style.display = "flex";
-  dot.style.alignItems = "center";
-  dot.style.justifyContent = "center";
+  const img = document.createElement("img");
+  img.draggable = false;
+  img.style.objectFit = "contain";
 
-  if (kind === "customer") {
-    const inner = document.createElement("div");
-    inner.style.width = "11px";
-    inner.style.height = "11px";
-    inner.style.background = "#fff";
-    inner.style.borderRadius = "2px";
-    dot.appendChild(inner);
+  if (isWorker) {
+    wrap.style.width = `${MAP_DRIVER_MARKER_FRAME_PX}px`;
+    wrap.style.height = `${MAP_DRIVER_MARKER_FRAME_PX}px`;
+    img.src = MAP_DRIVER_MARKER_URL;
+    img.alt = "Decorator location";
+    img.width = MAP_DRIVER_MARKER_ICON_PX;
+    img.height = MAP_DRIVER_MARKER_ICON_PX;
+    img.style.transform = `rotate(${riderRotation(heading)}deg)`;
   } else {
-    const arrow = document.createElement("div");
-    arrow.style.width = "0";
-    arrow.style.height = "0";
-    arrow.style.borderLeft = "6px solid transparent";
-    arrow.style.borderRight = "6px solid transparent";
-    arrow.style.borderBottom = "10px solid #fff";
-    arrow.style.marginTop = "-2px";
-    dot.appendChild(arrow);
+    wrap.style.width = `${MAP_FIXED_LOCATION_WIDTH_PX}px`;
+    wrap.style.height = `${MAP_FIXED_LOCATION_HEIGHT_PX}px`;
+    img.src = MAP_FIXED_LOCATION_URL;
+    img.alt = "Delivery location";
+    img.width = MAP_FIXED_LOCATION_WIDTH_PX;
+    img.height = MAP_FIXED_LOCATION_HEIGHT_PX;
   }
-  wrap.appendChild(dot);
 
+  wrap.appendChild(img);
+  return wrap;
+}
+
+function addTripMarker(olaMaps, map, lngLat, kind, heading) {
   try {
-    const marker = olaMaps.addMarker({ element: wrap, anchor: "center" });
+    const marker = olaMaps.addMarker({
+      element: createTripMarkerElement(kind, heading),
+      anchor: kind === "worker" ? "center" : "bottom",
+    });
     marker.setLngLat(lngLat).addTo(map);
     return marker;
   } catch {
-    const marker = olaMaps.addMarker({ color: kind === "worker" ? "#F5C518" : "#1A1A1A" });
+    const marker = olaMaps.addMarker({ color: kind === "worker" ? "#0F766E" : "#1A1A1A" });
     marker.setLngLat(lngLat).addTo(map);
     return marker;
   }
@@ -249,7 +213,7 @@ export function OlaTrackingMap({
     }
     if (vendor?.latitude != null && vendor?.longitude != null) {
       markersRef.current.push(
-        addTripMarker(olaMaps, map, [vendor.longitude, vendor.latitude], "worker"),
+        addTripMarker(olaMaps, map, [vendor.longitude, vendor.latitude], "worker", vendor.heading),
       );
     }
 
@@ -282,7 +246,6 @@ export function OlaTrackingMap({
         clearRouteStack(map, ROUTE_SOURCE, ROUTE_CASING_LAYER, ROUTE_LAYER);
         clearRouteStack(map, FALLBACK_SOURCE, FALLBACK_CASING_LAYER, FALLBACK_LAYER);
       }
-      upsertTripPointLayers(map, tracking);
       fitMapToTrip(map, tracking, routePath, fallbackPath);
     };
 
