@@ -1,6 +1,6 @@
 import {
-    BRAND_LOGO_LIGHT_URL,
     CUSTOMER_BRAND_NAME,
+    EMAIL_LOGO_URL,
 } from "@/modules/brand/customer-brand.js";
 
 /** Inline-safe palette aligned with web `:root` (teal primary, mint surfaces). */
@@ -20,7 +20,7 @@ export const EMAIL_THEME = {
     border: "#e2ecea",
     /** Totals and success accents */
     green: "#16a34a",
-    logoUrl: BRAND_LOGO_LIGHT_URL,
+    logoUrl: EMAIL_LOGO_URL,
     brandName: CUSTOMER_BRAND_NAME,
     footerTagline: "Decorations, delivered with care",
     btnRadius: "12px",

@@ -1,17 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronLeftIcon, SearchIcon } from "lucide-react";
+import { ChevronLeftIcon, SearchIcon, XIcon } from "lucide-react";
 import { categoryPath } from "@/lib/catalog-path";
 import { listTopLevelCategories, resolveCategoryIcon } from "@/lib/category-icons";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
 import { DecoryImageFallback } from "@/components/decory-image-fallback";
 import { categoryImageUrl } from "@/module/home/lib/home-catalog";
@@ -122,12 +122,10 @@ export function MobileCategorySheet() {
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent
-        showCloseButton
-        className="flex max-h-[min(88dvh,34rem)] w-[calc(100%-1.5rem)] max-w-md flex-col gap-0 overflow-hidden p-0 sm:max-w-lg"
-      >
-        <DialogHeader className="shrink-0 gap-1 border-b border-border/60 px-4 py-3 pr-12 text-left">
+    <Drawer open={open} onOpenChange={setOpen} swipeDirection="down" showSwipeHandle>
+      {/* Bottom sheet: fixed height so the sheet doesn't resize when drilling into subcategories. */}
+      <DrawerContent className="h-[min(82dvh,36rem)] rounded-t-[var(--r-sheet)] border-t [--drawer-inset:0px]">
+        <div className="flex shrink-0 flex-col gap-1 border-b border-border/60 px-4 pt-1 pb-3 text-left">
           <div className="flex items-center gap-2">
             {currentParent ? (
               <Button
@@ -141,16 +139,31 @@ export function MobileCategorySheet() {
                 <ChevronLeftIcon className="size-4" />
               </Button>
             ) : null}
-            <DialogTitle className="font-heading text-lg font-semibold">{title}</DialogTitle>
+            <DrawerTitle className="min-w-0 flex-1 truncate font-heading text-lg font-semibold">
+              {title}
+            </DrawerTitle>
+            <DrawerClose
+              render={
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  className="shrink-0 rounded-full"
+                  aria-label="Close"
+                >
+                  <XIcon className="size-4" />
+                </Button>
+              }
+            />
           </div>
-          <DialogDescription className="text-xs">
+          <DrawerDescription className="text-xs">
             {currentParent
               ? `${levelCategories.length} subcategories`
               : levelCategories.length > SEARCH_THRESHOLD
                 ? `${levelCategories.length} categories — scroll or search`
                 : "Browse by occasion & theme"}
-          </DialogDescription>
-        </DialogHeader>
+          </DrawerDescription>
+        </div>
 
         {showSearch ? (
           <div className="shrink-0 border-b border-border/40 px-4 py-2.5">
@@ -197,14 +210,14 @@ export function MobileCategorySheet() {
           <Button
             type="button"
             variant="secondary"
-            className="w-full rounded-full"
+            className="w-full"
             nativeButton={false}
             render={<Link to="/decorations" onClick={close} />}
           >
             View all decorations
           </Button>
         </div>
-      </DialogContent>
-    </Dialog>
+      </DrawerContent>
+    </Drawer>
   );
 }

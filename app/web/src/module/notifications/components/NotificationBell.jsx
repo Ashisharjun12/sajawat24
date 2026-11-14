@@ -40,7 +40,7 @@ function NotificationBellIcon({ shaking, unreadCount }) {
       </motion.span>
       {unreadCount > 0 ? (
         <span
-          className="pointer-events-none absolute -top-0.5 -right-0.5 z-20 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground"
+          className="pointer-events-none absolute -top-0.5 -right-0.5 z-20 flex size-4 items-center justify-center rounded-full bg-instant text-[10px] font-semibold text-instant-foreground"
           aria-hidden
         >
           {unreadCount > 9 ? "9+" : unreadCount}
