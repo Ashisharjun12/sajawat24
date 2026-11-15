@@ -12,13 +12,18 @@ import type { CatalogProductDetail } from '@/module/catalog/lib/product-detail';
 import { ProductReviewCard, type ProductReviewItem } from '@/module/catalog/components/product-detail/reviews/ProductReviewCard';
 import { ProductReviewsSummary } from '@/module/catalog/components/product-detail/reviews/ProductReviewsSummary';
 import { ProductStarRow } from '@/module/catalog/components/product-detail/reviews/ProductStarRow';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, type LayoutChangeEvent, View } from 'react-native';
 import { Star } from 'lucide-react-native';
 
 type ProductReviewsPreviewProps = {
   productId: string;
   product: CatalogProductDetail;
   previewLimit?: number;
+  /** Controlled open state (the photo's rating pill opens it). */
+  expanded?: boolean;
+  onExpandedChange?: (expanded: boolean) => void;
+  /** Reports the section's y inside its parent, so the PDP can scroll to it. */
+  onLayout?: (e: LayoutChangeEvent) => void;
 };
 
 type ReviewsPayload = {
@@ -35,6 +40,9 @@ export function ProductReviewsPreview({
   productId,
   product,
   previewLimit = 3,
+  expanded,
+  onExpandedChange,
+  onLayout,
 }: ProductReviewsPreviewProps) {
   const { data, isPending, isError } = useProductReviewsPreviewQuery(productId, previewLimit);
   const payload = data as ReviewsPayload;
@@ -72,10 +80,17 @@ export function ProductReviewsPreview({
 
   return (
     // Full width: cancel the PDP's 20px side padding (same panel as "Make it yours").
+    <View className="-mx-5" onLayout={onLayout}>
     <Accordion
       type="single"
       collapsible
-      className="-mx-5 border-y border-border/80 bg-card px-5">
+      {...(expanded !== undefined
+        ? {
+            value: expanded ? 'reviews' : '',
+            onValueChange: (v: string | undefined) => onExpandedChange?.(v === 'reviews'),
+          }
+        : {})}
+      className="border-y border-border/80 bg-card px-5">
       <AccordionItem value="reviews">
         <AccordionTrigger className="py-3">
           <View className="flex-1 flex-row items-center gap-3 pr-2">
@@ -127,5 +142,6 @@ export function ProductReviewsPreview({
         </AccordionContent>
       </AccordionItem>
     </Accordion>
+    </View>
   );
 }

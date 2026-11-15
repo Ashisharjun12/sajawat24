@@ -1,0 +1,49 @@
+api/payments.api.ts(10,3): error TS2322: Type 'Promise<unknown>' is not assignable to type 'Promise<PaymentMethodsResponse>'.
+  Type 'unknown' is not assignable to type 'PaymentMethodsResponse'.
+api/wishlist.api.ts(45,3): error TS2322: Type 'Promise<unknown>' is not assignable to type 'Promise<WishlistListResponse>'.
+  Type 'unknown' is not assignable to type 'WishlistListResponse'.
+api/wishlist.api.ts(52,3): error TS2322: Type 'Promise<unknown>' is not assignable to type 'Promise<WishlistListResponse>'.
+  Type 'unknown' is not assignable to type 'WishlistListResponse'.
+api/wishlist.api.ts(61,3): error TS2322: Type 'Promise<unknown>' is not assignable to type 'Promise<WishlistListResponse>'.
+  Type 'unknown' is not assignable to type 'WishlistListResponse'.
+api/wishlist.api.ts(72,3): error TS2322: Type 'Promise<unknown>' is not assignable to type 'Promise<WishlistListResponse>'.
+  Type 'unknown' is not assignable to type 'WishlistListResponse'.
+components/shell/Screen.tsx(54,11): error TS2698: Spread types may only be created from object types.
+components/ui/native-only-animated-view.tsx(25,13): error TS2322: Type '{ id?: string | SharedValue<string | undefined> | undefined; children?: ReactNode | SharedValue<ReactNode>; className?: string | SharedValue<...> | undefined; ... 95 more ...; as?: "View" | undefined; }' is not assignable to type 'IntrinsicClassAttributes<Component<AnimatedProps<ViewProps>, any, any>>'.
+  Types of property 'ref' are incompatible.
+    Type 'Ref<ComponentClass<AnimatedProps<ViewProps>, any>> | undefined' is not assignable to type 'Ref<Component<AnimatedProps<ViewProps>, any, any>> | undefined'.
+      Type '(instance: ComponentClass<AnimatedProps<ViewProps>, any> | null) => void | (() => VoidOrUndefinedOnly)' is not assignable to type 'Ref<Component<AnimatedProps<ViewProps>, any, any>> | undefined'.
+        Type '(instance: ComponentClass<AnimatedProps<ViewProps>, any> | null) => void | (() => VoidOrUndefinedOnly)' is not assignable to type '(instance: Component<AnimatedProps<ViewProps>, any, any> | null) => void | (() => VoidOrUndefinedOnly)'.
+          Types of parameters 'instance' and 'instance' are incompatible.
+            Type 'Component<AnimatedProps<ViewProps>, any, any> | null' is not assignable to type 'ComponentClass<AnimatedProps<ViewProps>, any> | null'.
+              Type 'Component<AnimatedProps<ViewProps>, any, any>' is not assignable to type 'ComponentClass<AnimatedProps<ViewProps>, any>'.
+                Type 'Component<AnimatedProps<ViewProps>, any, any>' provides no match for the signature 'new (props: AnimatedProps<ViewProps>, context?: any): Component<AnimatedProps<ViewProps>, any, any>'.
+lib/detect-gps-location.ts(79,16): error TS2339: Property 'pincode' does not exist on type 'never'.
+lib/detect-gps-location.ts(81,22): error TS2339: Property 'city' does not exist on type 'never'.
+lib/detect-gps-location.ts(86,56): error TS2339: Property 'city' does not exist on type 'never'.
+lib/use-hide-tab-bar.ts(22,34): error TS2345: Argument of type 'Omit<NavigationProp<RootParamList>, "getState"> & { getState(): Readonly<{ key: string; index: number; routeNames: string[]; history?: unknown[] | undefined; routes: NavigationRoute<...>[]; type: string; stale: false; }> | undefined; }' is not assignable to parameter of type 'NavigationProp<ParamListBase>'.
+  Type 'Omit<NavigationProp<RootParamList>, "getState"> & { getState(): Readonly<{ key: string; index: number; routeNames: string[]; history?: unknown[] | undefined; routes: NavigationRoute<...>[]; type: string; stale: false; }> | undefined; }' is not assignable to type 'Omit<NavigationHelpersCommon<ParamListBase, Readonly<{ key: string; index: number; routeNames: string[]; history?: unknown[] | undefined; routes: NavigationRoute<ParamListBase, string>[]; type: string; stale: false; }>>, "getParent">'.
+    The types returned by 'getState()' are incompatible between these types.
+      Type 'Readonly<{ key: string; index: number; routeNames: string[]; history?: unknown[] | undefined; routes: NavigationRoute<ParamListBase, string>[]; type: string; stale: false; }> | undefined' is not assignable to type 'Readonly<{ key: string; index: number; routeNames: string[]; history?: unknown[] | undefined; routes: NavigationRoute<ParamListBase, string>[]; type: string; stale: false; }>'.
+        Type 'undefined' is not assignable to type 'Readonly<{ key: string; index: number; routeNames: string[]; history?: unknown[] | undefined; routes: NavigationRoute<ParamListBase, string>[]; type: string; stale: false; }>'.
+module/account/components/AccountScreen.tsx(45,74): error TS2322: Type '{ source: { uri: string; }; alt: string; }' is not assignable to type 'IntrinsicAttributes & Omit<ComponentPropsWithAsChild<typeof Image>, "alt"> & { children?: ReactNode; onLoadingStatusChange?: ((status: "error" | "loaded") => void) | undefined; } & RefAttributes<...>'.
+  Property 'alt' does not exist on type 'IntrinsicAttributes & Omit<ComponentPropsWithAsChild<typeof Image>, "alt"> & { children?: ReactNode; onLoadingStatusChange?: ((status: "error" | "loaded") => void) | undefined; } & RefAttributes<...>'.
+module/account/hooks/use-address-pin-validation.ts(64,57): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'PinLookupData | null | undefined'.
+module/booking/lib/place-order.ts(73,5): error TS2339: Property 'onOnlineCheckoutOpening' does not exist on type 'PlaceOrderInput'.
+module/booking/lib/place-order.ts(74,5): error TS2339: Property 'onOnlineCheckoutClosed' does not exist on type 'PlaceOrderInput'.
+module/catalog/hooks/use-pdp-similar-packages.ts(31,5): error TS2345: Argument of type 'string | null | undefined' is not assignable to parameter of type 'string | undefined'.
+  Type 'null' is not assignable to type 'string | undefined'.
+module/onboarding/hooks/use-sms-otp-autofill.ts(53,7): error TS18047: 'module' is possibly 'null'.
+module/onboarding/hooks/use-sms-otp-autofill.ts(60,11): error TS18047: 'module' is possibly 'null'.
+module/onboarding/hooks/use-sms-otp-autofill.ts(71,11): error TS18047: 'module' is possibly 'null'.
+module/onboarding/hooks/use-sms-otp-autofill.ts(77,11): error TS18047: 'module' is possibly 'null'.
+module/onboarding/hooks/use-sms-otp-autofill.ts(82,31): error TS18047: 'module' is possibly 'null'.
+store/wishlist.store.ts(60,13): error TS2322: Type '"ready"' is not assignable to type '"error" | "idle" | "loading" | undefined'.
+store/wishlist.store.ts(68,11): error TS2322: Type '"ready"' is not assignable to type '"error" | "idle" | "loading" | undefined'.
+store/wishlist.store.ts(76,9): error TS2322: Type '"ready"' is not assignable to type '"error" | "idle" | "loading" | undefined'.
+store/wishlist.store.ts(118,11): error TS2739: Type '(WishlistRow | { productId: string; addedAt: number; available: boolean; product: { id: string; title: string; imageUrl: string | null; pricePaise: number; compareAtPaise: number | null; rating: null; reviewCount: null; instant: any; }; })[]' is missing the following properties from type 'WishlistRow': productId, addedAt, available, product
+store/wishlist.store.ts(133,32): error TS2339: Property 'instant' does not exist on type 'Pick<HomeCatalogProduct, "id" | "title" | "imageUrl" | "pricePaise" | "compareAtPaise">'.
+store/wishlist.store.ts(138,11): error TS2740: Type 'WishlistRow' is missing the following properties from type 'WishlistRow[]': length, pop, push, concat, and 35 more.
+store/wishlist.store.ts(159,67): error TS2322: Type '"ready"' is not assignable to type '"error" | "idle" | "loading" | undefined'.
+store/wishlist.store.ts(165,67): error TS2322: Type '"ready"' is not assignable to type '"error" | "idle" | "loading" | undefined'.
+store/wishlist.store.ts(175,61): error TS2322: Type '"ready"' is not assignable to type '"error" | "idle" | "loading" | undefined'.

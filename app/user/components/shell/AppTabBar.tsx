@@ -9,14 +9,15 @@ import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { type Href, router } from 'expo-router';
 import { Home, LayoutGrid, ShoppingBag, User, Zap } from 'lucide-react-native';
 import { lightImpact } from '@/lib/light-haptic';
+import { TAB_BAR_CONTENT_HEIGHT } from '@/lib/tab-bar-metrics';
 import { useThemeColors } from '@/lib/theme';
 import { useEffect } from 'react';
 import { Pressable, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-/** Bar content height; the safe-area inset is added below it. */
-const TAB_BAR_HEIGHT = 72;
+/** Bar content height (shared with overlays); the safe-area inset is added below it. */
+const TAB_BAR_HEIGHT = TAB_BAR_CONTENT_HEIGHT;
 
 const VISIBLE_TABS = BOTTOM_TAB_ROUTE_NAMES;
 

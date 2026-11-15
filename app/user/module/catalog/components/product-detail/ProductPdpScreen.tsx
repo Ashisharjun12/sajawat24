@@ -30,7 +30,7 @@ import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import { useKeyboardInset } from '@/lib/use-keyboard-inset';
 import { Href, router } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ProductPdpAddonsSection } from './ProductPdpAddonsSection';
@@ -84,6 +84,16 @@ export function ProductPdpScreen({ productId }: ProductPdpScreenProps) {
   const [shareOpen, setShareOpen] = useState(false);
   const [similarOpen, setSimilarOpen] = useState(false);
   const [scheduleSheetOpen, setScheduleSheetOpen] = useState(false);
+  const [reviewsOpen, setReviewsOpen] = useState(false);
+  // Reviews y = lower content block's y + reviews' y inside it (ScrollView content coords).
+  const scrollRef = useRef<ScrollView>(null);
+  const lowerBlockY = useRef(0);
+  const reviewsY = useRef<number | null>(null);
+  const onReviewsPress = useCallback(() => {
+    setReviewsOpen(true);
+    if (reviewsY.current == null) return;
+    scrollRef.current?.scrollTo({ y: Math.max(0, lowerBlockY.current + reviewsY.current - 8), animated: true });
+  }, []);
   const addons = product?.addons ?? [];
   const addonSelection = useProductAddonSelection(addons);
 
@@ -245,6 +255,7 @@ export function ProductPdpScreen({ productId }: ProductPdpScreenProps) {
         }}
       />
       <ScrollView
+        ref={scrollRef}
         showsVerticalScrollIndicator={false}
         // "handled": the first tap on Check works while the keyboard is open.
         keyboardShouldPersistTaps="handled"
@@ -262,6 +273,9 @@ export function ProductPdpScreen({ productId }: ProductPdpScreenProps) {
           onSchedulePress={
             canScheduled && !isInstantBooking ? () => setScheduleSheetOpen(true) : undefined
           }
+          ratingAvg={rating}
+          reviewCount={detail.reviewCount != null ? Number(detail.reviewCount) : null}
+          onReviewsPress={onReviewsPress}
         />
 
         <View className="mt-3 gap-2">
@@ -273,7 +287,6 @@ export function ProductPdpScreen({ productId }: ProductPdpScreenProps) {
             productId={detail.id}
             instant={detail.instant}
             ratingAvg={rating}
-            reviewCount={detail.reviewCount != null ? Number(detail.reviewCount) : null}
           />
         </View>
 
@@ -302,7 +315,11 @@ export function ProductPdpScreen({ productId }: ProductPdpScreenProps) {
           ) : null}
         </View>
 
-        <View className="mt-4 gap-4">
+        <View
+          className="mt-4 gap-4"
+          onLayout={(e) => {
+            lowerBlockY.current = e.nativeEvent.layout.y;
+          }}>
           <ProductPdpAboutPackage description={detail.description} />
 
           <ProductPdpDetailsTabs
@@ -312,7 +329,15 @@ export function ProductPdpScreen({ productId }: ProductPdpScreenProps) {
             careInstructions={detail.careInstructions}
           />
 
-          <ProductReviewsPreview productId={detail.id} product={detail} />
+          <ProductReviewsPreview
+            productId={detail.id}
+            product={detail}
+            expanded={reviewsOpen}
+            onExpandedChange={setReviewsOpen}
+            onLayout={(e) => {
+              reviewsY.current = e.nativeEvent.layout.y;
+            }}
+          />
 
           <ProductSimilarRail
             items={similar}

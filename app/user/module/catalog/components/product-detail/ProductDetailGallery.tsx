@@ -3,6 +3,8 @@ import { Icon } from '@/components/ui/icon';
 import { cn } from '@/lib/utils';
 import { Share2 } from 'lucide-react-native';
 import { ProductPdpSimilarGalleryButton } from '@/module/catalog/components/product-detail/ProductPdpSimilarPackages';
+import { ProductPdpRatingPill } from '@/module/catalog/components/product-detail/ProductPdpRatingPill';
+import { formatPdpRating } from '@/module/catalog/lib/product-pdp-helpers';
 import { Image } from 'expo-image';
 import { useRef, useState } from 'react';
 import {
@@ -25,6 +27,10 @@ type ProductDetailGalleryProps = {
   suppressChrome?: boolean;
   /** Scheduled flow: tap hero to open date/time sheet. */
   onSchedulePress?: () => void;
+  /** Rating pill above the Similar button; tap opens reviews. */
+  ratingAvg?: number | null;
+  reviewCount?: number | null;
+  onReviewsPress?: () => void;
 };
 
 const PLACEHOLDER =
@@ -39,11 +45,16 @@ export function ProductDetailGallery({
   onShare,
   suppressChrome = false,
   onSchedulePress,
+  ratingAvg,
+  reviewCount,
+  onReviewsPress,
 }: ProductDetailGalleryProps) {
   const width = Dimensions.get('window').width;
   const urls = imageUrls.length > 0 ? imageUrls : [PLACEHOLDER];
   const [index, setIndex] = useState(0);
   const scrollRef = useRef<ScrollView>(null);
+  const hasRatingPill =
+    formatPdpRating(ratingAvg) != null || (reviewCount != null && Number(reviewCount) > 0);
 
   function onScroll(e: NativeSyntheticEvent<NativeScrollEvent>) {
     const x = e.nativeEvent.contentOffset.x;
@@ -100,11 +111,22 @@ export function ProductDetailGallery({
             </ScalePressable>
           </View>
         ) : null}
-        {showSimilar && onSimilar ? (
+        {/* Bottom-left stack: rating pill on top, Similar below. */}
+        {hasRatingPill || (showSimilar && onSimilar) ? (
           <View
-            className={cn('absolute bottom-3 left-0 px-3', suppressChrome ? 'opacity-0' : 'z-20')}
+            className={cn(
+              'absolute bottom-3 left-0 items-start gap-2 px-3',
+              suppressChrome ? 'opacity-0' : 'z-20',
+            )}
             pointerEvents={suppressChrome ? 'none' : 'box-none'}>
-            <ProductPdpSimilarGalleryButton onPress={onSimilar} />
+            {hasRatingPill ? (
+              <ProductPdpRatingPill
+                ratingAvg={ratingAvg}
+                reviewCount={reviewCount}
+                onPress={onReviewsPress}
+              />
+            ) : null}
+            {showSimilar && onSimilar ? <ProductPdpSimilarGalleryButton onPress={onSimilar} /> : null}
           </View>
         ) : null}
       </View>

@@ -1,12 +1,15 @@
-import { Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-/** Tab row: paddingTop 8 + icon 24 + gap + label + pb-1 — keep in sync with `AppTabBar`. */
-const TAB_BAR_INNER_HEIGHT = 51;
+/** Tab row height (icons + labels). `AppTabBar` uses this, so overlays always line up. */
+export const TAB_BAR_CONTENT_HEIGHT = 72;
+/** Hairline top border on the bar. */
+const TAB_BAR_BORDER = 1;
 
-/** Total bottom tab bar height (for overlays outside tab screens). */
+/**
+ * Total bottom tab bar height, exactly as `AppTabBar` draws it: border + row + safe-area
+ * inset. Used to dock things (the active-order card) right above the bar without overlap.
+ */
 export function useAppTabBarHeight(): number {
   const insets = useSafeAreaInsets();
-  const paddingBottom = Math.max(insets.bottom, Platform.OS === 'android' ? 10 : 6);
-  return TAB_BAR_INNER_HEIGHT + paddingBottom;
+  return TAB_BAR_BORDER + TAB_BAR_CONTENT_HEIGHT + insets.bottom;
 }

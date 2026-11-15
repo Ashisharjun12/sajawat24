@@ -4,11 +4,8 @@ import { Link } from "react-router-dom";
 import { formatPaise } from "@/lib/money";
 import { DecoryImageFallback } from "@/components/decory-image-fallback";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import {
-  BOOKING_TIMELINE,
   bookingStatusLabel,
-  bookingTimelineIndex,
   formatBookingSlot,
 } from "@/module/account/lib/booking-ui";
 
@@ -27,54 +24,6 @@ function formatDeliveryLine(booking) {
   const street = [addr, landmark].filter(Boolean).join(", ");
   const place = [booking.cityName, booking.pincode].filter(Boolean).join(", ");
   return [street, place].filter(Boolean).join(" · ");
-}
-
-function BookingOrderProgress({ status }) {
-  const activeIndex = bookingTimelineIndex(status);
-  const cancelled = status === "CANCELLED";
-  const completed = status === "COMPLETED";
-
-  if (cancelled) {
-    return (
-      <div className="border-b border-border/60 px-4 py-3 md:px-6">
-        <p className="text-sm text-muted-foreground">This booking was cancelled.</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="border-b border-border/60 px-4 py-4 md:px-6">
-      <ol className="grid grid-cols-2 gap-x-3 gap-y-4 sm:grid-cols-3 lg:grid-cols-5">
-        {BOOKING_TIMELINE.map((step, index) => {
-          const done = activeIndex > index || (completed && index <= activeIndex);
-          const current = !completed && activeIndex === index;
-          return (
-            <li key={step.key} className="min-w-0">
-              <p
-                className={cn(
-                  "truncate text-xs sm:text-sm",
-                  current && "font-semibold text-foreground",
-                  done && !current && "font-medium text-foreground",
-                  !done && !current && "text-muted-foreground",
-                )}
-              >
-                {step.label}
-              </p>
-              <div
-                className={cn(
-                  "mt-2 h-1 rounded-full",
-                  done && "bg-emerald-600",
-                  current && "bg-primary",
-                  !done && !current && "bg-muted",
-                )}
-                aria-hidden
-              />
-            </li>
-          );
-        })}
-      </ol>
-    </div>
-  );
 }
 
 export function BookingCard({ booking }) {
@@ -140,8 +89,6 @@ export function BookingCard({ booking }) {
         />
       </div>
 
-      <BookingOrderProgress status={booking.status} />
-
       <Link
         to={`/account/bookings/${booking.id}`}
         className="group flex gap-4 p-4 transition-colors hover:bg-muted/20 md:px-6 md:py-5"
@@ -191,7 +138,6 @@ export function BookingCardSkeleton() {
         <div className="h-4 w-3/4 animate-pulse rounded bg-muted" />
         <div className="h-4 w-1/2 animate-pulse rounded bg-muted" />
       </div>
-      <div className="h-12 animate-pulse bg-muted/20" />
       <div className="flex gap-4 p-4 md:px-6">
         <div className="size-20 shrink-0 animate-pulse rounded-lg bg-muted sm:size-24" />
         <div className="flex flex-1 flex-col gap-3">
