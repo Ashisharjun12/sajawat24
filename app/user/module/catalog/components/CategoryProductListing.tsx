@@ -39,7 +39,10 @@ type CategoryProductListingOptions = {
 };
 
 type CategoryProductListingProps = CategoryProductListingOptions & {
+  /** Optional heading above the sort chips. Hidden when not set. */
   sectionTitle?: string;
+  /** Show the "N products" count in the toolbar. */
+  showTotal?: boolean;
   emptyTitle?: string;
   emptyDescription?: string;
 };
@@ -385,7 +388,8 @@ export function CategoryProductListingResults({
 }
 
 export function CategoryProductListing({
-  sectionTitle = 'All packages',
+  sectionTitle,
+  showTotal = false,
   emptyTitle,
   emptyDescription,
   ...options
@@ -401,7 +405,7 @@ export function CategoryProductListing({
       {sectionTitle ? (
         <Text className="text-foreground text-lg font-semibold">{sectionTitle}</Text>
       ) : null}
-      <CategoryProductListingToolbar listing={listing} />
+      <CategoryProductListingToolbar listing={listing} showTotal={showTotal} />
       <CategoryProductListingResults
         listing={listing}
         emptyTitle={emptyTitle}

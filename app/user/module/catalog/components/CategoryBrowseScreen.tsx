@@ -106,18 +106,20 @@ export function CategoryBrowseScreen() {
   }
 
   const showProductSection = !showAllParents && Boolean(selectedParent);
+  const showSubcategoryGrid =
+    showProductSection && !selectedChild && subcategories.length > 0;
 
   const onRefresh = useCallback(async () => {
     setPullRefreshing(true);
     try {
       await refetchCategories();
-      if (showProductSection) {
+      if (showProductSection && !showSubcategoryGrid) {
         setProductRefreshNonce((n) => n + 1);
       }
     } finally {
       setPullRefreshing(false);
     }
-  }, [refetchCategories, showProductSection]);
+  }, [refetchCategories, showProductSection, showSubcategoryGrid]);
 
   const refreshing = pullRefreshing || categoriesRefetching;
 
@@ -188,7 +190,7 @@ export function CategoryBrowseScreen() {
           {rows.map((row, rowIndex) => (
             <View key={`row-${rowIndex}`} className="flex-row gap-2">
               {row.map((category) => (
-                <View key={category.id} className="min-w-0 flex-1">
+                <View key={category.id} className="min-w-0 flex-1 flex-row">
                   <HomeCategoryTile category={category} onPress={() => onTilePress(category)} />
                 </View>
               ))}
@@ -202,21 +204,20 @@ export function CategoryBrowseScreen() {
         </View>
       ) : null}
 
-      {!showAllParents && selectedParent ? (
-        <>
-          {subcategories.length > 0 ? (
-            <CategorySubcategoryGrid
-              subcategories={subcategories}
-              activeChildSlug={childSlugParam}
-              onSelectChild={onSelectSubcategory}
-            />
-          ) : null}
-          <CategoryProductListing
-            categoryIds={productCategoryIds}
-            sectionTitle="All packages"
-            refreshNonce={productRefreshNonce}
-          />
-        </>
+      {/* Parent with subcategories: just the subcategory images. Tapping one opens its
+          products. A parent without subcategories goes straight to its products. */}
+      {showSubcategoryGrid ? (
+        <CategorySubcategoryGrid
+          subcategories={subcategories}
+          onSelectChild={onSelectSubcategory}
+        />
+      ) : null}
+
+      {showProductSection && !showSubcategoryGrid ? (
+        <CategoryProductListing
+          categoryIds={productCategoryIds}
+          refreshNonce={productRefreshNonce}
+        />
       ) : null}
     </View>
     </SmoothScrollView>

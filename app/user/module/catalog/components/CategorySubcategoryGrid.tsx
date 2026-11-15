@@ -1,6 +1,4 @@
 import { HomeCategoryTile } from '@/module/home/components/HomeCategoryTile';
-import { Text } from '@/components/ui/text';
-import { BRAND_PRIMARY_HEX } from '@/lib/theme';
 import type { HomeCategory } from '@/module/home/lib/home-catalog';
 import { View } from 'react-native';
 
@@ -8,13 +6,12 @@ const COLS = 4;
 
 type CategorySubcategoryGridProps = {
   subcategories: HomeCategory[];
-  activeChildSlug: string | undefined;
   onSelectChild: (child: HomeCategory) => void;
 };
 
+/** Plain grid of subcategory images, shown when a parent category is opened. */
 export function CategorySubcategoryGrid({
   subcategories,
-  activeChildSlug,
   onSelectChild,
 }: CategorySubcategoryGridProps) {
   if (subcategories.length === 0) return null;
@@ -25,25 +22,16 @@ export function CategorySubcategoryGrid({
   }
 
   return (
-    <View className="gap-3 px-5">
-      <Text className="text-foreground text-lg font-semibold">Subcategories</Text>
+    <View className="gap-4 px-5">
       {rows.map((row, rowIndex) => (
         <View key={`sub-row-${rowIndex}`} className="flex-row gap-2">
-          {row.map((category) => {
-            const highlighted = activeChildSlug === category.slug;
-            return (
-              <View
-                key={category.id}
-                className="min-w-0 flex-1 rounded-2xl"
-                style={
-                  highlighted
-                    ? { borderWidth: 2, borderColor: BRAND_PRIMARY_HEX }
-                    : { borderWidth: 2, borderColor: 'transparent' }
-                }>
-                <HomeCategoryTile category={category} onPress={() => onSelectChild(category)} />
-              </View>
-            );
-          })}
+          {row.map((category) => (
+            // flex-row so the tile's own `flex-1` stretches it across the cell. In a column
+            // cell, `flex-1` gives the tile a zero height and the next row draws over it.
+            <View key={category.id} className="min-w-0 flex-1 flex-row">
+              <HomeCategoryTile category={category} onPress={() => onSelectChild(category)} />
+            </View>
+          ))}
           {row.length < COLS
             ? Array.from({ length: COLS - row.length }).map((_, i) => (
                 <View key={`pad-${rowIndex}-${i}`} className="min-w-0 flex-1" />
