@@ -9,7 +9,7 @@ import { Text } from '@/components/ui/text';
 import { INSTANT_TAB_HEX } from '@/lib/theme';
 import { cn } from '@/lib/utils';
 import { useLocationStore } from '@/store/location.store';
-import { CalendarDays, CircleCheck, Zap } from 'lucide-react-native';
+import { CalendarDays, CircleAlert, CircleCheck, MapPin, Zap } from 'lucide-react-native';
 import { useRef, useState } from 'react';
 import { Keyboard, View } from 'react-native';
 import { ProductInstantDetails } from './ProductInstantDetails';
@@ -27,13 +27,26 @@ type ProductDetailDeliverySectionProps = {
 const ETA_FALLBACK = 15;
 const PIN_LENGTH = 6;
 
-type PinLookup = { deliverable?: boolean; city?: { id?: string; name?: string } };
+type PinLookup = {
+  deliverable?: boolean;
+  reason?: string;
+  /** "Patna, Bihar" — where Ola Maps puts this pincode. */
+  area?: string | null;
+  city?: { id?: string; name?: string } | null;
+};
+
+type PinResult =
+  | { tone: 'ok'; text: string }
+  | { tone: 'error'; text: string }
+  /** Pincode is in another city we serve: offer to switch. */
+  | { tone: 'switch'; text: string; city: { id: string; name: string } };
 
 /**
- * Delivery pincode + green Check button. For now every valid 6-digit pincode gets the
- * "we deliver" message. If the lookup confirms the pincode is served in the city the user is
- * already browsing, it is also saved so prices and availability follow it; otherwise the saved
- * location is left alone (checkout still validates the delivery PIN).
+ * Delivery pincode + Check. The server asks Ola Maps which city the pincode is in and
+ * matches it to an admin city:
+ * - same city as the one being browsed → "we deliver", pincode saved;
+ * - another city we serve → "800002 is in Patna" + Switch button;
+ * - city not served / unknown pincode → "we don't deliver there yet".
  */
 function DeliveryPincodeField() {
   const city = useLocationStore((s) => s.city);
@@ -42,7 +55,8 @@ function DeliveryPincodeField() {
 
   const [pin, setPin] = useState(() => (storedPin ?? '').replace(/\D/g, '').slice(0, PIN_LENGTH));
   const [checking, setChecking] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
+  const [message, setMessage] = useState<PinResult | null>(null);
+  const [switching, setSwitching] = useState(false);
   /** Bumped on every edit/check so a lookup that finishes late is ignored. */
   const requestRef = useRef(0);
 
@@ -60,20 +74,45 @@ function DeliveryPincodeField() {
     setChecking(true);
     setMessage(null);
 
-    let text = `Great news, we deliver to ${pin}`;
+    let result: PinResult;
     try {
       const data = (await resolvePincode(pin, { cityId: city?.id })) as PinLookup | null;
       if (requestId !== requestRef.current) return; // edited while checking
-      if (city && data?.deliverable && data.city?.id === city.id) {
-        await setLocation({ city, pincode: { code: pin }, source: 'pincode' });
-        text = `Great news, we deliver to ${pin}, ${city.name}`;
+      const where = data?.area ? ` (${data.area})` : '';
+      const realCity =
+        data?.city?.id && data.city.name ? { id: data.city.id, name: data.city.name } : null;
+
+      if (data?.deliverable && realCity) {
+        await setLocation({ city: realCity, pincode: { code: pin }, source: 'pincode' });
+        result = { tone: 'ok', text: `Great news, we deliver to ${pin}, ${realCity.name}` };
+      } else if (data?.reason === 'pincode_city_mismatch' && realCity) {
+        result = {
+          tone: 'switch',
+          text: `${pin} is in ${realCity.name}. We deliver there — switch to ${realCity.name} to book.`,
+          city: realCity,
+        };
+      } else if (data?.reason === 'unknown_pin') {
+        result = { tone: 'error', text: `We couldn't find pincode ${pin}. Please check it.` };
+      } else {
+        result = { tone: 'error', text: `Sorry, we don't deliver to ${pin}${where} yet.` };
       }
     } catch {
-      // Lookup unavailable: keep the friendly message and leave the saved location unchanged.
+      result = { tone: 'error', text: "Couldn't check this pincode. Please try again." };
     }
     if (requestId !== requestRef.current) return;
     setChecking(false);
-    setMessage(text);
+    setMessage(result);
+  }
+
+  async function switchCity(target: { id: string; name: string }) {
+    setSwitching(true);
+    try {
+      // Prices and availability on this page reload for the new city.
+      await setLocation({ city: target, pincode: { code: pin }, source: 'pincode' });
+      setMessage({ tone: 'ok', text: `Great news, we deliver to ${pin}, ${target.name}` });
+    } finally {
+      setSwitching(false);
+    }
   }
 
   const ready = pin.length === PIN_LENGTH;
@@ -113,12 +152,41 @@ function DeliveryPincodeField() {
         </Button>
       </View>
       {message ? (
-        <View
-          className="flex-row items-center gap-1.5"
-          accessibilityLiveRegion="polite"
-          accessibilityLabel={message}>
-          <Icon as={CircleCheck} className="size-4 text-primary" />
-          <Text className="text-primary min-w-0 flex-1 text-sm font-medium">{message}</Text>
+        <View className="gap-2" accessibilityLiveRegion="polite" accessibilityLabel={message.text}>
+          <View className="flex-row items-start gap-1.5">
+            <Icon
+              as={message.tone === 'ok' ? CircleCheck : message.tone === 'switch' ? MapPin : CircleAlert}
+              className={cn(
+                'mt-0.5 size-4',
+                message.tone === 'ok'
+                  ? 'text-primary'
+                  : message.tone === 'switch'
+                    ? 'text-foreground'
+                    : 'text-destructive',
+              )}
+            />
+            <Text
+              className={cn(
+                'min-w-0 flex-1 text-sm font-medium',
+                message.tone === 'ok'
+                  ? 'text-primary'
+                  : message.tone === 'switch'
+                    ? 'text-foreground'
+                    : 'text-destructive',
+              )}>
+              {message.text}
+            </Text>
+          </View>
+          {message.tone === 'switch' ? (
+            <Button
+              variant="secondary"
+              size="sm"
+              className="self-start"
+              loading={switching}
+              onPress={() => void switchCity(message.city)}>
+              <Text>Switch to {message.city.name}</Text>
+            </Button>
+          ) : null}
         </View>
       ) : null}
     </View>

@@ -6,6 +6,14 @@ import { isUniqueViolation } from "@/modules/geo/pg-error.js";
 import type { IPincodeRepository } from "@/modules/geo/pincodes/pincode.repository.js";
 import { normalizePincode } from "@/modules/geo/pincodes/pincode.js";
 import type { Pincode } from "@/modules/geo/pincodes/pincode.schema.js";
+import { matchPincodeCity } from "@/modules/geo/pincodes/pincode-city-match.js";
+import type { PincodePlace } from "@/modules/maps/maps.types.js";
+import { logger } from "@/utils/logger.js";
+
+/** Anything that can say where a pincode is (Ola Maps in production). */
+export type PincodePlaceSource = {
+    geocodePincode(pincode: string): Promise<PincodePlace | null>;
+};
 
 export type PincodeLookupPin = {
     id: string;
@@ -18,14 +26,31 @@ export type PincodeLookupReason =
     | "unknown_pin"
     | "city_inactive"
     | "pincode_not_serviceable"
-    | "pincode_city_mismatch";
+    | "pincode_city_mismatch"
+    /** Ola found the pincode, but its city isn't an active admin city. */
+    | "city_not_served"
+    /** Ola unreachable and no city to fall back to. */
+    | "lookup_unavailable";
 
 export type PincodeLookupResult = {
     pincode: PincodeLookupPin;
     city: PublicCity | null;
     deliverable: boolean;
     reason?: PincodeLookupReason;
+    /** Where the pincode is, per Ola, e.g. "Patna, Bihar" (for messages). */
+    area?: string | null;
 };
+
+const PLACE_CACHE_MAX = 5000;
+
+function placeLabel(place: PincodePlace): string | null {
+    const parts = [place.city ?? place.district, place.state].filter(Boolean);
+    return parts.length ? parts.join(", ") : null;
+}
+
+function lookupPin(code: string, place: PincodePlace | null): NonNullable<PincodeLookupPin> {
+    return { id: "", code, locality: place?.city ?? place?.district ?? null, isServiceable: true };
+}
 
 export type ResolvedPincode = {
     pincode: {
@@ -77,93 +102,98 @@ export interface IPincodeService {
     patch(id: string, input: PatchPincodeInput): Promise<Pincode>;
 }
 
-function toLookupPin(row: {
-    pincode: Pincode;
-}): NonNullable<PincodeLookupPin> {
-    return {
-        id: row.pincode.id,
-        code: row.pincode.code,
-        locality: row.pincode.locality,
-        isServiceable: row.pincode.isServiceable,
-    };
-}
-
 export class PincodeService implements IPincodeService {
     constructor(
+        /** Admin pincode list — only for the admin screens now, not for delivery checks. */
         private readonly pincodes: IPincodeRepository,
         private readonly cities: ICityRepository,
+        private readonly places: PincodePlaceSource,
     ) {}
 
+    /** Ola result per pincode (pincode → city never changes). `null` = Ola doesn't know it. */
+    private readonly placeCache = new Map<string, PincodePlace | null>();
+
+    private async placeFor(code: string): Promise<PincodePlace | null> {
+        if (this.placeCache.has(code)) return this.placeCache.get(code) ?? null;
+        const place = await this.places.geocodePincode(code);
+        if (this.placeCache.size >= PLACE_CACHE_MAX) {
+            // Drop the oldest entry (Map keeps insertion order).
+            const oldest = this.placeCache.keys().next().value;
+            if (oldest !== undefined) this.placeCache.delete(oldest);
+        }
+        this.placeCache.set(code, place);
+        return place;
+    }
+
+    /**
+     * Delivery check, no admin pincode list:
+     * 1. Ola Maps tells us the pincode's city / district / state.
+     * 2. That is matched to an active admin city (name or alias + same state).
+     * 3. Matched → deliverable in that city. With `cityId`, the pincode must be in that city.
+     */
     async lookup(pincodeRaw: string, cityId?: string): Promise<PincodeLookupResult> {
         const code = normalizePincode(pincodeRaw);
-        const row = await this.pincodes.findByCodeWithCity(code);
 
+        let selectedCity: PublicCity | null = null;
         if (cityId) {
             const cityRecord = await this.cities.findById(cityId);
             if (!cityRecord || !cityRecord.isActive) {
                 return {
-                    pincode: row ? toLookupPin(row) : null,
+                    pincode: null,
                     city: cityRecord ? publicCity(cityRecord) : null,
                     deliverable: false,
                     reason: "city_inactive",
                 };
             }
-            const city = publicCity(cityRecord);
-            if (!row) {
-                return { pincode: null, city, deliverable: true };
+            selectedCity = publicCity(cityRecord);
+        }
+
+        let place: PincodePlace | null;
+        try {
+            place = await this.placeFor(code);
+        } catch (err) {
+            logger.warn({ err, pincode: code }, "ola pincode lookup failed");
+            // Ola down: don't block bookings in the city the customer already chose.
+            if (selectedCity) {
+                return { pincode: lookupPin(code, null), city: selectedCity, deliverable: true };
             }
-            if (row.pincode.cityId !== cityId) {
-                return {
-                    pincode: toLookupPin(row),
-                    city,
-                    deliverable: false,
-                    reason: "pincode_city_mismatch",
-                };
-            }
-            if (!row.pincode.isServiceable) {
-                return {
-                    pincode: toLookupPin(row),
-                    city,
-                    deliverable: false,
-                    reason: "pincode_not_serviceable",
-                };
-            }
+            return { pincode: null, city: null, deliverable: false, reason: "lookup_unavailable" };
+        }
+
+        const area = place ? placeLabel(place) : null;
+        if (!place) {
             return {
-                pincode: toLookupPin(row),
-                city,
-                deliverable: true,
+                pincode: null,
+                city: selectedCity,
+                deliverable: false,
+                reason: "unknown_pin",
+                area,
             };
         }
 
-        if (!row) {
+        const matched = matchPincodeCity(place, await this.cities.listActive());
+        if (!matched) {
             return {
-                pincode: null,
-                city: null,
+                pincode: lookupPin(code, place),
+                city: selectedCity,
                 deliverable: false,
-                reason: "unknown_pin",
+                reason: "city_not_served",
+                area,
             };
         }
-        if (!row.city.isActive) {
+
+        const city = publicCity(matched);
+        if (selectedCity && matched.id !== selectedCity.id) {
             return {
-                pincode: toLookupPin(row),
-                city: publicCity(row.city),
+                pincode: lookupPin(code, place),
+                // The city this pincode really belongs to (so apps can offer to switch).
+                city,
                 deliverable: false,
-                reason: "city_inactive",
+                reason: "pincode_city_mismatch",
+                area,
             };
         }
-        if (!row.pincode.isServiceable) {
-            return {
-                pincode: toLookupPin(row),
-                city: publicCity(row.city),
-                deliverable: false,
-                reason: "pincode_not_serviceable",
-            };
-        }
-        return {
-            pincode: toLookupPin(row),
-            city: publicCity(row.city),
-            deliverable: true,
-        };
+        return { pincode: lookupPin(code, place), city, deliverable: true, area };
     }
 
     async resolve(pincodeRaw: string, cityId?: string): Promise<ResolvedPincode> {
@@ -171,10 +201,12 @@ export class PincodeService implements IPincodeService {
         if (!result.deliverable || !result.city) {
             const message =
                 result.reason === "pincode_city_mismatch"
-                    ? "pincode does not match city"
+                    ? `pincode is in ${result.city?.name ?? "another city"}, not the selected city`
                     : result.reason === "city_inactive"
                       ? "city not found"
-                      : "pincode not serviceable";
+                      : result.reason === "city_not_served"
+                        ? `we don't deliver to ${result.area ?? "this pincode"} yet`
+                        : "pincode not serviceable";
             throw ApiError.badRequest(message);
         }
         return {

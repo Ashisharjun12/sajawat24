@@ -2,6 +2,7 @@ import type {
     LatLng,
     MapsProvider,
     PlaceDetails,
+    PincodePlace,
     PlacePrediction,
     ReverseGeocodeResult,
     RouteResult,
@@ -34,6 +35,10 @@ export class MapsService {
 
     reverseGeocode(location: LatLng): Promise<ReverseGeocodeResult> {
         return resolveProvider().reverseGeocode(location);
+    }
+
+    geocodePincode(pincode: string): Promise<PincodePlace | null> {
+        return resolveProvider().geocodePincode(pincode);
     }
 
     getWebSdkConfig(): Promise<OlaWebSdkConfig> {

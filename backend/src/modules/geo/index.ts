@@ -10,6 +10,7 @@ import { createPincodeAdminRouter, createPincodePublicRouter } from "@/modules/g
 import { pincodes } from "@/modules/geo/pincodes/pincode.schema.js";
 import { PincodeService } from "@/modules/geo/pincodes/pincode.service.js";
 import { ApiError } from "@/shared/errors/apiError.js";
+import { getMapsService } from "@/modules/maps/maps.service.js";
 import { publicCity, type PublicCity } from "@/modules/geo/cities/city.public.js";
 import type {
     DeliveryLocationInput,
@@ -21,7 +22,7 @@ const cityRepository = new CityRepository();
 const pincodeRepository = new PincodeRepository();
 
 const cityService = new CityService(cityRepository);
-const pincodeService = new PincodeService(pincodeRepository, cityRepository);
+const pincodeService = new PincodeService(pincodeRepository, cityRepository, getMapsService());
 
 const cityController = new CityController(cityService);
 const pincodeController = new PincodeController(pincodeService);

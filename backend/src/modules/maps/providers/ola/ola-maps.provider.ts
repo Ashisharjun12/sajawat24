@@ -5,6 +5,7 @@ import { ApiError } from "@/shared/errors/apiError.js";
 import type {
     LatLng,
     MapsAutocompleteOptions,
+    PincodePlace,
     MapsProvider,
     PlaceDetails,
     PlacePrediction,
@@ -417,6 +418,45 @@ export class OlaMapsProvider implements MapsProvider {
         );
         return parseReverseGeocodePayload(data);
     }
+
+    /**
+     * Ola forward geocode for "<pin>, India". Ola returns a few nearby results (other pins
+     * too), so only a result whose postal_code is exactly this pin is trusted.
+     */
+    async geocodePincode(pincode: string): Promise<PincodePlace | null> {
+        const qs = new URLSearchParams({ address: `${pincode}, India`, language: "English" });
+        const data = await olaRequest<unknown>(`${OLA_BASE}/places/v1/geocode?${qs.toString()}`);
+        const root = data as Record<string, unknown>;
+        const results = root.geocodingResults ?? root.results;
+        if (!Array.isArray(results)) return null;
+
+        for (const item of results) {
+            if (!item || typeof item !== "object") continue;
+            const components = (item as Record<string, unknown>).address_components;
+            if (extractIndiaPincode(components) !== pincode) continue;
+            return {
+                pincode,
+                city: readComponent(components, "locality"),
+                district: readComponent(components, "administrative_area_level_3"),
+                state: readComponent(components, "administrative_area_level_1"),
+            };
+        }
+        return null;
+    }
+}
+
+/** long_name of the first address component with exactly this type. */
+function readComponent(components: unknown, type: string): string | null {
+    if (!Array.isArray(components)) return null;
+    for (const part of components) {
+        if (!part || typeof part !== "object") continue;
+        const row = part as Record<string, unknown>;
+        const types = Array.isArray(row.types) ? row.types.map((t) => String(t)) : [];
+        if (!types.includes(type)) continue;
+        const name = String(row.long_name ?? row.short_name ?? "").trim();
+        if (name) return name;
+    }
+    return null;
 }
 
 export { getOlaMapStyleUrl } from "@/modules/maps/providers/ola/ola-maps.sdk-config.js";
