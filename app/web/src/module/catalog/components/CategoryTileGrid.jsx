@@ -12,15 +12,18 @@ export const HOME_CATEGORY_DESKTOP_VISIBLE = 5;
 export const CATEGORY_TILE_INITIAL_COUNT = CATEGORY_TILE_COLS * 2;
 export const CATEGORY_TILE_EXPAND_STEP = 20;
 
-/** Home row: 3 tiles on mobile, 5 on md+ (gap-2.5 → n−1 gaps at 0.625rem). */
+/**
+ * Home row: tall cards (Swiggy-style). Mobile ≈ 2 per view with a peek of the next card
+ * (2.15 cards, gap-3); md+ 5 per row (gap-4 → four gaps = 4rem).
+ */
 export const homeCategoryTileWidthClass = cn(
   "min-w-0 shrink-0 snap-start",
-  "flex-[0_0_calc((100%-1.25rem)/3)] max-w-[calc((100%-1.25rem)/3)]",
-  "md:flex-[0_0_calc((100%-2.5rem)/5)] md:max-w-[calc((100%-2.5rem)/5)]",
+  "flex-[0_0_calc((100%-1.5rem)/2.15)] max-w-[calc((100%-1.5rem)/2.15)]",
+  "md:flex-[0_0_calc((100%-4rem)/5)] md:max-w-[calc((100%-4rem)/5)]",
 );
 
 export const categoryRowClassHome =
-  "flex w-full min-w-0 gap-2.5 overflow-x-auto overscroll-x-contain pb-2.5 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] sm:snap-none [&::-webkit-scrollbar]:hidden";
+  "flex w-full min-w-0 gap-3 overflow-x-auto overscroll-x-contain px-0.5 pt-0.5 pb-3 snap-x snap-mandatory md:gap-4 [-ms-overflow-style:none] [scrollbar-width:none] sm:snap-none [&::-webkit-scrollbar]:hidden";
 
 /** Category PLP top rail: 5 tiles per viewport (gap-1.5 → four gaps = 1rem). */
 export const categoryPlpTopRailTileClass = cn(
@@ -53,8 +56,20 @@ export function CategoryTileGridSkeleton({
 }) {
   const skeletonImageClass =
     "aspect-square w-full rounded-2xl bg-muted/30";
-  const isHomeLayout = layout === "home" || layout === "plp-top";
   const wrapClass = wrapClassForLayout(layout);
+
+  if (layout === "home") {
+    return (
+      <div className={rowClassForLayout(layout)}>
+        {Array.from({ length: count }).map((_, index) => (
+          <Skeleton
+            key={index}
+            className={cn("aspect-[3/4] rounded-[var(--r-card)] bg-muted/40", wrapClass)}
+          />
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className={rowClassForLayout(layout)}>
@@ -125,6 +140,7 @@ export function CategoryTileGrid({
             navigation={navigation}
             onDrill={onDrill}
             className={tileWrapClass}
+            variant={layout === "home" ? "card" : "tile"}
           />
         ))}
         {isScrollRowLayout && scrollViewAll?.to ? (

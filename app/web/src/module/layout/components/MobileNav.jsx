@@ -11,17 +11,23 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { HomeCategoryTile } from "@/module/home/components/HomeCategoryTile";
+import { MobileNavCategories } from "@/module/layout/components/MobileNavCategories";
 import { LocationPicker } from "@/module/layout/components/LocationPicker";
 import { useAuthStore } from "@/store/auth.store";
 import { useCatalogStore } from "@/store/catalog.store";
 
 export function MobileNav({ triggerClassName }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpenState] = useState(false);
+  const [openCount, setOpenCount] = useState(0);
   const user = useAuthStore((s) => s.user);
   const setLoginOpen = useAuthStore((s) => s.setLoginOpen);
   const categories = useCatalogStore((s) => s.categories);
   const topLevel = listTopLevelCategories(categories);
+
+  function setOpen(next) {
+    if (next && !open) setOpenCount((n) => n + 1);
+    setOpenState(next);
+  }
 
   function close() {
     setOpen(false);
@@ -59,24 +65,8 @@ export function MobileNav({ triggerClassName }) {
           <LocationPicker variant="mobileToolbar" className="h-10 w-full max-w-full" />
         </div>
 
-        <div
-          className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-4"
-          data-lenis-prevent
-        >
-          <p className="mb-3 px-1 text-xs font-medium text-muted-foreground">Categories</p>
-          <nav className="grid grid-cols-3 gap-x-2 gap-y-4">
-            {topLevel.map((category) => (
-              <HomeCategoryTile
-                key={category.id}
-                category={category}
-                navigation="link"
-                compact
-                squareImage
-                onNavigate={close}
-              />
-            ))}
-          </nav>
-        </div>
+        {/* New key per open → menu always starts on the top-level list. */}
+        <MobileNavCategories key={openCount} categories={topLevel} onNavigate={close} />
 
         <div
           className="shrink-0 border-t border-border bg-background px-4 pt-3"
