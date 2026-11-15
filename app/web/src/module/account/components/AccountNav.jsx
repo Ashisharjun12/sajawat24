@@ -1,4 +1,5 @@
-import { NavLink } from "react-router-dom";
+import { useEffect, useRef } from "react";
+import { NavLink, useLocation } from "react-router-dom";
 import {
   BellIcon,
   HeartIcon,
@@ -11,7 +12,6 @@ import {
 import { cn } from "@/lib/utils";
 
 const PRIMARY_NAV = [
-  { label: "Personal Info", to: "/account", icon: UserRoundIcon, end: true },
   { label: "My Orders", to: "/account/bookings", icon: PackageIcon, end: false },
   { label: "Wishlist", to: "/wishlist", icon: HeartIcon, end: false },
   { label: "Addresses", to: "/account/addresses", icon: MapPinIcon, end: false },
@@ -26,6 +26,8 @@ const PRIMARY_NAV = [
 const SECONDARY_NAV = [
   { label: "Notifications", to: "/account/notifications", icon: BellIcon, end: false },
   { label: "Help", to: "/account/help", icon: LifeBuoyIcon, end: false },
+  // Profile page (name, email, phone, sign-in). Kept last in both the sidebar and mobile strip.
+  { label: "Account", to: "/account", icon: UserRoundIcon, end: true },
 ];
 
 function NavItem({ item, mobile }) {
@@ -51,9 +53,22 @@ function NavItem({ item, mobile }) {
 }
 
 export function AccountNav({ variant = "sidebar" }) {
+  const mobileNavRef = useRef(null);
+  const { pathname } = useLocation();
+
+  // "Account" is the last tab, so on a phone it starts off-screen. Scroll the active tab
+  // into view so the strip always shows where you are.
+  useEffect(() => {
+    if (variant !== "mobile") return;
+    const active = mobileNavRef.current?.querySelector('[aria-current="page"]');
+    active?.scrollIntoView({ block: "nearest", inline: "nearest" });
+  }, [variant, pathname]);
+
   if (variant === "mobile") {
     return (
-      <nav className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <nav
+        ref={mobileNavRef}
+        className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {[...PRIMARY_NAV, ...SECONDARY_NAV].map((item) => (
           <NavItem key={item.to} item={item} mobile />
         ))}

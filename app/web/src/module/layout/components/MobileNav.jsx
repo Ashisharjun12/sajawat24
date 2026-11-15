@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/sheet";
 import { HomeCategoryTile } from "@/module/home/components/HomeCategoryTile";
 import { LocationPicker } from "@/module/layout/components/LocationPicker";
-import { UserMenu } from "@/module/layout/components/UserMenu";
 import { useAuthStore } from "@/store/auth.store";
 import { useCatalogStore } from "@/store/catalog.store";
 
@@ -83,10 +82,18 @@ export function MobileNav({ triggerClassName }) {
           className="shrink-0 border-t border-border bg-background px-4 pt-3"
           style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}
         >
+          {/* Sign out lives at the end of the Account page; the menu only links there. */}
           {user ? (
-            <UserMenu variant="sheet" onNavigate={close} />
+            <Button
+              type="button"
+              nativeButton={false}
+              className="mb-3 h-11 w-full rounded-[var(--r-btn)] text-base font-semibold"
+              render={<Link to="/account" onClick={close} />}
+            >
+              Manage profile
+            </Button>
           ) : (
-            <div className="flex flex-col gap-2">
+            <div className="mb-3 flex flex-col gap-2">
               <Button
                 type="button"
                 className="h-11 w-full rounded-[var(--r-btn)] text-base font-semibold"
@@ -107,7 +114,7 @@ export function MobileNav({ triggerClassName }) {
           <Link
             to="/decorations"
             onClick={close}
-            className="mt-3 block text-center text-sm font-medium text-muted-foreground hover:text-foreground"
+            className="block text-center text-sm font-medium text-muted-foreground hover:text-foreground"
           >
             Browse all decorations
           </Link>

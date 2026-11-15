@@ -21,9 +21,9 @@ import { useAuthStore } from "@/store/auth.store";
 import { cn } from "@/lib/utils";
 
 const MENU_LINKS = [
-  { label: "Personal Info", href: "/account", icon: UserRoundIcon },
   { label: "My Orders", href: "/account/bookings", icon: PackageIcon },
   { label: "Addresses", href: "/account/addresses", icon: MapPinIcon },
+  { label: "Account", href: "/account", icon: UserRoundIcon },
 ];
 
 function initials(name = "") {
@@ -183,29 +183,6 @@ export function UserMenu({ className, variant = "header", onNavigate }) {
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
-    );
-  }
-
-  if (variant === "sheet") {
-    return (
-      <div className={cn("flex flex-col gap-2", className)}>
-        <Button
-          type="button"
-          nativeButton={false}
-          className="h-11 w-full rounded-[var(--r-btn)] text-base font-semibold"
-          render={<Link to="/account" onClick={onNavigate} />}
-        >
-          Manage profile
-        </Button>
-        <Button
-          type="button"
-          variant="destructive"
-          className="h-11 w-full rounded-[var(--r-btn)] text-base font-semibold"
-          onClick={onLogout}
-        >
-          Sign out
-        </Button>
-      </div>
     );
   }
 

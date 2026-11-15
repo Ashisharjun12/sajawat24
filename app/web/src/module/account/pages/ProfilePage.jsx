@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
-import { PhoneIcon } from "lucide-react";
+import { LogOutIcon, PhoneIcon } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { getApiError } from "@/api/api";
-import { linkGoogle, linkPhone, requestOtp } from "@/api/auth.api";
+import { linkGoogle, linkPhone, logout, requestOtp } from "@/api/auth.api";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -86,6 +87,9 @@ function EditLinkButton({ onClick, children = "Edit" }) {
 export function ProfilePage() {
   const user = useAuthStore((s) => s.user);
   const updateUser = useAuthStore((s) => s.updateUser);
+  const clearSession = useAuthStore((s) => s.clear);
+  const navigate = useNavigate();
+  const [signingOut, setSigningOut] = useState(false);
 
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
@@ -169,6 +173,18 @@ export function ProfilePage() {
   const hasPhone = Boolean(user.phone);
   const hasGoogle = Boolean(user.linkedGoogle);
 
+  async function onSignOut() {
+    if (signingOut) return;
+    setSigningOut(true);
+    try {
+      await logout();
+    } catch {
+      // Still clear the local session if the server call fails.
+    }
+    clearSession();
+    navigate("/", { replace: true });
+  }
+
   function openPhoneDialog() {
     setPhoneStep("phone");
     setPhone("");
@@ -178,7 +194,7 @@ export function ProfilePage() {
 
   return (
     <div className="w-full max-w-3xl">
-      <AccountPageTitle>Personal Info</AccountPageTitle>
+      <AccountPageTitle>Account</AccountPageTitle>
 
       <div className="mt-8 flex flex-wrap items-center gap-4">
         <Avatar className="size-20">
@@ -218,6 +234,17 @@ export function ProfilePage() {
           }
         />
       </div>
+
+      <Button
+        type="button"
+        variant="destructive"
+        className="mt-8 h-11 w-full text-base font-semibold sm:w-auto sm:px-8"
+        disabled={signingOut}
+        onClick={onSignOut}
+      >
+        {signingOut ? <Spinner className="size-4" /> : <LogOutIcon className="size-4" />}
+        Sign out
+      </Button>
 
       <Dialog open={phoneDialogOpen} onOpenChange={setPhoneDialogOpen}>
         <DialogContent className="sm:max-w-md">
