@@ -2,7 +2,7 @@ import { ScalePressable } from '@/components/shell';
 import { Text } from '@/components/ui/text';
 import { openCmsLink } from '@/lib/open-cms-link';
 import { resolveViewAllCategoryHref } from '@/module/catalog/lib/category-nav';
-import { HomeCategoryTile } from '@/module/home/components/HomeCategoryTile';
+import { HomeCategoryCard } from '@/module/home/components/HomeCategoryCard';
 import { HomeSectionHeading } from '@/module/home/components/HomeSectionHeading';
 import {
   HOME_CATEGORY_PREVIEW_COUNT,
@@ -10,9 +10,10 @@ import {
 } from '@/module/home/lib/home-catalog';
 import { type Href, router } from 'expo-router';
 import { useMemo } from 'react';
-import { ScrollView, View } from 'react-native';
+import { ScrollView, useWindowDimensions, View } from 'react-native';
 
-const TILE_WIDTH = 88;
+const CARD_GAP = 12;
+const CARDS_PER_VIEW = 2.15;
 /** `home-layout.service` default when a category row has no custom "View all" link. */
 const DEFAULT_CMS_VIEW_ALL_HREF = '/decorations';
 
@@ -45,6 +46,10 @@ export function HomeCategoryHorizontalSection({
   showViewAll = true,
   viewAllHref,
 }: HomeCategoryHorizontalSectionProps) {
+  const { width: screenWidth } = useWindowDimensions();
+  // ~2 cards per screen with a peek of the next (web mobile parity).
+  const cardWidth = Math.floor((screenWidth - 32 - CARD_GAP) / CARDS_PER_VIEW);
+
   if (!loading && categories.length === 0) return null;
 
   const cap = Math.max(1, maxVisible);
@@ -102,14 +107,17 @@ export function HomeCategoryHorizontalSection({
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerClassName="gap-2 px-4">
+        decelerationRate="fast"
+        snapToInterval={cardWidth + CARD_GAP}
+        snapToAlignment="start"
+        contentContainerStyle={{ gap: CARD_GAP, paddingHorizontal: 16 }}>
         {visible.map((category) => (
-          <View key={category.id} style={{ width: TILE_WIDTH }}>
-            <HomeCategoryTile
-              category={category}
-              onPress={() => router.push(categoryPath(category))}
-            />
-          </View>
+          <HomeCategoryCard
+            key={category.id}
+            category={category}
+            width={cardWidth}
+            onPress={() => router.push(categoryPath(category))}
+          />
         ))}
       </ScrollView>
     </View>

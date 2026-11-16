@@ -1,6 +1,14 @@
 import { ScalePressable } from '@/components/shell';
 import { Text } from '@/components/ui/text';
 import type { PublicOrderSummary } from '@/api/orders.api';
+import Animated, {
+  cancelAnimation,
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from 'react-native-reanimated';
 import { lightImpact } from '@/lib/light-haptic';
 import { homeActiveOrderTitle } from '@/module/account/lib/active-order';
 import { useActiveOrderForHome } from '@/module/account/hooks/use-active-order-for-home';
@@ -19,8 +27,8 @@ import {
   View,
 } from 'react-native';
 
-/** Reserve scroll space so feed content clears the docked bar (px). */
-export const HOME_ACTIVE_ORDER_BAR_HEIGHT = 72;
+/** Reserve scroll space so feed content clears the floating card (card ~74 + 8 bottom gap). */
+export const HOME_ACTIVE_ORDER_BAR_HEIGHT = 84;
 
 /** Time each booking stays on screen before the bar slides to the next one. */
 const AUTOPLAY_MS = 4000;
@@ -34,6 +42,40 @@ function openOrder(orderId: string) {
   router.push(`/(app)/profile/orders/${orderId}` as Href);
 }
 
+function statusSubtitle(order: PublicOrderSummary): string {
+  const name = order.primaryName?.trim() || 'your booking';
+  switch (order.status) {
+    case 'ON_SITE':
+      return `Setting up ${name}`;
+    case 'EN_ROUTE':
+      return `Heading to you · ${name}`;
+    case 'ASSIGNED':
+      return `Getting ready · ${name}`;
+    default:
+      return name;
+  }
+}
+
+/** Soft pulsing ring behind a solid dot — the "live" signal (Swiggy/Zomato style). */
+function LiveDot({ arrived }: { arrived: boolean }) {
+  const pulse = useSharedValue(0);
+  useEffect(() => {
+    pulse.value = withRepeat(withTiming(1, { duration: 1400, easing: Easing.out(Easing.ease) }), -1, false);
+    return () => cancelAnimation(pulse);
+  }, [pulse]);
+  const ringStyle = useAnimatedStyle(() => ({
+    opacity: 0.55 * (1 - pulse.value),
+    transform: [{ scale: 1 + pulse.value * 1.6 }],
+  }));
+  const tone = arrived ? 'bg-success' : 'bg-primary';
+  return (
+    <View className="size-3.5 items-center justify-center rounded-full bg-surface">
+      <Animated.View className={`absolute size-2 rounded-full ${tone}`} style={ringStyle} />
+      <View className={`size-2 rounded-full ${tone}`} />
+    </View>
+  );
+}
+
 function ActiveOrderCard({
   order,
   width,
@@ -45,40 +87,58 @@ function ActiveOrderCard({
   position: number;
   total: number;
 }) {
+  const [thumbFailed, setThumbFailed] = useState(false);
   const title = homeActiveOrderTitle(order.status);
-  // With one booking, keep the original copy. With several, name the booking so the
-  // slides are distinguishable, plus "1 of 2" so customers know there are more.
-  const subtitle =
-    total > 1
-      ? `${order.primaryName || 'Your booking'} · ${position} of ${total}`
-      : 'Track live progress on your order';
+  const subtitle = statusSubtitle(order);
+  const arrived = order.status === 'ON_SITE';
+  const thumb = !thumbFailed ? order.primaryImageUrl?.trim() || null : null;
 
   return (
     <ScalePressable
       haptic
       onPress={() => openOrder(order.id)}
-      className="active:opacity-95"
+      pressScale={0.98}
       style={width ? { width } : undefined}
       accessibilityRole="button"
-      accessibilityLabel={`${title}. ${subtitle}. View details`}>
-      <View className="flex-row items-center gap-3 px-4 py-3">
-        <Image
-          source={ACTIVE_ORDER_TRUCK_ICON_URL}
-          style={{ width: 40, height: 40 }}
-          contentFit="contain"
-          accessibilityIgnoresInvertColors
-        />
-        <View className="min-w-0 flex-1">
-          <Text className="text-body font-medium" numberOfLines={1}>
-            {title}
-          </Text>
+      accessibilityLabel={`${title}. ${subtitle}.${total > 1 ? ` ${position} of ${total}.` : ''} Track order`}>
+      <View className="flex-row items-center gap-3 px-3 py-2.5">
+        {/* Booking photo with a live dot (truck icon when there's no photo). */}
+        <View>
+          <View className="size-12 items-center justify-center overflow-hidden rounded-xl bg-primary-tint">
+            {thumb ? (
+              <Image
+                source={{ uri: thumb }}
+                style={{ width: '100%', height: '100%' }}
+                contentFit="cover"
+                onError={() => setThumbFailed(true)}
+              />
+            ) : (
+              <Image
+                source={ACTIVE_ORDER_TRUCK_ICON_URL}
+                style={{ width: 34, height: 34 }}
+                contentFit="contain"
+                accessibilityIgnoresInvertColors
+              />
+            )}
+          </View>
+          <View className="absolute -right-1 -top-1">
+            <LiveDot arrived={arrived} />
+          </View>
+        </View>
+
+        <View className="min-w-0 flex-1 gap-0.5">
+          <View className="flex-row items-center gap-1.5 pr-6">
+            <Text className="shrink text-[15px] font-semibold text-foreground" numberOfLines={1}>
+              {title}
+            </Text>
+          </View>
           <Text className="text-muted-foreground text-caption" numberOfLines={1}>
             {subtitle}
           </Text>
         </View>
-        <View className="flex-row items-center gap-0.5">
-          <Text className="text-primary text-caption font-semibold">View details</Text>
-          <Icon as={ChevronRight} className="text-primary size-4" />
+
+        <View className="size-9 items-center justify-center rounded-full bg-primary">
+          <Icon as={ChevronRight} className="size-5 text-primary-foreground" />
         </View>
       </View>
     </ScalePressable>
@@ -152,8 +212,11 @@ export function HomeActiveOrderBar({ enabled = true }: Props) {
   );
 
   return (
+    // Floating card, inset from the edges, sitting just above the tab bar.
+    <View className="px-3 pb-2" pointerEvents="box-none">
     <View
-      className="overflow-hidden rounded-t-card border-t border-border bg-surface shadow-raised"
+      className="overflow-hidden rounded-2xl border border-border/70 bg-surface shadow-raised"
+      style={{ elevation: 10 }}
       onLayout={onLayout}>
       {sliding ? (
         width > 0 ? (
@@ -180,7 +243,7 @@ export function HomeActiveOrderBar({ enabled = true }: Props) {
       {sliding ? (
         <View
           pointerEvents="none"
-          className="absolute inset-x-0 bottom-1 flex-row justify-center gap-1">
+          className="absolute right-3 top-1.5 flex-row gap-1">
           {activeOrders.map((order, dotIndex) => {
             const active = dotIndex === index;
             return (
@@ -192,6 +255,7 @@ export function HomeActiveOrderBar({ enabled = true }: Props) {
           })}
         </View>
       ) : null}
+    </View>
     </View>
   );
 }
