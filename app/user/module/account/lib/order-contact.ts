@@ -3,7 +3,12 @@ import type { PublicAssignee, PublicOrder, PublicServiceContact } from '@/api/or
 export type OrderContactRow = {
   name: string;
   phone: string | null;
+  /** Full one-line description (role · shop), e.g. for accessibility labels. */
   subtitle: string;
+  /** Short role label shown above the name, e.g. "Your decorator". */
+  role: string;
+  /** Extra line under the name (shop name), or null. */
+  detail: string | null;
   callLabel: string;
 };
 
@@ -12,26 +17,30 @@ export type NormalizedOrderContacts = {
   vendorSupport: OrderContactRow | null;
 };
 
+function joinSubtitle(role: string, detail: string | null): string {
+  return detail ? `${role} · ${detail}` : role;
+}
+
 function normalizeContacts(input: {
   serviceContact?: PublicServiceContact | null;
   assignee?: PublicAssignee | null;
 }): NormalizedOrderContacts | null {
   const { serviceContact, assignee } = input;
-
   if (serviceContact?.kind === 'worker' && serviceContact.name) {
     const vendorPhone = serviceContact.vendorPhone?.trim() || null;
     const workerPhone = serviceContact.phone?.trim() || null;
     const showVendorSupport =
       vendorPhone &&
       (!workerPhone || vendorPhone.replace(/\D/g, '') !== workerPhone.replace(/\D/g, ''));
-
+    const shop = serviceContact.shopName?.trim() || null;
+    const role = 'Your decorator';
     return {
       primary: {
         name: serviceContact.name,
         phone: workerPhone,
-        subtitle: serviceContact.shopName
-          ? `Your decorator · ${serviceContact.shopName}`
-          : 'Your decorator',
+        subtitle: joinSubtitle(role, shop),
+        role,
+        detail: shop,
         callLabel: 'Call decorator',
       },
       vendorSupport: showVendorSupport
@@ -39,36 +48,40 @@ function normalizeContacts(input: {
             name: serviceContact.vendorName || serviceContact.shopName || 'Shop support',
             phone: vendorPhone,
             subtitle: 'Vendor support',
+            role: 'Vendor support',
+            detail: null,
             callLabel: 'Call vendor',
           }
         : null,
     };
   }
-
   if (serviceContact?.name) {
+    const role = serviceContact.kind === 'shop' ? 'Decoration partner' : 'Your decorator';
     return {
       primary: {
         name: serviceContact.name,
         phone: serviceContact.phone,
-        subtitle: serviceContact.kind === 'shop' ? 'Decoration partner' : 'Your decorator',
+        subtitle: role,
+        role,
+        detail: null,
         callLabel: 'Call',
       },
       vendorSupport: null,
     };
   }
-
   if (assignee) {
     return {
       primary: {
         name: assignee.name,
         phone: assignee.phone,
         subtitle: 'Your decorator',
+        role: 'Your decorator',
+        detail: null,
         callLabel: 'Call',
       },
       vendorSupport: null,
     };
   }
-
   return null;
 }
 

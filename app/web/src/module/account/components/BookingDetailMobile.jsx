@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronLeftIcon, ClockIcon, MapPinIcon, MessageCircleIcon, PhoneIcon } from "lucide-react";
+import { ChevronLeftIcon, ClockIcon, MapPinIcon, PhoneIcon } from "lucide-react";
 import {
   Drawer,
   DrawerContent,
@@ -13,7 +13,7 @@ import { BookingRefundSection } from "@/module/account/components/BookingRefundS
 import { BookingReviewCard } from "@/module/account/components/BookingReviewCard";
 import { InstantTripTrackingMap } from "@/module/account/components/InstantTripTrackingMap";
 import { isLiveTripOrder } from "@/module/account/lib/live-trip";
-import { normalizeContacts } from "@/module/account/lib/order-contacts";
+import { VendorContactCard } from "@/module/account/components/VendorContactCard";
 import {
   BOOKING_TIMELINE,
   bookingStatusLabel,
@@ -71,16 +71,6 @@ const PILL_TEXT_CLASS = {
 
 function orderTotalPaise(order) {
   return order.totalPaise ?? order.subtotalPaise;
-}
-
-function initials(name) {
-  return String(name ?? "")
-    .split(/\s+/)
-    .filter(Boolean)
-    .map((part) => part[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
 }
 
 function Section({ className, children }) {
@@ -158,59 +148,16 @@ function OrderTimeline({ order }) {
   );
 }
 
-function ContactRow({ name, subtitle, phone, chatHref }) {
-  return (
-    <div className="flex items-center gap-3">
-      <span
-        className="flex size-12 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground"
-        aria-hidden>
-        {initials(name)}
-      </span>
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-base font-semibold text-foreground">{name}</p>
-        <p className="line-clamp-2 text-sm text-muted-foreground">{subtitle}</p>
-      </div>
-      <div className="flex shrink-0 gap-2">
-        {chatHref ? (
-          <Link
-            to={chatHref}
-            aria-label={`Chat with ${name}`}
-            className="flex size-10 items-center justify-center rounded-full border border-border bg-background text-foreground transition-colors active:bg-muted">
-            <MessageCircleIcon className="size-5" />
-          </Link>
-        ) : null}
-        {phone ? (
-          <a
-            href={`tel:${phone}`}
-            aria-label={`Call ${name}`}
-            className="flex size-10 items-center justify-center rounded-full bg-primary text-primary-foreground transition-opacity active:opacity-80">
-            <PhoneIcon className="size-5" />
-          </a>
-        ) : null}
-      </div>
-    </div>
-  );
-}
-
+/** Same grey decorator card as desktop (`VendorContactCard`, user app `OrderContactCard` parity). */
 function OrderContactCard({ order, showContact, canChat }) {
   if (!showContact) return null;
-  const contacts = normalizeContacts({
-    serviceContact: order.serviceContact,
-    assignee: order.assignee,
-  });
-  if (!contacts) return null;
-
-  const chatHref = canChat ? `${BOOKINGS_HREF}/${order.id}/chat` : null;
-
   return (
-    <Section className="flex flex-col gap-4">
-      <ContactRow {...contacts.primary} chatHref={chatHref} />
-      {contacts.vendorSupport ? (
-        <div className="border-t border-border/60 pt-4">
-          <ContactRow {...contacts.vendorSupport} />
-        </div>
-      ) : null}
-    </Section>
+    <VendorContactCard
+      serviceContact={order.serviceContact}
+      assignee={order.assignee}
+      orderId={order.id}
+      showChat={canChat}
+    />
   );
 }
 
