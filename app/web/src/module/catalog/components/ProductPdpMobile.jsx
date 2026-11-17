@@ -20,7 +20,10 @@ import { formatPaise } from "@/lib/money";
 import { discountPercent } from "@/lib/product-price";
 import { sectionBadgeAppearance } from "@/lib/section-badge-color";
 import { cn } from "@/lib/utils";
-import { PDP_BOOK_SLOT_BUTTON_CLASS } from "@/module/catalog/lib/pdp-booking-styles";
+import {
+  PDP_BOOK_INSTANT_BUTTON_CLASS,
+  PDP_BOOK_SLOT_BUTTON_CLASS,
+} from "@/module/catalog/lib/pdp-booking-styles";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -648,7 +651,7 @@ export function PdpMobileBookingBar({ pricePaise, booking, isInstantBooking, onW
         variant={isInstantBooking ? "instant" : "cta"}
         className={cn(
           "h-12 min-w-0 flex-1 rounded-[var(--r-btn)] px-5 font-heading text-[15px] font-semibold",
-          !isInstantBooking && PDP_BOOK_SLOT_BUTTON_CLASS,
+          isInstantBooking ? PDP_BOOK_INSTANT_BUTTON_CLASS : PDP_BOOK_SLOT_BUTTON_CLASS,
         )}
         disabled={booking}
         onClick={onBookNow}

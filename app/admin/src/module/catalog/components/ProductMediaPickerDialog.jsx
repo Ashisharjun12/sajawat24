@@ -103,6 +103,10 @@ export function ProductMediaPickerDialog({
   resolveRootFolder = ensureProductsFolder,
   dialogTitle = "Select media",
   dialogDescription = "Upload to Media or pick existing files. New uploads go in the current folder (default Products).",
+  /** Backend ingest preset for image uploads (e.g. "icon" → PNG/SVG stored as a 192×192 transparent WebP). */
+  uploadPreset,
+  /** Overrides the file input `accept` (e.g. PNG/SVG only for icons). */
+  acceptOverride,
 }) {
   const fileInputRef = useRef(null)
   const attachedRef = useRef(attached)
@@ -114,11 +118,12 @@ export function ProductMediaPickerDialog({
 
   const lockAttached = max > 1
   const accept =
-    kinds.length === 1 && kinds[0] === "image"
+    acceptOverride ??
+    (kinds.length === 1 && kinds[0] === "image"
       ? "image/jpeg,image/png,image/webp,image/gif"
       : kinds.length === 1 && kinds[0] === "video"
         ? "video/mp4,video/webm"
-        : ACCEPT
+        : ACCEPT)
   const [path, setPath] = useState([])
   const [folders, setFolders] = useState([])
   const [items, setItems] = useState([])
@@ -307,7 +312,7 @@ export function ProductMediaPickerDialog({
                 )
               },
             })
-          : await ingestUpload(file, { folderId })
+          : await ingestUpload(file, { folderId, preset: uploadPreset })
         uploadedIds.push(uploaded.id)
         setSelected((prev) => (max === 1 ? { [uploaded.id]: uploaded } : { ...prev, [uploaded.id]: uploaded }))
         setUploadQueue((prev) =>

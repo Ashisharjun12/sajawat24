@@ -11,6 +11,8 @@ import { toGalleryItem } from "@/module/catalog/components/ProductMediaGallery"
 import { ProductMediaPickerDialog } from "@/module/catalog/components/ProductMediaPickerDialog"
 import { CategoryImageField } from "@/module/catalog/components/CategoryImageField"
 import { CategoryIconField } from "@/module/catalog/components/CategoryIconField"
+import { ensureCategoryIconsFolder } from "@/module/catalog/lib/ensure-category-icons-folder"
+import { mediaDisplayUrl } from "@/api/uploads.api"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -53,6 +55,7 @@ export function CategoryFormDialog({
   const [image, setImage] = useState(null)
   const [icon, setIcon] = useState(null)
   const [pickerOpen, setPickerOpen] = useState(false)
+  const [iconPickerOpen, setIconPickerOpen] = useState(false)
   const hasCustomIcon = Boolean(icon?.uploadId)
   const form = useForm({
     resolver: zodResolver(categorySchema),
@@ -81,6 +84,7 @@ export function CategoryFormDialog({
         : null,
     )
     setPickerOpen(false)
+    setIconPickerOpen(false)
   }, [open, category, form])
 
   const title = isEdit
@@ -162,6 +166,7 @@ export function CategoryFormDialog({
                   <CategoryIconField
                     icon={icon}
                     onIconChange={setIcon}
+                    onSelect={() => setIconPickerOpen(true)}
                     disabled={submitting}
                   />
                 </Field>
@@ -265,6 +270,30 @@ export function CategoryFormDialog({
       }}
       disabled={submitting}
     />
+    {!isSub ? (
+      // Bar icon: opens in the "Category icons" folder; uploads there use the icon preset
+      // (PNG/SVG → 192×192 transparent WebP), then the new file is pre-selected.
+      <ProductMediaPickerDialog
+        open={iconPickerOpen}
+        onOpenChange={setIconPickerOpen}
+        // `url` lets "Use selected" keep the current icon if nothing new is picked.
+        attached={
+          icon?.uploadId ? [{ id: icon.uploadId, uploadId: icon.uploadId, url: icon.url }] : []
+        }
+        max={1}
+        kinds={["image"]}
+        uploadPreset="icon"
+        acceptOverride="image/png,image/svg+xml,.png,.svg"
+        resolveRootFolder={ensureCategoryIconsFolder}
+        dialogTitle="Select bar icon"
+        dialogDescription="Pick an icon or upload a PNG / SVG. New uploads go in the current folder (default Category icons)."
+        onAdd={(picked) => {
+          const row = picked[0]
+          setIcon(row ? { uploadId: row.id, url: mediaDisplayUrl(row) } : null)
+        }}
+        disabled={submitting}
+      />
+    ) : null}
     </>
   )
 }

@@ -1,0 +1,45 @@
+admin
+package.json
+scripts
+user
+user-cat.txt
+user-tsc.txt
+user-tsc2.txt
+user-tsc3.txt
+vendor
+web
+d:\sajawat\app\admin\src\module\bookings\components\CreateBookingCustomOrderFields.jsx:10:import { ProductMediaPickerDialog } from "@/module/catalog/components/ProductMediaPickerDialog"
+d:\sajawat\app\admin\src\module\bookings\components\CreateBookingCustomOrderFields.jsx:19:  const [mediaPickerOpen, setMediaPickerOpen] = useState(false)
+d:\sajawat\app\admin\src\module\bookings\components\CreateBookingCustomOrderFields.jsx:173:            <Button type="button" variant="outline" size="sm" onClick={() => setMediaPickerOpen(true)}>
+d:\sajawat\app\admin\src\module\bookings\components\CreateBookingCustomOrderFields.jsx:190:      <ProductMediaPickerDialog
+d:\sajawat\app\admin\src\module\bookings\components\CreateBookingCustomOrderFields.jsx:192:        onOpenChange={setMediaPickerOpen}
+d:\sajawat\app\admin\src\module\brand\components\BrandLogoPanel.jsx:8:import { ProductMediaPickerDialog } from "@/module/catalog/components/ProductMediaPickerDialog"
+d:\sajawat\app\admin\src\module\brand\components\BrandLogoPanel.jsx:137:      <ProductMediaPickerDialog
+d:\sajawat\app\admin\src\module\brand\components\BrandProductTrustPanel.jsx:10:import { ProductMediaPickerDialog } from "@/module/catalog/components/ProductMediaPickerDialog"
+d:\sajawat\app\admin\src\module\brand\components\BrandProductTrustPanel.jsx:148:      <ProductMediaPickerDialog
+d:\sajawat\app\admin\src\module\brand\components\SocialLinkFormDialog.jsx:16:import { ProductMediaPickerDialog } from "@/module/catalog/components/ProductMediaPickerDialog"
+d:\sajawat\app\admin\src\module\brand\components\SocialLinkFormDialog.jsx:120:      <ProductMediaPickerDialog
+d:\sajawat\app\admin\src\module\catalog\components\CategoryFormDialog.jsx:11:import { ProductMediaPickerDialog } from "@/module/catalog/components/ProductMediaPickerDialog"
+d:\sajawat\app\admin\src\module\catalog\components\CategoryFormDialog.jsx:161:                  <FieldLabel>Custom bar icon</FieldLabel>
+d:\sajawat\app\admin\src\module\catalog\components\CategoryFormDialog.jsx:256:    <ProductMediaPickerDialog
+d:\sajawat\app\admin\src\module\catalog\components\CategoryIconField.jsx:12: * Custom bar icon for a top-level category. Uploads go through the icon preset, so the backend
+d:\sajawat\app\admin\src\module\catalog\components\CategoryIconField.jsx:72:            {previewUrl ? "Replace" : "Upload PNG / SVG"}
+d:\sajawat\app\admin\src\module\catalog\components\CategoryImageField.jsx:54:        <p className="text-muted-foreground text-xs">Choose from the media library</p>
+d:\sajawat\app\admin\src\module\catalog\components\ProductMediaGallery.jsx:38:import { ProductMediaPickerDialog } from "@/module/catalog/components/ProductMediaPickerDialog"
+d:\sajawat\app\admin\src\module\catalog\components\ProductMediaGallery.jsx:255:      <ProductMediaPickerDialog
+d:\sajawat\app\admin\src\module\catalog\components\ProductMediaPickerDialog.jsx:95:export function ProductMediaPickerDialog({
+d:\sajawat\app\admin\src\module\catalog\pages\AddonFormPage.jsx:20:import { ProductMediaPickerDialog } from "@/module/catalog/components/ProductMediaPickerDialog"
+d:\sajawat\app\admin\src\module\catalog\pages\AddonFormPage.jsx:438:              <ProductMediaPickerDialog
+d:\sajawat\app\admin\src\module\cms\pages\AppAnnouncementsPanel.jsx:18:import { ProductMediaPickerDialog } from "@/module/catalog/components/ProductMediaPickerDialog"
+d:\sajawat\app\admin\src\module\cms\pages\AppAnnouncementsPanel.jsx:190:        <ProductMediaPickerDialog
+d:\sajawat\app\admin\src\module\cms\pages\AppBannersPanel.jsx:18:import { ProductMediaPickerDialog } from "@/module/catalog/components/ProductMediaPickerDialog"
+d:\sajawat\app\admin\src\module\cms\pages\AppBannersPanel.jsx:187:        <ProductMediaPickerDialog
+d:\sajawat\app\admin\src\module\cms\pages\BannersPanel.jsx:27:import { ProductMediaPickerDialog } from "@/module/catalog/components/ProductMediaPickerDialog"
+d:\sajawat\app\admin\src\module\cms\pages\BannersPanel.jsx:258:      <ProductMediaPickerDialog
+d:\sajawat\app\admin\src\module\geo\components\CityFormDialog.jsx:6:import { ProductMediaPickerDialog } from "@/module/catalog/components/ProductMediaPickerDialog"
+d:\sajawat\app\admin\src\module\geo\components\CityFormDialog.jsx:178:      <ProductMediaPickerDialog
+d:\sajawat\app\admin\src\module\reviews\components\CustomerReviewFormDialog.jsx:25:import { ProductMediaPickerDialog } from "@/module/catalog/components/ProductMediaPickerDialog"
+d:\sajawat\app\admin\src\module\reviews\components\CustomerReviewFormDialog.jsx:221:      <ProductMediaPickerDialog
+d:\sajawat\app\admin\src\module\reviews\components\VideoReviewFormDialog.jsx:21:import { ProductMediaPickerDialog } from "@/module/catalog/components/ProductMediaPickerDialog"
+d:\sajawat\app\admin\src\module\reviews\components\VideoReviewFormDialog.jsx:115:      <ProductMediaPickerDialog
+DONE 
