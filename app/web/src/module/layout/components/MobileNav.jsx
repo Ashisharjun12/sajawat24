@@ -80,7 +80,7 @@ export function MobileNav({ triggerClassName }) {
               className="mb-3 h-11 w-full rounded-[var(--r-btn)] text-base font-semibold"
               render={<Link to="/account" onClick={close} />}
             >
-              Manage profile
+              Account
             </Button>
           ) : (
             <div className="mb-3 flex flex-col gap-2">
