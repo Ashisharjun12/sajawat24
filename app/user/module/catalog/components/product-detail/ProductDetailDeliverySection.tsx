@@ -1,17 +1,18 @@
 import { resolvePincode } from '@/api/geo.api';
 import type { FulfillmentMode } from '@/module/catalog/components/ProductFulfillmentTabs';
-import { ScalePressable } from '@/components/shell';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { IndiaFlag } from '@/components/ui/india-flag';
 import { Input } from '@/components/ui/input';
 import { Text } from '@/components/ui/text';
-import { INSTANT_TAB_HEX } from '@/lib/theme';
+import { lightImpact } from '@/lib/light-haptic';
+import { useThemeColors } from '@/lib/theme';
 import { cn } from '@/lib/utils';
 import { useLocationStore } from '@/store/location.store';
 import { CalendarDays, CircleAlert, CircleCheck, MapPin, Zap } from 'lucide-react-native';
 import { useRef, useState } from 'react';
-import { Keyboard, View } from 'react-native';
+import { Keyboard, Pressable, View } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { ProductInstantDetails } from './ProductInstantDetails';
 
 type ProductDetailDeliverySectionProps = {
@@ -193,10 +194,30 @@ function DeliveryPincodeField() {
   );
 }
 
+/** Height of the visible 3D edge under a raised button. */
+const RAISE = 4;
+/** How far the face sinks when pressed (leaves 1px of edge). */
+const PRESS_DEPTH = 3;
+const FACE_RADIUS = 12;
+
+/** "Book a slot" yellow: face + darker edge + dark brown text (reads well on yellow). */
+const SLOT_FACE = '#FACC15';
+const SLOT_EDGE = '#CA8A04';
+const SLOT_TEXT = '#422006';
+const SLOT_SUBTEXT = '#713F12';
+const INSTANT_EDGE = '#9F1239';
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
+/**
+ * Raised "key cap" button: a solid face sitting on a darker edge. Selected = full colour
+ * (yellow for Book a slot, crimson for Instant); unselected = white face on a light edge.
+ * Pressing sinks the face onto the edge, so it feels like a physical button.
+ */
 function FulfillmentCard({
   title,
   subtitle,
-  icon,
+  icon: IconComponent,
   selected,
   tone,
   onPress,
@@ -208,36 +229,99 @@ function FulfillmentCard({
   tone: 'primary' | 'instant';
   onPress: () => void;
 }) {
+  const theme = useThemeColors();
   const isInstant = tone === 'instant';
-  const activeText = isInstant ? 'text-instant' : 'text-primary';
+  const sink = useSharedValue(0);
+
+  const faceMotion = useAnimatedStyle(() => ({
+    transform: [{ translateY: sink.value }],
+  }));
+
+  const palette = selected
+    ? isInstant
+      ? {
+          face: theme.instant,
+          edge: INSTANT_EDGE,
+          title: '#FFFFFF',
+          subtitle: 'rgba(255,255,255,0.85)',
+          icon: '#FFFFFF',
+        }
+      : {
+          face: SLOT_FACE,
+          edge: SLOT_EDGE,
+          title: SLOT_TEXT,
+          subtitle: SLOT_SUBTEXT,
+          icon: SLOT_TEXT,
+        }
+    : {
+        face: theme.card,
+        edge: theme.border,
+        title: theme.foreground,
+        subtitle: theme.mutedForeground,
+        icon: isInstant ? theme.instant : SLOT_EDGE,
+      };
 
   return (
-    <ScalePressable
-      onPress={onPress}
-      haptic
-      className={cn(
-        'min-h-16 flex-1 items-center justify-center gap-0.5 rounded-xl border px-3 py-2.5',
-        selected
-          ? isInstant
-            ? 'border-instant bg-instant/10'
-            : 'border-primary bg-primary/10'
-          : 'border-border bg-card',
-      )}
-      accessibilityRole="button"
-      accessibilityState={{ selected }}
-      accessibilityLabel={`${title}, ${subtitle}`}>
-      <View className="flex-row items-center gap-1.5">
-        <Icon
-          as={icon}
-          className={cn('size-4', selected ? activeText : 'text-foreground')}
-          fill={selected && isInstant ? INSTANT_TAB_HEX : 'transparent'}
-        />
-        <Text className={cn('text-[15px] font-semibold', selected ? activeText : 'text-foreground')}>
-          {title}
+    <View className="flex-1" style={{ marginBottom: RAISE }}>
+      {/* Edge layer: sits RAISE px lower than the face, so only a bottom strip shows. */}
+      <View
+        pointerEvents="none"
+        style={{
+          position: 'absolute',
+          top: RAISE,
+          bottom: -RAISE,
+          left: 0,
+          right: 0,
+          borderRadius: FACE_RADIUS,
+          backgroundColor: palette.edge,
+        }}
+      />
+      <AnimatedPressable
+        onPress={() => {
+          lightImpact();
+          onPress();
+        }}
+        onPressIn={() => {
+          sink.value = withTiming(PRESS_DEPTH, { duration: 70 });
+        }}
+        onPressOut={() => {
+          sink.value = withTiming(0, { duration: 140 });
+        }}
+        accessibilityRole="button"
+        accessibilityState={{ selected }}
+        accessibilityLabel={`${title}, ${subtitle}`}
+        style={[
+          {
+            minHeight: 64,
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 2,
+            paddingHorizontal: 12,
+            paddingVertical: 10,
+            borderRadius: FACE_RADIUS,
+            backgroundColor: palette.face,
+            borderWidth: 1,
+            borderColor: selected ? 'transparent' : theme.border,
+            // Soft top highlight on a selected face = light catching the top edge.
+            borderTopColor: selected ? 'rgba(255,255,255,0.45)' : theme.border,
+          },
+          faceMotion,
+        ]}>
+        <View className="flex-row items-center gap-1.5">
+          <IconComponent
+            size={16}
+            color={palette.icon}
+            fill={selected && isInstant ? palette.icon : 'transparent'}
+          />
+          <Text className="text-[15px] font-semibold" style={{ color: palette.title }}>
+            {title}
+          </Text>
+        </View>
+        <Text className="text-xs" style={{ color: palette.subtitle }}>
+          {subtitle}
         </Text>
-      </View>
-      <Text className="text-muted-foreground text-xs">{subtitle}</Text>
-    </ScalePressable>
+      </AnimatedPressable>
+    </View>
   );
 }
 
@@ -271,12 +355,12 @@ export function ProductDetailDeliverySection({
         <View className="gap-2">
           <View className="flex-row items-center gap-1.5">
             <Icon as={CalendarDays} className="size-4 text-muted-foreground" />
-            <Text className="text-muted-foreground text-sm">Choose delivery type</Text>
+            <Text className="text-muted-foreground text-sm">Choose booking type</Text>
           </View>
           <View className="flex-row gap-3">
             {canScheduled ? (
               <FulfillmentCard
-                title="Schedule"
+                title="Book a slot"
                 subtitle="Pick date & time"
                 icon={CalendarDays}
                 tone="primary"

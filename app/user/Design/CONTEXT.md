@@ -138,6 +138,8 @@ Living brief for the customer mobile app (`app/user`). Update this file when eac
 ## History (newest first)
 
 ```text
+2026-11-15 — PDP "Book a slot" / "Instant" cards are raised 3D key-cap buttons (app `FulfillmentCard` + web, same look): solid face on a darker 4px edge; selected Book a slot = yellow `#FACC15` on `#CA8A04` with dark brown text, selected Instant = crimson on `#9F1239` with white text, unselected = white face on a light edge; press sinks the face 3px onto the edge
+2026-11-15 — PDP "Where & when?" label "Choose delivery type" → "Choose booking type" and the "Schedule" card title → "Book a slot" (app + web phone/desktop, shared `PdpMobileDeliveryPreference`)
 2026-11-15 — Tab switch animation made calm: highlight is a plain 280ms ease-out slide (spring, stretch and icon pop/lift removed); icon scale eases with the same timing
 2026-11-15 — Tab bar highlight fixed to a true round pill (explicit borderRadius 999, inset 6px from the bar) and animated: a single highlight slides between tabs (reanimated spring + scaleX stretch), active icon pops and lifts
 2026-11-15 — Bottom tab bar is a floating pill: inset rounded-full card with soft shadow over the screen background, active tab gets a tinted rounded highlight (top indicator line removed). `useAppTabBarHeight` includes the new gaps so the active-order card still docks right above it

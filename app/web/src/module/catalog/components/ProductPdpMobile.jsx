@@ -504,9 +504,13 @@ function PdpDeliveryPincodeField() {
   );
 }
 
+/**
+ * Raised "key cap" button (user app parity): a solid face on a darker 4px edge, drawn with a
+ * hard bottom box-shadow. Selected = full colour (yellow for Book a slot, crimson for Instant);
+ * unselected = white face on a light edge. Pressing sinks the face onto the edge.
+ */
 function FulfillmentCard({ title, subtitle, Icon, selected, tone, onClick }) {
   const isInstant = tone === "instant";
-  const activeText = isInstant ? "text-instant" : "text-primary";
 
   return (
     <button
@@ -515,24 +519,35 @@ function FulfillmentCard({ title, subtitle, Icon, selected, tone, onClick }) {
       aria-pressed={selected}
       className={cn(
         // 12px corners like the app. (Web `rounded-xl` = 24px sheet radius, too round.)
-        "flex min-h-16 flex-1 flex-col items-center justify-center gap-0.5 rounded-[var(--r-btn)] border px-3 py-2.5 transition-colors",
+        "flex min-h-16 flex-1 flex-col items-center justify-center gap-0.5 rounded-[var(--r-btn)] border px-3 py-2.5",
+        "transition-[transform,box-shadow,background-color,color] duration-150 ease-out",
+        "active:translate-y-[3px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
         selected
           ? isInstant
-            ? "border-instant bg-instant/10"
-            : "border-primary bg-primary/10"
-          : "border-border bg-card",
+            ? "border-transparent border-t-white/45 bg-instant text-instant-foreground shadow-[0_4px_0_0_#9F1239] active:shadow-[0_1px_0_0_#9F1239]"
+            : "border-transparent border-t-white/45 bg-[#FACC15] text-[#422006] shadow-[0_4px_0_0_#CA8A04] active:shadow-[0_1px_0_0_#CA8A04]"
+          : "border-border bg-card text-foreground shadow-[0_4px_0_0_var(--border)] active:shadow-[0_1px_0_0_var(--border)]",
       )}
     >
       <span className="flex items-center gap-1.5">
         <Icon
-          className={cn("size-4", selected ? activeText : "text-foreground", selected && isInstant && "fill-current")}
+          className={cn(
+            "size-4",
+            !selected && (isInstant ? "text-instant" : "text-[#CA8A04]"),
+            selected && isInstant && "fill-current",
+          )}
           aria-hidden
         />
-        <span className={cn("font-heading text-[15px] font-semibold", selected ? activeText : "text-foreground")}>
-          {title}
-        </span>
+        <span className="font-heading text-[15px] font-semibold">{title}</span>
       </span>
-      <span className="text-xs text-muted-foreground">{subtitle}</span>
+      <span
+        className={cn(
+          "text-xs",
+          selected ? (isInstant ? "text-instant-foreground/85" : "text-[#713F12]") : "text-muted-foreground",
+        )}
+      >
+        {subtitle}
+      </span>
     </button>
   );
 }
@@ -564,12 +579,13 @@ export function PdpMobileDeliveryPreference({
         <div className="flex flex-col gap-2">
           <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
             <CalendarDaysIcon className="size-4" aria-hidden />
-            Choose delivery type
+            Choose booking type
           </p>
-          <div className="flex gap-3">
+          {/* pb-1 leaves room for the 4px 3D edge under each card. */}
+          <div className="flex gap-3 pb-1">
             {canScheduled ? (
               <FulfillmentCard
-                title="Schedule"
+                title="Book a slot"
                 subtitle="Pick date & time"
                 Icon={CalendarDaysIcon}
                 tone="primary"
