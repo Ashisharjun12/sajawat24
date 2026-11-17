@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 import { ChevronLeftIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { resolveViewAllCategoryHref } from "@/module/catalog/lib/category-nav";
@@ -8,7 +7,7 @@ import {
   HOME_CATEGORY_DESKTOP_VISIBLE,
   HOME_CATEGORY_PREVIEW_COUNT,
 } from "@/module/catalog/components/CategoryTileGrid";
-import { VIEW_ALL_LINK_CLASS } from "@/module/catalog/components/PdpProductRailHeader";
+import { ViewAllLink } from "@/module/catalog/components/PdpProductRailHeader";
 import { HomeSectionHeading } from "@/module/home/components/HomeSectionHeading";
 import { normalizeCategoryTree } from "@/module/home/lib/home-catalog";
 import { useCatalogStore } from "@/store/catalog.store";
@@ -91,9 +90,7 @@ export function HomeCategoryExplorer({
             ) : null}
           </div>
           {showViewAllLink ? (
-            <Link to={viewAllHref} className={VIEW_ALL_LINK_CLASS}>
-              View all →
-            </Link>
+            <ViewAllLink to={viewAllHref} />
           ) : null}
           {showSubtitle && subtitle ? (
             <p className="col-span-2 max-w-[460px] text-xs text-muted-foreground sm:text-[13px]">

@@ -84,7 +84,7 @@ function EditLinkButton({ onClick, children = "Edit" }) {
   );
 }
 
-export function ProfilePage() {
+export function ProfilePage({ title = "Account" }) {
   const user = useAuthStore((s) => s.user);
   const updateUser = useAuthStore((s) => s.updateUser);
   const clearSession = useAuthStore((s) => s.clear);
@@ -194,7 +194,7 @@ export function ProfilePage() {
 
   return (
     <div className="w-full max-w-3xl">
-      <AccountPageTitle>Account</AccountPageTitle>
+      <AccountPageTitle>{title}</AccountPageTitle>
 
       <div className="mt-8 flex flex-wrap items-center gap-4">
         <Avatar className="size-20">

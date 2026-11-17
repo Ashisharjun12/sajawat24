@@ -1,6 +1,7 @@
 import { ScalePressable } from '@/components/shell';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
+import { ViewAllButton } from '@/module/catalog/components/ViewAllButton';
 import { buildAddonFilterTabs } from '@/module/catalog/lib/addon-selection';
 import type { PublicAddonForCity } from '@/module/catalog/lib/product-detail';
 import { Gift } from 'lucide-react-native';
@@ -78,11 +79,10 @@ export function ProductPdpAddonsSection({
           </View>
         </View>
         {addons.length > 3 ? (
-          <ScalePressable haptic onPress={() => setExpanded((value) => !value)}>
-            <Text className="text-primary text-sm font-semibold">
-              {expanded ? 'Show less' : 'See all'} →
-            </Text>
-          </ScalePressable>
+          <ViewAllButton
+            label={expanded ? 'Show less' : 'See all'}
+            onPress={() => setExpanded((value) => !value)}
+          />
         ) : null}
       </View>
 

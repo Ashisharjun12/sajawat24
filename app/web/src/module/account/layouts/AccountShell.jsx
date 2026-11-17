@@ -17,10 +17,16 @@ function isBookingDetailRoute(pathname) {
   return /^\/account\/bookings\/[^/]+\/?$/.test(pathname);
 }
 
+/** /account index: on phones it is the user app Account tab, which already lists every page. */
+function isAccountHomeRoute(pathname) {
+  return /^\/account\/?$/.test(pathname);
+}
+
 export function AccountShell() {
   const { pathname } = useLocation();
   const isChat = isAccountChatRoute(pathname);
   const isBookingDetail = isBookingDetailRoute(pathname);
+  const isAccountHome = isAccountHomeRoute(pathname);
 
   useEffect(() => {
     const lenis = getLenis();
@@ -42,12 +48,8 @@ export function AccountShell() {
         </div>
       </aside>
 
+      {/* Phones have no tab strip: the /account page (user app Account tab) links to every page. */}
       <div className="flex min-h-0 min-w-0 w-full flex-1 flex-col">
-        {!isBookingDetail ? (
-          <div className="shrink-0 border-b border-border p-4 md:hidden">
-            <AccountNav variant="mobile" />
-          </div>
-        ) : null}
         <div
           className={cn(
             "min-h-0 flex-1",
@@ -55,7 +57,9 @@ export function AccountShell() {
               ? "overflow-hidden"
               : isBookingDetail
                 ? "overflow-y-auto overscroll-contain md:px-6 md:py-8 lg:px-12 lg:py-10"
-                : "overflow-y-auto overscroll-contain px-6 py-8 lg:px-12 lg:py-10",
+                : isAccountHome
+                  ? "overflow-y-auto overscroll-contain bg-muted/30 px-4 pt-3 md:bg-transparent md:px-6 md:py-8 lg:px-12 lg:py-10"
+                  : "overflow-y-auto overscroll-contain px-6 py-8 lg:px-12 lg:py-10",
           )}
           data-lenis-prevent
         >

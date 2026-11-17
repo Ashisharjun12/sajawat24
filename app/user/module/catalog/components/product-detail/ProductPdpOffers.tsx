@@ -1,8 +1,8 @@
-import { ScalePressable } from '@/components/shell';
 import { Icon } from '@/components/ui/icon';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Text } from '@/components/ui/text';
 import { TicketPercent } from 'lucide-react-native';
+import { ViewAllButton } from '@/module/catalog/components/ViewAllButton';
 import { CouponOffersRail } from '@/module/promotions/components/CouponOffersRail';
 import { useAvailableCoupons } from '@/module/promotions/hooks/use-available-coupons';
 import { couponsForPdpDisplay } from '@/module/promotions/lib/pdp-coupon-display';
@@ -13,9 +13,6 @@ import {
 import { router } from 'expo-router';
 import { useMemo } from 'react';
 import { View } from 'react-native';
-
-/** "View all" link — same green as the PDP chips. */
-const VIEW_ALL_GREEN_HEX = '#15803D';
 
 type ProductPdpOffersProps = {
   productId?: string;
@@ -67,11 +64,7 @@ export function ProductPdpOffers({ productId, categoryId }: ProductPdpOffersProp
           </View>
           <Text className="text-foreground text-base font-semibold">Available offers</Text>
         </View>
-        <ScalePressable haptic onPress={onViewAll} accessibilityRole="button">
-          <Text className="text-sm font-semibold" style={{ color: VIEW_ALL_GREEN_HEX }}>
-            View all
-          </Text>
-        </ScalePressable>
+        <ViewAllButton onPress={onViewAll} accessibilityLabel="View all offers" />
       </View>
       <CouponOffersRail coupons={visible} cardVariant="minimal" />
     </View>

@@ -1,5 +1,4 @@
-import { ScalePressable } from '@/components/shell';
-import { Text } from '@/components/ui/text';
+import { ViewAllButton } from '@/module/catalog/components/ViewAllButton';
 import { resolveViewAllCategoryHref } from '@/module/catalog/lib/category-nav';
 import { HomeCategoryTile } from '@/module/home/components/HomeCategoryTile';
 import { HomeSectionHeading } from '@/module/home/components/HomeSectionHeading';
@@ -66,14 +65,10 @@ export function HomeCategorySection({
           <View className="flex-1" />
         )}
         {showViewAllLink ? (
-          <ScalePressable
+          <ViewAllButton
             onPress={() => router.push(resolvedHref as Href)}
-            haptic
-            className="shrink-0 self-center pt-0.5"
-            accessibilityRole="button"
-            accessibilityLabel="View all categories">
-            <Text className="text-primary text-[13px] font-bold">View all →</Text>
-          </ScalePressable>
+            accessibilityLabel="View all categories"
+          />
         ) : null}
       </View>
       <View className="gap-3">

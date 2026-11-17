@@ -1,6 +1,5 @@
-import { ScalePressable } from '@/components/shell';
-import { Text } from '@/components/ui/text';
 import { openCmsLink } from '@/lib/open-cms-link';
+import { ViewAllButton } from '@/module/catalog/components/ViewAllButton';
 import { resolveViewAllCategoryHref } from '@/module/catalog/lib/category-nav';
 import { HomeCategoryCard } from '@/module/home/components/HomeCategoryCard';
 import { HomeSectionHeading } from '@/module/home/components/HomeSectionHeading';
@@ -94,14 +93,7 @@ export function HomeCategoryHorizontalSection({
           <View className="flex-1" />
         )}
         {showViewAllLink ? (
-          <ScalePressable
-            onPress={onViewAllPress}
-            haptic
-            className="shrink-0 self-center pt-0.5"
-            accessibilityRole="button"
-            accessibilityLabel="View all categories">
-            <Text className="text-primary text-[13px] font-bold">View all →</Text>
-          </ScalePressable>
+          <ViewAllButton onPress={onViewAllPress} accessibilityLabel="View all categories" />
         ) : null}
       </View>
       <ScrollView

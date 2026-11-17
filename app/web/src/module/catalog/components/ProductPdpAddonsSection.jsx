@@ -1,6 +1,9 @@
 import { useMemo, useState } from "react";
 import { GiftIcon, MinusIcon, PlusIcon } from "lucide-react";
-import { VIEW_ALL_LINK_CLASS } from "@/module/catalog/components/PdpProductRailHeader";
+import {
+  VIEW_ALL_LINK_CLASS,
+  ViewAllContent,
+} from "@/module/catalog/components/PdpProductRailHeader";
 import { formatPaise } from "@/lib/money";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -205,10 +208,10 @@ export function ProductPdpAddonsSection({
         {addons.length > 3 ? (
           <button
             type="button"
-            className={cn(VIEW_ALL_LINK_CLASS, "border-0 bg-transparent p-0")}
+            className={cn(VIEW_ALL_LINK_CLASS, "border-0")}
             onClick={() => setExpanded((value) => !value)}
           >
-            {expanded ? "Show less" : "See all"} →
+            <ViewAllContent>{expanded ? "Show less" : "See all"}</ViewAllContent>
           </button>
         ) : null}
       </div>

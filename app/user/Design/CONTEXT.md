@@ -19,8 +19,8 @@ Living brief for the customer mobile app (`app/user`). Update this file when eac
 
 | Field | Value |
 |-------|--------|
-| Name | Custom category bar icons |
-| Status | shipped — Explore + Category chip rails show the admin-uploaded icon (`iconUrl`) via `CategoryChipIcon`; no tone colour behind it, white circle when the chip is selected; falls back to `iconKey` + `iconTone` |
+| Name | "View all" pill buttons |
+| Status | shipped — section header "View all" is a theme-tinted rectangle with 8px corners (`ViewAllButton`: `bg-primary-tint`, primary text + arrow) on home category rows and product rails; web uses the same pill (`ViewAllLink` in `PdpProductRailHeader.jsx`) |
 | Theme | Light default + Dark via Profile → Appearance; dark uses `#0B1514` bg (no pure black) |
 | Home UI | Browse feed without city + compact “Please select city” banner; auto city sheet; CMS/discovery rails match web View all + badge colors |
 | Bag / checkout | Bag icon → `/(app)/checkout`; empty bag shows **My bag** + View packages; with items → Confirm booking → Payment; offers + address sub-routes |
@@ -38,6 +38,7 @@ Living brief for the customer mobile app (`app/user`). Update this file when eac
 | `module/home/` | `HomeTopBar` → `select-location` route; `HomeSearchBar` + city picker; CMS feed; `HomeLaunchAnnouncementSheet`, `use-launch-announcement-sheet`, `lib/announcement.ts`; `MerchSectionsSync`, `use-catalog-sections-query` |
 | `module/catalog/components/ExploreHeader.tsx` | Explore listing header — back, title, Search → `/(app)/search`, Wishlist → `/(app)/wishlist` with count badge, Cart → `openCartCheckout` with count badge |
 | `module/catalog/components/CategoryChipIcon.tsx` | 28px category icon inside Explore/Category chips: uploaded `iconUrl` (expo-image, no tone bg) or Lucide `iconKey` + `iconTone` |
+| `module/catalog/components/ViewAllButton.tsx` | Theme-tinted "View all →" button, 8px corners (`ProductRailHeader`, `HomeCategorySection`, `HomeCategoryHorizontalSection`, PDP offers + add-ons) |
 | `module/catalog/components/CatalogProductCard.tsx` | Single browse product card (`layout` grid/rail); `use-product-merch-badge` |
 | `store/merch-sections.store.ts` | City-scoped product → section badge index for cards |
 | `module/location/` | `SelectLocationScreen`; add-address flow = `PickAddressLocationScreen` (route `location/add`: Ola map + pin, tooltip, Confirm Location) → `AddressDetailsScreen` (route `location/details`: map preview + Change, house/building/landmark, `AddressLabelChips` Home/Office/Other, receiver name + +91 phone, Save). `hooks/use-pinned-location.ts` = reverse geocode + deliverability under the pin |
@@ -137,6 +138,7 @@ Living brief for the customer mobile app (`app/user`). Update this file when eac
 ## History (newest first)
 
 ```text
+2026-11-15 — "View all" on section headers is now a theme-tinted rectangle with 8px corners (`ViewAllButton`: primary-tint bg, primary text, ArrowRight) instead of plain "View all →" text; also PDP "Available offers" View all (was hard-coded green) and add-ons "See all"; same button on web (`ViewAllLink`)
 2026-11-15 — Active order card (Home/Category/Explore/Instant) restyled Swiggy/Zomato-style: floating inset rounded-2xl card above the tab bar; booking photo (truck fallback) with pulsing live dot (teal, green when arrived); title + "Heading to you · {name}" / "Setting up {name}"; (3-step progress strip removed per feedback); round teal arrow button. Multi-booking dots moved top-right. `HOME_ACTIVE_ORDER_BAR_HEIGHT` 72 → 84
 2026-11-15 — Home category row = web mobile parity: `HomeCategoryCard` 3:4 cards (~2.15 per screen, snap scroll, 12 gap); admin image fills the card, name + teal "Explore ›" top-left on a soft white SVG fade. Images: 900×1200, no baked-in title, plain top-left. `HomeCategoryTile` (square + label) still used by Category tab grids
 2026-11-15 — PDP rating pill (★ 4.8 | 12) moved off the price chip row onto the photo, bottom-left just above the Similar button (`ProductPdpRatingPill`, white pill like Similar). Tap → Ratings & reviews accordion opens (now controllable via `expanded`/`onExpandedChange`) and the page scrolls to it. Verified chip stays on the right of the delivery chip row

@@ -14,6 +14,7 @@ import { ComplaintChatPage } from "@/module/account/pages/ComplaintChatPage";
 import { HelpPage } from "@/module/account/pages/HelpPage";
 import { HelpTopicChatPage } from "@/module/account/pages/HelpTopicChatPage";
 import { BookingDetailPage } from "@/module/account/pages/BookingDetailPage";
+import { AccountPage } from "@/module/account/pages/AccountPage";
 import { ProfilePage } from "@/module/account/pages/ProfilePage";
 import { NotificationsPage } from "@/module/account/pages/NotificationsPage";
 import { AddressesPage } from "@/module/account/pages/AddressesPage";
@@ -62,7 +63,8 @@ export default function App() {
           <Route path="/login" element={<LoginRedirect />} />
           <Route path="/wishlist" element={<PublicWishlistPage />} />
           <Route path="/account" element={<AccountShell />}>
-            <Route index element={<ProfilePage />} />
+            <Route index element={<AccountPage />} />
+            <Route path="profile" element={<ProfilePage title="Personal info" />} />
             <Route path="bookings" element={<BookingsPage />} />
             <Route path="orders" element={<Navigate to="/account/bookings" replace />} />
             <Route path="addresses" element={<AddressesPage />} />

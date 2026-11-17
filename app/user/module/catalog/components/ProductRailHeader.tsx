@@ -1,6 +1,6 @@
-import { ScalePressable } from '@/components/shell';
 import { Text } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
+import { ViewAllButton } from '@/module/catalog/components/ViewAllButton';
 import { type Href, router } from 'expo-router';
 import { View } from 'react-native';
 
@@ -40,14 +40,7 @@ export function ProductRailHeader({
         ) : null}
       </View>
       {showViewAll ? (
-        <ScalePressable
-          onPress={() => router.push(viewAllHref!)}
-          haptic
-          className="shrink-0 self-center pt-0.5"
-          accessibilityRole="button"
-          accessibilityLabel={viewAllLabel}>
-          <Text className="text-primary text-[13px] font-bold">{viewAllLabel} →</Text>
-        </ScalePressable>
+        <ViewAllButton label={viewAllLabel} onPress={() => router.push(viewAllHref!)} />
       ) : null}
     </View>
   );
