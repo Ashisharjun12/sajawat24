@@ -138,6 +138,7 @@ Living brief for the customer mobile app (`app/user`). Update this file when eac
 ## History (newest first)
 
 ```text
+2026-11-15 — PDP bottom bar "Book your setup" is now the same yellow 3D key-cap as "Book a slot" (`BookSlotButton` in `ProductPdpMobileBookingBar`: #FACC15 face, 4px #CA8A04 edge, #422006 text, sinks 3px on press); "Book instant" stays crimson. Web: same look via `PDP_BOOK_SLOT_BUTTON_CLASS` on phone bar + desktop "Book Now"
 2026-11-15 — PDP "Book a slot" / "Instant" cards are raised 3D key-cap buttons (app `FulfillmentCard` + web, same look): solid face on a darker 4px edge; selected Book a slot = yellow `#FACC15` on `#CA8A04` with dark brown text, selected Instant = crimson on `#9F1239` with white text, unselected = white face on a light edge; press sinks the face 3px onto the edge
 2026-11-15 — PDP "Where & when?" label "Choose delivery type" → "Choose booking type" and the "Schedule" card title → "Book a slot" (app + web phone/desktop, shared `PdpMobileDeliveryPreference`)
 2026-11-15 — Tab switch animation made calm: highlight is a plain 280ms ease-out slide (spring, stretch and icon pop/lift removed); icon scale eases with the same timing

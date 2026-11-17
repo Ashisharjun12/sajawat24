@@ -31,6 +31,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ProductPdpAboutPackage } from "@/module/catalog/components/ProductPdpAboutPackage";
 import { ProductPdpAddonsSection } from "@/module/catalog/components/ProductPdpAddonsSection";
 import { buildAddonSelections } from "@/module/catalog/lib/addon-selection";
+import { PDP_BOOK_SLOT_BUTTON_CLASS } from "@/module/catalog/lib/pdp-booking-styles";
 import {
   ProductShareGalleryTrigger,
   ProductShareSheet,
@@ -179,7 +180,7 @@ function ProductPdpBookingActions({
         variant={isInstantBooking ? "instant" : "cta"}
         className={cn(
           "min-w-0 flex-1 sm:min-w-40",
-          isInstantBooking && "gap-2",
+          isInstantBooking ? "gap-2" : PDP_BOOK_SLOT_BUTTON_CLASS,
         )}
         disabled={booking}
         onClick={onBookNow}
