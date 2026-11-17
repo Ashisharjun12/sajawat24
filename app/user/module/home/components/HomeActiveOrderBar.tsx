@@ -67,9 +67,10 @@ function LiveDot({ arrived }: { arrived: boolean }) {
     opacity: 0.55 * (1 - pulse.value),
     transform: [{ scale: 1 + pulse.value * 1.6 }],
   }));
-  const tone = arrived ? 'bg-success' : 'bg-primary';
+  const tone = arrived ? 'bg-success' : 'bg-amber-500';
   return (
-    <View className="size-3.5 items-center justify-center rounded-full bg-surface">
+    // Ring matches the yellow card so the dot looks cut out of it.
+    <View className="size-3.5 items-center justify-center rounded-full bg-amber-50 dark:bg-amber-950">
       <Animated.View className={`absolute size-2 rounded-full ${tone}`} style={ringStyle} />
       <View className={`size-2 rounded-full ${tone}`} />
     </View>
@@ -104,7 +105,7 @@ function ActiveOrderCard({
       <View className="flex-row items-center gap-3 px-3 py-2.5">
         {/* Booking photo with a live dot (truck icon when there's no photo). */}
         <View>
-          <View className="size-12 items-center justify-center overflow-hidden rounded-xl bg-primary-tint">
+          <View className="size-12 items-center justify-center overflow-hidden rounded-xl bg-amber-100 dark:bg-amber-900">
             {thumb ? (
               <Image
                 source={{ uri: thumb }}
@@ -128,17 +129,19 @@ function ActiveOrderCard({
 
         <View className="min-w-0 flex-1 gap-0.5">
           <View className="flex-row items-center gap-1.5 pr-6">
-            <Text className="shrink text-[15px] font-semibold text-foreground" numberOfLines={1}>
+            <Text
+              className="shrink text-[15px] font-semibold text-amber-950 dark:text-amber-50"
+              numberOfLines={1}>
               {title}
             </Text>
           </View>
-          <Text className="text-muted-foreground text-caption" numberOfLines={1}>
+          <Text className="text-caption text-amber-800 dark:text-amber-200" numberOfLines={1}>
             {subtitle}
           </Text>
         </View>
 
-        <View className="size-9 items-center justify-center rounded-full bg-primary">
-          <Icon as={ChevronRight} className="size-5 text-primary-foreground" />
+        <View className="size-9 items-center justify-center rounded-full bg-amber-400">
+          <Icon as={ChevronRight} className="size-5 text-amber-950" strokeWidth={2.5} />
         </View>
       </View>
     </ScalePressable>
@@ -214,9 +217,10 @@ export function HomeActiveOrderBar({ enabled = true }: Props) {
   return (
     // Floating card, inset from the edges, sitting just above the tab bar.
     <View className="px-3 pb-2" pointerEvents="box-none">
+    {/* Soft yellow card: flat, thin amber border, light shadow (minimal, stands out from the feed). */}
     <View
-      className="overflow-hidden rounded-2xl border border-border/70 bg-surface shadow-raised"
-      style={{ elevation: 10 }}
+      className="overflow-hidden rounded-2xl border border-amber-100 bg-amber-50 shadow-sm dark:border-amber-900 dark:bg-amber-950"
+      style={{ elevation: 4 }}
       onLayout={onLayout}>
       {sliding ? (
         width > 0 ? (
@@ -249,7 +253,9 @@ export function HomeActiveOrderBar({ enabled = true }: Props) {
             return (
               <View
                 key={order.id}
-                className={`h-1 rounded-full ${active ? 'w-3 bg-primary' : 'w-1 bg-border'}`}
+                className={`h-1 rounded-full ${
+                  active ? 'w-3 bg-amber-600' : 'w-1 bg-amber-300 dark:bg-amber-800'
+                }`}
               />
             );
           })}

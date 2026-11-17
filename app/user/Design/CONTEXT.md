@@ -28,7 +28,7 @@ Living brief for the customer mobile app (`app/user`). Update this file when eac
 | Payment QA | Online cancel/fail → cancel pending order, reset idempotency, alert “Order not placed” (bag unchanged); backend Cashfree 409 → reuse session; COD → confirmed only if `CONFIRMED`; success gates status |
 | Location | Tab bootstrap + `useCatalogLocationGate` on PDP/home catalog |
 | Parity | Normalization from web `home-catalog` / home CMS hero slides |
-| Bottom nav | Home → Category → **Explore** → Instant → Profile; 72 tall + safe area; active teal primary (Instant tab crimson `INSTANT_TAB_HEX`), inactive muted |
+| Bottom nav | Home → Category → **Explore** → Instant → Account; **floating pill** (`AppTabBar`): rounded-full card inset 12px from the edges, 62 row + 6 top / 8 bottom gap + safe area (`lib/tab-bar-metrics.ts`), soft shadow; one shared round highlight pill (primary-tint, Instant crimson 12%) slides to the active tab (`withTiming` 280ms ease-out cubic, no spring/bounce); active icon eases to 1.06 scale on the same timing; inactive muted |
 
 ## Module map
 
@@ -138,6 +138,10 @@ Living brief for the customer mobile app (`app/user`). Update this file when eac
 ## History (newest first)
 
 ```text
+2026-11-15 — Tab switch animation made calm: highlight is a plain 280ms ease-out slide (spring, stretch and icon pop/lift removed); icon scale eases with the same timing
+2026-11-15 — Tab bar highlight fixed to a true round pill (explicit borderRadius 999, inset 6px from the bar) and animated: a single highlight slides between tabs (reanimated spring + scaleX stretch), active icon pops and lifts
+2026-11-15 — Bottom tab bar is a floating pill: inset rounded-full card with soft shadow over the screen background, active tab gets a tinted rounded highlight (top indicator line removed). `useAppTabBarHeight` includes the new gaps so the active-order card still docks right above it
+2026-11-15 — Active order card (`HomeActiveOrderBar`) restyled minimal light yellow: amber-50 card + amber-100 hairline border, light shadow (elevation 4); amber-950 title / amber-800 subtitle; amber-400 round chevron; live dot amber (green when arrived); slide dots amber. Dark mode: amber-950 card, amber-900 border, light text
 2026-11-15 — "View all" on section headers is now a theme-tinted rectangle with 8px corners (`ViewAllButton`: primary-tint bg, primary text, ArrowRight) instead of plain "View all →" text; also PDP "Available offers" View all (was hard-coded green) and add-ons "See all"; same button on web (`ViewAllLink`)
 2026-11-15 — Active order card (Home/Category/Explore/Instant) restyled Swiggy/Zomato-style: floating inset rounded-2xl card above the tab bar; booking photo (truck fallback) with pulsing live dot (teal, green when arrived); title + "Heading to you · {name}" / "Setting up {name}"; (3-step progress strip removed per feedback); round teal arrow button. Multi-booking dots moved top-right. `HOME_ACTIVE_ORDER_BAR_HEIGHT` 72 → 84
 2026-11-15 — Home category row = web mobile parity: `HomeCategoryCard` 3:4 cards (~2.15 per screen, snap scroll, 12 gap); admin image fills the card, name + teal "Explore ›" top-left on a soft white SVG fade. Images: 900×1200, no baked-in title, plain top-left. `HomeCategoryTile` (square + label) still used by Category tab grids

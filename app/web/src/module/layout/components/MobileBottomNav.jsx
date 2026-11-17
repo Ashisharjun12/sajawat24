@@ -6,7 +6,7 @@ import {
   UserRoundIcon,
   ZapIcon,
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { scrollToTop } from "@/lib/scroll-to-top";
 import { useSiteShell } from "@/module/site/hooks/use-site-shell.jsx";
@@ -41,44 +41,43 @@ function resolveActiveId(pathname, searchParams) {
   return null;
 }
 
-function NavTab({ item, active, onAction }) {
+/** Tab switch timing (user app parity): 280ms ease-out cubic, no spring, no overshoot. */
+const SLIDE_TRANSITION = { type: "tween", duration: 0.28, ease: [0.33, 1, 0.68, 1] };
+
+function NavTab({ item, active, onAction, transition }) {
   const Icon = item.icon;
   const shellClass =
-    "relative flex min-w-0 flex-1 flex-col items-center justify-end gap-0.5 pb-2.5 pt-3 outline-none transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-ring/50";
+    "relative z-10 flex h-full min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring/50";
 
   const isInstant = item.id === "instant";
   const isWhatsApp = item.id === "whatsapp";
 
   const content = (
     <>
+      {/* Smooth scale only (no lift, no bounce), same timing as the sliding highlight. */}
       <motion.span
-        className="flex size-9 items-center justify-center"
-        animate={{ y: active && !isWhatsApp ? -2 : 0 }}
-        transition={{ type: "spring", stiffness: 420, damping: 32 }}
+        className={cn(
+          "flex size-6 items-center justify-center transition-colors duration-300",
+          isWhatsApp
+            ? "text-[#25D366]"
+            : active
+              ? isInstant
+                ? "text-instant"
+                : "text-primary"
+              : "text-muted-foreground",
+        )}
+        initial={false}
+        animate={{ scale: active && !isWhatsApp ? 1.06 : 1 }}
+        transition={transition}
       >
-        <span
+        <Icon
           className={cn(
-            "flex size-8 items-center justify-center rounded-full transition-colors duration-300 ease-out",
-            isWhatsApp
-              ? "bg-[#25D366]/15 text-[#25D366]"
-              : isInstant
-                ? active
-                  ? "bg-instant/15 text-instant"
-                  : "text-muted-foreground"
-                : active
-                  ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground",
+            "size-[1.375rem]",
+            isInstant && active && "fill-instant/25",
           )}
-        >
-          <Icon
-            className={cn(
-              "size-[1.25rem]",
-              isInstant && active && "fill-instant/25",
-            )}
-            strokeWidth={isWhatsApp ? undefined : active ? 2.25 : 1.75}
-            aria-hidden
-          />
-        </span>
+          strokeWidth={isWhatsApp ? undefined : active ? 2.25 : 1.75}
+          aria-hidden
+        />
       </motion.span>
       <span
         className={cn(
@@ -135,7 +134,8 @@ export function MobileBottomNav({ visible = true }) {
 
   const activeIndex = ITEMS.findIndex((item) => item.id === activeId);
   const hasActive = activeIndex >= 0;
-  const indicatorLeft = hasActive ? ((activeIndex + 0.5) / TAB_COUNT) * 100 : 0;
+  const reduceMotion = useReducedMotion();
+  const tabTransition = reduceMotion ? { duration: 0 } : SLIDE_TRANSITION;
 
   // Signed out: open the login dialog instead of /account (the account shell would bounce home).
   const goAccount = useCallback(() => {
@@ -201,29 +201,34 @@ export function MobileBottomNav({ visible = true }) {
 
   if (!visible) return null;
 
+  // Floating pill (user app parity): inset from the edges, soft shadow, one tinted highlight
+  // that slides to the active tab. The gaps around the pill let taps reach the page.
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-50 w-full md:hidden"
+      className="pointer-events-none fixed inset-x-0 bottom-0 z-50 w-full px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] md:hidden"
       aria-label="Primary"
     >
-      <div
-        className="rounded-t-2xl border-t border-border bg-background/95 pt-0.5 shadow-[0_-4px_24px_-8px] shadow-foreground/10 backdrop-blur-md"
-      >
-        <div className="relative flex w-full items-stretch">
-          {hasActive ? (
-            <motion.div
+      <div className="pointer-events-auto h-[3.875rem] rounded-full border border-border/70 bg-card px-1.5 shadow-[0_4px_16px_rgb(0_0_0/0.12)]">
+        <div className="relative flex h-full w-full items-stretch">
+          {/* Highlight slot is one tab wide; translating it by 100% moves it one tab over. */}
+          <motion.div
+            className="pointer-events-none absolute inset-y-0 left-0"
+            style={{ width: `${100 / TAB_COUNT}%` }}
+            initial={false}
+            animate={{
+              x: `${(hasActive ? activeIndex : 0) * 100}%`,
+              opacity: hasActive ? 1 : 0,
+            }}
+            transition={tabTransition}
+            aria-hidden
+          >
+            <span
               className={cn(
-                "pointer-events-none absolute top-0 z-10 h-1 w-12 -translate-x-1/2 rounded-full shadow-[0_0_14px_2px]",
-                activeId === "instant"
-                  ? "bg-instant shadow-instant/35"
-                  : "bg-primary shadow-primary/30",
+                "absolute inset-x-[3px] inset-y-1.5 rounded-full transition-colors duration-300",
+                activeId === "instant" ? "bg-instant/12" : "bg-primary/10",
               )}
-              initial={false}
-              animate={{ left: `${indicatorLeft}%` }}
-              transition={{ type: "spring", stiffness: 340, damping: 28, mass: 0.85 }}
-              aria-hidden
             />
-          ) : null}
+          </motion.div>
 
           {ITEMS.map((item) => (
             <NavTab
@@ -231,13 +236,10 @@ export function MobileBottomNav({ visible = true }) {
               item={item}
               active={activeId === item.id}
               onAction={onAction}
+              transition={tabTransition}
             />
           ))}
         </div>
-        <div
-          className="h-[max(0.35rem,env(safe-area-inset-bottom))] w-full bg-background/95"
-          aria-hidden
-        />
       </div>
     </nav>
   );
